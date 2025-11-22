@@ -31,6 +31,8 @@ Proyecto Laravel + PostgreSQL que implementa un chatbot básico usando la WhatsA
    php artisan serve
    ```
 
+> Nota: el archivo `.env` (y cualquier variación `.env.*`) ya está excluido del repositorio. Usa `.env.example` como base y no subas tus credenciales a git.
+
 ## Webhook en Meta (alto nivel)
 - URL de verificación y recepción: `https://tu-dominio.com/api/whatsapp/webhook`.
 - Método: GET para verificación (usa `hub.mode`, `hub.verify_token`, `hub.challenge`).
