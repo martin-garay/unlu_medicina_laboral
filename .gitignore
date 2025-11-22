@@ -4,6 +4,7 @@
 /storage/*.key
 /.env
 /.env.*
+!.env.docker.example
 /.phpunit.result.cache
 /.idea
 /.vscode

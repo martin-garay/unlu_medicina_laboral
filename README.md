@@ -1,54 +1,73 @@
 # Medicina Laboral WhatsApp MVP
 
-Proyecto Laravel + PostgreSQL que implementa un chatbot básico usando la WhatsApp Cloud API para registrar avisos de inasistencia y certificados médicos.
+Proyecto Laravel + PostgreSQL dockerizado para un chatbot básico usando la WhatsApp Cloud API. Todo se ejecuta dentro de contenedores: no necesitas instalar PHP, Composer ni PostgreSQL en tu máquina.
 
 ## Requisitos
-- PHP 8.2+
-- Composer
-- PostgreSQL 13+
+- Docker
+- Docker Compose
 
-## Configuración rápida
-1. Clonar el repo y duplicar el archivo de entorno:
+## Puesta en marcha rápida
+1. Copiar el entorno base para Docker:
    ```bash
-   cp .env.example .env
+   cp .env.docker.example .env
    ```
-2. Ajustar las variables en `.env`:
-   - `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`: conexión PostgreSQL.
-   - `WHATSAPP_TOKEN`: token de acceso de WhatsApp Cloud API.
-   - `WHATSAPP_PHONE_ID`: phone number ID del sandbox/instancia.
-   - `WHATSAPP_VERIFY_TOKEN`: token privado para validar el webhook.
-3. Instalar dependencias:
+2. Levantar los contenedores (build inicial incluido):
    ```bash
-   composer install
+   docker compose up -d --build
    ```
-4. Generar la APP_KEY y migrar:
+3. Instalar dependencias PHP sin instalar Composer localmente:
    ```bash
-   php artisan key:generate
-   php artisan migrate
+   docker compose run --rm composer install
    ```
-5. Levantar el servidor local:
+4. Generar la APP_KEY dentro del contenedor de la app:
    ```bash
-   php artisan serve
+   docker compose exec app php artisan key:generate
+   ```
+5. Ejecutar migraciones en PostgreSQL dentro de Docker:
+   ```bash
+   docker compose exec app php artisan migrate
+   ```
+6. Ver logs de Laravel en vivo:
+   ```bash
+   docker compose logs -f app
+   ```
+7. Bajar todo cuando termines:
+   ```bash
+   docker compose down
    ```
 
-> Nota: el archivo `.env` (y cualquier variación `.env.*`) ya está excluido del repositorio. Usa `.env.example` como base y no subas tus credenciales a git.
+> Nota: los servicios usan usuario no-root con tu UID/GID para evitar archivos con permisos de root en el host.
 
-## Webhook en Meta (alto nivel)
-- URL de verificación y recepción: `https://tu-dominio.com/api/whatsapp/webhook`.
-- Método: GET para verificación (usa `hub.mode`, `hub.verify_token`, `hub.challenge`).
-- Método: POST para eventos entrantes.
-- Suscribir el phone number al producto de WhatsApp en Meta Developer.
+## Servicios en `docker-compose.yml`
+- `app`: PHP 8.3 CLI con extensiones de PostgreSQL y Laravel; monta el repo en `/var/www/html` y expone `8000`.
+- `db`: PostgreSQL 16 con volumen persistente `db_data`.
+- `composer`: imagen oficial `composer:2` para correr comandos sin instalar Composer localmente.
 
-## Flujo conversacional soportado
-1. Bot solicita DNI.
-2. Pregunta si registrar "inasistencia" o "certificado".
-3. `inasistencia` → pide cantidad de días y registra aviso con fecha de inicio = hoy.
-4. `certificado` → guarda el texto enviado como certificado.
-5. Responde confirmación y cierra la conversación.
+## Variables de entorno
+Usa `.env.docker.example` como plantilla. Valores claves:
+- `DB_HOST=db` y `DB_PORT=5432` para hablar con el contenedor de Postgres.
+- `WHATSAPP_VERIFY_TOKEN`: string elegido por nosotros (no el WABA ID). Úsalo en la verificación del webhook.
+
+## Webhook de WhatsApp
+- Meta no valida `localhost` directamente. Para pruebas locales, expone Laravel con ngrok desde el host:
+  ```bash
+  ngrok http 8000
+  ```
+- En Meta configura:
+  - Callback URL: `https://<tu-subdominio-ngrok>/api/whatsapp/webhook`
+  - Verify token: el valor de `WHATSAPP_VERIFY_TOKEN` en `.env`
+
+## Comandos de ayuda (Makefile)
+Si prefieres usar `make`:
+- `make up` → `docker compose up -d --build`
+- `make down` → `docker compose down`
+- `make install` → `docker compose run --rm composer install`
+- `make key` → `docker compose exec app php artisan key:generate`
+- `make migrate` → `docker compose exec app php artisan migrate`
+- `make logs` → `docker compose logs -f app`
 
 ## Archivos clave
-- `routes/api.php`: Webhook GET/POST.
-- `app/Http/Controllers/WhatsappWebhookController.php`: lógica del chatbot y envío de respuestas.
-- `app/Models/Aviso.php` y `app/Models/Conversacion.php`: modelos Eloquent.
-- `database/migrations/*create_avisos*_table.php`: migración de avisos.
-- `database/migrations/*create_conversaciones*_table.php`: migración de conversaciones.
+- `docker-compose.yml`: orquesta `app`, `db` y `composer`.
+- `docker/app/Dockerfile`: imagen PHP 8.3 con extensiones requeridas y usuario no-root.
+- `.env.docker.example`: variables de entorno pensadas para Docker.
+- `Makefile`: atajos para comandos frecuentes dentro de Docker.
