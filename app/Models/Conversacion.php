@@ -9,6 +9,8 @@ class Conversacion extends Model
 {
     use HasFactory;
 
+    protected $table = 'conversaciones';
+
     protected $fillable = [
         'wa_number',
         'estado',
