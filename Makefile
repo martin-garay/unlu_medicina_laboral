@@ -1,26 +1,37 @@
-# Helpers to keep every command inside Docker
+# Cargar variables desde .env (si existe)
+-include .env
+export
+
+
 UID := $(shell id -u)
 GID := $(shell id -g)
+DC := DOCKER_CONFIG=$(CURDIR)/.docker docker compose
 
-.PHONY: up down install key migrate logs sh
+
+.PHONY: db up down install key migrate logs sh
 
 up:
-docker compose up -d --build
+	UID=$(UID) GID=$(GID) $(DC) up --build
 
 down:
-docker compose down
+	UID=$(UID) GID=$(GID) $(DC) down
 
 install:
-docker compose run --rm -e COMPOSER_ALLOW_SUPERUSER=1 composer install
+	UID=$(UID) GID=$(GID) $(DC) run --rm -e COMPOSER_ALLOW_SUPERUSER=1 composer install
 
 key:
-docker compose exec app php artisan key:generate
+	UID=$(UID) GID=$(GID) $(DC) exec app php artisan key:generate
 
 migrate:
-docker compose exec app php artisan migrate
+	UID=$(UID) GID=$(GID) $(DC) exec app php artisan migrate
 
 logs:
-docker compose logs -f app
+	UID=$(UID) GID=$(GID) $(DC) logs -f app
 
 sh:
-docker compose exec app sh
+	UID=$(UID) GID=$(GID) $(DC) exec app sh
+
+db:
+	UID=$(UID) GID=$(GID) $(DC) exec db \
+	psql -h localhost -U $(DB_USERNAME) -d $(DB_DATABASE)
+
