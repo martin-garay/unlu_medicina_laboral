@@ -27,7 +27,7 @@ Proyecto Laravel + PostgreSQL dockerizado para un chatbot básico usando la What
    ```bash
    docker compose exec app php artisan migrate
    ```
-6. Ver logs de Laravel en vivo:
+6. Ver logs de Laravel en vivo (con `LOG_CHANNEL=stderr` para enviarlos al stdout/stderr del contenedor):
    ```bash
    docker compose logs -f app
    ```
@@ -47,6 +47,7 @@ Proyecto Laravel + PostgreSQL dockerizado para un chatbot básico usando la What
 Usa `.env.docker.example` como plantilla. Valores claves:
 - `DB_HOST=db` y `DB_PORT=5432` para hablar con el contenedor de Postgres.
 - `WHATSAPP_VERIFY_TOKEN`: string elegido por nosotros (no el WABA ID). Úsalo en la verificación del webhook.
+- `LOG_CHANNEL=stderr`: envía todos los `Log::` de Laravel al `docker compose logs -f app`.
 
 ## Webhook de WhatsApp
 - Meta no valida `localhost` directamente. Para pruebas locales, expone Laravel con ngrok desde el host:
