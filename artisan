@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
 
-use Illuminate\Foundation\Console\Kernel;
+use Illuminate\Contracts\Console\Kernel;
 
-if (file_exists($autoloader = __DIR__.'/vendor/autoload.php')) {
-    require $autoloader;
-}
+define('LARAVEL_START', microtime(true));
+
+require __DIR__.'/vendor/autoload.php';
 
 $app = require_once __DIR__.'/bootstrap/app.php';
 
