@@ -115,6 +115,20 @@ class WhatsappWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    use Illuminate\Support\Str;
+
+    private function normalizeToAllowed(string $waId): string
+    {
+        // Caso Argentina: WhatsApp wa_id viene como 549...
+        // Allowed list espera 54... (sin el 9)
+        if (Str::startsWith($waId, '549')) {
+            return '54' . substr($waId, 3);  // quita el 9 post país
+        }
+
+        return $waId;
+    }
+
+
     /**
      * Enviar mensaje de texto a WhatsApp Cloud API.
      */
@@ -123,6 +137,7 @@ class WhatsappWebhookController extends Controller
         $token = env('WHATSAPP_TOKEN');
         $phoneId = env('WHATSAPP_PHONE_ID');
 
+        $to = $this->normalizeToAllowed($to);
         if (!$token || !$phoneId) {
             Log::warning('Faltan credenciales de WhatsApp Cloud API.');
             return;
