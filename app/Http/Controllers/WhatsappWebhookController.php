@@ -115,16 +115,14 @@ class WhatsappWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    use Illuminate\Support\Str;
 
     private function normalizeToAllowed(string $waId): string
     {
         // Caso Argentina: WhatsApp wa_id viene como 549...
         // Allowed list espera 54... (sin el 9)
-        if (Str::startsWith($waId, '549')) {
+        if (str_starts_with($waId, '549')) {
             return '54' . substr($waId, 3);  // quita el 9 post país
         }
-
         return $waId;
     }
 
@@ -137,7 +135,7 @@ class WhatsappWebhookController extends Controller
         $token = env('WHATSAPP_TOKEN');
         $phoneId = env('WHATSAPP_PHONE_ID');
 
-        $to = $this->normalizeToAllowed($to);
+        $toAllowed = $this->normalizeToAllowed($to);
         if (!$token || !$phoneId) {
             Log::warning('Faltan credenciales de WhatsApp Cloud API.');
             return;
@@ -145,11 +143,41 @@ class WhatsappWebhookController extends Controller
 
         $url = "https://graph.facebook.com/v21.0/{$phoneId}/messages";
 
-        Http::withToken($token)->post($url, [
-            'messaging_product' => 'whatsapp',
-            'to' => $to,
-            'type' => 'text',
-            'text' => ['body' => $message],
-        ]);
+        Log::debug("Enviando mensaje $message a $to");
+
+        try {
+            $resp = Http::withToken($token)
+                ->timeout(10)
+                ->post($url, [
+                    'messaging_product' => 'whatsapp',
+                    'to'   => $toAllowed,
+                    'type' => 'text',
+                    'text' => ['body' => $message],
+                ]);
+
+            if ($resp->successful()) {
+                Log::info('WA send OK', [
+                    'to_raw'     => $to,
+                    'to_allowed' => $toAllowed,
+                    'status'     => $resp->status(),
+                    'body'       => $resp->json(),
+                ]);
+            } else {
+                Log::error('WA send FAILED', [
+                    'to_raw'     => $to,
+                    'to_allowed' => $toAllowed,
+                    'status'     => $resp->status(),
+                    'body'       => $resp->json(),
+                ]);
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('WA send EXCEPTION', [
+                'to_raw'     => $to,
+                'to_allowed' => $toAllowed,
+                'message'    => $message,
+                'error'      => $e->getMessage(),
+            ]);
+        }
     }
 }
