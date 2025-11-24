@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Aviso;
 use App\Models\Conversacion;
+use App\Services\WhatsAppSender;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class WhatsappWebhookController extends Controller
 {
+    public function __construct(private readonly WhatsAppSender $whatsAppSender)
+    {
+    }
+
     /**
      * Verificación de webhook (GET).
      */
@@ -41,6 +44,7 @@ class WhatsappWebhookController extends Controller
 
         $from = $entry['from'] ?? null;
         $text = $entry['text']['body'] ?? '';
+        $buttonId = $entry['interactive']['button_reply']['id'] ?? null;
 
         if (!$from) {
             return response()->json(['status' => 'no_sender'], 200);
@@ -51,30 +55,42 @@ class WhatsappWebhookController extends Controller
             ['estado' => 'esperando_dni']
         );
 
-        $responseText = '';
+        $menuConfig = config('whatsapp_menu');
+        $responseText = null;
+        $shouldSendMenu = false;
 
         switch ($conversation->estado) {
             case 'esperando_dni':
                 $conversation->dni = $text;
                 $conversation->estado = 'esperando_tipo';
                 $conversation->save();
-                $responseText = '¿Querés notificar una "inasistencia" o subir un "certificado"?';
+                $shouldSendMenu = true;
                 break;
 
             case 'esperando_tipo':
-                $lower = strtolower($text);
-                if (str_contains($lower, 'inasistencia')) {
+                $selectedTipo = null;
+
+                if ($buttonId && isset($menuConfig['id_to_tipo'][$buttonId])) {
+                    $selectedTipo = $menuConfig['id_to_tipo'][$buttonId];
+                } else {
+                    $normalizedText = strtolower(trim($text));
+                    if (isset($menuConfig['text_to_tipo'][$normalizedText])) {
+                        $selectedTipo = $menuConfig['text_to_tipo'][$normalizedText];
+                    }
+                }
+
+                if ($selectedTipo === 'inasistencia') {
                     $conversation->tipo = 'inasistencia';
                     $conversation->estado = 'esperando_cantidad_dias';
                     $conversation->save();
                     $responseText = '¿Cuántos días de inasistencia querés registrar?';
-                } elseif (str_contains($lower, 'certificado')) {
+                } elseif ($selectedTipo === 'certificado') {
                     $conversation->tipo = 'certificado';
                     $conversation->estado = 'esperando_certificado';
                     $conversation->save();
                     $responseText = 'Podés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).';
                 } else {
-                    $responseText = 'No entendí. Escribí "inasistencia" o "certificado".';
+                    $shouldSendMenu = true;
                 }
                 break;
 
@@ -110,74 +126,12 @@ class WhatsappWebhookController extends Controller
                 break;
         }
 
-        $this->sendText($from, $responseText);
+        if ($shouldSendMenu) {
+            $this->whatsAppSender->sendInteractiveMenu($from, $menuConfig);
+        } elseif ($responseText) {
+            $this->whatsAppSender->sendText($from, $responseText);
+        }
 
         return response()->json(['status' => 'ok']);
-    }
-
-
-    private function normalizeToAllowed(string $waId): string
-    {
-        // Caso Argentina: WhatsApp wa_id viene como 549...
-        // Allowed list espera 54... (sin el 9)
-        if (str_starts_with($waId, '549')) {
-            return '54' . substr($waId, 3);  // quita el 9 post país
-        }
-        return $waId;
-    }
-
-
-    /**
-     * Enviar mensaje de texto a WhatsApp Cloud API.
-     */
-    private function sendText(string $to, string $message): void
-    {
-        $token = env('WHATSAPP_TOKEN');
-        $phoneId = env('WHATSAPP_PHONE_ID');
-
-        $toAllowed = $this->normalizeToAllowed($to);
-        if (!$token || !$phoneId) {
-            Log::warning('Faltan credenciales de WhatsApp Cloud API.');
-            return;
-        }
-
-        $url = "https://graph.facebook.com/v21.0/{$phoneId}/messages";
-
-        Log::debug("Enviando mensaje $message a $to");
-
-        try {
-            $resp = Http::withToken($token)
-                ->timeout(10)
-                ->post($url, [
-                    'messaging_product' => 'whatsapp',
-                    'to'   => $toAllowed,
-                    'type' => 'text',
-                    'text' => ['body' => $message],
-                ]);
-
-            if ($resp->successful()) {
-                Log::info('WA send OK', [
-                    'to_raw'     => $to,
-                    'to_allowed' => $toAllowed,
-                    'status'     => $resp->status(),
-                    'body'       => $resp->json(),
-                ]);
-            } else {
-                Log::error('WA send FAILED', [
-                    'to_raw'     => $to,
-                    'to_allowed' => $toAllowed,
-                    'status'     => $resp->status(),
-                    'body'       => $resp->json(),
-                ]);
-            }
-
-        } catch (\Throwable $e) {
-            Log::error('WA send EXCEPTION', [
-                'to_raw'     => $to,
-                'to_allowed' => $toAllowed,
-                'message'    => $message,
-                'error'      => $e->getMessage(),
-            ]);
-        }
     }
 }
