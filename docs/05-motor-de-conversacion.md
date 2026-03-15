@@ -43,6 +43,18 @@ La base mínima del motor queda apoyada en tres servicios:
 
 Esta implementación es deliberadamente simple y no reemplaza todavía la lógica actual del webhook ni modela transiciones complejas de estado.
 
+## Integración incremental con el webhook actual
+
+En el tercer bloque de la etapa 2 el webhook existente pasa a usar esta base para:
+
+- buscar o crear la conversación activa por `wa_number`
+- registrar cada mensaje entrante en `conversacion_mensajes`
+- registrar cada mensaje saliente en `conversacion_mensajes`
+- registrar eventos mínimos en `conversacion_eventos`
+- actualizar contadores básicos en `conversaciones`
+
+La lógica funcional vigente del bot se mantiene en forma transitoria, aunque todavía no está desacoplada en handlers por paso.
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

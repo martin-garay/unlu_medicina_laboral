@@ -18,6 +18,14 @@ class ConversationManager
             ->first();
     }
 
+    public function createConversation(string $waNumber, array $attributes = []): Conversacion
+    {
+        return Conversacion::create(array_merge(
+            $this->defaultConversationAttributes($waNumber),
+            Arr::except($attributes, ['wa_number'])
+        ));
+    }
+
     public function getOrCreateActiveConversation(string $waNumber, array $attributes = []): Conversacion
     {
         $conversation = $this->findActiveByWaNumber($waNumber);
@@ -26,10 +34,7 @@ class ConversationManager
             return $conversation;
         }
 
-        return Conversacion::create(array_merge(
-            $this->defaultConversationAttributes($waNumber),
-            Arr::except($attributes, ['wa_number'])
-        ));
+        return $this->createConversation($waNumber, $attributes);
     }
 
     public function touchIncomingActivity(Conversacion $conversation, CarbonInterface|string|null $timestamp = null): Conversacion
