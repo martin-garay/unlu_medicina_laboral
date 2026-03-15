@@ -33,6 +33,16 @@ El motor de conversación debe poder:
 - dejar trazabilidad suficiente para auditoría técnica
 - habilitar la materialización posterior del aviso o anticipo
 
+## Base implementada en esta etapa
+
+La base mínima del motor queda apoyada en tres servicios:
+
+- `ConversationManager`: obtiene o crea conversaciones activas, actualiza timestamps, incrementa contadores y permite cerrarlas sin borrarlas
+- `ConversationMessageService`: registra mensajes entrantes y salientes asociados a una conversación
+- `ConversationEventService`: registra eventos técnicos mínimos para trazabilidad
+
+Esta implementación es deliberadamente simple y no reemplaza todavía la lógica actual del webhook ni modela transiciones complejas de estado.
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

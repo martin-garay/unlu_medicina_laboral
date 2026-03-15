@@ -130,6 +130,21 @@ Responsabilidades:
 - registrar eventos técnicos y funcionales
 - unificar trazabilidad no basada únicamente en mensajes
 
+## Implementación base actual
+
+En la etapa 2 se implementa una primera versión simple de estos servicios:
+
+- `ConversationManager`
+- `ConversationMessageService`
+- `ConversationEventService`
+
+Esta base:
+
+- todavía no reemplaza el webhook actual
+- no implementa una state machine completa
+- no resuelve scheduler ni timeouts automáticos
+- deja encapsuladas las operaciones mínimas de conversación para integrar en el siguiente bloque
+
 ### `ConversationStateMachine` o equivalente
 Responsabilidades:
 - definir transiciones de estado de la conversación
