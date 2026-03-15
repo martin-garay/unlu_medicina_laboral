@@ -5,7 +5,7 @@ export
 
 UID := $(shell id -u)
 GID := $(shell id -g)
-DC := DOCKER_CONFIG=$(CURDIR)/.docker docker compose
+DC := DOCKER_CONFIG=$(CURDIR)/.docker docker-compose
 
 
 .PHONY: db up down install key migrate logs sh
