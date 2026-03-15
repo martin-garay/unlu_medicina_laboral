@@ -11,6 +11,8 @@ class Conversacion extends Model
 {
     use HasFactory;
 
+    public const CANAL_WHATSAPP = 'whatsapp';
+
     protected $table = 'conversaciones';
 
     protected $fillable = [
@@ -57,6 +59,21 @@ class Conversacion extends Model
         'finalizada_en' => 'datetime',
         'metadata' => 'array',
     ];
+
+    public function scopeActive($query)
+    {
+        return $query->where('activa', true);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->activa;
+    }
+
+    public function currentStepKey(): ?string
+    {
+        return $this->paso_actual ?? $this->estado_actual ?? $this->estado;
+    }
 
     public function mensajes(): HasMany
     {

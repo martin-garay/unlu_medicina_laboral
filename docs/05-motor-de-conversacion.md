@@ -55,6 +55,44 @@ En el tercer bloque de la etapa 2 el webhook existente pasa a usar esta base par
 
 La lógica funcional vigente del bot se mantiene en forma transitoria, aunque todavía no está desacoplada en handlers por paso.
 
+## Validación manual de la Etapa 2
+
+Checklist sugerido para validar la base del motor de conversación:
+
+1. levantar el entorno con Docker
+2. ejecutar migraciones sobre una base limpia
+3. exponer el webhook local con `ngrok`
+4. enviar un primer mensaje desde WhatsApp y verificar:
+   - creación de una `conversacion`
+   - evento `conversation_started`
+   - mensaje entrante persistido en `conversacion_mensajes`
+5. avanzar por el flujo actual y verificar:
+   - incremento de contadores en `conversaciones`
+   - eventos `incoming_message_received` y `outgoing_message_sent`
+   - persistencia de mensajes salientes `text` e `interactive`
+6. completar un aviso o certificado y verificar:
+   - la conversación queda cerrada
+   - `activa = false`
+   - `finalizada_en` y `motivo_finalizacion` completos
+7. enviar un nuevo mensaje luego de una conversación cerrada y verificar:
+   - creación de una nueva conversación
+   - no reutilización de la anterior
+
+Consulta útil desde `php artisan tinker`:
+
+```php
+App\Models\Conversacion::with(['mensajes', 'eventos'])->latest('id')->first();
+```
+
+## Limitaciones actuales al cierre de Etapa 2
+
+- el webhook sigue conteniendo la lógica funcional transitoria del MVP
+- aún conviven campos legacy (`estado`, `tipo`, `dni`) con los nuevos (`estado_actual`, `paso_actual`, `tipo_flujo`)
+- los textos todavía están hardcodeados
+- no existe una state machine ni handlers por paso
+- no hay scheduler de inactividad
+- la trazabilidad de mensajes salientes se registra por intención de envío local, no por confirmación final del proveedor
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

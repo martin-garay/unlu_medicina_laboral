@@ -14,7 +14,7 @@ class ConversationEventService
             'uuid' => (string) Str::uuid(),
             'conversacion_id' => $conversation->id,
             'tipo_evento' => $eventType,
-            'step_key' => $data['step_key'] ?? $conversation->paso_actual,
+            'step_key' => $data['step_key'] ?? $conversation->currentStepKey(),
             'descripcion' => $data['descripcion'] ?? null,
             'codigo' => $data['codigo'] ?? null,
             'metadata' => $data['metadata'] ?? null,

@@ -81,7 +81,7 @@ class WhatsappWebhookController extends Controller
         $this->conversationMessageService->registerIncomingMessage($conversation, [
             'provider_message_id' => $providerMessageId,
             'tipo_mensaje' => $incomingMessageType,
-            'step_key' => $conversation->paso_actual ?? $conversation->estado,
+            'step_key' => $conversation->currentStepKey(),
             'contenido_texto' => $text,
             'payload_crudo' => $entry,
             'metadata' => [
@@ -91,7 +91,7 @@ class WhatsappWebhookController extends Controller
         ]);
 
         $this->conversationEventService->record($conversation, 'incoming_message_received', [
-            'step_key' => $conversation->paso_actual ?? $conversation->estado,
+            'step_key' => $conversation->currentStepKey(),
             'descripcion' => 'Mensaje entrante recibido',
             'metadata' => [
                 'provider_message_id' => $providerMessageId,
@@ -107,7 +107,7 @@ class WhatsappWebhookController extends Controller
         switch ($conversation->estado) {
             case 'esperando_dni':
                 $conversation->dni = $text;
-                $this->transitionConversation($conversation, 'esperando_tipo');
+                $conversation = $this->transitionConversation($conversation, 'esperando_tipo');
                 $shouldSendMenu = true;
                 break;
 
@@ -126,12 +126,12 @@ class WhatsappWebhookController extends Controller
                 if ($selectedTipo === 'inasistencia') {
                     $conversation->tipo = 'inasistencia';
                     $conversation->tipo_flujo = 'inasistencia';
-                    $this->transitionConversation($conversation, 'esperando_cantidad_dias');
+                    $conversation = $this->transitionConversation($conversation, 'esperando_cantidad_dias');
                     $responseText = '¿Cuántos días de inasistencia querés registrar?';
                 } elseif ($selectedTipo === 'certificado') {
                     $conversation->tipo = 'certificado';
                     $conversation->tipo_flujo = 'certificado';
-                    $this->transitionConversation($conversation, 'esperando_certificado');
+                    $conversation = $this->transitionConversation($conversation, 'esperando_certificado');
                     $responseText = 'Podés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).';
                 } else {
                     $shouldSendMenu = true;
@@ -197,13 +197,7 @@ class WhatsappWebhookController extends Controller
     {
         $previousState = $conversation->estado;
 
-        $conversation->forceFill([
-            'estado' => $newState,
-            'estado_actual' => $newState,
-            'paso_actual' => $newState,
-        ])->save();
-
-        $conversation = $conversation->refresh();
+        $conversation = $this->conversationManager->transitionConversation($conversation, $newState);
 
         $this->conversationEventService->recordStateChange(
             $conversation,
@@ -220,7 +214,7 @@ class WhatsappWebhookController extends Controller
 
         $this->conversationMessageService->registerOutgoingMessage($conversation, [
             'tipo_mensaje' => 'text',
-            'step_key' => $conversation->paso_actual ?? $conversation->estado,
+            'step_key' => $conversation->currentStepKey(),
             'contenido_texto' => $message,
             'payload_crudo' => [
                 'type' => 'text',
@@ -232,7 +226,7 @@ class WhatsappWebhookController extends Controller
         ]);
 
         $this->conversationEventService->record($conversation, 'outgoing_message_sent', [
-            'step_key' => $conversation->paso_actual ?? $conversation->estado,
+            'step_key' => $conversation->currentStepKey(),
             'descripcion' => 'Mensaje saliente enviado',
             'metadata' => [
                 'tipo_mensaje' => 'text',
@@ -246,7 +240,7 @@ class WhatsappWebhookController extends Controller
 
         $this->conversationMessageService->registerOutgoingMessage($conversation, [
             'tipo_mensaje' => 'interactive',
-            'step_key' => $conversation->paso_actual ?? $conversation->estado,
+            'step_key' => $conversation->currentStepKey(),
             'contenido_texto' => $menuConfig['body_text'] ?? null,
             'payload_crudo' => [
                 'type' => 'interactive',
@@ -262,7 +256,7 @@ class WhatsappWebhookController extends Controller
         ]);
 
         $this->conversationEventService->record($conversation, 'outgoing_message_sent', [
-            'step_key' => $conversation->paso_actual ?? $conversation->estado,
+            'step_key' => $conversation->currentStepKey(),
             'descripcion' => 'Menu interactivo enviado',
             'metadata' => [
                 'tipo_mensaje' => 'interactive',

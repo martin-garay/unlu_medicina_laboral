@@ -12,8 +12,8 @@ class ConversationManager
     public function findActiveByWaNumber(string $waNumber): ?Conversacion
     {
         return Conversacion::query()
+            ->active()
             ->where('wa_number', $waNumber)
-            ->where('activa', true)
             ->latest('id')
             ->first();
     }
@@ -42,6 +42,20 @@ class ConversationManager
         $conversation->forceFill([
             'ultimo_mensaje_recibido_en' => $timestamp ?? now(),
         ])->save();
+
+        return $conversation->refresh();
+    }
+
+    public function transitionConversation(
+        Conversacion $conversation,
+        string $newState,
+        array $attributes = [],
+    ): Conversacion {
+        $conversation->forceFill(array_merge([
+            'estado' => $newState,
+            'estado_actual' => $newState,
+            'paso_actual' => $newState,
+        ], $attributes))->save();
 
         return $conversation->refresh();
     }
@@ -113,7 +127,7 @@ class ConversationManager
         return [
             'uuid' => (string) Str::uuid(),
             'wa_number' => $waNumber,
-            'canal' => 'whatsapp',
+            'canal' => Conversacion::CANAL_WHATSAPP,
             'estado_actual' => 'iniciada',
             'activa' => true,
             'metadata' => [],

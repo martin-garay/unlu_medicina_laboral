@@ -10,6 +10,9 @@ class ConversacionMensaje extends Model
 {
     use HasFactory;
 
+    public const DIRECCION_ENTRANTE = 'in';
+    public const DIRECCION_SALIENTE = 'out';
+
     protected $table = 'conversacion_mensajes';
 
     protected $fillable = [
@@ -33,6 +36,16 @@ class ConversacionMensaje extends Model
         'payload_crudo' => 'array',
         'metadata' => 'array',
     ];
+
+    public function isIncoming(): bool
+    {
+        return $this->direccion === self::DIRECCION_ENTRANTE;
+    }
+
+    public function isOutgoing(): bool
+    {
+        return $this->direccion === self::DIRECCION_SALIENTE;
+    }
 
     public function conversacion(): BelongsTo
     {
