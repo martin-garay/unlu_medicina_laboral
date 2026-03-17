@@ -21,6 +21,21 @@ class EsperandoCantidadDiasStepHandler extends AbstractStepHandler
 
     public function handle(Conversacion $conversation, array $input = []): StepResult
     {
+        if (blank($conversation->dni)) {
+            return $this->success('whatsapp.identificacion.dni', [
+                'next_step' => 'esperando_dni',
+                'next_state' => 'esperando_dni',
+                'payload' => [
+                    'event_name' => 'dni_required_redirect',
+                    'event_description' => 'Redirección a captura de DNI por conversación incompleta',
+                    'event_metadata' => [
+                        'from_step' => $this->stepKey(),
+                        'flow' => $conversation->tipo_flujo,
+                    ],
+                ],
+            ]);
+        }
+
         if ($this->isCancelCommand($input) || $this->isRestartCommand($input)) {
             return $this->success('whatsapp.cancelacion.volver_menu_principal', [
                 'next_step' => 'menu_principal',

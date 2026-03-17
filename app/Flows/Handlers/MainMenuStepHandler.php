@@ -69,9 +69,9 @@ class MainMenuStepHandler extends AbstractStepHandler
                     ],
                 ],
             ]),
-            'inasistencia' => $this->success('whatsapp.aviso.intro_transicional', [
-                'next_step' => 'esperando_cantidad_dias',
-                'next_state' => 'esperando_cantidad_dias',
+            'inasistencia' => $this->success('whatsapp.identificacion.dni', [
+                'next_step' => 'esperando_dni',
+                'next_state' => 'esperando_dni',
                 'payload' => [
                     'event_name' => 'menu_option_selected',
                     'event_step_key' => $this->stepKey(),
@@ -85,14 +85,9 @@ class MainMenuStepHandler extends AbstractStepHandler
                     ],
                 ],
             ]),
-            'certificado' => $this->success('whatsapp.certificado.intro_transicional', [
-                'message_params' => [
-                    'max_files' => config('medicina_laboral.certificados.max_files'),
-                    'deadline' => config('medicina_laboral.certificados.deadline_business_hours'),
-                    'allowed_extensions' => implode(', ', config('medicina_laboral.certificados.allowed_extensions', [])),
-                ],
-                'next_step' => 'esperando_certificado',
-                'next_state' => 'esperando_certificado',
+            'certificado' => $this->success('whatsapp.identificacion.dni', [
+                'next_step' => 'esperando_dni',
+                'next_state' => 'esperando_dni',
                 'payload' => [
                     'event_name' => 'menu_option_selected',
                     'event_step_key' => $this->stepKey(),

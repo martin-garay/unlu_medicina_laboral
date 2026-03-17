@@ -25,6 +25,7 @@ return [
 
     'identificacion' => [
         'inicio' => 'Para continuar, necesitamos validar tu identificación.',
+        'dni' => 'Por favor, escribí tu número de DNI para continuar.',
         'nombre_completo' => 'Por favor, ingresá tu nombre completo.',
         'legajo' => 'Por favor, ingresá tu número de legajo.',
         'sede' => 'Indicá tu sede.',
