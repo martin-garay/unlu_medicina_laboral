@@ -294,6 +294,18 @@ Cada paso debería poder definir:
 
 Esto permitirá escalar los flujos sin degradar la mantenibilidad.
 
+## Base estructural para el siguiente refactor
+
+Antes de implementar los flujos reales completos conviene dejar creada una base mínima con:
+
+- un `ConversationFlowResolver`
+- handlers por paso
+- `StepResult` para expresar el resultado del procesamiento
+- `ValidationResult` para desacoplar la validación
+- un `MessageResolver` para traducir claves y templates a mensajes concretos
+
+Esto permite migrar el webhook de forma gradual, rama por rama, sin romper el MVP actual.
+
 ## Mensajes y parámetros
 
 ## Textos

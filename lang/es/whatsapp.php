@@ -91,6 +91,7 @@ return [
         'invalid_date' => 'La fecha ingresada no es válida.',
         'invalid_attachment_type' => 'El archivo enviado no tiene un formato permitido.',
         'max_attempts_exceeded' => 'Se alcanzó el máximo de intentos permitidos.',
+        'unsupported_step' => 'No se pudo resolver el paso actual de la conversación.',
     ],
 
     'interacciones_invalidas' => [

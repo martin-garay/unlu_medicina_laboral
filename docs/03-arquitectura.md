@@ -205,6 +205,18 @@ Puede contener:
 - si incrementa intentos
 - si corresponde cancelar
 
+## Implementación base del paso 2
+
+La estructura mínima recomendada para empezar a desacoplar el controller queda compuesta por:
+
+- `ConversationFlowResolver`
+- contratos `StepHandler` y `Validator`
+- `StepResult`
+- `ValidationResult`
+- `MessageResolver`
+
+En esta etapa alcanza con uno o pocos handlers transicionales para empezar a mover ramas concretas del `switch` actual sin reescribir todavía todo el flujo.
+
 ---
 
 ## 4. Persistencia y trazabilidad

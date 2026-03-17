@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Aviso;
 use App\Models\Conversacion;
+use App\Flows\Common\MessageResolver;
+use App\Flows\Common\StepResult;
+use App\Services\Conversation\ConversationFlowResolver;
 use App\Services\ConversationEventService;
 use App\Services\ConversationManager;
 use App\Services\ConversationMessageService;
@@ -15,6 +18,8 @@ class WhatsappWebhookController extends Controller
 {
     public function __construct(
         private readonly WhatsAppSender $whatsAppSender,
+        private readonly ConversationFlowResolver $conversationFlowResolver,
+        private readonly MessageResolver $messageResolver,
         private readonly ConversationManager $conversationManager,
         private readonly ConversationMessageService $conversationMessageService,
         private readonly ConversationEventService $conversationEventService,
@@ -112,20 +117,27 @@ class WhatsappWebhookController extends Controller
                 break;
 
             case 'esperando_tipo':
-                $selectedTipo = $this->resolveSelectedMenuOption($buttonId, $text);
+                $stepResult = $this->conversationFlowResolver
+                    ->resolve($conversation)
+                    ->handle($conversation, [
+                        'text' => $text,
+                        'button_id' => $buttonId,
+                    ]);
 
-                if ($selectedTipo === 'inasistencia') {
+                $selectedTipo = $stepResult->payload['selected_option'] ?? null;
+
+                if ($stepResult->isValid && $selectedTipo === 'inasistencia') {
                     $conversation->tipo = 'inasistencia';
                     $conversation->tipo_flujo = 'inasistencia';
-                    $conversation = $this->transitionConversation($conversation, 'esperando_cantidad_dias');
-                    $responseText = __('whatsapp.aviso.prompts.cantidad_dias_legacy');
-                } elseif ($selectedTipo === 'certificado') {
+                    $conversation = $this->transitionConversation($conversation, $stepResult->nextState ?? 'esperando_cantidad_dias');
+                    $responseText = $this->resolveStepMessage($stepResult);
+                } elseif ($stepResult->isValid && $selectedTipo === 'certificado') {
                     $conversation->tipo = 'certificado';
                     $conversation->tipo_flujo = 'certificado';
-                    $conversation = $this->transitionConversation($conversation, 'esperando_certificado');
-                    $responseText = __('whatsapp.certificado.detalle_o_adjunto_legacy');
+                    $conversation = $this->transitionConversation($conversation, $stepResult->nextState ?? 'esperando_certificado');
+                    $responseText = $this->resolveStepMessage($stepResult);
                 } else {
-                    $shouldSendMenu = true;
+                    $shouldSendMenu = $stepResult->shouldShowMenu;
                 }
                 break;
 
@@ -297,30 +309,8 @@ class WhatsappWebhookController extends Controller
         ];
     }
 
-    private function resolveSelectedMenuOption(?string $buttonId, string $text): ?string
+    private function resolveStepMessage(StepResult $stepResult): ?string
     {
-        $options = config('medicina_laboral.mensajes.current_webhook_menu_options', []);
-        $catalog = config('medicina_laboral.catalogos.menu_principal', []);
-        $normalizedText = strtolower(trim($text));
-
-        foreach ($options as $optionKey) {
-            $option = $catalog[$optionKey] ?? null;
-
-            if (!$option) {
-                continue;
-            }
-
-            if ($buttonId && ($option['id'] ?? null) === $buttonId) {
-                return $option['legacy_code'] ?? $optionKey;
-            }
-
-            $aliases = array_map('strtolower', $option['aliases'] ?? []);
-
-            if ($normalizedText !== '' && in_array($normalizedText, $aliases, true)) {
-                return $option['legacy_code'] ?? $optionKey;
-            }
-        }
-
-        return null;
+        return $this->messageResolver->resolve($stepResult);
     }
 }
