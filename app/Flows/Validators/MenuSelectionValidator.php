@@ -24,7 +24,7 @@ class MenuSelectionValidator implements Validator
 
             if ($buttonId && ($option['id'] ?? null) === $buttonId) {
                 return ValidationResult::valid([
-                    'selected_option' => $option['legacy_code'] ?? $optionKey,
+                    'selected_option' => $option['flow_code'] ?? $option['legacy_code'] ?? $optionKey,
                 ]);
             }
 
@@ -32,7 +32,7 @@ class MenuSelectionValidator implements Validator
 
             if ($text !== '' && in_array($text, $aliases, true)) {
                 return ValidationResult::valid([
-                    'selected_option' => $option['legacy_code'] ?? $optionKey,
+                    'selected_option' => $option['flow_code'] ?? $option['legacy_code'] ?? $optionKey,
                 ]);
             }
         }

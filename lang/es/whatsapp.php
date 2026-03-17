@@ -46,7 +46,7 @@ return [
             'domicilio_circunstancial_pregunta' => '¿Desea informar un domicilio circunstancial?',
             'domicilio_circunstancial' => 'Ingresá el domicilio circunstancial.',
             'observaciones_pregunta' => '¿Desea agregar observaciones adicionales?',
-            'cantidad_dias_legacy' => '¿Cuántos días de inasistencia querés registrar?',
+            'cantidad_dias_transicional' => '¿Cuántos días de inasistencia querés registrar?',
         ],
         'options' => [
             'por_enfermedad' => 'Por Enfermedad',
@@ -66,7 +66,7 @@ return [
         'tipo_certificado' => 'Seleccioná el tipo de certificado.',
         'adjuntar_archivo' => 'Adjuntá el archivo o imagen del certificado.',
         'adjuntar_otro_archivo' => '¿Desea adjuntar otro archivo?',
-        'detalle_o_adjunto_legacy' => 'Podés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).',
+        'detalle_o_adjunto_transicional' => 'Podés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).',
         'options' => [
             'manuscrito' => 'Manuscrito',
             'electronico' => 'Electrónico',
@@ -91,7 +91,16 @@ return [
         'invalid_date' => 'La fecha ingresada no es válida.',
         'invalid_attachment_type' => 'El archivo enviado no tiene un formato permitido.',
         'max_attempts_exceeded' => 'Se alcanzó el máximo de intentos permitidos.',
+        'no_open_aviso' => 'No se encontró un aviso de ausencia abierto para continuar con esta gestión.',
         'unsupported_step' => 'No se pudo resolver el paso actual de la conversación.',
+    ],
+
+    'errors' => [
+        'required' => 'El dato ingresado es obligatorio.',
+        'invalid_date' => 'La fecha ingresada no es válida.',
+        'invalid_option' => 'La opción ingresada no es válida.',
+        'max_attempts_exceeded' => 'Se alcanzó el máximo de intentos permitidos.',
+        'no_open_aviso' => 'No se encontró un aviso de ausencia abierto para continuar con esta gestión.',
     ],
 
     'interacciones_invalidas' => [

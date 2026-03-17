@@ -250,10 +250,10 @@ Ubicación sugerida:
 
 ## Ejemplos de claves
 
-- `whatsapp.errors.required`
-- `whatsapp.errors.invalid_date`
-- `whatsapp.errors.invalid_option`
-- `whatsapp.errors.max_attempts_exceeded`
+- `whatsapp.errores.required`
+- `whatsapp.errores.invalid_date`
+- `whatsapp.errores.invalid_option`
+- `whatsapp.errores.max_attempts_exceeded`
 - `whatsapp.errors.no_open_aviso`
 
 ## Templates

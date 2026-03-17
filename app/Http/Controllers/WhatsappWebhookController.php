@@ -64,30 +64,82 @@ class WhatsappWebhookController extends Controller
             return response()->json(['status' => 'no_sender'], 200);
         }
 
+        $conversation = $this->findOrCreateConversation($from, $providerMessageId);
+        $flowInput = $this->buildFlowInput($text, $buttonId, $providerMessageId, $incomingMessageType);
+        $stepResult = $this->processConversationStep($conversation, $flowInput);
+
+        $this->registerIncomingTrace($conversation, $entry, $from, $buttonId, $providerMessageId, $incomingMessageType, $stepResult);
+        $stepResult = $this->enforceAttemptLimit($conversation, $stepResult);
+        $conversation = $this->applyStepResult($conversation, $stepResult);
+        $this->dispatchStepResponse($conversation, $from, $stepResult);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    private function buildFlowInput(
+        string $text,
+        ?string $buttonId,
+        ?string $providerMessageId,
+        string $incomingMessageType,
+    ): array {
+        return [
+            'text' => $text,
+            'button_id' => $buttonId,
+            'provider_message_id' => $providerMessageId,
+            'incoming_message_type' => $incomingMessageType,
+        ];
+    }
+
+    private function findOrCreateConversation(string $from, ?string $providerMessageId): Conversacion
+    {
         $conversation = $this->conversationManager->findActiveByWaNumber($from);
 
-        if (!$conversation) {
-            $conversation = $this->conversationManager->createConversation($from, [
-                'estado' => 'esperando_dni',
-                'estado_actual' => 'esperando_dni',
-                'paso_actual' => 'esperando_dni',
-            ]);
-
-            $this->conversationEventService->record($conversation, 'conversation_started', [
-                'step_key' => $conversation->paso_actual,
-                'descripcion' => 'Conversacion iniciada desde webhook',
-                'metadata' => [
-                    'wa_number' => $from,
-                    'provider_message_id' => $providerMessageId,
-                ],
-            ]);
+        if ($conversation) {
+            return $conversation;
         }
 
+        $conversation = $this->conversationManager->createConversation($from, [
+            'estado' => 'esperando_dni',
+            'estado_actual' => 'esperando_dni',
+            'paso_actual' => 'esperando_dni',
+        ]);
+
+        $this->conversationEventService->record($conversation, 'conversation_started', [
+            'step_key' => $conversation->paso_actual,
+            'descripcion' => 'Conversacion iniciada desde webhook',
+            'metadata' => [
+                'wa_number' => $from,
+                'provider_message_id' => $providerMessageId,
+            ],
+        ]);
+
+        return $conversation;
+    }
+
+    private function processConversationStep(Conversacion $conversation, array $flowInput): StepResult
+    {
+        return $this->conversationFlowResolver
+            ->resolve($conversation)
+            ->handle($conversation, $flowInput);
+    }
+
+    private function registerIncomingTrace(
+        Conversacion $conversation,
+        array $entry,
+        string $from,
+        ?string $buttonId,
+        ?string $providerMessageId,
+        string $incomingMessageType,
+        StepResult $stepResult,
+    ): void {
         $this->conversationMessageService->registerIncomingMessage($conversation, [
             'provider_message_id' => $providerMessageId,
             'tipo_mensaje' => $incomingMessageType,
             'step_key' => $conversation->currentStepKey(),
-            'contenido_texto' => $text,
+            'contenido_texto' => $this->resolveIncomingContent($entry),
+            'es_valido' => $stepResult->isValid,
+            'motivo_invalidez' => $stepResult->isValid ? null : $stepResult->errorCode,
+            'incrementar_intentos' => $stepResult->incrementAttempts,
             'payload_crudo' => $entry,
             'metadata' => [
                 'button_id' => $buttonId,
@@ -104,96 +156,6 @@ class WhatsappWebhookController extends Controller
                 'button_id' => $buttonId,
             ],
         ]);
-
-        $menuConfig = $this->mainMenuConfig();
-        $responseText = null;
-        $shouldSendMenu = false;
-
-        switch ($conversation->estado) {
-            case 'esperando_dni':
-                $conversation->dni = $text;
-                $conversation = $this->transitionConversation($conversation, 'esperando_tipo');
-                $shouldSendMenu = true;
-                break;
-
-            case 'esperando_tipo':
-                $stepResult = $this->conversationFlowResolver
-                    ->resolve($conversation)
-                    ->handle($conversation, [
-                        'text' => $text,
-                        'button_id' => $buttonId,
-                    ]);
-
-                $selectedTipo = $stepResult->payload['selected_option'] ?? null;
-
-                if ($stepResult->isValid && $selectedTipo === 'inasistencia') {
-                    $conversation->tipo = 'inasistencia';
-                    $conversation->tipo_flujo = 'inasistencia';
-                    $conversation = $this->transitionConversation($conversation, $stepResult->nextState ?? 'esperando_cantidad_dias');
-                    $responseText = $this->resolveStepMessage($stepResult);
-                } elseif ($stepResult->isValid && $selectedTipo === 'certificado') {
-                    $conversation->tipo = 'certificado';
-                    $conversation->tipo_flujo = 'certificado';
-                    $conversation = $this->transitionConversation($conversation, $stepResult->nextState ?? 'esperando_certificado');
-                    $responseText = $this->resolveStepMessage($stepResult);
-                } else {
-                    $shouldSendMenu = $stepResult->shouldShowMenu;
-                }
-                break;
-
-            case 'esperando_cantidad_dias':
-                $cantidadDias = (int) $text;
-                Aviso::create([
-                    'dni' => $conversation->dni,
-                    'tipo' => 'inasistencia',
-                    'fecha_inicio' => now()->toDateString(),
-                    'cantidad_dias' => $cantidadDias,
-                    'wa_number' => $conversation->wa_number,
-                ]);
-                $conversation = $this->conversationManager->closeConversation($conversation, 'completed', [
-                    'estado' => 'completada',
-                    'estado_actual' => 'completada',
-                    'paso_actual' => 'completada',
-                ]);
-                $responseText = __('whatsapp.aviso.registrado_breve');
-                break;
-
-            case 'esperando_certificado':
-                Aviso::create([
-                    'dni' => $conversation->dni,
-                    'tipo' => 'certificado',
-                    'certificado_base64' => $text,
-                    'wa_number' => $conversation->wa_number,
-                ]);
-                $conversation = $this->conversationManager->closeConversation($conversation, 'completed', [
-                    'estado' => 'completada',
-                    'estado_actual' => 'completada',
-                    'paso_actual' => 'completada',
-                ]);
-                $responseText = __('whatsapp.certificado.registrado_breve');
-                break;
-
-            default:
-                $conversation = $this->conversationManager->closeConversation($conversation, 'unexpected_state', [
-                    'estado' => 'cancelada',
-                    'estado_actual' => 'cancelada',
-                    'paso_actual' => 'cancelada',
-                ]);
-
-                $this->conversationEventService->recordConversationClosed($conversation, 'unexpected_state', [
-                    'legacy_estado' => $conversation->estado,
-                ]);
-                $responseText = __('whatsapp.general.reinicio');
-                break;
-        }
-
-        if ($shouldSendMenu) {
-            $this->sendMenuResponse($conversation, $from, $menuConfig);
-        } elseif ($responseText) {
-            $this->sendTextResponse($conversation, $from, $responseText);
-        }
-
-        return response()->json(['status' => 'ok']);
     }
 
     private function transitionConversation(Conversacion $conversation, string $newState): Conversacion
@@ -209,6 +171,129 @@ class WhatsappWebhookController extends Controller
         );
 
         return $conversation;
+    }
+
+    private function applyStepResult(Conversacion $conversation, StepResult $stepResult): Conversacion
+    {
+        $conversation = $conversation->refresh();
+        $conversation = $this->applyConversationUpdates(
+            $conversation,
+            $stepResult->payload['conversation_updates'] ?? []
+        );
+
+        if ($stepResult->shouldCancel) {
+            $reason = $stepResult->payload['close_reason'] ?? 'cancelled';
+            $conversation = $this->conversationManager->closeConversation(
+                $conversation,
+                $reason,
+                $stepResult->payload['close_attributes'] ?? []
+            );
+
+            $this->conversationEventService->recordConversationClosed($conversation, $reason, [
+                'error_code' => $stepResult->errorCode,
+            ]);
+
+            return $conversation;
+        }
+
+        if ($stepResult->shouldFinish) {
+            $this->executeBusinessAction($conversation, $stepResult);
+
+            $reason = $stepResult->payload['close_reason'] ?? 'completed';
+            $conversation = $this->conversationManager->closeConversation(
+                $conversation,
+                $reason,
+                $stepResult->payload['close_attributes'] ?? []
+            );
+
+            $this->conversationEventService->recordConversationClosed($conversation, $reason, [
+                'error_code' => $stepResult->errorCode,
+            ]);
+
+            return $conversation;
+        }
+
+        if ($stepResult->hasNextState()) {
+            return $this->transitionConversation($conversation, $stepResult->nextState);
+        }
+
+        return $conversation;
+    }
+
+    private function enforceAttemptLimit(Conversacion $conversation, StepResult $stepResult): StepResult
+    {
+        if ($stepResult->isValid || $stepResult->incrementAttempts <= 0 || $stepResult->closesConversation()) {
+            return $stepResult;
+        }
+
+        $conversation = $conversation->refresh();
+        $maxInvalidAttempts = (int) config('medicina_laboral.conversation.max_invalid_attempts', 3);
+
+        if ($conversation->cantidad_intentos_actual < $maxInvalidAttempts) {
+            return $stepResult;
+        }
+
+        return StepResult::invalid('max_attempts_exceeded', 'whatsapp.errores.max_attempts_exceeded', [
+            'should_cancel' => true,
+            'payload' => [
+                'close_reason' => 'max_invalid_attempts',
+                'close_attributes' => [
+                    'estado' => 'cancelada',
+                    'estado_actual' => 'cancelada',
+                    'paso_actual' => 'cancelada',
+                ],
+            ],
+        ]);
+    }
+
+    private function dispatchStepResponse(Conversacion $conversation, string $to, StepResult $stepResult): void
+    {
+        $responseText = $this->resolveStepMessage($stepResult);
+
+        if ($responseText !== null) {
+            $this->sendTextResponse($conversation, $to, $responseText);
+        }
+
+        if ($stepResult->shouldShowMenu) {
+            $this->sendMenuResponse($conversation, $to, $this->mainMenuConfig());
+        }
+    }
+
+    private function applyConversationUpdates(Conversacion $conversation, array $updates): Conversacion
+    {
+        if ($updates === []) {
+            return $conversation;
+        }
+
+        $conversation->forceFill($updates)->save();
+
+        return $conversation->refresh();
+    }
+
+    private function executeBusinessAction(Conversacion $conversation, StepResult $stepResult): void
+    {
+        $action = $stepResult->payload['business_action'] ?? null;
+
+        if ($action === 'create_aviso_inasistencia') {
+            Aviso::create([
+                'dni' => $conversation->dni,
+                'tipo' => 'inasistencia',
+                'fecha_inicio' => now()->toDateString(),
+                'cantidad_dias' => $stepResult->payload['cantidad_dias'] ?? null,
+                'wa_number' => $conversation->wa_number,
+            ]);
+
+            return;
+        }
+
+        if ($action === 'create_aviso_certificado') {
+            Aviso::create([
+                'dni' => $conversation->dni,
+                'tipo' => 'certificado',
+                'certificado_base64' => $stepResult->payload['certificado_texto'] ?? null,
+                'wa_number' => $conversation->wa_number,
+            ]);
+        }
     }
 
     private function sendTextResponse(Conversacion $conversation, string $to, string $message): void
@@ -282,6 +367,23 @@ class WhatsappWebhookController extends Controller
         }
 
         return 'unknown';
+    }
+
+    private function resolveIncomingContent(array $entry): ?string
+    {
+        if (isset($entry['text']['body'])) {
+            return $entry['text']['body'];
+        }
+
+        if (isset($entry['interactive']['button_reply']['title'])) {
+            return $entry['interactive']['button_reply']['title'];
+        }
+
+        if (isset($entry['interactive']['button_reply']['id'])) {
+            return $entry['interactive']['button_reply']['id'];
+        }
+
+        return null;
     }
 
     private function mainMenuConfig(): array

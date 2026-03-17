@@ -22,6 +22,14 @@ class FallbackStepHandler extends AbstractStepHandler
     {
         return $this->invalid('unsupported_step', 'whatsapp.general.reinicio', [
             'should_cancel' => true,
+            'payload' => [
+                'close_reason' => 'unexpected_state',
+                'close_attributes' => [
+                    'estado' => 'cancelada',
+                    'estado_actual' => 'cancelada',
+                    'paso_actual' => 'cancelada',
+                ],
+            ],
         ]);
     }
 }

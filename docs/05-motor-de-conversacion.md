@@ -88,10 +88,18 @@ App\Models\Conversacion::with(['mensajes', 'eventos'])->latest('id')->first();
 
 - el webhook sigue conteniendo la lógica funcional transitoria del MVP
 - aún conviven campos legacy (`estado`, `tipo`, `dni`) con los nuevos (`estado_actual`, `paso_actual`, `tipo_flujo`)
-- los textos todavía están hardcodeados
-- no existe una state machine ni handlers por paso
+- todavía conviven mensajes centralizados con algunas salidas transitorias del MVP
+- no existe una state machine completa y solo parte del flujo está migrado a handlers por paso
 - no hay scheduler de inactividad
 - la trazabilidad de mensajes salientes se registra por intención de envío local, no por confirmación final del proveedor
+
+## Avance esperado en el refactor gradual
+
+En el siguiente paso del refactor conviene mover progresivamente más estados reales del webhook hacia handlers concretos, haciendo que:
+
+- `StepResult` gobierne transiciones, finalización y cancelación
+- `MessageResolver` resuelva la mayor parte de los mensajes de salida
+- el controller quede concentrado en orquestar efectos técnicos
 
 ## Qué no debe hacer
 
@@ -357,3 +365,21 @@ Se considerará que el motor de conversación está correctamente establecido cu
 - cancelar por inactividad usando Scheduler
 - separar conversación de entidad de negocio
 - dejar la base lista para implementar los flujos de aviso y anticipo
+### Refactor gradual del webhook
+
+El webhook ya no debería concentrar la resolución manual del flujo. La base actual apunta a que:
+
+- `ConversationFlowResolver` elija el handler según `paso_actual`
+- cada `StepHandler` procese el input y devuelva un `StepResult`
+- `MessageResolver` traduzca ese resultado a texto o template
+- el controller solo orqueste trazabilidad, transición, cierre y envío
+
+En la fase transicional actual, el flujo mínimo cubre:
+
+- `esperando_dni`
+- `esperando_tipo`
+- `esperando_cantidad_dias`
+- `esperando_certificado`
+- fallback para estados no soportados
+
+Los nombres y mensajes marcados como `transicional` existen para sostener el MVP vigente mientras se desacopla el flujo real de aviso y certificado.

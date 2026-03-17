@@ -56,4 +56,14 @@ class StepResult
     {
         return $this->message !== null || $this->messageKey !== null || $this->template !== null;
     }
+
+    public function hasNextState(): bool
+    {
+        return $this->nextState !== null;
+    }
+
+    public function closesConversation(): bool
+    {
+        return $this->shouldCancel || $this->shouldFinish;
+    }
 }

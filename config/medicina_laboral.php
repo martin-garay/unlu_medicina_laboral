@@ -39,7 +39,7 @@ return [
         'menu_principal' => [
             'consultas' => [
                 'id' => 'op_consultas',
-                'legacy_code' => 'consultas',
+                'flow_code' => 'consultas',
                 'aliases' => [
                     '1',
                     'consultas',
@@ -47,7 +47,7 @@ return [
             ],
             'aviso_ausencia' => [
                 'id' => 'op_inasistencia',
-                'legacy_code' => 'inasistencia',
+                'flow_code' => 'inasistencia',
                 'aliases' => [
                     '2',
                     'aviso de ausencia',
@@ -57,7 +57,7 @@ return [
             ],
             'anticipo_certificado' => [
                 'id' => 'op_certificado',
-                'legacy_code' => 'certificado',
+                'flow_code' => 'certificado',
                 'aliases' => [
                     '3',
                     'certificado',
