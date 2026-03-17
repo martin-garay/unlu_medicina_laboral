@@ -28,8 +28,10 @@ return [
         'dni' => 'Por favor, escribí tu número de DNI para continuar.',
         'nombre_completo' => 'Por favor, ingresá tu nombre completo.',
         'legajo' => 'Por favor, ingresá tu número de legajo.',
-        'sede' => 'Indicá tu sede.',
+        'sede' => 'Indicá tu sede. Podés responder con el número o el nombre de la sede.',
         'jornada_laboral' => 'Indicá tu jornada laboral.',
+        'continuacion_aviso' => 'Identificación registrada. El siguiente paso del aviso será ingresar la fecha de inicio de la ausencia.',
+        'continuacion_certificado' => 'Identificación registrada. El siguiente paso del anticipo será ingresar el número de aviso asociado.',
         'confirmacion_previa' => 'Antes de continuar, confirmá si los datos de identificación son correctos.',
         'confirmar_si' => 'Sí',
         'confirmar_no' => 'No',
@@ -60,6 +62,7 @@ return [
             'cancelar' => 'Cancelar y volver al menú principal',
         ],
         'confirmacion_final' => 'Revisá el resumen del aviso antes de confirmar.',
+        'pendiente_siguiente_etapa' => 'El paso de fecha de inicio del aviso queda preparado, pero su implementación completa se continúa en la siguiente etapa.',
         'registrado_breve' => 'Inasistencia registrada. Revisá el detalle enviado por este canal.',
     ],
 
@@ -80,6 +83,7 @@ return [
             'cancelar' => 'Cancelar y volver al menú principal',
         ],
         'confirmacion_final' => 'Revisá el resumen del anticipo de certificado antes de confirmar.',
+        'pendiente_siguiente_etapa' => 'El paso de número de aviso para el anticipo queda preparado, pero su implementación completa se continúa en la siguiente etapa.',
         'registrado_breve' => 'Certificado registrado. Revisá el detalle enviado por este canal.',
     ],
 
@@ -96,6 +100,7 @@ return [
         'invalid_attachment_type' => 'El archivo enviado no tiene un formato permitido.',
         'max_attempts_exceeded' => 'Se alcanzó el máximo de intentos permitidos.',
         'no_open_aviso' => 'No se encontró un aviso de ausencia abierto para continuar con esta gestión.',
+        'sede_invalida' => 'La sede ingresada no es válida. Seleccioná una de las opciones disponibles.',
         'unsupported_step' => 'No se pudo resolver el paso actual de la conversación.',
     ],
 

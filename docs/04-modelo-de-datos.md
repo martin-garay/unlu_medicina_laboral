@@ -147,6 +147,14 @@ Ejemplos:
 ### `metadata`
 Campo flexible para guardar información contextual adicional sin tener que cambiar el esquema ante pequeños ajustes.
 
+Ejemplo útil en esta etapa:
+
+- `metadata.identificacion.nombre_completo`
+- `metadata.identificacion.legajo`
+- `metadata.identificacion.sede`
+- `metadata.identificacion.sede_key`
+- `metadata.identificacion.jornada_laboral`
+
 ## Índices sugeridos
 
 - índice por `wa_number`

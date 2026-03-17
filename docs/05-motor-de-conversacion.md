@@ -112,6 +112,17 @@ La conversación nueva puede iniciar en `menu_principal` y usar un handler espec
 
 En esta etapa, volver al menú principal no cierra la conversación: reinicia el subflujo dentro de la misma sesión técnica para no perder trazabilidad y para mantener el cambio acotado.
 
+## Identificación común reutilizable
+
+Para los flujos principales de aviso y anticipo, la conversación puede pasar por un bloque común de identificación que:
+
+- solicita nombre, legajo, sede y jornada laboral
+- valida mínimamente cada dato
+- persiste el borrador en `metadata.identificacion`
+- al completarse, deja la conversación encaminada al próximo paso del flujo elegido
+
+Esto permite reutilizar la captura de identidad sin duplicar handlers por flujo.
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

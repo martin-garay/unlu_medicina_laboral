@@ -6,11 +6,13 @@ use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\Contracts\Validator;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
+use App\Services\Conversation\ConversationContextService;
 
 class MainMenuStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly Validator $validator,
+        private readonly ConversationContextService $conversationContextService,
     ) {
     }
 
@@ -34,7 +36,7 @@ class MainMenuStepHandler extends AbstractStepHandler
         $validation = $this->validator->validate($conversation, $input);
 
         if ($validation->isValid) {
-            return $this->resolveSelection($validation->normalized['selected_option'] ?? null);
+            return $this->resolveSelection($conversation, $validation->normalized['selected_option'] ?? null);
         }
 
         if ($conversation->cantidad_mensajes_recibidos === 0) {
@@ -54,7 +56,7 @@ class MainMenuStepHandler extends AbstractStepHandler
         ]);
     }
 
-    private function resolveSelection(?string $selectedOption): StepResult
+    private function resolveSelection(Conversacion $conversation, ?string $selectedOption): StepResult
     {
         return match ($selectedOption) {
             'consultas' => $this->success('whatsapp.menu.consultas_no_disponible', [
@@ -69,9 +71,9 @@ class MainMenuStepHandler extends AbstractStepHandler
                     ],
                 ],
             ]),
-            'inasistencia' => $this->success('whatsapp.identificacion.dni', [
-                'next_step' => 'esperando_dni',
-                'next_state' => 'esperando_dni',
+            'inasistencia' => $this->success('whatsapp.identificacion.nombre_completo', [
+                'next_step' => 'identificacion_nombre',
+                'next_state' => 'identificacion_nombre',
                 'payload' => [
                     'event_name' => 'menu_option_selected',
                     'event_step_key' => $this->stepKey(),
@@ -79,15 +81,18 @@ class MainMenuStepHandler extends AbstractStepHandler
                     'event_metadata' => [
                         'selected_option' => 'inasistencia',
                     ],
-                    'conversation_updates' => [
-                        'tipo' => 'inasistencia',
-                        'tipo_flujo' => 'inasistencia',
-                    ],
+                    'conversation_updates' => array_merge(
+                        $this->conversationContextService->resetIdentification($conversation),
+                        [
+                            'tipo' => 'inasistencia',
+                            'tipo_flujo' => 'inasistencia',
+                        ]
+                    ),
                 ],
             ]),
-            'certificado' => $this->success('whatsapp.identificacion.dni', [
-                'next_step' => 'esperando_dni',
-                'next_state' => 'esperando_dni',
+            'certificado' => $this->success('whatsapp.identificacion.nombre_completo', [
+                'next_step' => 'identificacion_nombre',
+                'next_state' => 'identificacion_nombre',
                 'payload' => [
                     'event_name' => 'menu_option_selected',
                     'event_step_key' => $this->stepKey(),
@@ -95,10 +100,13 @@ class MainMenuStepHandler extends AbstractStepHandler
                     'event_metadata' => [
                         'selected_option' => 'certificado',
                     ],
-                    'conversation_updates' => [
-                        'tipo' => 'certificado',
-                        'tipo_flujo' => 'certificado',
-                    ],
+                    'conversation_updates' => array_merge(
+                        $this->conversationContextService->resetIdentification($conversation),
+                        [
+                            'tipo' => 'certificado',
+                            'tipo_flujo' => 'certificado',
+                        ]
+                    ),
                 ],
             ]),
             default => $this->invalid('invalid_option', 'whatsapp.errores.invalid_option', [

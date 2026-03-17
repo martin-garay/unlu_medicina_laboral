@@ -232,6 +232,19 @@ Desde ese paso el sistema puede:
 
 En esta fase, `consultas` puede permanecer visible pero responder como no disponible todavía.
 
+## Bloque común de identificación
+
+La identificación del trabajador se implementa como un subflujo compartido para `aviso` y `certificado`.
+
+Pasos mínimos:
+
+- `identificacion_nombre`
+- `identificacion_legajo`
+- `identificacion_sede`
+- `identificacion_jornada`
+
+La persistencia transitoria se resuelve en `metadata.identificacion` dentro de la conversación, evitando crear una tabla nueva en esta etapa.
+
 ---
 
 ## 4. Persistencia y trazabilidad

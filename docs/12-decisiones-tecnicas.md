@@ -238,6 +238,19 @@ y no necesariamente con una tabla de base de datos.
 ### Motivo
 Evitar complejidad prematura.
 
+---
+
+## 16. Persistencia transitoria de identificación en conversación
+
+### Decisión
+Los datos de identificación comunes del trabajador se guardan transitoriamente en `metadata.identificacion` dentro de `conversaciones`.
+
+### Motivo
+- evita una tabla adicional prematura
+- mantiene el borrador asociado a la sesión técnica
+- permite reutilizar la identificación en aviso y certificado
+- facilita cambiar después la estrategia de persistencia si hiciera falta
+
 ### Pendiente
 Reevaluar si el catálogo debe administrarse desde backoffice.
 
