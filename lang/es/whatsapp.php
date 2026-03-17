@@ -10,6 +10,7 @@ return [
 
     'menu' => [
         'prompt' => 'Seleccione una opción para continuar.',
+        'consultas_no_disponible' => 'La opción Consultas todavía no está disponible en este MVP. Puede continuar con aviso de ausencia o anticipo de certificado médico.',
         'options' => [
             'consultas' => 'Consultas',
             'aviso_ausencia' => 'Aviso de ausencia',
@@ -35,6 +36,7 @@ return [
 
     'aviso' => [
         'inicio' => 'Vas a registrar un aviso de ausencia. Completá los datos solicitados para continuar.',
+        'intro_transicional' => "Vas a registrar un aviso de ausencia. Por ahora este MVP continúa con una carga mínima transicional.\n\n¿Cuántos días de inasistencia querés registrar?",
         'prompts' => [
             'fecha_desde' => 'Ingresá la fecha de inicio de la ausencia.',
             'fecha_hasta' => 'Ingresá la fecha de finalización de la ausencia.',
@@ -62,6 +64,7 @@ return [
 
     'certificado' => [
         'inicio' => 'Vas a registrar un anticipo de certificado médico. Podés adjuntar hasta :max_files archivos o imágenes dentro de :deadline horas del aviso. Formatos permitidos: :allowed_extensions.',
+        'intro_transicional' => "Vas a registrar un anticipo de certificado médico. Podés adjuntar hasta :max_files archivos o imágenes dentro de :deadline horas del aviso. Formatos permitidos: :allowed_extensions.\n\nPodés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).",
         'numero_aviso' => 'Para vincular el certificado al aviso de ausencia, ingrese el Número de Aviso.',
         'tipo_certificado' => 'Seleccioná el tipo de certificado.',
         'adjuntar_archivo' => 'Adjuntá el archivo o imagen del certificado.',
@@ -127,6 +130,7 @@ return [
 
     'cancelacion' => [
         'accion' => 'Cancelar y volver al menú principal',
+        'volver_menu_principal' => 'Operación cancelada. Volvés al menú principal.',
         'aviso' => 'El aviso fue cancelado. No se generó ningún registro y los datos informados fueron descartados.',
         'certificado' => 'El anticipo de certificado fue cancelado. No se generó ningún registro y los datos informados fueron descartados.',
     ],

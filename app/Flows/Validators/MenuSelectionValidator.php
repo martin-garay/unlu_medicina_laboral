@@ -12,7 +12,10 @@ class MenuSelectionValidator implements Validator
     {
         $buttonId = $input['button_id'] ?? null;
         $text = strtolower(trim((string) ($input['text'] ?? '')));
-        $options = config('medicina_laboral.mensajes.current_webhook_menu_options', []);
+        $options = config(
+            'medicina_laboral.mensajes.menu_principal_options',
+            config('medicina_laboral.mensajes.current_webhook_menu_options', [])
+        );
         $catalog = config('medicina_laboral.catalogos.menu_principal', []);
 
         foreach ($options as $optionKey) {

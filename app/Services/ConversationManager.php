@@ -55,6 +55,7 @@ class ConversationManager
             'estado' => $newState,
             'estado_actual' => $newState,
             'paso_actual' => $newState,
+            'cantidad_intentos_actual' => 0,
         ], $attributes))->save();
 
         return $conversation->refresh();
@@ -128,10 +129,11 @@ class ConversationManager
             'uuid' => (string) Str::uuid(),
             'wa_number' => $waNumber,
             'canal' => Conversacion::CANAL_WHATSAPP,
-            'estado_actual' => 'iniciada',
+            'estado_actual' => 'menu_principal',
+            'paso_actual' => 'menu_principal',
             'activa' => true,
             'metadata' => [],
-            'estado' => 'esperando_dni',
+            'estado' => 'menu_principal',
         ];
     }
 }

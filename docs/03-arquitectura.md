@@ -217,6 +217,21 @@ La estructura mínima recomendada para empezar a desacoplar el controller queda 
 
 En esta etapa alcanza con uno o pocos handlers transicionales para empezar a mover ramas concretas del `switch` actual sin reescribir todavía todo el flujo.
 
+## Subflujo inicial implementado
+
+La entrada principal del chatbot queda modelada como un paso real del flujo:
+
+- `menu_principal`
+
+Desde ese paso el sistema puede:
+
+- presentar bienvenida institucional y menú principal
+- resolver selección de `consultas`, `aviso de ausencia` o `anticipo de certificado médico`
+- enrutar transitoriamente a los pasos mínimos actuales de aviso o certificado
+- volver al menú principal ante cancelación o reinicio básico del subflujo inicial
+
+En esta fase, `consultas` puede permanecer visible pero responder como no disponible todavía.
+
 ---
 
 ## 4. Persistencia y trazabilidad

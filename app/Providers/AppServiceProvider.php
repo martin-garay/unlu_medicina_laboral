@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Flows\Common\MessageResolver;
+use App\Flows\Handlers\MainMenuStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCantidadDiasStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCertificadoStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoDniStepHandler;
@@ -23,12 +24,19 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(ConversationFlowResolver::class, function ($app) {
             return new ConversationFlowResolver([
+                $app->make(MainMenuStepHandler::class),
                 $app->make(EsperandoDniStepHandler::class),
                 $app->make(EsperandoTipoStepHandler::class),
                 $app->make(EsperandoCantidadDiasStepHandler::class),
                 $app->make(EsperandoCertificadoStepHandler::class),
                 $app->make(FallbackStepHandler::class),
             ]);
+        });
+
+        $this->app->bind(MainMenuStepHandler::class, function ($app) {
+            return new MainMenuStepHandler(
+                $app->make(MenuSelectionValidator::class),
+            );
         });
 
         $this->app->bind(EsperandoDniStepHandler::class, function ($app) {

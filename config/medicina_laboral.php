@@ -92,7 +92,8 @@ return [
     'mensajes' => [
         'use_emojis' => true,
         'prefix_numbered_options' => true,
-        'current_webhook_menu_options' => [
+        'menu_principal_options' => [
+            'consultas',
             'aviso_ausencia',
             'anticipo_certificado',
         ],

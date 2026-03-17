@@ -71,6 +71,7 @@ class WhatsappWebhookController extends Controller
         $this->registerIncomingTrace($conversation, $entry, $from, $buttonId, $providerMessageId, $incomingMessageType, $stepResult);
         $stepResult = $this->enforceAttemptLimit($conversation, $stepResult);
         $conversation = $this->applyStepResult($conversation, $stepResult);
+        $this->recordStepResultEvent($conversation, $stepResult);
         $this->dispatchStepResponse($conversation, $from, $stepResult);
 
         return response()->json(['status' => 'ok']);
@@ -99,9 +100,9 @@ class WhatsappWebhookController extends Controller
         }
 
         $conversation = $this->conversationManager->createConversation($from, [
-            'estado' => 'esperando_dni',
-            'estado_actual' => 'esperando_dni',
-            'paso_actual' => 'esperando_dni',
+            'estado' => 'menu_principal',
+            'estado_actual' => 'menu_principal',
+            'paso_actual' => 'menu_principal',
         ]);
 
         $this->conversationEventService->record($conversation, 'conversation_started', [
@@ -259,6 +260,21 @@ class WhatsappWebhookController extends Controller
         }
     }
 
+    private function recordStepResultEvent(Conversacion $conversation, StepResult $stepResult): void
+    {
+        $eventName = $stepResult->payload['event_name'] ?? null;
+
+        if ($eventName === null) {
+            return;
+        }
+
+        $this->conversationEventService->record($conversation, $eventName, [
+            'step_key' => $stepResult->payload['event_step_key'] ?? $conversation->currentStepKey(),
+            'descripcion' => $stepResult->payload['event_description'] ?? 'Evento del flujo conversacional',
+            'metadata' => $stepResult->payload['event_metadata'] ?? [],
+        ]);
+    }
+
     private function applyConversationUpdates(Conversacion $conversation, array $updates): Conversacion
     {
         if ($updates === []) {
@@ -388,7 +404,10 @@ class WhatsappWebhookController extends Controller
 
     private function mainMenuConfig(): array
     {
-        $options = config('medicina_laboral.mensajes.current_webhook_menu_options', []);
+        $options = config(
+            'medicina_laboral.mensajes.menu_principal_options',
+            config('medicina_laboral.mensajes.current_webhook_menu_options', [])
+        );
         $catalog = config('medicina_laboral.catalogos.menu_principal', []);
         $buttons = [];
 

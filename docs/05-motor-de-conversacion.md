@@ -101,6 +101,17 @@ En el siguiente paso del refactor conviene mover progresivamente más estados re
 - `MessageResolver` resuelva la mayor parte de los mensajes de salida
 - el controller quede concentrado en orquestar efectos técnicos
 
+## Menú principal conversacional
+
+La conversación nueva puede iniciar en `menu_principal` y usar un handler específico para:
+
+- presentar bienvenida institucional y menú
+- aceptar selección de flujo
+- dejar trazado el flujo elegido en la conversación
+- permitir cancelación o reinicio básico hacia el menú principal
+
+En esta etapa, volver al menú principal no cierra la conversación: reinicia el subflujo dentro de la misma sesión técnica para no perder trazabilidad y para mantener el cambio acotado.
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

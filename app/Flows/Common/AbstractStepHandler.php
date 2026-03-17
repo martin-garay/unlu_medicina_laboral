@@ -21,4 +21,35 @@ abstract class AbstractStepHandler implements StepHandler
     {
         return StepResult::invalid($errorCode, $messageKey, $attributes);
     }
+
+    protected function normalizedText(array $input): string
+    {
+        return mb_strtolower(trim((string) ($input['text'] ?? '')));
+    }
+
+    protected function isCancelCommand(array $input): bool
+    {
+        return $this->matchesConfiguredKeyword($input, 'medicina_laboral.conversation.cancel_keywords');
+    }
+
+    protected function isRestartCommand(array $input): bool
+    {
+        return $this->matchesConfiguredKeyword($input, 'medicina_laboral.conversation.allowed_restart_keywords');
+    }
+
+    private function matchesConfiguredKeyword(array $input, string $configKey): bool
+    {
+        $text = $this->normalizedText($input);
+
+        if ($text === '') {
+            return false;
+        }
+
+        $keywords = array_map(
+            static fn (string $value): string => mb_strtolower(trim($value)),
+            config($configKey, [])
+        );
+
+        return in_array($text, $keywords, true);
+    }
 }
