@@ -98,3 +98,37 @@ return [
         'max_attempts_exceeded' => 'Se alcanzó el máximo de intentos permitidos.',
     ],
 ];
+```
+
+## Implementación inicial actual
+
+En la primera centralización del proyecto conviene dejar al menos:
+
+- `lang/es/whatsapp.php`
+- `config/medicina_laboral.php`
+- `resources/views/messages/aviso/...`
+- `resources/views/messages/certificado/...`
+- `resources/views/messages/comunes/...`
+
+Los textos cortos deben resolverse con `__('whatsapp...')`.
+
+Los parámetros y catálogos deben resolverse con `config('medicina_laboral...')`.
+
+Los mensajes largos o institucionales deben renderizarse con Blade, por ejemplo:
+
+```php
+view('messages.aviso.confirmacion_final', $data)->render();
+```
+
+## Nota de nomenclatura transitoria
+
+Si se necesitan claves temporales para sostener el flujo actual mientras se refactoriza el webhook, la convención recomendada es usar sufijos como `transicional`.
+
+Evitar `legacy` para mensajes del chatbot, porque describe peor la intención y deja una deuda menos clara.
+
+Ejemplos preferidos:
+
+- `whatsapp.aviso.prompts.cantidad_dias_transicional`
+- `whatsapp.certificado.detalle_o_adjunto_transicional`
+
+Si hoy todavía existen claves con `legacy`, deben renombrarse en el siguiente ajuste menor para mantener la base consistente.

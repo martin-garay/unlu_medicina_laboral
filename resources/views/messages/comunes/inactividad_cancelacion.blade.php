@@ -1,0 +1,1 @@
+{{ __('whatsapp.timeouts.cancelacion') }}

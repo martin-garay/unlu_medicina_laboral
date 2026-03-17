@@ -100,7 +100,7 @@ class WhatsappWebhookController extends Controller
             ],
         ]);
 
-        $menuConfig = config('whatsapp_menu');
+        $menuConfig = $this->mainMenuConfig();
         $responseText = null;
         $shouldSendMenu = false;
 
@@ -112,27 +112,18 @@ class WhatsappWebhookController extends Controller
                 break;
 
             case 'esperando_tipo':
-                $selectedTipo = null;
-
-                if ($buttonId && isset($menuConfig['id_to_tipo'][$buttonId])) {
-                    $selectedTipo = $menuConfig['id_to_tipo'][$buttonId];
-                } else {
-                    $normalizedText = strtolower(trim($text));
-                    if (isset($menuConfig['text_to_tipo'][$normalizedText])) {
-                        $selectedTipo = $menuConfig['text_to_tipo'][$normalizedText];
-                    }
-                }
+                $selectedTipo = $this->resolveSelectedMenuOption($buttonId, $text);
 
                 if ($selectedTipo === 'inasistencia') {
                     $conversation->tipo = 'inasistencia';
                     $conversation->tipo_flujo = 'inasistencia';
                     $conversation = $this->transitionConversation($conversation, 'esperando_cantidad_dias');
-                    $responseText = '¿Cuántos días de inasistencia querés registrar?';
+                    $responseText = __('whatsapp.aviso.prompts.cantidad_dias_legacy');
                 } elseif ($selectedTipo === 'certificado') {
                     $conversation->tipo = 'certificado';
                     $conversation->tipo_flujo = 'certificado';
                     $conversation = $this->transitionConversation($conversation, 'esperando_certificado');
-                    $responseText = 'Podés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).';
+                    $responseText = __('whatsapp.certificado.detalle_o_adjunto_legacy');
                 } else {
                     $shouldSendMenu = true;
                 }
@@ -152,7 +143,7 @@ class WhatsappWebhookController extends Controller
                     'estado_actual' => 'completada',
                     'paso_actual' => 'completada',
                 ]);
-                $responseText = '✅ Inasistencia registrada. ¡Que te mejores!';
+                $responseText = __('whatsapp.aviso.registrado_breve');
                 break;
 
             case 'esperando_certificado':
@@ -167,7 +158,7 @@ class WhatsappWebhookController extends Controller
                     'estado_actual' => 'completada',
                     'paso_actual' => 'completada',
                 ]);
-                $responseText = '✅ Certificado registrado. ¡Gracias por avisar!';
+                $responseText = __('whatsapp.certificado.registrado_breve');
                 break;
 
             default:
@@ -180,7 +171,7 @@ class WhatsappWebhookController extends Controller
                 $this->conversationEventService->recordConversationClosed($conversation, 'unexpected_state', [
                     'legacy_estado' => $conversation->estado,
                 ]);
-                $responseText = 'Por favor, escribí tu DNI para comenzar.';
+                $responseText = __('whatsapp.general.reinicio');
                 break;
         }
 
@@ -279,5 +270,57 @@ class WhatsappWebhookController extends Controller
         }
 
         return 'unknown';
+    }
+
+    private function mainMenuConfig(): array
+    {
+        $options = config('medicina_laboral.mensajes.current_webhook_menu_options', []);
+        $catalog = config('medicina_laboral.catalogos.menu_principal', []);
+        $buttons = [];
+
+        foreach ($options as $optionKey) {
+            $option = $catalog[$optionKey] ?? null;
+
+            if (!$option) {
+                continue;
+            }
+
+            $buttons[] = [
+                'id' => $option['id'],
+                'title' => __("whatsapp.menu.options.{$optionKey}"),
+            ];
+        }
+
+        return [
+            'body_text' => __('whatsapp.menu.prompt'),
+            'buttons' => $buttons,
+        ];
+    }
+
+    private function resolveSelectedMenuOption(?string $buttonId, string $text): ?string
+    {
+        $options = config('medicina_laboral.mensajes.current_webhook_menu_options', []);
+        $catalog = config('medicina_laboral.catalogos.menu_principal', []);
+        $normalizedText = strtolower(trim($text));
+
+        foreach ($options as $optionKey) {
+            $option = $catalog[$optionKey] ?? null;
+
+            if (!$option) {
+                continue;
+            }
+
+            if ($buttonId && ($option['id'] ?? null) === $buttonId) {
+                return $option['legacy_code'] ?? $optionKey;
+            }
+
+            $aliases = array_map('strtolower', $option['aliases'] ?? []);
+
+            if ($normalizedText !== '' && in_array($normalizedText, $aliases, true)) {
+                return $option['legacy_code'] ?? $optionKey;
+            }
+        }
+
+        return null;
     }
 }
