@@ -287,7 +287,7 @@ class WhatsappWebhookController extends Controller
 
             $buttons[] = [
                 'id' => $option['id'],
-                'title' => __("whatsapp.menu.options.{$optionKey}"),
+                'title' => __("whatsapp.menu.button_titles.{$optionKey}"),
             ];
         }
 

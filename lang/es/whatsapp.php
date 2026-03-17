@@ -15,6 +15,11 @@ return [
             'aviso_ausencia' => 'Aviso de ausencia',
             'anticipo_certificado' => 'Anticipo de certificado médico',
         ],
+        'button_titles' => [
+            'consultas' => 'Consultas',
+            'aviso_ausencia' => 'Aviso ausencia',
+            'anticipo_certificado' => 'Anticipo cert.',
+        ],
     ],
 
     'identificacion' => [
