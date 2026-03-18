@@ -137,6 +137,8 @@ Ejemplos de claves:
 - `metadata.aviso.domicilio_circunstancial`
 - `metadata.aviso.observaciones`
 
+Cuando el usuario confirma el resumen final del aviso, ese borrador deja de ser solo contexto conversacional y puede materializarse en un `Aviso` real mediante un servicio específico, manteniendo desacoplado al controller de la persistencia de negocio.
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

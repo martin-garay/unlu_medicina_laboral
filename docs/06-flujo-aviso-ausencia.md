@@ -119,7 +119,7 @@ El sistema debe solicitar el período de ausencia.
 
 ### Implementación actual de esta etapa
 
-En esta fase se avanza hasta guardar transitoriamente:
+En esta fase el flujo ya avanza hasta guardar transitoriamente:
 
 - `fecha_desde`
 - `fecha_hasta`
@@ -128,11 +128,16 @@ En esta fase se avanza hasta guardar transitoriamente:
 - decisión sobre domicilio circunstancial y su valor si aplica
 - `observaciones`
 
+Luego muestra una confirmación final basada en template Blade y, para el caso soportado de punta a punta, permite:
+
+- confirmar el aviso
+- cancelar y volver al menú principal
+
+Al confirmar se materializa un `Aviso`, se asocia a la conversación y la conversación se cierra de forma consistente.
+
 Formato de fecha adoptado en esta etapa:
 
 - `YYYY-MM-DD`
-
-La confirmación final y la creación real de `Aviso` quedan para el paso siguiente.
 
 ## Pasos sugeridos
 
@@ -218,6 +223,20 @@ Tratar este paso como:
 
 - opcional
 - texto libre
+
+## Confirmación final y registración
+
+Una vez completados los datos transitorios del aviso, el sistema puede:
+
+1. renderizar un resumen final con los datos de identificación y del aviso
+2. esperar confirmación explícita del usuario
+3. crear el `Aviso` real solo si la confirmación fue positiva
+4. asociar el `aviso_id` a la conversación
+5. cerrar la conversación con motivo `completed`
+
+## Limitación vigente
+
+El caso `atencion_familiar_enfermo` todavía no recorre el subflujo adicional completo, por lo que la confirmación y creación de aviso de punta a punta queda soportada en esta etapa para el camino estándar sin datos de familiar.
 - con longitud máxima configurable
 
 ## Subflujo 7: confirmación final

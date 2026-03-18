@@ -5,12 +5,14 @@ namespace App\Flows\Aviso\Handlers;
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
+use App\Services\AvisoService;
 use App\Services\Conversation\ConversationContextService;
 
 class AvisoObservacionesStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
+        private readonly AvisoService $avisoService,
     ) {
     }
 
@@ -60,12 +62,16 @@ class AvisoObservacionesStepHandler extends AbstractStepHandler
             ]);
         }
 
-        return $this->success('whatsapp.aviso.pendiente_confirmacion_siguiente_etapa', [
-            'next_step' => 'aviso_confirmacion_pendiente',
-            'next_state' => 'aviso_confirmacion_pendiente',
+        return $this->success(null, [
+            'template' => config('medicina_laboral.mensajes.templates.aviso_confirmacion_final'),
+            'template_data' => $this->avisoService->buildConfirmationTemplateData($conversation, [
+                'observaciones' => $observaciones,
+            ]),
+            'next_step' => 'aviso_confirmacion_final',
+            'next_state' => 'aviso_confirmacion_final',
             'payload' => [
-                'event_name' => 'aviso_partial_flow_completed',
-                'event_description' => 'Tramo inicial del aviso completado',
+                'event_name' => 'aviso_ready_for_confirmation',
+                'event_description' => 'Aviso listo para confirmación final',
                 'event_metadata' => [
                     'requires_familiar_subflow' => false,
                 ],

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Aviso;
 use App\Models\Conversacion;
 use App\Flows\Common\MessageResolver;
 use App\Flows\Common\StepResult;
+use App\Services\AvisoService;
 use App\Services\Conversation\ConversationFlowResolver;
 use App\Services\ConversationEventService;
 use App\Services\ConversationManager;
@@ -23,6 +23,7 @@ class WhatsappWebhookController extends Controller
         private readonly ConversationManager $conversationManager,
         private readonly ConversationMessageService $conversationMessageService,
         private readonly ConversationEventService $conversationEventService,
+        private readonly AvisoService $avisoService,
     ) {
     }
 
@@ -70,9 +71,9 @@ class WhatsappWebhookController extends Controller
 
         $this->registerIncomingTrace($conversation, $entry, $from, $buttonId, $providerMessageId, $incomingMessageType, $stepResult);
         $stepResult = $this->enforceAttemptLimit($conversation, $stepResult);
-        $conversation = $this->applyStepResult($conversation, $stepResult);
+        ['conversation' => $conversation, 'response_result' => $responseResult] = $this->applyStepResult($conversation, $stepResult);
         $this->recordStepResultEvent($conversation, $stepResult);
-        $this->dispatchStepResponse($conversation, $from, $stepResult);
+        $this->dispatchStepResponse($conversation, $from, $responseResult ?? $stepResult);
 
         return response()->json(['status' => 'ok']);
     }
@@ -174,13 +175,14 @@ class WhatsappWebhookController extends Controller
         return $conversation;
     }
 
-    private function applyStepResult(Conversacion $conversation, StepResult $stepResult): Conversacion
+    private function applyStepResult(Conversacion $conversation, StepResult $stepResult): array
     {
         $conversation = $conversation->refresh();
         $conversation = $this->applyConversationUpdates(
             $conversation,
             $stepResult->payload['conversation_updates'] ?? []
         );
+        $responseResult = null;
 
         if ($stepResult->shouldCancel) {
             $reason = $stepResult->payload['close_reason'] ?? 'cancelled';
@@ -194,11 +196,14 @@ class WhatsappWebhookController extends Controller
                 'error_code' => $stepResult->errorCode,
             ]);
 
-            return $conversation;
+            return [
+                'conversation' => $conversation,
+                'response_result' => $responseResult,
+            ];
         }
 
         if ($stepResult->shouldFinish) {
-            $this->executeBusinessAction($conversation, $stepResult);
+            $responseResult = $this->executeBusinessAction($conversation, $stepResult);
 
             $reason = $stepResult->payload['close_reason'] ?? 'completed';
             $conversation = $this->conversationManager->closeConversation(
@@ -211,14 +216,20 @@ class WhatsappWebhookController extends Controller
                 'error_code' => $stepResult->errorCode,
             ]);
 
-            return $conversation;
+            return [
+                'conversation' => $conversation,
+                'response_result' => $responseResult,
+            ];
         }
 
         if ($stepResult->hasNextState()) {
-            return $this->transitionConversation($conversation, $stepResult->nextState);
+            $conversation = $this->transitionConversation($conversation, $stepResult->nextState);
         }
 
-        return $conversation;
+        return [
+            'conversation' => $conversation,
+            'response_result' => $responseResult,
+        ];
     }
 
     private function enforceAttemptLimit(Conversacion $conversation, StepResult $stepResult): StepResult
@@ -286,12 +297,32 @@ class WhatsappWebhookController extends Controller
         return $conversation->refresh();
     }
 
-    private function executeBusinessAction(Conversacion $conversation, StepResult $stepResult): void
+    private function executeBusinessAction(Conversacion $conversation, StepResult $stepResult): ?StepResult
     {
         $action = $stepResult->payload['business_action'] ?? null;
 
+        if ($action === 'create_aviso_from_conversation') {
+            $aviso = $this->avisoService->createFromConversation($conversation);
+
+            $conversation->forceFill([
+                'aviso_id' => $aviso->id,
+            ])->save();
+
+            $this->conversationEventService->record($conversation->refresh(), 'aviso_created', [
+                'step_key' => $conversation->currentStepKey(),
+                'descripcion' => 'Aviso creado a partir de la conversación',
+                'metadata' => [
+                    'aviso_id' => $aviso->id,
+                    'numero_aviso' => $this->avisoService->displayNumber($aviso),
+                    'tipo_ausentismo' => $aviso->tipo_ausentismo,
+                ],
+            ]);
+
+            return $this->avisoService->buildRegisteredStepResult($aviso);
+        }
+
         if ($action === 'create_aviso_inasistencia') {
-            Aviso::create([
+            \App\Models\Aviso::create([
                 'dni' => $conversation->dni,
                 'tipo' => 'inasistencia',
                 'fecha_inicio' => now()->toDateString(),
@@ -299,17 +330,19 @@ class WhatsappWebhookController extends Controller
                 'wa_number' => $conversation->wa_number,
             ]);
 
-            return;
+            return null;
         }
 
         if ($action === 'create_aviso_certificado') {
-            Aviso::create([
+            \App\Models\Aviso::create([
                 'dni' => $conversation->dni,
                 'tipo' => 'certificado',
                 'certificado_base64' => $stepResult->payload['certificado_texto'] ?? null,
                 'wa_number' => $conversation->wa_number,
             ]);
         }
+
+        return null;
     }
 
     private function sendTextResponse(Conversacion $conversation, string $to, string $message): void

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Flows\Common\MessageResolver;
 use App\Flows\Aviso\Handlers\AvisoDomicilioCircunstancialDetalleStepHandler;
 use App\Flows\Aviso\Handlers\AvisoDomicilioCircunstancialStepHandler;
+use App\Flows\Aviso\Handlers\AvisoConfirmacionFinalStepHandler;
 use App\Flows\Aviso\Handlers\AvisoFechaDesdeStepHandler;
 use App\Flows\Aviso\Handlers\AvisoFechaHastaStepHandler;
 use App\Flows\Aviso\Handlers\AvisoMotivoStepHandler;
@@ -15,7 +16,6 @@ use App\Flows\Identification\Handlers\IdentificacionJornadaStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionLegajoStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionNombreStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionSedeStepHandler;
-use App\Flows\Placeholders\Handlers\AvisoConfirmacionPendienteStepHandler;
 use App\Flows\Placeholders\Handlers\AvisoFamiliarPendienteStepHandler;
 use App\Flows\Placeholders\Handlers\CertificadoNumeroAvisoPlaceholderStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCantidadDiasStepHandler;
@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(AvisoDomicilioCircunstancialStepHandler::class),
                 $app->make(AvisoDomicilioCircunstancialDetalleStepHandler::class),
                 $app->make(AvisoObservacionesStepHandler::class),
-                $app->make(AvisoConfirmacionPendienteStepHandler::class),
+                $app->make(AvisoConfirmacionFinalStepHandler::class),
                 $app->make(AvisoFamiliarPendienteStepHandler::class),
                 $app->make(CertificadoNumeroAvisoPlaceholderStepHandler::class),
                 $app->make(EsperandoDniStepHandler::class),
@@ -146,11 +146,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AvisoObservacionesStepHandler::class, function ($app) {
             return new AvisoObservacionesStepHandler(
                 $app->make(ConversationContextService::class),
+                $app->make(\App\Services\AvisoService::class),
             );
         });
 
-        $this->app->bind(AvisoConfirmacionPendienteStepHandler::class, function ($app) {
-            return new AvisoConfirmacionPendienteStepHandler(
+        $this->app->bind(AvisoConfirmacionFinalStepHandler::class, function ($app) {
+            return new AvisoConfirmacionFinalStepHandler(
                 $app->make(ConversationContextService::class),
             );
         });

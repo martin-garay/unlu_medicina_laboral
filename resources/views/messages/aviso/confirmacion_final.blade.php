@@ -22,4 +22,5 @@ Domicilio circunstancial: {{ $domicilio_circunstancial }}
 Observaciones: {{ $observaciones }}
 @endif
 
-Si los datos son correctos, confirme el aviso.
+1. Confirmar aviso
+2. Cancelar y volver al menú principal
