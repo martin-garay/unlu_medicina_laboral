@@ -123,6 +123,20 @@ Para los flujos principales de aviso y anticipo, la conversación puede pasar po
 
 Esto permite reutilizar la captura de identidad sin duplicar handlers por flujo.
 
+## Borrador transitorio de aviso
+
+Mientras el aviso no se confirma ni se materializa, la conversación puede almacenar un borrador bajo `metadata.aviso`.
+
+Ejemplos de claves:
+
+- `metadata.aviso.fecha_desde`
+- `metadata.aviso.fecha_hasta`
+- `metadata.aviso.tipo_ausentismo`
+- `metadata.aviso.motivo`
+- `metadata.aviso.informo_domicilio_circunstancial`
+- `metadata.aviso.domicilio_circunstancial`
+- `metadata.aviso.observaciones`
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

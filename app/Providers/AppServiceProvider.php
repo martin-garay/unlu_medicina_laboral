@@ -3,17 +3,28 @@
 namespace App\Providers;
 
 use App\Flows\Common\MessageResolver;
+use App\Flows\Aviso\Handlers\AvisoDomicilioCircunstancialDetalleStepHandler;
+use App\Flows\Aviso\Handlers\AvisoDomicilioCircunstancialStepHandler;
+use App\Flows\Aviso\Handlers\AvisoFechaDesdeStepHandler;
+use App\Flows\Aviso\Handlers\AvisoFechaHastaStepHandler;
+use App\Flows\Aviso\Handlers\AvisoMotivoStepHandler;
+use App\Flows\Aviso\Handlers\AvisoObservacionesStepHandler;
+use App\Flows\Aviso\Handlers\AvisoTipoAusentismoStepHandler;
 use App\Flows\Handlers\MainMenuStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionJornadaStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionLegajoStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionNombreStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionSedeStepHandler;
-use App\Flows\Placeholders\Handlers\AvisoFechaDesdePlaceholderStepHandler;
+use App\Flows\Placeholders\Handlers\AvisoConfirmacionPendienteStepHandler;
+use App\Flows\Placeholders\Handlers\AvisoFamiliarPendienteStepHandler;
 use App\Flows\Placeholders\Handlers\CertificadoNumeroAvisoPlaceholderStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCantidadDiasStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCertificadoStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoDniStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoTipoStepHandler;
+use App\Flows\Validators\AusentismoTypeValidator;
+use App\Flows\Validators\DateInputValidator;
+use App\Flows\Validators\AvisoFechaHastaValidator;
 use App\Flows\Transitional\Handlers\FallbackStepHandler;
 use App\Flows\Validators\LegajoValidator;
 use App\Flows\Validators\MenuSelectionValidator;
@@ -38,7 +49,15 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(IdentificacionLegajoStepHandler::class),
                 $app->make(IdentificacionSedeStepHandler::class),
                 $app->make(IdentificacionJornadaStepHandler::class),
-                $app->make(AvisoFechaDesdePlaceholderStepHandler::class),
+                $app->make(AvisoFechaDesdeStepHandler::class),
+                $app->make(AvisoFechaHastaStepHandler::class),
+                $app->make(AvisoTipoAusentismoStepHandler::class),
+                $app->make(AvisoMotivoStepHandler::class),
+                $app->make(AvisoDomicilioCircunstancialStepHandler::class),
+                $app->make(AvisoDomicilioCircunstancialDetalleStepHandler::class),
+                $app->make(AvisoObservacionesStepHandler::class),
+                $app->make(AvisoConfirmacionPendienteStepHandler::class),
+                $app->make(AvisoFamiliarPendienteStepHandler::class),
                 $app->make(CertificadoNumeroAvisoPlaceholderStepHandler::class),
                 $app->make(EsperandoDniStepHandler::class),
                 $app->make(EsperandoTipoStepHandler::class),
@@ -83,8 +102,61 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->bind(AvisoFechaDesdePlaceholderStepHandler::class, function ($app) {
-            return new AvisoFechaDesdePlaceholderStepHandler(
+        $this->app->bind(AvisoFechaDesdeStepHandler::class, function ($app) {
+            return new AvisoFechaDesdeStepHandler(
+                $app->make(DateInputValidator::class),
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoFechaHastaStepHandler::class, function ($app) {
+            return new AvisoFechaHastaStepHandler(
+                $app->make(AvisoFechaHastaValidator::class),
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoTipoAusentismoStepHandler::class, function ($app) {
+            return new AvisoTipoAusentismoStepHandler(
+                $app->make(AusentismoTypeValidator::class),
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoMotivoStepHandler::class, function ($app) {
+            return new AvisoMotivoStepHandler(
+                $app->make(RequiredTextValidator::class),
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoDomicilioCircunstancialStepHandler::class, function ($app) {
+            return new AvisoDomicilioCircunstancialStepHandler(
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoDomicilioCircunstancialDetalleStepHandler::class, function ($app) {
+            return new AvisoDomicilioCircunstancialDetalleStepHandler(
+                $app->make(RequiredTextValidator::class),
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoObservacionesStepHandler::class, function ($app) {
+            return new AvisoObservacionesStepHandler(
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoConfirmacionPendienteStepHandler::class, function ($app) {
+            return new AvisoConfirmacionPendienteStepHandler(
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(AvisoFamiliarPendienteStepHandler::class, function ($app) {
+            return new AvisoFamiliarPendienteStepHandler(
                 $app->make(ConversationContextService::class),
             );
         });

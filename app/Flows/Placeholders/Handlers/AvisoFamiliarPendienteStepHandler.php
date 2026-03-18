@@ -7,7 +7,7 @@ use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
 
-class AvisoFechaDesdePlaceholderStepHandler extends AbstractStepHandler
+class AvisoFamiliarPendienteStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
@@ -16,7 +16,7 @@ class AvisoFechaDesdePlaceholderStepHandler extends AbstractStepHandler
 
     public function stepKey(): string
     {
-        return 'aviso_fecha_desde';
+        return 'aviso_familiar_pendiente';
     }
 
     public function handle(Conversacion $conversation, array $input = []): StepResult
@@ -33,17 +33,11 @@ class AvisoFechaDesdePlaceholderStepHandler extends AbstractStepHandler
                         'from_step' => $this->stepKey(),
                         'flow' => $conversation->tipo_flujo,
                     ],
-                    'conversation_updates' => array_merge(
-                        $this->conversationContextService->resetIdentification($conversation),
-                        [
-                            'tipo' => null,
-                            'tipo_flujo' => null,
-                        ]
-                    ),
+                    'conversation_updates' => $this->conversationContextService->resetCurrentFlowContext($conversation),
                 ],
             ]);
         }
 
-        return $this->success('whatsapp.aviso.pendiente_siguiente_etapa');
+        return $this->success('whatsapp.aviso.pendiente_familiar_siguiente_etapa');
     }
 }

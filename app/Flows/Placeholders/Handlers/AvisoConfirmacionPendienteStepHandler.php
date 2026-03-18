@@ -7,7 +7,7 @@ use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
 
-class CertificadoNumeroAvisoPlaceholderStepHandler extends AbstractStepHandler
+class AvisoConfirmacionPendienteStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
@@ -16,7 +16,7 @@ class CertificadoNumeroAvisoPlaceholderStepHandler extends AbstractStepHandler
 
     public function stepKey(): string
     {
-        return 'certificado_numero_aviso';
+        return 'aviso_confirmacion_pendiente';
     }
 
     public function handle(Conversacion $conversation, array $input = []): StepResult
@@ -38,6 +38,6 @@ class CertificadoNumeroAvisoPlaceholderStepHandler extends AbstractStepHandler
             ]);
         }
 
-        return $this->success('whatsapp.certificado.pendiente_siguiente_etapa');
+        return $this->success('whatsapp.aviso.pendiente_confirmacion_siguiente_etapa');
     }
 }

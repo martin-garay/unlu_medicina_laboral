@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Flows\Identification\Handlers;
+namespace App\Flows\Aviso\Handlers;
 
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\Contracts\Validator;
@@ -8,7 +8,7 @@ use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
 
-class IdentificacionNombreStepHandler extends AbstractStepHandler
+class AvisoDomicilioCircunstancialDetalleStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly Validator $validator,
@@ -18,7 +18,7 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
 
     public function stepKey(): string
     {
-        return 'identificacion_nombre';
+        return 'aviso_domicilio_circunstancial_detalle';
     }
 
     public function handle(Conversacion $conversation, array $input = []): StepResult
@@ -35,12 +35,13 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
             ]);
         }
 
-        return $this->success('whatsapp.identificacion.legajo', [
-            'next_step' => 'identificacion_legajo',
-            'next_state' => 'identificacion_legajo',
+        return $this->success('whatsapp.aviso.prompts.observaciones_pregunta', [
+            'next_step' => 'aviso_observaciones',
+            'next_state' => 'aviso_observaciones',
             'payload' => [
-                'conversation_updates' => $this->conversationContextService->withIdentificationData($conversation, [
-                    'nombre_completo' => $validation->normalized['text'] ?? null,
+                'conversation_updates' => $this->conversationContextService->withAvisoData($conversation, [
+                    'informo_domicilio_circunstancial' => true,
+                    'domicilio_circunstancial' => $validation->normalized['text'] ?? null,
                 ]),
             ],
         ]);

@@ -35,6 +35,27 @@ return [
         'deadline_business_hours' => 24,
     ],
 
+    'avisos' => [
+        'input_date_format' => 'Y-m-d',
+        'domicilio_yes_keywords' => [
+            '1',
+            'si',
+            'sí',
+        ],
+        'domicilio_no_keywords' => [
+            '2',
+            'no',
+            'continuar',
+            'no, continuar',
+        ],
+        'observaciones_skip_keywords' => [
+            'no',
+            'continuar',
+            'no, continuar',
+            'sin observaciones',
+        ],
+    ],
+
     'catalogos' => [
         'menu_principal' => [
             'consultas' => [

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Flows\Identification\Handlers;
+namespace App\Flows\Aviso\Handlers;
 
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\Contracts\Validator;
@@ -8,7 +8,7 @@ use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
 
-class IdentificacionNombreStepHandler extends AbstractStepHandler
+class AvisoFechaDesdeStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly Validator $validator,
@@ -18,7 +18,7 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
 
     public function stepKey(): string
     {
-        return 'identificacion_nombre';
+        return 'aviso_fecha_desde';
     }
 
     public function handle(Conversacion $conversation, array $input = []): StepResult
@@ -30,17 +30,20 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
         $validation = $this->validator->validate($conversation, $input);
 
         if (!$validation->isValid) {
-            return $this->invalid($validation->errorCode ?? 'required', 'whatsapp.errores.required', [
+            return $this->invalid($validation->errorCode ?? 'invalid_date', 'whatsapp.errores.invalid_date', [
                 'increment_attempts' => 1,
             ]);
         }
 
-        return $this->success('whatsapp.identificacion.legajo', [
-            'next_step' => 'identificacion_legajo',
-            'next_state' => 'identificacion_legajo',
+        return $this->success('whatsapp.aviso.prompts.fecha_hasta', [
+            'message_params' => [
+                'date_format' => config('medicina_laboral.avisos.input_date_format', 'Y-m-d'),
+            ],
+            'next_step' => 'aviso_fecha_hasta',
+            'next_state' => 'aviso_fecha_hasta',
             'payload' => [
-                'conversation_updates' => $this->conversationContextService->withIdentificationData($conversation, [
-                    'nombre_completo' => $validation->normalized['text'] ?? null,
+                'conversation_updates' => $this->conversationContextService->withAvisoData($conversation, [
+                    'fecha_desde' => $validation->normalized['date'] ?? null,
                 ]),
             ],
         ]);

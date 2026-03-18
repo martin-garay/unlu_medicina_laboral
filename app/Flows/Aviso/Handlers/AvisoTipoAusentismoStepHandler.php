@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Flows\Identification\Handlers;
+namespace App\Flows\Aviso\Handlers;
 
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\Contracts\Validator;
@@ -8,7 +8,7 @@ use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
 
-class IdentificacionNombreStepHandler extends AbstractStepHandler
+class AvisoTipoAusentismoStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly Validator $validator,
@@ -18,7 +18,7 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
 
     public function stepKey(): string
     {
-        return 'identificacion_nombre';
+        return 'aviso_tipo_ausentismo';
     }
 
     public function handle(Conversacion $conversation, array $input = []): StepResult
@@ -30,20 +30,34 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
         $validation = $this->validator->validate($conversation, $input);
 
         if (!$validation->isValid) {
-            return $this->invalid($validation->errorCode ?? 'required', 'whatsapp.errores.required', [
+            return $this->invalid($validation->errorCode ?? 'invalid_option', 'whatsapp.errores.invalid_option', [
+                'message' => $this->buildInvalidTipoAusentismoMessage(),
                 'increment_attempts' => 1,
             ]);
         }
 
-        return $this->success('whatsapp.identificacion.legajo', [
-            'next_step' => 'identificacion_legajo',
-            'next_state' => 'identificacion_legajo',
+        return $this->success('whatsapp.aviso.prompts.motivo', [
+            'next_step' => 'aviso_motivo',
+            'next_state' => 'aviso_motivo',
             'payload' => [
-                'conversation_updates' => $this->conversationContextService->withIdentificationData($conversation, [
-                    'nombre_completo' => $validation->normalized['text'] ?? null,
+                'conversation_updates' => $this->conversationContextService->withAvisoData($conversation, [
+                    'tipo_ausentismo' => $validation->normalized['tipo_ausentismo'] ?? null,
+                    'tipo_ausentismo_label' => $validation->normalized['tipo_ausentismo_label'] ?? null,
+                    'requiere_datos_familiar' => ($validation->normalized['tipo_ausentismo'] ?? null) === 'atencion_familiar_enfermo',
                 ]),
             ],
         ]);
+    }
+
+    private function buildInvalidTipoAusentismoMessage(): string
+    {
+        $lines = [__('whatsapp.errores.invalid_option')];
+
+        foreach (array_values(config('medicina_laboral.catalogos.tipos_ausentismo', [])) as $index => $label) {
+            $lines[] = ($index + 1) . '. ' . $label;
+        }
+
+        return implode("\n", $lines);
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

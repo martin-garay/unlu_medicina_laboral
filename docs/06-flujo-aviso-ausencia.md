@@ -117,6 +117,23 @@ Validaciones mínimas sugeridas:
 
 El sistema debe solicitar el período de ausencia.
 
+### Implementación actual de esta etapa
+
+En esta fase se avanza hasta guardar transitoriamente:
+
+- `fecha_desde`
+- `fecha_hasta`
+- `tipo_ausentismo`
+- `motivo`
+- decisión sobre domicilio circunstancial y su valor si aplica
+- `observaciones`
+
+Formato de fecha adoptado en esta etapa:
+
+- `YYYY-MM-DD`
+
+La confirmación final y la creación real de `Aviso` quedan para el paso siguiente.
+
 ## Pasos sugeridos
 
 ### 5. Fecha desde

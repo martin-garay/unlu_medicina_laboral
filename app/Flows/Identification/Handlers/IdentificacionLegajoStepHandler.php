@@ -75,13 +75,7 @@ class IdentificacionLegajoStepHandler extends AbstractStepHandler
                     'from_step' => $this->stepKey(),
                     'flow' => $conversation->tipo_flujo,
                 ],
-                'conversation_updates' => array_merge(
-                    $this->conversationContextService->resetIdentification($conversation),
-                    [
-                        'tipo' => null,
-                        'tipo_flujo' => null,
-                    ]
-                ),
+                'conversation_updates' => $this->conversationContextService->resetCurrentFlowContext($conversation),
             ],
         ]);
     }

@@ -82,7 +82,7 @@ class MainMenuStepHandler extends AbstractStepHandler
                         'selected_option' => 'inasistencia',
                     ],
                     'conversation_updates' => array_merge(
-                        $this->conversationContextService->resetIdentification($conversation),
+                        $this->conversationContextService->resetCurrentFlowContext($conversation),
                         [
                             'tipo' => 'inasistencia',
                             'tipo_flujo' => 'inasistencia',
@@ -101,7 +101,7 @@ class MainMenuStepHandler extends AbstractStepHandler
                         'selected_option' => 'certificado',
                     ],
                     'conversation_updates' => array_merge(
-                        $this->conversationContextService->resetIdentification($conversation),
+                        $this->conversationContextService->resetCurrentFlowContext($conversation),
                         [
                             'tipo' => 'certificado',
                             'tipo_flujo' => 'certificado',

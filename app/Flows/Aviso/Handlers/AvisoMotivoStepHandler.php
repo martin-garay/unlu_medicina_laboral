@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Flows\Identification\Handlers;
+namespace App\Flows\Aviso\Handlers;
 
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\Contracts\Validator;
@@ -8,7 +8,7 @@ use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
 
-class IdentificacionNombreStepHandler extends AbstractStepHandler
+class AvisoMotivoStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly Validator $validator,
@@ -18,7 +18,7 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
 
     public function stepKey(): string
     {
-        return 'identificacion_nombre';
+        return 'aviso_motivo';
     }
 
     public function handle(Conversacion $conversation, array $input = []): StepResult
@@ -35,14 +35,24 @@ class IdentificacionNombreStepHandler extends AbstractStepHandler
             ]);
         }
 
-        return $this->success('whatsapp.identificacion.legajo', [
-            'next_step' => 'identificacion_legajo',
-            'next_state' => 'identificacion_legajo',
+        return StepResult::make(null, [
+            'message' => $this->buildDomicilioDecisionPrompt(),
+            'next_step' => 'aviso_domicilio_circunstancial',
+            'next_state' => 'aviso_domicilio_circunstancial',
             'payload' => [
-                'conversation_updates' => $this->conversationContextService->withIdentificationData($conversation, [
-                    'nombre_completo' => $validation->normalized['text'] ?? null,
+                'conversation_updates' => $this->conversationContextService->withAvisoData($conversation, [
+                    'motivo' => $validation->normalized['text'] ?? null,
                 ]),
             ],
+        ]);
+    }
+
+    private function buildDomicilioDecisionPrompt(): string
+    {
+        return implode("\n", [
+            __('whatsapp.aviso.prompts.domicilio_circunstancial_pregunta'),
+            '1. ' . __('whatsapp.aviso.options.si'),
+            '2. ' . __('whatsapp.aviso.options.no_continuar'),
         ]);
     }
 
