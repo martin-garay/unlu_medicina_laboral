@@ -36,7 +36,7 @@ return [
     ],
 
     'avisos' => [
-        'input_date_format' => 'Y-m-d',
+        'input_date_format' => 'd/m/Y',
         'domicilio_yes_keywords' => [
             '1',
             'si',

@@ -37,7 +37,7 @@ class AvisoFechaDesdeStepHandler extends AbstractStepHandler
 
         return $this->success('whatsapp.aviso.prompts.fecha_hasta', [
             'message_params' => [
-                'date_format' => config('medicina_laboral.avisos.input_date_format', 'Y-m-d'),
+                'date_format' => config('medicina_laboral.avisos.input_date_format', 'd/m/Y'),
             ],
             'next_step' => 'aviso_fecha_hasta',
             'next_state' => 'aviso_fecha_hasta',

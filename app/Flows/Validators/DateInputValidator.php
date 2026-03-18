@@ -17,7 +17,7 @@ class DateInputValidator implements Validator
             return ValidationResult::invalid('required');
         }
 
-        $format = (string) config('medicina_laboral.avisos.input_date_format', 'Y-m-d');
+        $format = (string) config('medicina_laboral.avisos.input_date_format', 'd/m/Y');
 
         try {
             $date = Carbon::createFromFormat($format, $raw);
