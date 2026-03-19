@@ -44,4 +44,36 @@ class ConversationEventServiceTest extends TestCase
             'codigo' => 'completed',
         ]);
     }
+
+    public function test_record_validation_failed_persists_error_code_and_metadata(): void
+    {
+        $conversation = app(ConversationManager::class)->createConversation('5491111111111');
+
+        $event = app(ConversationEventService::class)->recordValidationFailed($conversation, 'invalid_option', [
+            'current_attempts' => 2,
+        ]);
+
+        $this->assertDatabaseHas('conversacion_eventos', [
+            'id' => $event->id,
+            'tipo_evento' => 'validation_failed',
+            'codigo' => 'invalid_option',
+        ]);
+        $this->assertSame(2, $event->metadata['current_attempts']);
+    }
+
+    public function test_record_retry_incremented_persists_retry_event(): void
+    {
+        $conversation = app(ConversationManager::class)->createConversation('5491111111111');
+
+        $event = app(ConversationEventService::class)->recordRetryIncremented($conversation, [
+            'current_attempts' => 1,
+        ]);
+
+        $this->assertDatabaseHas('conversacion_eventos', [
+            'id' => $event->id,
+            'tipo_evento' => 'retry_incremented',
+            'codigo' => 'retry_incremented',
+        ]);
+        $this->assertSame(1, $event->metadata['current_attempts']);
+    }
 }

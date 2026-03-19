@@ -48,4 +48,27 @@ class ConversationEventService
             'metadata' => $metadata,
         ]);
     }
+
+    public function recordValidationFailed(
+        Conversacion $conversation,
+        string $errorCode,
+        array $metadata = [],
+    ): ConversacionEvento {
+        return $this->record($conversation, 'validation_failed', [
+            'descripcion' => 'Validación fallida en el flujo conversacional',
+            'codigo' => $errorCode,
+            'metadata' => $metadata,
+        ]);
+    }
+
+    public function recordRetryIncremented(
+        Conversacion $conversation,
+        array $metadata = [],
+    ): ConversacionEvento {
+        return $this->record($conversation, 'retry_incremented', [
+            'descripcion' => 'Incremento de intento inválido',
+            'codigo' => 'retry_incremented',
+            'metadata' => $metadata,
+        ]);
+    }
 }

@@ -8,6 +8,7 @@ use App\Flows\Common\StepResult;
 use App\Services\AvisoService;
 use App\Services\Conversation\ConversationFlowResolver;
 use App\Services\ConversationEventService;
+use App\Services\ConversationFailureService;
 use App\Services\ConversationManager;
 use App\Services\ConversationMessageService;
 use App\Services\WhatsAppSender;
@@ -23,6 +24,7 @@ class WhatsappWebhookController extends Controller
         private readonly ConversationManager $conversationManager,
         private readonly ConversationMessageService $conversationMessageService,
         private readonly ConversationEventService $conversationEventService,
+        private readonly ConversationFailureService $conversationFailureService,
         private readonly AvisoService $avisoService,
     ) {
     }
@@ -71,7 +73,12 @@ class WhatsappWebhookController extends Controller
         $stepResult = $this->processConversationStep($conversation, $flowInput);
 
         $this->registerIncomingTrace($conversation, $entry, $from, $buttonId, $providerMessageId, $incomingMessageType, $stepResult);
-        $stepResult = $this->enforceAttemptLimit($conversation, $stepResult);
+        $conversation = $conversation->refresh();
+        $this->conversationFailureService->recordInvalidStep($conversation, $stepResult, [
+            'provider_message_id' => $providerMessageId,
+            'incoming_message_type' => $incomingMessageType,
+        ]);
+        $stepResult = $this->conversationFailureService->enforceAttemptLimit($conversation, $stepResult);
         ['conversation' => $conversation, 'response_result' => $responseResult] = $this->applyStepResult($conversation, $stepResult);
         $this->recordStepResultEvent($conversation, $stepResult);
         $this->dispatchStepResponse($conversation, $from, $responseResult ?? $stepResult);
@@ -231,32 +238,6 @@ class WhatsappWebhookController extends Controller
             'conversation' => $conversation,
             'response_result' => $responseResult,
         ];
-    }
-
-    private function enforceAttemptLimit(Conversacion $conversation, StepResult $stepResult): StepResult
-    {
-        if ($stepResult->isValid || $stepResult->incrementAttempts <= 0 || $stepResult->closesConversation()) {
-            return $stepResult;
-        }
-
-        $conversation = $conversation->refresh();
-        $maxInvalidAttempts = (int) config('medicina_laboral.conversation.max_invalid_attempts', 3);
-
-        if ($conversation->cantidad_intentos_actual < $maxInvalidAttempts) {
-            return $stepResult;
-        }
-
-        return StepResult::invalid('max_attempts_exceeded', 'whatsapp.errores.max_attempts_exceeded', [
-            'should_cancel' => true,
-            'payload' => [
-                'close_reason' => 'max_invalid_attempts',
-                'close_attributes' => [
-                    'estado' => 'cancelada',
-                    'estado_actual' => 'cancelada',
-                    'paso_actual' => 'cancelada',
-                ],
-            ],
-        ]);
     }
 
     private function dispatchStepResponse(Conversacion $conversation, string $to, StepResult $stepResult): void
