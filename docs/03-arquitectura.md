@@ -186,6 +186,19 @@ Responsabilidades:
 - devolver códigos de error estables
 - no enviar mensajes ni persistir directamente
 
+### Servicios desacoplados de identificación externa
+Responsabilidades:
+- encapsular la consulta de trabajador por legajo
+- devolver datos básicos cuando estén disponibles
+- permitir una implementación mock durante el MVP
+
+Implementación inicial sugerida:
+- contrato `MapucheWorkerProvider`
+- implementación `MockMapucheWorkerProvider`
+
+Evolución futura:
+- implementación real contra Mapuche o API Mapuche sin acoplar handlers ni validadores al proveedor externo
+
 ### `MessageResolver`
 Responsabilidades:
 - traducir resultados de validación a mensajes concretos

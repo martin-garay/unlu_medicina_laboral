@@ -74,8 +74,8 @@ Por ahora se puede dejar desacoplado el mecanismo de identificación real median
 
 Ejemplo conceptual:
 
-- `WorkerIdentificationService`
-- `MockWorkerIdentificationService`
+- `MapucheWorkerProvider`
+- `MockMapucheWorkerProvider`
 
 Esto permite avanzar con el flujo sin bloquear el desarrollo por integraciones externas.
 

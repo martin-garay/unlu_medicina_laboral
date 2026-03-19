@@ -7,12 +7,15 @@ use App\Flows\Common\Contracts\Validator;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
+use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
+use Illuminate\Support\Carbon;
 
 class IdentificacionLegajoStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly Validator $validator,
         private readonly ConversationContextService $conversationContextService,
+        private readonly MapucheWorkerProvider $mapucheWorkerProvider,
     ) {
     }
 
@@ -39,6 +42,14 @@ class IdentificacionLegajoStepHandler extends AbstractStepHandler
             ]);
         }
 
+        $worker = $this->mapucheWorkerProvider->findByLegajo((string) ($validation->normalized['legajo'] ?? ''));
+
+        if ($worker === null) {
+            return $this->invalid('legajo_no_encontrado', 'whatsapp.errores.legajo_no_encontrado', [
+                'increment_attempts' => 1,
+            ]);
+        }
+
         return StepResult::make(null, [
             'message' => $this->buildSedePrompt(),
             'next_step' => 'identificacion_sede',
@@ -46,6 +57,9 @@ class IdentificacionLegajoStepHandler extends AbstractStepHandler
             'payload' => [
                 'conversation_updates' => $this->conversationContextService->withIdentificationData($conversation, [
                     'legajo' => $validation->normalized['legajo'] ?? null,
+                    'mapuche_lookup' => array_merge($worker->toArray(), [
+                        'resolved_at' => Carbon::now()->toIso8601String(),
+                    ]),
                 ]),
             ],
         ]);

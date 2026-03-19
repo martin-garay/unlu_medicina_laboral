@@ -61,7 +61,7 @@ La documentación funcional indica que deben solicitarse estos datos:
 
 Mantener el mismo enfoque desacoplado que en el flujo de aviso:
 
-- interfaz de identificación
+- contrato de integración con Mapuche
 - implementación mock temporal
 
 Esto permite reutilizar comportamiento y evitar duplicar lógica.

@@ -223,6 +223,14 @@ La identificación real del trabajador se deja temporalmente mockeada o encapsul
 ### Motivo
 El foco inicial está en el motor de conversación y en los flujos.
 
+### Implementación base
+- contrato pequeño `MapucheWorkerProvider` para lookup por legajo
+- implementación `MockMapucheWorkerProvider` configurable para desarrollo
+- almacenamiento del resultado del lookup dentro de `metadata.identificacion.mapuche_lookup` cuando aplique
+
+### Evolución prevista
+La implementación real contra Mapuche queda diferida y deberá reemplazar o complementar el mock sin acoplar los handlers conversacionales al proveedor externo.
+
 ---
 
 ## 15. Catálogo de tipos de certificado

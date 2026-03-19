@@ -525,6 +525,7 @@ Si una modificación de templates o mensajes cambia comportamiento de flujo o cr
 Preparar la transición desde MVP a una solución más integrada.
 
 ### Alcance futuro
+- integración real con Mapuche para validación e identificación del trabajador
 - identificación real del trabajador
 - envío de emails
 - storage definitivo de archivos
@@ -532,6 +533,16 @@ Preparar la transición desde MVP a una solución más integrada.
 - adapter formal para payloads externos
 - integraciones con sistemas externos
 - mayor desacople entre proveedor externo y dominio interno
+
+### Roadmap específico de Mapuche
+Antes de esta etapa, el proyecto puede apoyarse en una abstracción chica como `MapucheWorkerProvider` con implementación mock para desarrollo.
+
+En esta etapa deberá abordarse:
+- reemplazo o complemento del mock por una implementación real contra Mapuche o API Mapuche
+- validación real de legajo
+- obtención de nombre, sede y jornada laboral desde el sistema externo
+- manejo explícito de errores de integración
+- mantenimiento del desacople entre flujos conversacionales y proveedor externo
 
 ### Estado esperado
 El sistema puede evolucionar sin necesidad de reescribir la base conversacional.

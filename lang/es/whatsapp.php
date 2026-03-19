@@ -96,6 +96,7 @@ return [
 
     'errores' => [
         'legajo_invalido' => 'El número de legajo ingresado no es válido. Por favor, verifíquelo.',
+        'legajo_no_encontrado' => 'No se pudo validar el legajo informado con la integración mock de Mapuche disponible en este entorno.',
         'aviso_inexistente' => 'No se encontró un aviso de ausencia con el número informado.',
         'aviso_no_corresponde_legajo' => 'El aviso informado no corresponde al legajo ingresado.',
         'plazo_vencido_anticipo' => 'El plazo para registrar el anticipo de certificado se encuentra vencido.',

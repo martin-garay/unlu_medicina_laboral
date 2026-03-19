@@ -36,6 +36,8 @@ use App\Flows\Validators\PositiveIntegerValidator;
 use App\Flows\Validators\RequiredTextValidator;
 use App\Flows\Validators\SedeValidator;
 use App\Flows\Validators\TipoCertificadoValidator;
+use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
+use App\Services\Mapuche\MockMapucheWorkerProvider;
 use App\Services\Conversation\ConversationContextService;
 use App\Services\Conversation\ConversationFlowResolver;
 use Illuminate\Support\ServiceProvider;
@@ -47,6 +49,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(MapucheWorkerProvider::class, function () {
+            return new MockMapucheWorkerProvider();
+        });
+
         $this->app->singleton(ConversationFlowResolver::class, function ($app) {
             return new ConversationFlowResolver([
                 $app->make(MainMenuStepHandler::class),
@@ -93,6 +99,7 @@ class AppServiceProvider extends ServiceProvider
             return new IdentificacionLegajoStepHandler(
                 $app->make(LegajoValidator::class),
                 $app->make(ConversationContextService::class),
+                $app->make(MapucheWorkerProvider::class),
             );
         });
 

@@ -116,6 +116,25 @@ return [
         ],
     ],
 
+    'mapuche' => [
+        'driver' => env('MAPUCHE_DRIVER', 'mock'),
+        'mock' => [
+            'accept_unknown_legajo' => env('MAPUCHE_MOCK_ACCEPT_UNKNOWN_LEGAJO', true),
+            'records' => [
+                '10001' => [
+                    'nombre_completo' => 'Ana Perez',
+                    'sede' => 'Sede Central',
+                    'jornada_laboral' => 'Manana',
+                ],
+                '10002' => [
+                    'nombre_completo' => 'Juan Gomez',
+                    'sede' => 'Campus Lujan',
+                    'jornada_laboral' => 'Tarde',
+                ],
+            ],
+        ],
+    ],
+
     'mensajes' => [
         'use_emojis' => true,
         'prefix_numbered_options' => true,
