@@ -15,6 +15,18 @@ El objetivo es dejar una base técnica simple pero sólida para implementar los 
 - aviso de ausencia
 - anticipo de certificado médico
 
+## Diagramas relacionados
+
+La referencia visual versionable de esta arquitectura vive en:
+
+- `docs/diagrams/classes/conversation-engine.puml`
+- `docs/diagrams/flows/aviso-ausencia.mmd`
+- `docs/diagrams/flows/anticipo-certificado.mmd`
+
+La convención de formatos está documentada en:
+
+- `docs/diagrams/README.md`
+
 ## Principios arquitectónicos
 
 ### 1. Controllers livianos
@@ -382,3 +394,8 @@ StepResult
         |
         v
 WhatsAppSender
+```
+
+## Nota de mantenimiento
+
+Cuando cambien relaciones estructurales importantes del motor conversacional, servicios base o contratos del flujo, también debe actualizarse el diagrama correspondiente en `docs/diagrams/`.

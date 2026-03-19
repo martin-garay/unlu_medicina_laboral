@@ -6,6 +6,18 @@ El motor de conversación es la base técnica que permite gestionar la interacci
 
 Su responsabilidad no es registrar directamente el aviso de ausencia ni el anticipo de certificado como entidades de negocio, sino sostener el proceso conversacional que eventualmente puede derivar en uno de esos registros.
 
+## Diagramas relacionados
+
+La referencia visual versionable del motor y sus flujos vive en:
+
+- `docs/diagrams/classes/conversation-engine.puml`
+- `docs/diagrams/flows/aviso-ausencia.mmd`
+- `docs/diagrams/flows/anticipo-certificado.mmd`
+
+La convención general está en:
+
+- `docs/diagrams/README.md`
+
 ## Idea central
 
 El proyecto debe separar claramente tres conceptos:
@@ -150,6 +162,17 @@ Ejemplos de claves:
 - `metadata.certificado.tipo_certificado`
 - `metadata.certificado.tipo_certificado_label`
 - `metadata.certificado.adjuntos`
+
+## Estado actual del flujo de anticipo
+
+La base implementada llega hoy hasta:
+
+- identificación común
+- validación de aviso previo
+- selección de tipo de certificado
+- captura de metadata mínima de un adjunto
+
+La confirmación final y la materialización del anticipo siguen pendientes. Los diagramas del directorio `docs/diagrams/` deben reflejar ese alcance real y no una implementación hipotética.
 
 ## Qué no debe hacer
 
@@ -433,3 +456,7 @@ En la fase transicional actual, el flujo mínimo cubre:
 - fallback para estados no soportados
 
 Los nombres y mensajes marcados como `transicional` existen para sostener el MVP vigente mientras se desacopla el flujo real de aviso y certificado.
+
+## Nota de mantenimiento
+
+Si cambian pasos, contratos, handlers relevantes o el alcance real de los flujos, actualizar también los diagramas correspondientes en `docs/diagrams/`.

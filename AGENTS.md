@@ -31,6 +31,7 @@ Cuando existan, también leer:
 - `docs/07-flujo-anticipo-certificado.md`
 - `docs/08-validaciones-y-reglas.md`
 - `docs/09-scheduler-e-inactividad.md`
+- `docs/diagrams/README.md`
 
 ## Reglas de diseño
 
@@ -47,6 +48,8 @@ Cuando existan, también leer:
 - Un anticipo de certificado es una entidad de negocio separada y requiere aviso previo.
 - Los automatismos de inactividad deben resolverse con Laravel Scheduler.
 - Los mensajes largos deben vivir en templates Blade.
+- Los diagramas versionables viven en `docs/diagrams/`.
+- Si cambian flujos o estructura relevante, actualizar los diagramas afectados.
 
 ## Criterios de modelado
 
@@ -126,3 +129,4 @@ Dejar el proyecto preparado para:
 - incorporación de nuevas validaciones
 - incorporación de nuevos pasos o subflujos
 - administración futura de mensajes y parámetros
+- documentación visual viva mantenible desde Git y por agentes

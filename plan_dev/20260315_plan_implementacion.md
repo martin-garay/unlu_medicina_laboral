@@ -32,6 +32,7 @@ Cuando se necesiten planes de trabajo más cortos o de una tanda específica, es
 - dejar trazabilidad desde el comienzo
 - priorizar mantenibilidad y extensibilidad
 - construir primero una base reusable antes de cerrar los flujos completos
+- mantener documentación visual viva en formatos texto versionables
 
 ---
 
@@ -46,12 +47,14 @@ Crear y mantener:
 - `README.md`
 - `AGENTS.md`
 - `docs/`
+- `docs/diagrams/`
 - `PLANS.md`
 
 ### Entregables
 - documentación base del proyecto
 - reglas de diseño claras
 - contexto suficiente para devs y agentes de IA
+- convención explícita de diagramas como código para flujos, clases y base de datos
 
 ### Estado esperado
 El repo debe quedar entendible para una persona nueva sin depender de contexto oral.
@@ -404,6 +407,13 @@ Además de las etapas y milestones, conviene ejecutar la base conversacional en 
 - documentar criterios de cobertura y aceptación
 - comenzar por validadores, handlers y servicios estables
 - hacer obligatorio que los pasos posteriores incluyan tests en el mismo commit
+
+### Bloque operativo K
+- mantener diagramas de flujo en Mermaid
+- mantener diagramas de clases en PlantUML
+- mantener esquema de base de datos en DBML
+- actualizar `docs/diagrams/` cuando cambian flujos o estructura relevante
+- usar los diagramas como soporte de contexto para prompts futuros a Codex
 
 ### Criterio de uso
 

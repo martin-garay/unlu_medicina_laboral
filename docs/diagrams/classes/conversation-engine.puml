@@ -1,0 +1,104 @@
+@startuml
+hide empty members
+skinparam classAttributeIconSize 0
+
+class Conversacion {
+  +id
+  +uuid
+  +wa_number
+  +tipo_flujo
+  +estado_actual
+  +paso_actual
+  +activa
+  +metadata
+}
+
+class ConversacionMensaje {
+  +id
+  +conversacion_id
+  +direccion
+  +tipo_mensaje
+  +step_key
+}
+
+class ConversacionEvento {
+  +id
+  +conversacion_id
+  +tipo_evento
+  +step_key
+  +codigo
+}
+
+class Aviso {
+  +id
+  +conversacion_id
+  +legajo
+  +tipo_ausentismo
+  +fecha_inicio
+  +fecha_fin
+}
+
+class "AnticipoCertificado\n(futuro)" as AnticipoCertificado {
+  +id
+  +conversacion_id
+  +aviso_id
+  +tipo_certificado
+  +estado
+}
+
+class "AnticipoCertificadoArchivo\n(futuro)" as AnticipoCertificadoArchivo {
+  +id
+  +anticipo_certificado_id
+  +conversacion_id
+  +mime_type
+  +storage_path
+}
+
+class ConversationManager
+class ConversationMessageService
+class ConversationEventService
+class ConversationFlowResolver
+interface StepHandler
+interface Validator
+class StepResult
+class ValidationResult
+class MessageResolver
+class AvisoService
+class ConversationContextService
+
+Conversacion "1" -- "0..*" ConversacionMensaje : mensajes
+Conversacion "1" -- "0..*" ConversacionEvento : eventos
+Conversacion "0..1" -- "0..1" Aviso : aviso materializado
+Aviso "1" -- "0..*" AnticipoCertificado : aviso previo
+AnticipoCertificado "1" -- "1..*" AnticipoCertificadoArchivo : adjuntos
+Conversacion "0..1" -- "0..1" AnticipoCertificado : anticipo materializado
+
+ConversationManager ..> Conversacion
+ConversationMessageService ..> Conversacion
+ConversationMessageService ..> ConversacionMensaje
+ConversationMessageService ..> ConversationManager
+ConversationEventService ..> Conversacion
+ConversationEventService ..> ConversacionEvento
+ConversationFlowResolver ..> StepHandler : resuelve
+StepHandler ..> Conversacion
+StepHandler ..> StepResult
+StepHandler ..> Validator
+Validator ..> Conversacion
+Validator ..> ValidationResult
+MessageResolver ..> StepResult
+AvisoService ..> Conversacion
+AvisoService ..> Aviso
+ConversationContextService ..> Conversacion
+
+note right of AnticipoCertificado
+Entidad prevista por la documentacion.
+No existe todavia como modelo ni migracion
+en el estado actual del repo.
+end note
+
+note bottom of StepHandler
+Contrato por paso del flujo conversacional.
+Los handlers concretos se registran en
+AppServiceProvider y son resueltos por orden.
+end note
+@enduml

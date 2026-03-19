@@ -1,0 +1,37 @@
+flowchart TD
+    A[Inicio o mensaje entrante] --> B[menu_principal]
+    B -->|Opcion aviso de ausencia| C[identificacion_nombre]
+    B -->|Cancelar o reiniciar| B
+    C --> D[identificacion_legajo]
+    D --> E[identificacion_sede]
+    E --> F[identificacion_jornada]
+    F --> G[aviso_fecha_desde]
+    G --> H[aviso_fecha_hasta]
+    H --> I[aviso_tipo_ausentismo]
+    I -->|Camino estandar| J[aviso_motivo]
+    I -->|Familiar enfermo| P[AvisoFamiliarPendienteStepHandler]
+    P --> X[Placeholder documentado\nsubflujo aun no completo]
+    J --> K[aviso_domicilio_circunstancial]
+    K -->|Si informa domicilio| L[aviso_domicilio_circunstancial_detalle]
+    K -->|Si no informa| M[aviso_observaciones]
+    L --> M
+    M --> N[aviso_confirmacion_final]
+    N -->|Confirmar| O[Crear Aviso]
+    O --> Q[Asociar aviso a conversacion]
+    Q --> R[Cerrar conversacion completed]
+    R --> S[Mensaje final de aviso registrado]
+    N -->|Cancelar y volver al menu| B
+    C -->|Cancelar| B
+    D -->|Cancelar| B
+    E -->|Cancelar| B
+    F -->|Cancelar| B
+    G -->|Cancelar| B
+    H -->|Cancelar| B
+    I -->|Cancelar| B
+    J -->|Cancelar| B
+    K -->|Cancelar| B
+    L -->|Cancelar| B
+    M -->|Cancelar| B
+
+    classDef future fill:#fff3cd,stroke:#946200,color:#4a3a00;
+    class P,X future;

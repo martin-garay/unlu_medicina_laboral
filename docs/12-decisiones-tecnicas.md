@@ -386,3 +386,25 @@ A futuro conviene agregar decisiones sobre:
 - integración real con sistemas externos
 - criterios de versionado de flujos
 - administración de catálogos desde panel
+
+---
+
+## 21. Diagramas como código
+
+### Decisión
+La documentación visual del proyecto se mantiene como texto versionable dentro de `docs/diagrams/`.
+
+### Formatos elegidos
+- Mermaid para flujos conversacionales
+- PlantUML para diagramas de clases
+- DBML para esquema de base de datos
+
+### Motivo
+- diff legible en Git
+- mantenimiento simple
+- soporte natural para PRs
+- buena compatibilidad con prompts y agentes como Codex
+- documentación viva alineada con el código
+
+### Implicancia
+Cuando cambien flujos relevantes, relaciones estructurales o esquema de datos, los diagramas afectados deben actualizarse junto con la documentación correspondiente.

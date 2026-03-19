@@ -81,8 +81,16 @@ Si prefieres usar `make`:
   ```
 - La política y criterios de cobertura están documentados en `docs/11-testing-y-criterios.md`.
 
+## Diagramas como código
+- La documentación visual vive en `docs/diagrams/`.
+- Mermaid se usa para flujos conversacionales.
+- PlantUML se usa para diagramas de clases.
+- DBML se usa para esquema de base de datos.
+- La convención y los criterios de actualización están en `docs/diagrams/README.md`.
+
 ## Archivos clave
 - `docker-compose.yml`: orquesta `app`, `db` y `composer`.
 - `docker/app/Dockerfile`: imagen PHP 8.3 con extensiones requeridas y usuario no-root.
 - `.env.docker.example`: variables de entorno pensadas para Docker.
 - `Makefile`: atajos para comandos frecuentes dentro de Docker.
+- `docs/diagrams/`: documentación visual versionable del proyecto.

@@ -1,0 +1,27 @@
+flowchart TD
+    A[Inicio o mensaje entrante] --> B[menu_principal]
+    B -->|Opcion anticipo de certificado| C[identificacion_nombre]
+    B -->|Cancelar o reiniciar| B
+    C --> D[identificacion_legajo]
+    D --> E[identificacion_sede]
+    E --> F[identificacion_jornada]
+    F --> G[certificado_numero_aviso]
+    G --> H[Validar aviso elegible]
+    H -->|Valido| I[certificado_tipo]
+    H -->|Invalido| G
+    I --> J[certificado_adjunto]
+    J --> K[Guardar metadata minima del adjunto]
+    K --> L[certificado_confirmacion_pendiente]
+    L --> M[Placeholder del siguiente tramo]
+    M --> N[Confirmacion final y registracion efectiva\npendientes de implementacion]
+    C -->|Cancelar| B
+    D -->|Cancelar| B
+    E -->|Cancelar| B
+    F -->|Cancelar| B
+    G -->|Cancelar| B
+    I -->|Cancelar| B
+    J -->|Cancelar| B
+    L -->|Cancelar| B
+
+    classDef future fill:#fff3cd,stroke:#946200,color:#4a3a00;
+    class L,M,N future;

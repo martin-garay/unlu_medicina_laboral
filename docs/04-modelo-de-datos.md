@@ -12,6 +12,16 @@ Este documento propone un modelo de datos inicial para el MVP de Medicina Labora
 
 El objetivo no es cerrar definitivamente el esquema, sino definir una base consistente y mantenible para comenzar la implementación.
 
+## Diagrama relacionado
+
+La referencia visual versionable del esquema vive en:
+
+- `docs/diagrams/db/medicina-laboral.dbml`
+
+La convención de diagramas como código está documentada en:
+
+- `docs/diagrams/README.md`
+
 ## Principios de modelado
 
 ### 1. Conversación y negocio son cosas distintas
@@ -407,6 +417,16 @@ La definición final deberá alinearse con el módulo administrativo futuro.
 
 Representa el anticipo de certificado médico como entidad de negocio.
 
+## Estado respecto del repo actual
+
+Esta tabla sigue siendo una definición objetivo de la documentación.
+
+En el estado actual del repositorio:
+
+- no existe migración para `anticipos_certificado`
+- no existe modelo Eloquent para `AnticipoCertificado`
+- el flujo conversacional de anticipo todavía no materializa esta entidad
+
 Debe quedar asociado a:
 
 - una conversación efectiva
@@ -469,6 +489,12 @@ Ejemplos:
 ## Propósito
 
 Registrar los archivos adjuntos asociados al anticipo de certificado.
+
+## Estado respecto del repo actual
+
+Esta tabla sigue siendo una definición objetivo de la documentación.
+
+En el estado actual del repositorio no existe migración ni modelo para esta estructura.
 
 Se separa en una tabla propia para soportar múltiples archivos por anticipo.
 
@@ -556,3 +582,8 @@ avisos
 
 anticipos_certificado
   └── anticipo_certificado_archivos (1..n)
+```
+
+## Nota de mantenimiento
+
+Cuando cambie el esquema real o la proyección estructural de negocio, debe actualizarse también `docs/diagrams/db/medicina-laboral.dbml`.

@@ -1,0 +1,145 @@
+Project medicina_laboral {
+  database_type: "PostgreSQL"
+  Note: "Esquema actual del repo mas entidades futuras previstas documentalmente."
+}
+
+Table conversaciones {
+  id bigint [pk]
+  uuid uuid [not null, unique]
+  wa_number varchar [not null]
+  canal varchar [not null, default: 'whatsapp']
+  tipo_flujo varchar
+  estado_actual varchar [not null, default: 'iniciada']
+  paso_actual varchar
+  activa boolean [not null, default: true]
+  cantidad_mensajes_recibidos integer [not null, default: 0]
+  cantidad_mensajes_enviados integer [not null, default: 0]
+  cantidad_mensajes_validos integer [not null, default: 0]
+  cantidad_mensajes_invalidos integer [not null, default: 0]
+  cantidad_intentos_actual integer [not null, default: 0]
+  cantidad_intentos_totales integer [not null, default: 0]
+  ultimo_mensaje_recibido_en timestamp
+  ultimo_mensaje_enviado_en timestamp
+  primer_umbral_notificado_en timestamp
+  segundo_umbral_notificado_en timestamp
+  expira_en timestamp
+  finalizada_en timestamp
+  motivo_finalizacion varchar
+  aviso_id bigint
+  estado varchar [not null, default: 'esperando_dni']
+  dni varchar
+  tipo varchar
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+
+  Note: "Tabla real actual. Conviven campos nuevos y legacy."
+}
+
+Table conversacion_mensajes {
+  id bigint [pk]
+  uuid uuid [not null, unique]
+  conversacion_id bigint [not null]
+  direccion varchar(10) [not null]
+  provider_message_id varchar
+  tipo_mensaje varchar [not null, default: 'text']
+  step_key varchar
+  contenido_texto text
+  es_valido boolean
+  motivo_invalidez varchar
+  message_key varchar
+  template_name varchar
+  payload_crudo json
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table conversacion_eventos {
+  id bigint [pk]
+  uuid uuid [not null, unique]
+  conversacion_id bigint [not null]
+  tipo_evento varchar [not null]
+  step_key varchar
+  descripcion text
+  codigo varchar
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table avisos {
+  id bigint [pk]
+  conversacion_id bigint
+  dni varchar
+  nombre_completo varchar
+  legajo varchar
+  sede varchar
+  jornada_laboral varchar
+  tipo varchar
+  tipo_ausentismo varchar
+  fecha_inicio date
+  fecha_fin date
+  cantidad_dias integer
+  certificado_base64 text
+  motivo text
+  domicilio_circunstancial varchar
+  observaciones text
+  wa_number varchar
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: conversacion_mensajes.conversacion_id > conversaciones.id
+Ref: conversacion_eventos.conversacion_id > conversaciones.id
+Ref: conversaciones.aviso_id > avisos.id
+Ref: avisos.conversacion_id > conversaciones.id
+
+Table anticipos_certificado {
+  id bigint [pk]
+  uuid uuid
+  numero_anticipo varchar
+  conversacion_id bigint
+  aviso_id bigint
+  wa_number varchar
+  nombre_completo varchar
+  legajo varchar
+  sede varchar
+  jornada_laboral varchar
+  tipo_certificado varchar
+  estado varchar
+  observaciones text
+  registrado_en timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  Note: "Tabla futura prevista por la documentacion. No existe todavia en migraciones."
+}
+
+Table anticipo_certificado_archivos {
+  id bigint [pk]
+  uuid uuid
+  anticipo_certificado_id bigint
+  conversacion_id bigint
+  provider_file_id varchar
+  nombre_original varchar
+  mime_type varchar
+  extension varchar
+  size_bytes bigint
+  storage_disk varchar
+  storage_path varchar
+  hash_archivo varchar
+  estado_validacion varchar
+  motivo_rechazo varchar
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+
+  Note: "Tabla futura prevista por la documentacion. No existe todavia en migraciones."
+}
+
+Ref: anticipos_certificado.conversacion_id > conversaciones.id
+Ref: anticipos_certificado.aviso_id > avisos.id
+Ref: anticipo_certificado_archivos.anticipo_certificado_id > anticipos_certificado.id
+Ref: anticipo_certificado_archivos.conversacion_id > conversaciones.id
