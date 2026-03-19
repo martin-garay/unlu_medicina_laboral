@@ -8,7 +8,7 @@ GID := $(shell id -g)
 DC := DOCKER_CONFIG=$(CURDIR)/.docker docker-compose
 
 
-.PHONY: db up down install key migrate logs sh test timeouts
+.PHONY: db up down install key migrate logs sh test timeouts diagrams diagrams-check diagrams-clean
 
 up:
 	UID=$(UID) GID=$(GID) $(DC) up --build
@@ -40,3 +40,13 @@ test:
 
 timeouts:
 	UID=$(UID) GID=$(GID) $(DC) exec app php artisan conversations:process-timeouts
+
+diagrams:
+	./scripts/render_diagrams.sh
+
+diagrams-check:
+	./scripts/render_diagrams.sh
+	git diff --exit-code -- docs/diagrams/rendered
+
+diagrams-clean:
+	rm -rf docs/diagrams/rendered/flows docs/diagrams/rendered/classes

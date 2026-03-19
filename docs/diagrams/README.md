@@ -76,6 +76,7 @@ No forma parte de la convención inicial ni se implementa en esta etapa.
 - Actualizar los diagramas cuando cambian flujos conversacionales relevantes.
 - Actualizar los diagramas cuando cambian clases, contratos o relaciones estructurales importantes.
 - Actualizar los diagramas de base de datos cuando cambian tablas, columnas clave o relaciones principales.
+- Regenerar los SVG derivados cuando cambian los fuentes de Mermaid o PlantUML.
 - No inventar precisión que el código todavía no tiene.
 - Si una pieza todavía es futura o parcial, dejarlo explícito en el diagrama o en una nota cercana.
 
@@ -94,6 +95,32 @@ Los próximos prompts a Codex o a otros agentes deben considerarlos como referen
 - `flows/`: flujos conversacionales en Mermaid
 - `classes/`: diagramas de clases y relaciones conceptuales en PlantUML
 - `db/`: esquema de base de datos en DBML
+- `rendered/`: SVGs derivados listos para lectura rápida
+
+## Renderizado local recomendado
+
+Se adopta una estrategia liviana basada en Docker para no exigir instalaciones locales de Node o Java fuera del flujo habitual del proyecto.
+
+Comandos:
+
+```bash
+make diagrams
+```
+
+```bash
+make diagrams-check
+```
+
+Esto genera:
+
+- `docs/diagrams/rendered/flows/*.svg`
+- `docs/diagrams/rendered/classes/*.svg`
+
+## Alcance del renderizado actual
+
+- Mermaid: se genera SVG
+- PlantUML: se genera SVG
+- DBML: se mantiene como fuente de verdad textual y no se exporta a imagen estática en esta etapa
 
 ## Nota de alcance actual
 

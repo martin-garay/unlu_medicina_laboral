@@ -87,6 +87,7 @@ Si prefieres usar `make`:
 - PlantUML se usa para diagramas de clases.
 - DBML se usa para esquema de base de datos.
 - La convención y los criterios de actualización están en `docs/diagrams/README.md`.
+- Los SVG derivados se regeneran con `make diagrams`.
 
 ## Archivos clave
 - `docker-compose.yml`: orquesta `app`, `db` y `composer`.
@@ -94,3 +95,4 @@ Si prefieres usar `make`:
 - `.env.docker.example`: variables de entorno pensadas para Docker.
 - `Makefile`: atajos para comandos frecuentes dentro de Docker.
 - `docs/diagrams/`: documentación visual versionable del proyecto.
+- `scripts/render_diagrams.sh`: generación de SVGs para Mermaid y PlantUML.
