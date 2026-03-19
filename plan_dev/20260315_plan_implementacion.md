@@ -8,6 +8,22 @@ La idea es usarlo como base de trabajo para ir sacando tareas, pedir prompts pun
 
 ---
 
+## Rol de este documento
+
+Este archivo es el **plan maestro** del proyecto.
+
+Debe funcionar como fuente principal para:
+
+- contexto estable
+- etapas
+- milestones
+- roadmap general
+- orden recomendado de implementación
+
+Cuando se necesiten planes de trabajo más cortos o de una tanda específica, esos documentos deben vivir como anexos operativos o históricos, no como otra fuente principal en competencia con este plan.
+
+---
+
 ## Principios del plan
 
 - avanzar de lo estructural a lo funcional
@@ -267,6 +283,81 @@ El sistema puede registrar anticipos correctamente vinculados a un aviso.
 
 ---
 
+## Desglose operativo recomendado para la implementación conversacional
+
+Además de las etapas y milestones, conviene ejecutar la base conversacional en incrementos cortos y revisables.
+
+### Bloque operativo A
+- centralizar textos, mensajes institucionales y parámetros
+- crear `lang/es/whatsapp.php`
+- crear `config/medicina_laboral.php`
+- crear templates Blade base
+
+### Bloque operativo B
+- definir la estructura extensible de flujo
+- crear `ConversationFlowResolver`
+- crear contratos `StepHandler` y `Validator`
+- crear `StepResult`, `ValidationResult` y `MessageResolver`
+
+### Bloque operativo C
+- hacer un refactor mínimo del webhook actual
+- mover ramas concretas del controller a handlers
+- lograr que `StepResult` gobierne más decisiones reales
+
+### Bloque operativo D
+- implementar menú principal conversacional real
+- selección entre aviso y anticipo
+- cancelar y volver al menú principal
+
+### Bloque operativo E
+- implementar identificación común reutilizable
+- pedir nombre, legajo, sede y jornada laboral
+- persistir borrador en `metadata.identificacion`
+
+### Bloque operativo F
+- implementar tramo inicial del aviso
+- fecha desde
+- fecha hasta
+- tipo de ausentismo
+- motivo
+- domicilio circunstancial
+- observaciones
+- persistir borrador en `metadata.aviso`
+
+### Bloque operativo G
+- implementar confirmación final del aviso
+- crear `Aviso` real
+- asociar conversación y aviso
+- cerrar conversación de forma consistente
+
+### Bloque operativo H
+- implementar tramo inicial del anticipo de certificado
+- número de aviso
+- validación de aviso elegible
+- tipo de certificado
+- paso de adjunto
+- persistir borrador en `metadata.certificado`
+
+### Bloque operativo I
+- implementar confirmación final del anticipo
+- crear `AnticipoCertificado`
+- persistir archivos asociados
+- cerrar conversación de forma consistente
+
+### Criterio de uso
+
+Estos bloques operativos sirven para pedir prompts más concretos sin perder alineación con las etapas maestras.
+
+Mapeo sugerido:
+
+- bloques A-B -> Etapas 3-4
+- bloques C-D -> Etapas 4-5
+- bloque E -> Etapa 6
+- bloques F-G -> Etapa 7
+- bloques H-I -> Etapa 8
+
+---
+
 ## Etapa 9: validaciones, intentos y errores
 
 ### Objetivo
@@ -440,6 +531,7 @@ Este archivo puede usarse como base para:
 - marcar progreso
 - revisar orden de implementación
 - alinear devs y agentes de IA
+- derivar bloques operativos concretos sin duplicar el rol de plan maestro
 
 ### Ejemplos de uso
 - “Trabajemos la Etapa 2, punto 1”
