@@ -18,6 +18,13 @@ class ConversationTimeoutServiceTest extends TestCase
     {
         parent::setUp();
         $this->createTestingSchema();
+        $compiledPath = sys_get_temp_dir() . '/unlu-medicina-tests-views';
+
+        if (!is_dir($compiledPath)) {
+            mkdir($compiledPath, 0777, true);
+        }
+
+        config()->set('view.compiled', $compiledPath);
 
         $this->app->instance(WhatsAppSender::class, new class extends WhatsAppSender
         {
@@ -62,7 +69,7 @@ class ConversationTimeoutServiceTest extends TestCase
         $this->assertDatabaseHas('conversacion_mensajes', [
             'conversacion_id' => $conversation->id,
             'direccion' => 'out',
-            'message_key' => 'whatsapp.timeouts.recordatorio',
+            'template_name' => config('medicina_laboral.mensajes.templates.inactividad_recordatorio'),
         ]);
     }
 
@@ -113,7 +120,7 @@ class ConversationTimeoutServiceTest extends TestCase
         $this->assertDatabaseHas('conversacion_mensajes', [
             'conversacion_id' => $conversation->id,
             'direccion' => 'out',
-            'message_key' => 'whatsapp.timeouts.cancelacion',
+            'template_name' => config('medicina_laboral.mensajes.templates.inactividad_cancelacion'),
         ]);
     }
 

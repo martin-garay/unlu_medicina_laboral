@@ -38,6 +38,7 @@ use App\Flows\Validators\SedeValidator;
 use App\Flows\Validators\TipoCertificadoValidator;
 use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
 use App\Services\Mapuche\MockMapucheWorkerProvider;
+use App\Services\CertificadoMessageService;
 use App\Services\Conversation\ConversationContextService;
 use App\Services\Conversation\ConversationFlowResolver;
 use Illuminate\Support\ServiceProvider;
@@ -194,12 +195,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CertificadoAdjuntoStepHandler::class, function ($app) {
             return new CertificadoAdjuntoStepHandler(
                 $app->make(ConversationContextService::class),
+                $app->make(CertificadoMessageService::class),
             );
         });
 
         $this->app->bind(CertificadoConfirmacionPendienteStepHandler::class, function ($app) {
             return new CertificadoConfirmacionPendienteStepHandler(
                 $app->make(ConversationContextService::class),
+                $app->make(CertificadoMessageService::class),
             );
         });
 

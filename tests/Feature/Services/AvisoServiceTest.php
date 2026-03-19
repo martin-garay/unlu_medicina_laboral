@@ -44,6 +44,29 @@ class AvisoServiceTest extends TestCase
         $this->assertSame('123', $data['legajo']);
         $this->assertSame(3, $data['dias']);
         $this->assertSame('Por Enfermedad', $data['tipo_ausentismo']);
+        $this->assertSame('19/03/2026', $data['fecha_desde']);
+        $this->assertSame('21/03/2026', $data['fecha_hasta']);
+    }
+
+    public function test_build_confirmation_step_result_uses_confirmation_template(): void
+    {
+        $conversation = new \App\Models\Conversacion([
+            'metadata' => [
+                'identificacion' => [
+                    'nombre_completo' => 'Ana Perez',
+                    'legajo' => '123',
+                ],
+                'aviso' => [
+                    'fecha_desde' => '2026-03-19',
+                    'fecha_hasta' => '2026-03-19',
+                ],
+            ],
+        ]);
+
+        $result = app(AvisoService::class)->buildConfirmationStepResult($conversation);
+
+        $this->assertSame(config('medicina_laboral.mensajes.templates.aviso_confirmacion_final'), $result->template);
+        $this->assertSame('Ana Perez', $result->templateData['nombre']);
     }
 
     public function test_create_from_conversation_persists_aviso_with_snapshot_metadata(): void
@@ -99,5 +122,6 @@ class AvisoServiceTest extends TestCase
 
         $this->assertSame(config('medicina_laboral.mensajes.templates.aviso_registrado'), $result->template);
         $this->assertSame('AV-' . $aviso->id, $result->templateData['numero_aviso']);
+        $this->assertSame(24, $result->templateData['deadline_horas']);
     }
 }

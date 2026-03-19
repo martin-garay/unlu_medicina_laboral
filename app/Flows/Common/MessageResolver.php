@@ -20,13 +20,23 @@ class MessageResolver
         }
 
         if ($result->messageKey !== null) {
-            return $this->translator->get($result->messageKey, $result->messageParams);
+            return $this->resolveKey($result->messageKey, $result->messageParams);
         }
 
         if ($result->template !== null) {
-            return $this->view->make($result->template, $result->templateData)->render();
+            return $this->resolveTemplate($result->template, $result->templateData);
         }
 
         return null;
+    }
+
+    public function resolveKey(string $messageKey, array $messageParams = []): string
+    {
+        return $this->translator->get($messageKey, $messageParams);
+    }
+
+    public function resolveTemplate(string $template, array $templateData = []): string
+    {
+        return $this->view->make($template, $templateData)->render();
     }
 }

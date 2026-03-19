@@ -23,9 +23,9 @@ class AvisoService
             'legajo' => $identificacion['legajo'] ?? '-',
             'sede' => $identificacion['sede'] ?? '-',
             'jornada' => $identificacion['jornada_laboral'] ?? '-',
-            'fecha_desde' => $fechaDesde ?? '-',
-            'fecha_hasta' => $fechaHasta ?? '-',
-            'dias' => $this->calculateCantidadDias($fechaDesde, $fechaHasta),
+            'fecha_desde' => $this->formatDateForDisplay($fechaDesde),
+            'fecha_hasta' => $this->formatDateForDisplay($fechaHasta),
+            'dias' => $this->calculateCantidadDias($fechaDesde, $fechaHasta) ?? '-',
             'tipo_ausentismo' => $aviso['tipo_ausentismo_label'] ?? $aviso['tipo_ausentismo'] ?? '-',
             'nombre_familiar' => $aviso['nombre_familiar'] ?? null,
             'parentesco' => $aviso['parentesco'] ?? null,
@@ -33,6 +33,14 @@ class AvisoService
             'domicilio_circunstancial' => $aviso['domicilio_circunstancial'] ?? null,
             'observaciones' => $aviso['observaciones'] ?? null,
         ];
+    }
+
+    public function buildConfirmationStepResult(Conversacion $conversation, array $avisoOverrides = []): StepResult
+    {
+        return StepResult::make(null, [
+            'template' => config('medicina_laboral.mensajes.templates.aviso_confirmacion_final'),
+            'template_data' => $this->buildConfirmationTemplateData($conversation, $avisoOverrides),
+        ]);
     }
 
     public function createFromConversation(Conversacion $conversation): Aviso
@@ -76,9 +84,13 @@ class AvisoService
             'numero_aviso' => $this->displayNumber($aviso),
             'nombre' => $aviso->nombre_completo ?? '-',
             'legajo' => $aviso->legajo ?? '-',
+            'sede' => $aviso->sede ?? '-',
+            'jornada' => $aviso->jornada_laboral ?? '-',
             'periodo' => $periodo !== '' ? $periodo : '-',
+            'tipo_ausentismo' => $aviso->tipo_ausentismo ?? '-',
             'motivo' => $aviso->motivo ?? '-',
             'domicilio_circunstancial' => $aviso->domicilio_circunstancial ?? null,
+            'deadline_horas' => (int) config('medicina_laboral.certificados.deadline_business_hours', 24),
         ];
     }
 
@@ -102,5 +114,14 @@ class AvisoService
         }
 
         return Carbon::parse($fechaDesde)->diffInDays(Carbon::parse($fechaHasta)) + 1;
+    }
+
+    private function formatDateForDisplay(?string $date): string
+    {
+        if ($date === null || $date === '') {
+            return '-';
+        }
+
+        return Carbon::parse($date)->format(config('medicina_laboral.avisos.input_date_format', 'd/m/Y'));
     }
 }

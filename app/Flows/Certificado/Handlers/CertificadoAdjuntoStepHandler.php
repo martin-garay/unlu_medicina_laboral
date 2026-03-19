@@ -5,12 +5,14 @@ namespace App\Flows\Certificado\Handlers;
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
+use App\Services\CertificadoMessageService;
 use App\Services\Conversation\ConversationContextService;
 
 class CertificadoAdjuntoStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
+        private readonly CertificadoMessageService $certificadoMessageService,
     ) {
     }
 
@@ -51,7 +53,12 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
             'source_type' => $media['source_type'] ?? $incomingType,
         ];
 
-        return $this->success('whatsapp.certificado.pendiente_confirmacion_siguiente_etapa', [
+        return $this->success(null, [
+            'template' => config('medicina_laboral.mensajes.templates.certificado_resumen_borrador'),
+            'template_data' => $this->certificadoMessageService->buildDraftSummaryTemplateData($conversation, [
+                'adjuntos' => $attachments,
+                'mensaje_estado' => __('whatsapp.certificado.pendiente_confirmacion_siguiente_etapa'),
+            ]),
             'next_step' => 'certificado_confirmacion_pendiente',
             'next_state' => 'certificado_confirmacion_pendiente',
             'payload' => [

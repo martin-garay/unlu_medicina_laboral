@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Conversacion;
+use App\Flows\Common\MessageResolver;
 use Carbon\CarbonInterface;
 
 class ConversationTimeoutService
@@ -12,6 +13,7 @@ class ConversationTimeoutService
         private readonly ConversationMessageService $conversationMessageService,
         private readonly ConversationEventService $conversationEventService,
         private readonly WhatsAppSender $whatsAppSender,
+        private readonly MessageResolver $messageResolver,
     ) {
     }
 
@@ -101,14 +103,15 @@ class ConversationTimeoutService
 
     private function sendFirstWarning(Conversacion $conversation, CarbonInterface $now): void
     {
-        $message = __('whatsapp.timeouts.recordatorio');
+        $template = config('medicina_laboral.mensajes.templates.inactividad_recordatorio');
+        $message = $this->messageResolver->resolveTemplate($template, $this->timeoutTemplateData($conversation));
 
         $this->whatsAppSender->sendText($conversation->wa_number, $message);
 
         $this->conversationMessageService->registerOutgoingMessage($conversation, [
             'tipo_mensaje' => 'text',
             'contenido_texto' => $message,
-            'message_key' => 'whatsapp.timeouts.recordatorio',
+            'template_name' => $template,
             'step_key' => $conversation->currentStepKey(),
             'metadata' => [
                 'automated' => true,
@@ -128,14 +131,15 @@ class ConversationTimeoutService
 
     private function cancelByInactivity(Conversacion $conversation, CarbonInterface $now): void
     {
-        $message = __('whatsapp.timeouts.cancelacion');
+        $template = config('medicina_laboral.mensajes.templates.inactividad_cancelacion');
+        $message = $this->messageResolver->resolveTemplate($template, $this->timeoutTemplateData($conversation));
 
         $this->whatsAppSender->sendText($conversation->wa_number, $message);
 
         $this->conversationMessageService->registerOutgoingMessage($conversation, [
             'tipo_mensaje' => 'text',
             'contenido_texto' => $message,
-            'message_key' => 'whatsapp.timeouts.cancelacion',
+            'template_name' => $template,
             'step_key' => $conversation->currentStepKey(),
             'metadata' => [
                 'automated' => true,
@@ -186,6 +190,15 @@ class ConversationTimeoutService
         ];
     }
 
+    private function timeoutTemplateData(Conversacion $conversation): array
+    {
+        return [
+            'flow_label' => $this->flowLabel($conversation),
+            'first_threshold_minutes' => $this->firstThresholdMinutes(),
+            'second_threshold_minutes' => $this->secondThresholdMinutes(),
+        ];
+    }
+
     private function referenceTimestamp(Conversacion $conversation, CarbonInterface $now): ?CarbonInterface
     {
         return $conversation->ultimo_mensaje_recibido_en
@@ -203,5 +216,14 @@ class ConversationTimeoutService
         $second = (int) config('medicina_laboral.conversation.second_inactivity_minutes', 60);
 
         return max($second, $this->firstThresholdMinutes());
+    }
+
+    private function flowLabel(Conversacion $conversation): string
+    {
+        return match ($conversation->tipo_flujo) {
+            'inasistencia' => 'aviso de ausencia',
+            'certificado' => 'anticipo de certificado médico',
+            default => 'gestión actual',
+        };
     }
 }

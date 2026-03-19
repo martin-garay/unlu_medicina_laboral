@@ -148,6 +148,7 @@ return [
             'aviso_registrado' => 'messages.aviso.aviso_registrado',
             'aviso_cancelacion' => 'messages.aviso.cancelacion',
             'certificado_confirmacion_final' => 'messages.certificado.confirmacion_final',
+            'certificado_resumen_borrador' => 'messages.certificado.resumen_borrador',
             'certificado_registrado' => 'messages.certificado.anticipo_registrado',
             'certificado_cancelacion' => 'messages.certificado.cancelacion',
             'bienvenida' => 'messages.comunes.bienvenida',

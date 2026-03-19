@@ -1,4 +1,4 @@
-Resumen para confirmar el anticipo de certificado médico
+Resumen actual del anticipo de certificado médico
 
 Nombre: {{ $nombre }}
 Legajo: {{ $legajo }}
@@ -11,8 +11,6 @@ Cantidad de archivos: {{ $cantidad_archivos }}
 Archivos: {{ is_array($nombres_o_referencias_archivos) ? implode(', ', $nombres_o_referencias_archivos) : $nombres_o_referencias_archivos }}
 @endif
 
-Si los datos son correctos, confirme el anticipo de certificado.
 @if(!empty($mensaje_estado))
-
 {{ $mensaje_estado }}
 @endif

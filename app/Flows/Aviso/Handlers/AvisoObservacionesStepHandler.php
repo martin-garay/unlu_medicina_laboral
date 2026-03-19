@@ -62,11 +62,13 @@ class AvisoObservacionesStepHandler extends AbstractStepHandler
             ]);
         }
 
-        return $this->success(null, [
-            'template' => config('medicina_laboral.mensajes.templates.aviso_confirmacion_final'),
-            'template_data' => $this->avisoService->buildConfirmationTemplateData($conversation, [
-                'observaciones' => $observaciones,
-            ]),
+        $result = $this->avisoService->buildConfirmationStepResult($conversation, [
+            'observaciones' => $observaciones,
+        ]);
+
+        return StepResult::make(null, [
+            'template' => $result->template,
+            'template_data' => $result->templateData,
             'next_step' => 'aviso_confirmacion_final',
             'next_state' => 'aviso_confirmacion_final',
             'payload' => [

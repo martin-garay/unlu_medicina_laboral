@@ -22,7 +22,8 @@ class AvisoConfirmacionFinalStepHandler extends AbstractStepHandler
     public function handle(Conversacion $conversation, array $input = []): StepResult
     {
         if ($this->isCancelCommand($input) || $this->isCancelSelection($input)) {
-            return $this->success('whatsapp.cancelacion.volver_menu_principal', [
+            return $this->success(null, [
+                'template' => config('medicina_laboral.mensajes.templates.aviso_cancelacion'),
                 'next_step' => 'menu_principal',
                 'next_state' => 'menu_principal',
                 'should_show_menu' => true,
