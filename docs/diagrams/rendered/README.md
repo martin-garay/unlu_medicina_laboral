@@ -5,6 +5,7 @@ Este directorio contiene artefactos derivados a partir de los diagramas fuente d
 ## Contenido esperado
 
 - `flows/*.svg`: generados desde Mermaid
+- `flows/*.png`: generados desde Mermaid para visores con soporte SVG limitado
 - `classes/*.svg`: generados desde PlantUML
 
 ## Regla de mantenimiento

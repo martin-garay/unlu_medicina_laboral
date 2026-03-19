@@ -114,13 +114,20 @@ make diagrams-check
 Esto genera:
 
 - `docs/diagrams/rendered/flows/*.svg`
+- `docs/diagrams/rendered/flows/*.png`
 - `docs/diagrams/rendered/classes/*.svg`
 
 ## Alcance del renderizado actual
 
-- Mermaid: se genera SVG
+- Mermaid: se generan SVG y PNG
 - PlantUML: se genera SVG
 - DBML: se mantiene como fuente de verdad textual y no se exporta a imagen estática en esta etapa
+
+## Compatibilidad de visualización
+
+Los SVG de Mermaid pueden incluir elementos que algunos visores embebidos de IDE no muestran correctamente.
+
+Por eso, para los flujos se generan también PNG derivados en `docs/diagrams/rendered/flows/`, pensados como formato de lectura rápida y compatible.
 
 ## Nota de alcance actual
 

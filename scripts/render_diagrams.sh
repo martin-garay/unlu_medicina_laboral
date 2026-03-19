@@ -9,6 +9,7 @@ FLOWS_DIR="$DIAGRAMS_DIR/flows"
 CLASSES_DIR="$DIAGRAMS_DIR/classes"
 RENDERED_FLOWS_DIR="$RENDERED_DIR/flows"
 RENDERED_CLASSES_DIR="$RENDERED_DIR/classes"
+MERMAID_CONFIG_FILE="$DIAGRAMS_DIR/mermaid.config.json"
 
 MERMAID_IMAGE="${MERMAID_IMAGE:-minlag/mermaid-cli:latest}"
 PLANTUML_IMAGE="${PLANTUML_IMAGE:-plantuml/plantuml:latest}"
@@ -31,10 +32,12 @@ render_mermaid() {
         [ -e "$source_file" ] || continue
 
         local filename
-        local output_file
+        local output_svg
+        local output_png
 
         filename="$(basename "${source_file%.mmd}")"
-        output_file="$RENDERED_FLOWS_DIR/$filename.svg"
+        output_svg="$RENDERED_FLOWS_DIR/$filename.svg"
+        output_png="$RENDERED_FLOWS_DIR/$filename.png"
 
         docker run --rm \
             -e HOME=/tmp \
@@ -45,7 +48,20 @@ render_mermaid() {
             -w /workdir \
             "$MERMAID_IMAGE" \
             -i "/workdir/${source_file#$ROOT_DIR/}" \
-            -o "/workdir/${output_file#$ROOT_DIR/}"
+            -c "/workdir/${MERMAID_CONFIG_FILE#$ROOT_DIR/}" \
+            -o "/workdir/${output_svg#$ROOT_DIR/}"
+
+        docker run --rm \
+            -e HOME=/tmp \
+            -e XDG_CACHE_HOME=/tmp \
+            -e JAVA_TOOL_OPTIONS="-Duser.home=/tmp -Djava.io.tmpdir=/tmp" \
+            -u "$(id -u):$(id -g)" \
+            -v "$ROOT_DIR:/workdir" \
+            -w /workdir \
+            "$MERMAID_IMAGE" \
+            -i "/workdir/${source_file#$ROOT_DIR/}" \
+            -c "/workdir/${MERMAID_CONFIG_FILE#$ROOT_DIR/}" \
+            -o "/workdir/${output_png#$ROOT_DIR/}"
     done
 }
 
