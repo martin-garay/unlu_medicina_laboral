@@ -6,20 +6,20 @@ use App\Flows\Identification\Handlers\IdentificacionLegajoStepHandler;
 use App\Flows\Validators\LegajoValidator;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
-use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
-use App\Services\Mapuche\MapucheWorkerRecord;
+use App\Services\WorkerIdentification\Contracts\WorkerIdentificationService;
+use App\Services\WorkerIdentification\WorkerIdentificationRecord;
 use Tests\TestCase;
 
 class IdentificacionLegajoStepHandlerTest extends TestCase
 {
-    public function test_returns_error_when_mapuche_provider_cannot_resolve_legajo(): void
+    public function test_returns_error_when_worker_cannot_be_resolved(): void
     {
         $handler = new IdentificacionLegajoStepHandler(
             new LegajoValidator(),
             new ConversationContextService(),
-            new class implements MapucheWorkerProvider
+            new class implements WorkerIdentificationService
             {
-                public function findByLegajo(string $legajo): ?MapucheWorkerRecord
+                public function findByLegajo(string $legajo): ?WorkerIdentificationRecord
                 {
                     return null;
                 }
@@ -33,16 +33,16 @@ class IdentificacionLegajoStepHandlerTest extends TestCase
         $this->assertSame('whatsapp.errores.legajo_no_encontrado', $result->messageKey);
     }
 
-    public function test_stores_mapuche_lookup_snapshot_when_legajo_is_resolved(): void
+    public function test_stores_worker_lookup_snapshot_when_legajo_is_resolved(): void
     {
         $handler = new IdentificacionLegajoStepHandler(
             new LegajoValidator(),
             new ConversationContextService(),
-            new class implements MapucheWorkerProvider
+            new class implements WorkerIdentificationService
             {
-                public function findByLegajo(string $legajo): ?MapucheWorkerRecord
+                public function findByLegajo(string $legajo): ?WorkerIdentificationRecord
                 {
-                    return new MapucheWorkerRecord($legajo, 'Laura Diaz', 'Sede Central', 'Manana', 'mock_test');
+                    return new WorkerIdentificationRecord($legajo, 'Laura Diaz', 'Sede Central', 'Manana', 'mock_test', 'mapuche');
                 }
             }
         );
@@ -54,11 +54,15 @@ class IdentificacionLegajoStepHandlerTest extends TestCase
         $this->assertSame('12345', $result->payload['conversation_updates']['metadata']['identificacion']['legajo']);
         $this->assertSame(
             'Laura Diaz',
-            $result->payload['conversation_updates']['metadata']['identificacion']['mapuche_lookup']['nombre_completo']
+            $result->payload['conversation_updates']['metadata']['identificacion']['worker_lookup']['nombre_completo']
         );
         $this->assertSame(
             'mock_test',
-            $result->payload['conversation_updates']['metadata']['identificacion']['mapuche_lookup']['source']
+            $result->payload['conversation_updates']['metadata']['identificacion']['worker_lookup']['source']
+        );
+        $this->assertSame(
+            'mapuche',
+            $result->payload['conversation_updates']['metadata']['identificacion']['worker_lookup']['provider']
         );
     }
 }

@@ -6,6 +6,7 @@ use App\Flows\Certificado\Handlers\CertificadoAdjuntoStepHandler;
 use App\Models\Conversacion;
 use App\Services\CertificadoMessageService;
 use App\Services\Conversation\ConversationContextService;
+use App\Services\Storage\MetadataDraftAttachmentStorage;
 use Tests\TestCase;
 
 class CertificadoAdjuntoStepHandlerTest extends TestCase
@@ -15,6 +16,7 @@ class CertificadoAdjuntoStepHandlerTest extends TestCase
         $handler = new CertificadoAdjuntoStepHandler(
             new ConversationContextService(),
             app(CertificadoMessageService::class),
+            new MetadataDraftAttachmentStorage(),
         );
 
         $conversation = new Conversacion([
@@ -46,5 +48,9 @@ class CertificadoAdjuntoStepHandlerTest extends TestCase
         $this->assertSame('certificado_confirmacion_pendiente', $result->nextStep);
         $this->assertSame(1, $result->templateData['cantidad_archivos']);
         $this->assertSame(['certificado.pdf'], $result->templateData['nombres_o_referencias_archivos']);
+        $this->assertSame(
+            'metadata_only',
+            $result->payload['conversation_updates']['metadata']['certificado']['adjuntos'][0]['storage_status']
+        );
     }
 }

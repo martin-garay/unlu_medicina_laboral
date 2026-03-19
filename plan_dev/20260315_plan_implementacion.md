@@ -547,12 +547,20 @@ Preparar la transición desde MVP a una solución más integrada.
 ### Roadmap específico de Mapuche
 Antes de esta etapa, el proyecto puede apoyarse en una abstracción chica como `MapucheWorkerProvider` con implementación mock para desarrollo.
 
+Como endurecimiento incremental aceptable dentro de esta etapa, puede introducirse una capa de aplicación como `WorkerIdentificationService` para evitar que los handlers dependan directamente del proveedor externo.
+
 En esta etapa deberá abordarse:
 - reemplazo o complemento del mock por una implementación real contra Mapuche o API Mapuche
 - validación real de legajo
 - obtención de nombre, sede y jornada laboral desde el sistema externo
 - manejo explícito de errores de integración
 - mantenimiento del desacople entre flujos conversacionales y proveedor externo
+
+### Puntos de extensión esperables
+- contrato para identificación de trabajador
+- contrato para notificaciones de negocio o email
+- contrato para storage definitivo de adjuntos
+- selección de drivers por configuración sin contaminar handlers ni controllers
 
 ### Estado esperado
 El sistema puede evolucionar sin necesidad de reescribir la base conversacional.

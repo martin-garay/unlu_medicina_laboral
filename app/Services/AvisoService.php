@@ -5,11 +5,17 @@ namespace App\Services;
 use App\Flows\Common\StepResult;
 use App\Models\Aviso;
 use App\Models\Conversacion;
+use App\Services\Notifications\Contracts\BusinessNotificationSender;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 
 class AvisoService
 {
+    public function __construct(
+        private readonly BusinessNotificationSender $businessNotificationSender,
+    ) {
+    }
+
     public function buildConfirmationTemplateData(Conversacion $conversation, array $avisoOverrides = []): array
     {
         $identificacion = Arr::get($conversation->metadata ?? [], 'identificacion', []);
@@ -50,7 +56,7 @@ class AvisoService
         $fechaDesde = $aviso['fecha_desde'] ?? null;
         $fechaHasta = $aviso['fecha_hasta'] ?? null;
 
-        return Aviso::create([
+        $avisoRecord = Aviso::create([
             'conversacion_id' => $conversation->id,
             'dni' => $conversation->dni,
             'tipo' => 'inasistencia',
@@ -71,6 +77,10 @@ class AvisoService
                 'aviso' => $aviso,
             ],
         ]);
+
+        $this->businessNotificationSender->sendAvisoRegistered($avisoRecord);
+
+        return $avisoRecord;
     }
 
     public function buildRegisteredTemplateData(Aviso $aviso): array

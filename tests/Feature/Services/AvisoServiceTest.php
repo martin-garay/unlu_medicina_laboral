@@ -4,6 +4,7 @@ namespace Tests\Feature\Services;
 
 use App\Services\AvisoService;
 use App\Services\ConversationManager;
+use App\Services\Notifications\Contracts\BusinessNotificationSender;
 use Tests\Concerns\CreatesTestingSchema;
 use Tests\TestCase;
 
@@ -100,6 +101,40 @@ class AvisoServiceTest extends TestCase
         ]);
         $this->assertSame('Ana Perez', $aviso->metadata['identificacion']['nombre_completo']);
         $this->assertSame('Fiebre', $aviso->metadata['aviso']['motivo']);
+    }
+
+    public function test_create_from_conversation_notifies_through_configured_business_sender(): void
+    {
+        $conversation = app(ConversationManager::class)->createConversation('5491111111111', [
+            'metadata' => [
+                'identificacion' => [
+                    'nombre_completo' => 'Ana Perez',
+                    'legajo' => '123',
+                ],
+                'aviso' => [
+                    'fecha_desde' => '2026-03-19',
+                    'fecha_hasta' => '2026-03-19',
+                    'tipo_ausentismo' => 'por_enfermedad',
+                ],
+            ],
+            'tipo_flujo' => 'inasistencia',
+        ]);
+
+        $spy = new class implements BusinessNotificationSender
+        {
+            public ?int $lastAvisoId = null;
+
+            public function sendAvisoRegistered(\App\Models\Aviso $aviso): void
+            {
+                $this->lastAvisoId = $aviso->id;
+            }
+        };
+
+        $service = new AvisoService($spy);
+
+        $aviso = $service->createFromConversation($conversation);
+
+        $this->assertSame($aviso->id, $spy->lastAvisoId);
     }
 
     public function test_build_registered_step_result_uses_registered_template(): void

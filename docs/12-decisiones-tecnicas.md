@@ -224,12 +224,19 @@ La identificación real del trabajador se deja temporalmente mockeada o encapsul
 El foco inicial está en el motor de conversación y en los flujos.
 
 ### Implementación base
+- contrato de aplicación `WorkerIdentificationService` para el flujo conversacional
+- adaptador `MapucheWorkerIdentificationService` para reutilizar el proveedor de integración disponible
 - contrato pequeño `MapucheWorkerProvider` para lookup por legajo
 - implementación `MockMapucheWorkerProvider` configurable para desarrollo
-- almacenamiento del resultado del lookup dentro de `metadata.identificacion.mapuche_lookup` cuando aplique
+- almacenamiento del resultado del lookup dentro de `metadata.identificacion.worker_lookup` cuando aplique
 
 ### Evolución prevista
 La implementación real contra Mapuche queda diferida y deberá reemplazar o complementar el mock sin acoplar los handlers conversacionales al proveedor externo.
+
+### Endurecimiento base recomendado
+- `BusinessNotificationSender` con implementación `null` para preparar envío real de emails sin acoplar servicios de negocio
+- `DraftAttachmentStorage` para encapsular la captura de metadata de adjuntos antes del storage definitivo
+- selección de drivers centralizada en `config/medicina_laboral.php`
 
 ---
 

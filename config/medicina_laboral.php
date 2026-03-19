@@ -135,6 +135,24 @@ return [
         ],
     ],
 
+    'worker_identification' => [
+        'driver' => env('WORKER_IDENTIFICATION_DRIVER', 'mapuche'),
+        'snapshot_metadata_key' => 'worker_lookup',
+    ],
+
+    'mail' => [
+        'driver' => env('MEDICINA_LABORAL_MAIL_DRIVER', 'null'),
+        'aviso_registered_recipient' => env('MEDICINA_LABORAL_MAIL_AVISO_REGISTERED_RECIPIENT'),
+    ],
+
+    'storage' => [
+        'driver' => env('MEDICINA_LABORAL_STORAGE_DRIVER', 'metadata'),
+        'draft_attachments' => [
+            'disk' => env('MEDICINA_LABORAL_DRAFT_ATTACHMENTS_DISK', 'local'),
+            'directory' => env('MEDICINA_LABORAL_DRAFT_ATTACHMENTS_DIRECTORY', 'medicina_laboral/drafts'),
+        ],
+    ],
+
     'mensajes' => [
         'use_emojis' => true,
         'prefix_numbered_options' => true,

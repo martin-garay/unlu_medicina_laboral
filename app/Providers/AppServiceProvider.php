@@ -36,11 +36,17 @@ use App\Flows\Validators\PositiveIntegerValidator;
 use App\Flows\Validators\RequiredTextValidator;
 use App\Flows\Validators\SedeValidator;
 use App\Flows\Validators\TipoCertificadoValidator;
+use App\Services\Notifications\Contracts\BusinessNotificationSender;
+use App\Services\Notifications\NullBusinessNotificationSender;
 use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
 use App\Services\Mapuche\MockMapucheWorkerProvider;
 use App\Services\CertificadoMessageService;
 use App\Services\Conversation\ConversationContextService;
 use App\Services\Conversation\ConversationFlowResolver;
+use App\Services\Storage\Contracts\DraftAttachmentStorage;
+use App\Services\Storage\MetadataDraftAttachmentStorage;
+use App\Services\WorkerIdentification\Contracts\WorkerIdentificationService;
+use App\Services\WorkerIdentification\MapucheWorkerIdentificationService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -51,7 +57,31 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MapucheWorkerProvider::class, function () {
-            return new MockMapucheWorkerProvider();
+            return match (config('medicina_laboral.mapuche.driver', 'mock')) {
+                'mock' => new MockMapucheWorkerProvider(),
+                default => throw new \InvalidArgumentException('Unsupported Mapuche driver configured.'),
+            };
+        });
+
+        $this->app->singleton(WorkerIdentificationService::class, function ($app) {
+            return match (config('medicina_laboral.worker_identification.driver', 'mapuche')) {
+                'mapuche' => new MapucheWorkerIdentificationService($app->make(MapucheWorkerProvider::class)),
+                default => throw new \InvalidArgumentException('Unsupported worker identification driver configured.'),
+            };
+        });
+
+        $this->app->singleton(BusinessNotificationSender::class, function () {
+            return match (config('medicina_laboral.mail.driver', 'null')) {
+                'null' => new NullBusinessNotificationSender(),
+                default => throw new \InvalidArgumentException('Unsupported business notification driver configured.'),
+            };
+        });
+
+        $this->app->singleton(DraftAttachmentStorage::class, function () {
+            return match (config('medicina_laboral.storage.driver', 'metadata')) {
+                'metadata' => new MetadataDraftAttachmentStorage(),
+                default => throw new \InvalidArgumentException('Unsupported attachment storage driver configured.'),
+            };
         });
 
         $this->app->singleton(ConversationFlowResolver::class, function ($app) {
@@ -100,7 +130,7 @@ class AppServiceProvider extends ServiceProvider
             return new IdentificacionLegajoStepHandler(
                 $app->make(LegajoValidator::class),
                 $app->make(ConversationContextService::class),
-                $app->make(MapucheWorkerProvider::class),
+                $app->make(WorkerIdentificationService::class),
             );
         });
 
@@ -196,6 +226,7 @@ class AppServiceProvider extends ServiceProvider
             return new CertificadoAdjuntoStepHandler(
                 $app->make(ConversationContextService::class),
                 $app->make(CertificadoMessageService::class),
+                $app->make(DraftAttachmentStorage::class),
             );
         });
 

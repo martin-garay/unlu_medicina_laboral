@@ -7,12 +7,14 @@ use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\CertificadoMessageService;
 use App\Services\Conversation\ConversationContextService;
+use App\Services\Storage\Contracts\DraftAttachmentStorage;
 
 class CertificadoAdjuntoStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
         private readonly CertificadoMessageService $certificadoMessageService,
+        private readonly DraftAttachmentStorage $draftAttachmentStorage,
     ) {
     }
 
@@ -45,13 +47,7 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
         $currentData = $this->conversationContextService->certificadoData($conversation);
         $attachments = $currentData['adjuntos'] ?? [];
 
-        $attachments[] = [
-            'provider_media_id' => $media['provider_media_id'] ?? null,
-            'mime_type' => $media['mime_type'] ?? null,
-            'filename' => $media['filename'] ?? null,
-            'caption' => $media['caption'] ?? null,
-            'source_type' => $media['source_type'] ?? $incomingType,
-        ];
+        $attachments[] = $this->draftAttachmentStorage->store($media, $incomingType)->toArray();
 
         return $this->success(null, [
             'template' => config('medicina_laboral.mensajes.templates.certificado_resumen_borrador'),

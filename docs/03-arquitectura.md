@@ -205,11 +205,15 @@ Responsabilidades:
 - permitir una implementación mock durante el MVP
 
 Implementación inicial sugerida:
+- contrato de aplicación `WorkerIdentificationService`
+- adaptador `MapucheWorkerIdentificationService`
 - contrato `MapucheWorkerProvider`
 - implementación `MockMapucheWorkerProvider`
 
 Evolución futura:
 - implementación real contra Mapuche o API Mapuche sin acoplar handlers ni validadores al proveedor externo
+
+La metadata del lookup puede persistirse en `metadata.identificacion.worker_lookup` como snapshot técnico del dato resuelto durante la conversación.
 
 ### `MessageResolver`
 Responsabilidades:
@@ -332,6 +336,11 @@ Ejemplos:
 - integración con sistemas externos
 - validaciones de aviso elegible
 - almacenamiento de archivos
+
+Puntos de extensión actuales del repo:
+- `WorkerIdentificationService`
+- `BusinessNotificationSender`
+- `DraftAttachmentStorage`
 
 ---
 

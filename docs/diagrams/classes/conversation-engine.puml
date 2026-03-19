@@ -65,6 +65,11 @@ class ValidationResult
 class MessageResolver
 class AvisoService
 class ConversationContextService
+interface WorkerIdentificationService
+class MapucheWorkerIdentificationService
+interface MapucheWorkerProvider
+interface BusinessNotificationSender
+interface DraftAttachmentStorage
 
 Conversacion "1" -- "0..*" ConversacionMensaje : mensajes
 Conversacion "1" -- "0..*" ConversacionEvento : eventos
@@ -88,12 +93,23 @@ Validator ..> ValidationResult
 MessageResolver ..> StepResult
 AvisoService ..> Conversacion
 AvisoService ..> Aviso
+AvisoService ..> BusinessNotificationSender
 ConversationContextService ..> Conversacion
+StepHandler ..> WorkerIdentificationService
+StepHandler ..> DraftAttachmentStorage
+WorkerIdentificationService <|.. MapucheWorkerIdentificationService
+MapucheWorkerIdentificationService ..> MapucheWorkerProvider
 
 note right of AnticipoCertificado
 Entidad prevista por la documentacion.
 No existe todavia como modelo ni migracion
 en el estado actual del repo.
+end note
+
+note right of BusinessNotificationSender
+Punto de extension para email o notificaciones
+de negocio. En el repo actual existe una
+implementacion null/no-op.
 end note
 
 note bottom of StepHandler
