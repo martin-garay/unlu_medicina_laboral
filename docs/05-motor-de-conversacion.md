@@ -139,6 +139,18 @@ Ejemplos de claves:
 
 Cuando el usuario confirma el resumen final del aviso, ese borrador deja de ser solo contexto conversacional y puede materializarse en un `Aviso` real mediante un servicio específico, manteniendo desacoplado al controller de la persistencia de negocio.
 
+## Borrador transitorio de anticipo de certificado
+
+Antes de crear un anticipo de certificado real, la conversación puede almacenar un borrador bajo `metadata.certificado`.
+
+Ejemplos de claves:
+
+- `metadata.certificado.aviso_id`
+- `metadata.certificado.numero_aviso`
+- `metadata.certificado.tipo_certificado`
+- `metadata.certificado.tipo_certificado_label`
+- `metadata.certificado.adjuntos`
+
 ## Qué no debe hacer
 
 El motor de conversación no debe asumir que toda conversación termina exitosamente ni que toda interacción se traduce en un registro válido.

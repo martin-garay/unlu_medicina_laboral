@@ -73,9 +73,11 @@ return [
         'intro_transicional' => "Vas a registrar un anticipo de certificado médico. Podés adjuntar hasta :max_files archivos o imágenes dentro de :deadline horas del aviso. Formatos permitidos: :allowed_extensions.\n\nPodés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).",
         'numero_aviso' => 'Para vincular el certificado al aviso de ausencia, ingrese el Número de Aviso.',
         'tipo_certificado' => 'Seleccioná el tipo de certificado.',
-        'adjuntar_archivo' => 'Adjuntá el archivo o imagen del certificado.',
+        'aviso_validado' => 'Aviso validado correctamente. Continuamos con el tipo de certificado.',
+        'adjuntar_archivo' => 'Adjuntá el archivo o imagen del certificado. En esta etapa se registra un adjunto por vez y se aceptan documentos PDF o imágenes JPG/PNG.',
         'adjuntar_otro_archivo' => '¿Desea adjuntar otro archivo?',
         'detalle_o_adjunto_transicional' => 'Podés escribir un breve detalle del certificado o adjuntar una imagen (por ahora solo manejamos texto).',
+        'pendiente_confirmacion_siguiente_etapa' => 'El anticipo quedó cargado en borrador con el aviso asociado, el tipo de certificado y el adjunto recibido. La confirmación final se implementa en el siguiente paso.',
         'options' => [
             'manuscrito' => 'Manuscrito',
             'electronico' => 'Electrónico',
@@ -87,6 +89,9 @@ return [
         'confirmacion_final' => 'Revisá el resumen del anticipo de certificado antes de confirmar.',
         'pendiente_siguiente_etapa' => 'El paso de número de aviso para el anticipo queda preparado, pero su implementación completa se continúa en la siguiente etapa.',
         'registrado_breve' => 'Certificado registrado. Revisá el detalle enviado por este canal.',
+        'errores' => [
+            'adjunto_requerido' => 'Para continuar con el anticipo, enviá un documento PDF o una imagen JPG/PNG del certificado.',
+        ],
     ],
 
     'errores' => [

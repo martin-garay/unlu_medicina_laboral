@@ -20,6 +20,7 @@ return [
 
     'certificados' => [
         'max_files' => 3,
+        'max_files_initial_step' => 1,
         'allowed_extensions' => [
             'pdf',
             'jpg',
@@ -33,6 +34,10 @@ return [
         ],
         'max_size_kb' => 5120,
         'deadline_business_hours' => 24,
+        'allowed_incoming_message_types' => [
+            'document',
+            'image',
+        ],
     ],
 
     'avisos' => [

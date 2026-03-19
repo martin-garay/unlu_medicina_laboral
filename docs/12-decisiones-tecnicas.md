@@ -258,6 +258,17 @@ Reevaluar si el catálogo debe administrarse desde backoffice.
 
 ## 16. Confirmaciones largas con Blade
 
+## 17. Persistencia transitoria de anticipo en conversación
+
+### Decisión
+Los datos intermedios del flujo de anticipo de certificado se guardan temporalmente en `metadata.certificado` dentro de `conversaciones`.
+
+### Motivo
+- evita crear tablas intermedias prematuras
+- mantiene el borrador técnico asociado a la conversación
+- permite validar y completar el flujo antes de materializar la entidad de negocio final
+- facilita registrar metadata mínima de adjuntos sin definir todavía el storage definitivo
+
 ### Decisión
 Los mensajes de resumen final y confirmación deben construirse con templates Blade.
 

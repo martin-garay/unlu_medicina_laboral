@@ -67,6 +67,7 @@ class WhatsappWebhookController extends Controller
 
         $conversation = $this->findOrCreateConversation($from, $providerMessageId);
         $flowInput = $this->buildFlowInput($text, $buttonId, $providerMessageId, $incomingMessageType);
+        $flowInput['media'] = $this->extractMediaMetadata($entry);
         $stepResult = $this->processConversationStep($conversation, $flowInput);
 
         $this->registerIncomingTrace($conversation, $entry, $from, $buttonId, $providerMessageId, $incomingMessageType, $stepResult);
@@ -415,6 +416,14 @@ class WhatsappWebhookController extends Controller
             return 'text';
         }
 
+        if (isset($entry['document'])) {
+            return 'document';
+        }
+
+        if (isset($entry['image'])) {
+            return 'image';
+        }
+
         return 'unknown';
     }
 
@@ -430,6 +439,41 @@ class WhatsappWebhookController extends Controller
 
         if (isset($entry['interactive']['button_reply']['id'])) {
             return $entry['interactive']['button_reply']['id'];
+        }
+
+        if (isset($entry['document']['filename'])) {
+            return $entry['document']['filename'];
+        }
+
+        if (isset($entry['image']['caption'])) {
+            return $entry['image']['caption'];
+        }
+
+        return null;
+    }
+
+    private function extractMediaMetadata(array $entry): ?array
+    {
+        if (isset($entry['document'])) {
+            return [
+                'provider_media_id' => $entry['document']['id'] ?? null,
+                'mime_type' => $entry['document']['mime_type'] ?? null,
+                'sha256' => $entry['document']['sha256'] ?? null,
+                'filename' => $entry['document']['filename'] ?? null,
+                'caption' => $entry['document']['caption'] ?? null,
+                'source_type' => 'document',
+            ];
+        }
+
+        if (isset($entry['image'])) {
+            return [
+                'provider_media_id' => $entry['image']['id'] ?? null,
+                'mime_type' => $entry['image']['mime_type'] ?? null,
+                'sha256' => $entry['image']['sha256'] ?? null,
+                'filename' => null,
+                'caption' => $entry['image']['caption'] ?? null,
+                'source_type' => 'image',
+            ];
         }
 
         return null;

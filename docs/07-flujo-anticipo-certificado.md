@@ -89,6 +89,25 @@ Para una primera implementación simple y trazable:
 - permitir ingreso del identificador del aviso
 - validar existencia y elegibilidad
 
+### Implementación actual de esta etapa
+
+En esta fase el flujo ya avanza hasta guardar transitoriamente:
+
+- `aviso_id`
+- `numero_aviso`
+- `tipo_certificado`
+- `tipo_certificado_label`
+- `adjuntos`
+
+La validación actual del aviso se apoya en la base local del proyecto:
+
+- acepta `AV-{id}` o `id` numérico
+- verifica que el aviso exista
+- verifica legajo cuando el aviso ya lo tiene persistido
+- verifica de forma simple el plazo configurado de carga
+
+El archivo adjunto todavía no se persiste como entidad definitiva; se registra metadata mínima en la conversación para preparar la confirmación final del paso siguiente.
+
 Más adelante puede evolucionarse a selección guiada.
 
 ## Validaciones principales
@@ -166,6 +185,18 @@ Este comportamiento debe quedar parametrizado, incluyendo al menos:
 
 El sistema no debe asumir que todo mensaje recibido será texto.  
 El flujo debe contemplar mensajes con adjuntos.
+
+## Implementación actual de esta etapa
+
+Por ahora el paso acepta un adjunto por vez y registra metadata mínima del mensaje `document` o `image`:
+
+- `provider_media_id`
+- `mime_type`
+- `filename` si existe
+- `caption` si existe
+- `source_type`
+
+Se validan tipos MIME permitidos desde configuración, pero no se realiza todavía descarga ni almacenamiento definitivo del archivo.
 
 ## Recomendación de trazabilidad
 

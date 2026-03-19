@@ -41,6 +41,23 @@ class ConversationContextService
         ];
     }
 
+    public function certificadoData(Conversacion $conversation): array
+    {
+        return Arr::get($this->metadata($conversation), 'certificado', []);
+    }
+
+    public function withCertificadoData(Conversacion $conversation, array $updates): array
+    {
+        $metadata = $this->metadata($conversation);
+        $certificado = array_merge($this->certificadoData($conversation), $updates);
+
+        Arr::set($metadata, 'certificado', $certificado);
+
+        return [
+            'metadata' => $metadata,
+        ];
+    }
+
     public function resetIdentification(Conversacion $conversation): array
     {
         $metadata = $this->metadata($conversation);
@@ -64,12 +81,24 @@ class ConversationContextService
         ];
     }
 
+    public function resetCertificado(Conversacion $conversation): array
+    {
+        $metadata = $this->metadata($conversation);
+
+        Arr::set($metadata, 'certificado', []);
+
+        return [
+            'metadata' => $metadata,
+        ];
+    }
+
     public function resetCurrentFlowContext(Conversacion $conversation): array
     {
         $metadata = $this->metadata($conversation);
 
         Arr::set($metadata, 'identificacion', []);
         Arr::set($metadata, 'aviso', []);
+        Arr::set($metadata, 'certificado', []);
 
         return [
             'metadata' => $metadata,

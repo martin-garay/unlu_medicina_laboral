@@ -11,17 +11,21 @@ use App\Flows\Aviso\Handlers\AvisoFechaHastaStepHandler;
 use App\Flows\Aviso\Handlers\AvisoMotivoStepHandler;
 use App\Flows\Aviso\Handlers\AvisoObservacionesStepHandler;
 use App\Flows\Aviso\Handlers\AvisoTipoAusentismoStepHandler;
+use App\Flows\Certificado\Handlers\CertificadoAdjuntoStepHandler;
+use App\Flows\Certificado\Handlers\CertificadoNumeroAvisoStepHandler;
+use App\Flows\Certificado\Handlers\CertificadoTipoStepHandler;
 use App\Flows\Handlers\MainMenuStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionJornadaStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionLegajoStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionNombreStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionSedeStepHandler;
 use App\Flows\Placeholders\Handlers\AvisoFamiliarPendienteStepHandler;
-use App\Flows\Placeholders\Handlers\CertificadoNumeroAvisoPlaceholderStepHandler;
+use App\Flows\Placeholders\Handlers\CertificadoConfirmacionPendienteStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCantidadDiasStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCertificadoStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoDniStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoTipoStepHandler;
+use App\Flows\Validators\AvisoReferenciaValidator;
 use App\Flows\Validators\AusentismoTypeValidator;
 use App\Flows\Validators\DateInputValidator;
 use App\Flows\Validators\AvisoFechaHastaValidator;
@@ -31,6 +35,7 @@ use App\Flows\Validators\MenuSelectionValidator;
 use App\Flows\Validators\PositiveIntegerValidator;
 use App\Flows\Validators\RequiredTextValidator;
 use App\Flows\Validators\SedeValidator;
+use App\Flows\Validators\TipoCertificadoValidator;
 use App\Services\Conversation\ConversationContextService;
 use App\Services\Conversation\ConversationFlowResolver;
 use Illuminate\Support\ServiceProvider;
@@ -58,7 +63,10 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(AvisoObservacionesStepHandler::class),
                 $app->make(AvisoConfirmacionFinalStepHandler::class),
                 $app->make(AvisoFamiliarPendienteStepHandler::class),
-                $app->make(CertificadoNumeroAvisoPlaceholderStepHandler::class),
+                $app->make(CertificadoNumeroAvisoStepHandler::class),
+                $app->make(CertificadoTipoStepHandler::class),
+                $app->make(CertificadoAdjuntoStepHandler::class),
+                $app->make(CertificadoConfirmacionPendienteStepHandler::class),
                 $app->make(EsperandoDniStepHandler::class),
                 $app->make(EsperandoTipoStepHandler::class),
                 $app->make(EsperandoCantidadDiasStepHandler::class),
@@ -162,8 +170,28 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->bind(CertificadoNumeroAvisoPlaceholderStepHandler::class, function ($app) {
-            return new CertificadoNumeroAvisoPlaceholderStepHandler(
+        $this->app->bind(CertificadoNumeroAvisoStepHandler::class, function ($app) {
+            return new CertificadoNumeroAvisoStepHandler(
+                $app->make(AvisoReferenciaValidator::class),
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(CertificadoTipoStepHandler::class, function ($app) {
+            return new CertificadoTipoStepHandler(
+                $app->make(TipoCertificadoValidator::class),
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(CertificadoAdjuntoStepHandler::class, function ($app) {
+            return new CertificadoAdjuntoStepHandler(
+                $app->make(ConversationContextService::class),
+            );
+        });
+
+        $this->app->bind(CertificadoConfirmacionPendienteStepHandler::class, function ($app) {
+            return new CertificadoConfirmacionPendienteStepHandler(
                 $app->make(ConversationContextService::class),
             );
         });

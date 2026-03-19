@@ -154,6 +154,10 @@ Ejemplo útil en esta etapa:
 - `metadata.identificacion.sede`
 - `metadata.identificacion.sede_key`
 - `metadata.identificacion.jornada_laboral`
+- `metadata.aviso.fecha_desde`
+- `metadata.certificado.aviso_id`
+- `metadata.certificado.tipo_certificado`
+- `metadata.certificado.adjuntos`
 
 ## Índices sugeridos
 
