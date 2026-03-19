@@ -66,6 +66,7 @@ Si prefieres usar `make`:
 - `make key` → `docker compose exec app php artisan key:generate`
 - `make migrate` → `docker compose exec app php artisan migrate`
 - `make test` → `docker compose exec app php artisan test`
+- `make timeouts` → `docker compose exec app php artisan conversations:process-timeouts`
 - `make logs` → `docker compose logs -f app`
 
 ## Testing

@@ -89,6 +89,9 @@ Si luego del recordatorio el usuario sigue sin responder y se supera un segundo 
 - o cancelar directamente
 - según la regla que se adopte en la implementación
 
+### Política implementada en esta etapa
+En el MVP actual, el segundo umbral cancela directamente la conversación por inactividad y envía el mensaje final de cancelación.
+
 ### Datos a registrar
 - fecha y hora
 - conversación

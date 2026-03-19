@@ -8,7 +8,7 @@ GID := $(shell id -g)
 DC := DOCKER_CONFIG=$(CURDIR)/.docker docker-compose
 
 
-.PHONY: db up down install key migrate logs sh test
+.PHONY: db up down install key migrate logs sh test timeouts
 
 up:
 	UID=$(UID) GID=$(GID) $(DC) up --build
@@ -37,3 +37,6 @@ db:
 
 test:
 	UID=$(UID) GID=$(GID) $(DC) exec app php artisan test
+
+timeouts:
+	UID=$(UID) GID=$(GID) $(DC) exec app php artisan conversations:process-timeouts

@@ -105,6 +105,28 @@ class ConversationManager
         return $conversation->refresh();
     }
 
+    public function markFirstThresholdNotified(
+        Conversacion $conversation,
+        CarbonInterface|string|null $timestamp = null,
+    ): Conversacion {
+        $conversation->forceFill([
+            'primer_umbral_notificado_en' => $timestamp ?? now(),
+        ])->save();
+
+        return $conversation->refresh();
+    }
+
+    public function markSecondThresholdNotified(
+        Conversacion $conversation,
+        CarbonInterface|string|null $timestamp = null,
+    ): Conversacion {
+        $conversation->forceFill([
+            'segundo_umbral_notificado_en' => $timestamp ?? now(),
+        ])->save();
+
+        return $conversation->refresh();
+    }
+
     public function closeConversation(
         Conversacion $conversation,
         string $reason,
