@@ -256,7 +256,35 @@ Reevaluar si el catálogo debe administrarse desde backoffice.
 
 ---
 
-## 16. Confirmaciones largas con Blade
+## 17. Confirmaciones largas con Blade
+
+### Decisión
+Los mensajes largos o con estructura variable deben resolverse con templates Blade.
+
+### Motivo
+- evita hardcodear textos institucionales extensos
+- mejora mantenibilidad
+- permite reutilización y parametrización
+
+---
+
+## 18. Testing obligatorio a partir de la base funcional principal
+
+### Decisión
+Una vez completada la base funcional principal de los flujos conversacionales, los cambios relevantes deben incluir tests dentro del mismo commit cuando corresponda.
+
+### Motivo
+- reducir regresiones
+- aprovechar que la arquitectura ya separa handlers, validadores y servicios
+- evitar seguir acumulando lógica sin cobertura mínima razonable
+
+### Alcance inicial sugerido
+- validadores
+- `StepResult`
+- resolvedores de flujo
+- handlers con branching relevante
+- servicios de conversación
+- servicios de materialización de negocio
 
 ## 17. Persistencia transitoria de anticipo en conversación
 

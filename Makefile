@@ -8,7 +8,7 @@ GID := $(shell id -g)
 DC := DOCKER_CONFIG=$(CURDIR)/.docker docker-compose
 
 
-.PHONY: db up down install key migrate logs sh
+.PHONY: db up down install key migrate logs sh test
 
 up:
 	UID=$(UID) GID=$(GID) $(DC) up --build
@@ -35,3 +35,5 @@ db:
 	UID=$(UID) GID=$(GID) $(DC) exec db \
 	psql -h localhost -U $(DB_USERNAME) -d $(DB_DATABASE)
 
+test:
+	UID=$(UID) GID=$(GID) $(DC) exec app php artisan test

@@ -65,7 +65,20 @@ Si prefieres usar `make`:
 - `make install` → `docker compose run --rm composer install`
 - `make key` → `docker compose exec app php artisan key:generate`
 - `make migrate` → `docker compose exec app php artisan migrate`
+- `make test` → `docker compose exec app php artisan test`
 - `make logs` → `docker compose logs -f app`
+
+## Testing
+- Base actual: `phpunit.xml`, `tests/` y ejecución vía Laravel test runner.
+- Comando recomendado:
+  ```bash
+  docker-compose exec app php artisan test
+  ```
+- Atajo equivalente:
+  ```bash
+  make test
+  ```
+- La política y criterios de cobertura están documentados en `docs/11-testing-y-criterios.md`.
 
 ## Archivos clave
 - `docker-compose.yml`: orquesta `app`, `db` y `composer`.

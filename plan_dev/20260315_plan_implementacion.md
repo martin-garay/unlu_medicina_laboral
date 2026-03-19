@@ -283,6 +283,61 @@ El sistema puede registrar anticipos correctamente vinculados a un aviso.
 
 ---
 
+## Etapa 8.5: base de testing y cobertura inicial
+
+### Objetivo
+Incorporar formalmente la estrategia de testing una vez completada la base funcional principal de los flujos conversacionales.
+
+### Por qué aparece en este punto
+Hasta la etapa 8 el foco está en estabilizar la arquitectura, los contratos y los recorridos funcionales principales.
+
+Desde este punto:
+
+- ya existe una base conversacional testeable
+- hay piezas reutilizables y relativamente estables
+- seguir agregando lógica sin tests empieza a aumentar el riesgo de regresión
+
+### Alcance
+Formalizar la política de testing del proyecto y construir la base mínima para ejecutar tests de forma repetible.
+
+### Qué se debe testear primero
+- `StepResult`
+- validadores por paso
+- `ConversationFlowResolver`
+- handlers pequeños o con branching relevante
+- servicios base de conversación
+- servicios de materialización de negocio ya existentes
+- casos críticos del flujo de aviso y del flujo de anticipo en la capa hoy más estable
+
+### Qué no cubrir todavía
+- cobertura exhaustiva de todos los controllers
+- pruebas end-to-end complejas contra proveedores externos
+- infraestructura completa de CI/CD si el repo todavía no la necesita
+- automatizaciones de browser o integración externa real
+
+### Política obligatoria a partir de esta etapa
+Desde esta etapa en adelante, todo cambio relevante de implementación debe incluir sus tests dentro del mismo commit cuando corresponda.
+
+Esto aplica especialmente a:
+
+- lógica nueva con branching no trivial
+- validadores nuevos
+- handlers nuevos
+- servicios con reglas de negocio
+- bugfixes que corrigen comportamiento observable
+
+La ausencia de tests solo es aceptable si queda justificada explícitamente en el cambio.
+
+### Criterio de aceptación
+La etapa se considera cumplida cuando:
+
+- existe infraestructura mínima para ejecutar tests localmente
+- el enfoque de testing está documentado
+- el plan maestro deja explícito que los pasos siguientes deben incluir tests en el mismo commit
+- el proyecto tiene una base inicial para empezar a agregar cobertura incremental
+
+---
+
 ## Desglose operativo recomendado para la implementación conversacional
 
 Además de las etapas y milestones, conviene ejecutar la base conversacional en incrementos cortos y revisables.
@@ -344,6 +399,12 @@ Además de las etapas y milestones, conviene ejecutar la base conversacional en 
 - persistir archivos asociados
 - cerrar conversación de forma consistente
 
+### Bloque operativo J
+- incorporar infraestructura mínima de testing
+- documentar criterios de cobertura y aceptación
+- comenzar por validadores, handlers y servicios estables
+- hacer obligatorio que los pasos posteriores incluyan tests en el mismo commit
+
 ### Criterio de uso
 
 Estos bloques operativos sirven para pedir prompts más concretos sin perder alineación con las etapas maestras.
@@ -355,6 +416,7 @@ Mapeo sugerido:
 - bloque E -> Etapa 6
 - bloques F-G -> Etapa 7
 - bloques H-I -> Etapa 8
+- bloque J -> Etapa 8.5
 
 ---
 
@@ -391,6 +453,9 @@ Agregar soporte consistente para:
 ### Estado esperado
 El sistema puede manejar errores sin perder claridad ni mantenibilidad.
 
+### Regla de ejecución desde esta etapa
+Las mejoras o cambios relevantes dentro de esta etapa deben venir acompañados por tests en el mismo commit, salvo excepción justificada.
+
 ---
 
 ## Etapa 10: inactividad y automatismos
@@ -421,6 +486,9 @@ Usar Laravel Scheduler para:
 ### Estado esperado
 La conversación se puede abandonar sin dejar el sistema en un estado inconsistente.
 
+### Regla de ejecución desde esta etapa
+Los cambios de automatismos o reglas temporales deben incluir tests apropiados en el mismo commit, especialmente cuando afecten cancelación, recordatorios o cierres automáticos.
+
 ---
 
 ## Etapa 11: mensajes finales y templates
@@ -446,6 +514,9 @@ Crear templates Blade para:
 ### Estado esperado
 Los mensajes largos están desacoplados de la lógica y listos para futura administración.
 
+### Regla de ejecución desde esta etapa
+Si una modificación de templates o mensajes cambia comportamiento de flujo o criterios de decisión, debe incorporar tests o ajustar los existentes en el mismo commit cuando corresponda.
+
 ---
 
 ## Etapa 12: integraciones futuras y endurecimiento
@@ -464,6 +535,9 @@ Preparar la transición desde MVP a una solución más integrada.
 
 ### Estado esperado
 El sistema puede evolucionar sin necesidad de reescribir la base conversacional.
+
+### Regla de ejecución desde esta etapa
+Toda integración o endurecimiento relevante debe llegar con cobertura adecuada dentro del mismo commit, priorizando tests unitarios e integraciones livianas sobre verificaciones manuales aisladas.
 
 ---
 
