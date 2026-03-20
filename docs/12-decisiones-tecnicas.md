@@ -259,6 +259,24 @@ En una primera etapa, el catálogo de tipos de certificado puede resolverse con:
 - config
 - enum
 
+---
+
+## 16. Base operativa preproductiva liviana
+
+### Decisión
+Sin implementar todavía despliegue productivo completo ni CI/CD compleja, el proyecto debe contar con una base mínima de operación repetible desde Docker.
+
+### Implementación base
+- `Makefile` con atajos operativos frecuentes
+- comando `medicina:doctor` para chequeo rápido del entorno
+- scheduler y timeouts ejecutables manualmente
+- documentación corta de soporte en `docs/13-operacion-y-soporte.md`
+
+### Motivo
+- reducir fricción para desarrollo avanzado y QA
+- facilitar diagnóstico de entorno
+- dejar una rutina mínima antes de usar el sistema en entorno de prueba
+
 y no necesariamente con una tabla de base de datos.
 
 ### Motivo

@@ -23,6 +23,7 @@ Debe servir como base común para:
 - `10-mensajes-y-templates.md`
 - `11-testing-y-criterios.md`
 - `12-decisiones-tecnicas.md`
+- `13-operacion-y-soporte.md`
 
 ## Diagramas como código
 

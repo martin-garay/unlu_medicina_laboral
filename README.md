@@ -60,13 +60,23 @@ Usa `.env.docker.example` como plantilla. Valores claves:
 
 ## Comandos de ayuda (Makefile)
 Si prefieres usar `make`:
+- `make help` → lista de atajos operativos disponibles
 - `make up` → `docker compose up -d --build`
 - `make down` → `docker compose down`
+- `make ps` → estado de contenedores
+- `make restart` → reinicia `app`
+- `make setup` → `install + key + migrate`
 - `make install` → `docker compose run --rm composer install`
 - `make key` → `docker compose exec app php artisan key:generate`
 - `make migrate` → `docker compose exec app php artisan migrate`
 - `make test` → `docker compose exec app php artisan test`
+- `make test-unit` → suite unitaria
+- `make test-feature` → suite feature
+- `make doctor` → chequeo operativo rápido del entorno
+- `make artisan CMD="about"` → ejecuta cualquier comando artisan
+- `make schedule-run` → ejecuta una pasada del scheduler
 - `make timeouts` → `docker compose exec app php artisan conversations:process-timeouts`
+- `make timeouts-now NOW="2026-03-20 10:00:00"` → procesa timeouts con hora fija
 - `make logs` → `docker compose logs -f app`
 
 ## Testing
@@ -80,6 +90,21 @@ Si prefieres usar `make`:
   make test
   ```
 - La política y criterios de cobertura están documentados en `docs/11-testing-y-criterios.md`.
+
+## Operación y soporte
+- Runbook operativo base: `docs/13-operacion-y-soporte.md`
+- Diagnóstico rápido del entorno:
+  ```bash
+  make doctor
+  ```
+- Para ejecutar una pasada manual del scheduler:
+  ```bash
+  make schedule-run
+  ```
+- Para correr un comando artisan arbitrario:
+  ```bash
+  make artisan CMD="about"
+  ```
 
 ## Diagramas como código
 - La documentación visual vive en `docs/diagrams/`.
