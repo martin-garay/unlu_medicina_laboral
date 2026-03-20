@@ -47,6 +47,8 @@ class CertificadoNumeroAvisoStepHandlerTest extends TestCase
 
         $this->assertTrue($result->isValid);
         $this->assertSame('certificado_tipo', $result->nextStep);
+        $this->assertStringContainsString('1. Manuscrito', $result->message);
+        $this->assertStringContainsString('2. Electrónico', $result->message);
         $this->assertSame($aviso->id, $result->payload['conversation_updates']['metadata']['certificado']['aviso_id']);
     }
 
