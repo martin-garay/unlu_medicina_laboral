@@ -163,9 +163,15 @@ return [
 
     'storage' => [
         'driver' => env('MEDICINA_LABORAL_STORAGE_DRIVER', 'metadata'),
+        'draft_driver' => env('MEDICINA_LABORAL_DRAFT_STORAGE_DRIVER', env('MEDICINA_LABORAL_STORAGE_DRIVER', 'metadata')),
+        'final_driver' => env('MEDICINA_LABORAL_FINAL_STORAGE_DRIVER', env('MEDICINA_LABORAL_STORAGE_DRIVER', 'metadata')),
         'draft_attachments' => [
             'disk' => env('MEDICINA_LABORAL_DRAFT_ATTACHMENTS_DISK', 'local'),
             'directory' => env('MEDICINA_LABORAL_DRAFT_ATTACHMENTS_DIRECTORY', 'medicina_laboral/drafts'),
+        ],
+        'final_attachments' => [
+            'disk' => env('MEDICINA_LABORAL_FINAL_ATTACHMENTS_DISK', 'local'),
+            'directory' => env('MEDICINA_LABORAL_FINAL_ATTACHMENTS_DIRECTORY', 'medicina_laboral/anticipos'),
         ],
     ],
 

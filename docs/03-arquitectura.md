@@ -153,6 +153,17 @@ Implementación base sugerida:
 - implementación `NullBusinessNotificationSender`
 - implementación opcional `LaravelMailBusinessNotificationSender`
 
+### Servicios desacoplados de storage de adjuntos
+Responsabilidades:
+- capturar metadata del adjunto durante el borrador conversacional
+- persistir referencias finales asociadas al anticipo materializado
+- permitir evolución posterior a backend local, S3 u otro proveedor
+
+Implementación base sugerida:
+- contrato `DraftAttachmentStorage` para el paso conversacional
+- contrato `FinalAttachmentStorage` para la persistencia final del anticipo
+- implementación metadata-first mientras no exista descarga binaria definitiva
+
 ## Implementación base actual
 
 En la etapa 2 se implementa una primera versión simple de estos servicios:

@@ -243,6 +243,7 @@ La implementación real contra Mapuche queda diferida y deberá reemplazar o com
 ### Endurecimiento base recomendado
 - `BusinessNotificationSender` con implementación `null` para preparar envío real de emails sin acoplar servicios de negocio
 - `DraftAttachmentStorage` para encapsular la captura de metadata de adjuntos antes del storage definitivo
+- `FinalAttachmentStorage` para encapsular la persistencia final de adjuntos asociados al anticipo
 - selección de drivers centralizada en `config/medicina_laboral.php`
 
 ### Evolución mínima admitida para email

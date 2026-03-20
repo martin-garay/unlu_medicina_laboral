@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Flows\Common\StepResult;
 use App\Models\AnticipoCertificado;
 use App\Models\Conversacion;
+use App\Services\Storage\Contracts\FinalAttachmentStorage;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -13,6 +14,7 @@ class AnticipoCertificadoService
 {
     public function __construct(
         private readonly CertificadoMessageService $certificadoMessageService,
+        private readonly FinalAttachmentStorage $finalAttachmentStorage,
     ) {
     }
 
@@ -55,26 +57,12 @@ class AnticipoCertificadoService
             ])->save();
 
             foreach ($certificado['adjuntos'] ?? [] as $attachment) {
+                $storedAttachment = $this->finalAttachmentStorage->persist($attachment, $conversation, $anticipo);
+
                 $anticipo->archivos()->create([
                     'uuid' => (string) Str::uuid(),
                     'conversacion_id' => $conversation->id,
-                    'provider_file_id' => $attachment['provider_media_id'] ?? null,
-                    'nombre_original' => $attachment['filename'] ?? null,
-                    'mime_type' => $attachment['mime_type'] ?? null,
-                    'extension' => $this->resolveExtension($attachment['filename'] ?? null),
-                    'size_bytes' => $attachment['size_bytes'] ?? null,
-                    'storage_disk' => $attachment['storage_disk'] ?? config('medicina_laboral.storage.draft_attachments.disk'),
-                    'storage_path' => $attachment['storage_path'] ?? null,
-                    'hash_archivo' => $attachment['sha256'] ?? null,
-                    'estado_validacion' => 'aceptado',
-                    'motivo_rechazo' => null,
-                    'metadata' => [
-                        'caption' => $attachment['caption'] ?? null,
-                        'source_type' => $attachment['source_type'] ?? null,
-                        'storage_driver' => $attachment['storage_driver'] ?? null,
-                        'storage_status' => $attachment['storage_status'] ?? null,
-                        'stored_at' => $attachment['stored_at'] ?? null,
-                    ],
+                    ...$storedAttachment->toArray(),
                 ]);
             }
 
@@ -97,16 +85,5 @@ class AnticipoCertificadoService
     public function displayNumber(AnticipoCertificado $anticipo): string
     {
         return $anticipo->numero_anticipo ?: 'AC-' . $anticipo->id;
-    }
-
-    private function resolveExtension(?string $filename): ?string
-    {
-        if ($filename === null || $filename === '') {
-            return null;
-        }
-
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
-
-        return $extension !== '' ? mb_strtolower($extension) : null;
     }
 }

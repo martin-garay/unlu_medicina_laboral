@@ -46,7 +46,9 @@ use App\Services\CertificadoMessageService;
 use App\Services\Conversation\ConversationContextService;
 use App\Services\Conversation\ConversationFlowResolver;
 use App\Services\Storage\Contracts\DraftAttachmentStorage;
+use App\Services\Storage\Contracts\FinalAttachmentStorage;
 use App\Services\Storage\MetadataDraftAttachmentStorage;
+use App\Services\Storage\MetadataFinalAttachmentStorage;
 use App\Services\WorkerIdentification\Contracts\WorkerIdentificationService;
 use App\Services\WorkerIdentification\MapucheWorkerIdentificationService;
 use App\Services\WorkerIdentification\MockWorkerIdentificationService;
@@ -83,9 +85,16 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(DraftAttachmentStorage::class, function () {
-            return match (config('medicina_laboral.storage.driver', 'metadata')) {
+            return match (config('medicina_laboral.storage.draft_driver', config('medicina_laboral.storage.driver', 'metadata'))) {
                 'metadata' => new MetadataDraftAttachmentStorage(),
                 default => throw new \InvalidArgumentException('Unsupported attachment storage driver configured.'),
+            };
+        });
+
+        $this->app->singleton(FinalAttachmentStorage::class, function () {
+            return match (config('medicina_laboral.storage.final_driver', config('medicina_laboral.storage.driver', 'metadata'))) {
+                'metadata' => new MetadataFinalAttachmentStorage(),
+                default => throw new \InvalidArgumentException('Unsupported final attachment storage driver configured.'),
             };
         });
 

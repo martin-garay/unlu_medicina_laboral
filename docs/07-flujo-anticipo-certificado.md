@@ -215,6 +215,13 @@ Por ahora el paso acepta un adjunto por vez y registra metadata mínima del mens
 
 Se validan tipos MIME permitidos desde configuración, pero no se realiza todavía descarga ni almacenamiento definitivo del archivo.
 
+La estrategia actual ya distingue dos momentos:
+
+- storage de borrador conversacional para `metadata.certificado.adjuntos`
+- persistencia final desacoplada de referencias en `anticipo_certificado_archivos`
+
+Esto permite migrar más adelante a local, S3 u otro backend sin acoplar el handler conversacional al almacenamiento final.
+
 ## Recomendación de trazabilidad
 
 Registrar por cada archivo:

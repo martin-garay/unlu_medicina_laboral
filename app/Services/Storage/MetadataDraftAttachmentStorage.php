@@ -15,7 +15,7 @@ class MetadataDraftAttachmentStorage implements DraftAttachmentStorage
             $media['filename'] ?? null,
             $media['caption'] ?? null,
             $media['source_type'] ?? $incomingMessageType,
-            config('medicina_laboral.storage.driver', 'metadata'),
+            config('medicina_laboral.storage.draft_driver', config('medicina_laboral.storage.driver', 'metadata')),
             'metadata_only',
             Carbon::now()->toIso8601String(),
         );
