@@ -55,9 +55,13 @@ class AnticipoCertificadoArchivo {
   +storage_path
 }
 
+class WhatsappWebhookController
+class WhatsAppSender
 class ConversationManager
 class ConversationMessageService
 class ConversationEventService
+class ConversationFailureService
+class ConversationTimeoutService
 class ConversationFlowResolver
 interface StepHandler
 interface Validator
@@ -66,6 +70,7 @@ class ValidationResult
 class MessageResolver
 class AvisoService
 class AnticipoCertificadoService
+class CertificadoMessageService
 class ConversationContextService
 interface WorkerIdentificationService
 class MapucheWorkerIdentificationService
@@ -81,11 +86,27 @@ AnticipoCertificado "1" -- "1..*" AnticipoCertificadoArchivo : adjuntos
 Conversacion "0..1" -- "0..1" AnticipoCertificado : anticipo materializado
 
 ConversationManager ..> Conversacion
+WhatsappWebhookController ..> ConversationFlowResolver
+WhatsappWebhookController ..> MessageResolver
+WhatsappWebhookController ..> ConversationManager
+WhatsappWebhookController ..> ConversationMessageService
+WhatsappWebhookController ..> ConversationEventService
+WhatsappWebhookController ..> ConversationFailureService
+WhatsappWebhookController ..> AvisoService
+WhatsappWebhookController ..> AnticipoCertificadoService
+WhatsappWebhookController ..> WhatsAppSender
 ConversationMessageService ..> Conversacion
 ConversationMessageService ..> ConversacionMensaje
 ConversationMessageService ..> ConversationManager
 ConversationEventService ..> Conversacion
 ConversationEventService ..> ConversacionEvento
+ConversationFailureService ..> ConversationEventService
+ConversationFailureService ..> StepResult
+ConversationTimeoutService ..> ConversationManager
+ConversationTimeoutService ..> ConversationMessageService
+ConversationTimeoutService ..> ConversationEventService
+ConversationTimeoutService ..> MessageResolver
+ConversationTimeoutService ..> WhatsAppSender
 ConversationFlowResolver ..> StepHandler : resuelve
 StepHandler ..> Conversacion
 StepHandler ..> StepResult
@@ -99,6 +120,7 @@ AvisoService ..> BusinessNotificationSender
 AnticipoCertificadoService ..> Conversacion
 AnticipoCertificadoService ..> AnticipoCertificado
 AnticipoCertificadoService ..> AnticipoCertificadoArchivo
+AnticipoCertificadoService ..> CertificadoMessageService
 ConversationContextService ..> Conversacion
 StepHandler ..> WorkerIdentificationService
 StepHandler ..> DraftAttachmentStorage
@@ -115,5 +137,17 @@ note bottom of StepHandler
 Contrato por paso del flujo conversacional.
 Los handlers concretos se registran en
 AppServiceProvider y son resueltos por orden.
+end note
+
+note right of WhatsappWebhookController
+El webhook sigue siendo la frontera principal
+del canal WhatsApp. La lógica de flujo ya se
+apoya en StepResult, handlers y servicios.
+end note
+
+note bottom of ConversationFlowResolver
+Todavia conviven handlers actuales,
+placeholders y algunos transicionales
+como compatibilidad incremental.
 end note
 @enduml

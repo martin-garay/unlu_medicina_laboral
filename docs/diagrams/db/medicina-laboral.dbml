@@ -34,7 +34,7 @@ Table conversaciones {
   created_at timestamp
   updated_at timestamp
 
-  Note: "Tabla real actual. Conviven campos nuevos y legacy."
+  Note: "Tabla real actual. Conviven campos nuevos y legacy; anticipo_certificado_id ya existe en migraciones."
 }
 
 Table conversacion_mensajes {
@@ -77,7 +77,7 @@ Table avisos {
   legajo varchar
   sede varchar
   jornada_laboral varchar
-  tipo varchar
+  tipo varchar [not null]
   tipo_ausentismo varchar
   fecha_inicio date
   fecha_fin date
@@ -99,29 +99,31 @@ Ref: avisos.conversacion_id > conversaciones.id
 
 Table anticipos_certificado {
   id bigint [pk]
-  uuid uuid
-  numero_anticipo varchar
-  conversacion_id bigint
-  aviso_id bigint
+  uuid uuid [not null, unique]
+  numero_anticipo varchar [unique]
+  conversacion_id bigint [not null]
+  aviso_id bigint [not null]
   wa_number varchar
   nombre_completo varchar
   legajo varchar
   sede varchar
   jornada_laboral varchar
-  tipo_certificado varchar
-  estado varchar
+  tipo_certificado varchar [not null]
+  estado varchar [not null, default: 'registrado']
   observaciones text
   registrado_en timestamp
   metadata json
   created_at timestamp
   updated_at timestamp
+
+  Note: "Tabla real actual para el alta del anticipo."
 }
 
 Table anticipo_certificado_archivos {
   id bigint [pk]
-  uuid uuid
-  anticipo_certificado_id bigint
-  conversacion_id bigint
+  uuid uuid [not null, unique]
+  anticipo_certificado_id bigint [not null]
+  conversacion_id bigint [not null]
   provider_file_id varchar
   nombre_original varchar
   mime_type varchar
@@ -130,11 +132,13 @@ Table anticipo_certificado_archivos {
   storage_disk varchar
   storage_path varchar
   hash_archivo varchar
-  estado_validacion varchar
+  estado_validacion varchar [not null, default: 'aceptado']
   motivo_rechazo varchar
   metadata json
   created_at timestamp
   updated_at timestamp
+
+  Note: "Persistencia real de metadata asociada al anticipo. El storage binario definitivo sigue pendiente."
 }
 
 Ref: anticipos_certificado.conversacion_id > conversaciones.id

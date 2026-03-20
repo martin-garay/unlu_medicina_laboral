@@ -134,7 +134,8 @@ Por eso, para los flujos se generan también PNG derivados en `docs/diagrams/ren
 En el estado actual del repo:
 
 - el flujo de aviso estándar llega a registración efectiva
-- el flujo de anticipo todavía queda incompleto en confirmación/materialización
-- las tablas de anticipo están documentadas como proyección futura y no existen todavía en las migraciones actuales
+- el flujo de anticipo ya llega a confirmación final, materialización real y mensaje registrado
+- las tablas `anticipos_certificado` y `anticipo_certificado_archivos` ya existen en migraciones actuales
+- el caso de aviso con datos de familiar sigue parcial y debe seguir marcado como tal en los diagramas
 
 Los diagramas iniciales reflejan esa situación de manera explícita.

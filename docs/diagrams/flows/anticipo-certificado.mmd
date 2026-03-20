@@ -16,6 +16,7 @@ flowchart TD
     M --> N[Persistir anticipo_certificado_archivos]
     N --> O[Asociar conversacion y cerrar flujo]
     O --> P[Enviar mensaje final de anticipo registrado]
+    K -.-> Z[certificado_confirmacion_pendiente\nsolo compatibilidad para conversaciones previas]
     C -->|Cancelar| B
     D -->|Cancelar| B
     E -->|Cancelar| B
@@ -26,4 +27,4 @@ flowchart TD
     L -->|Cancelar| B
 
     classDef future fill:#fff3cd,stroke:#946200,color:#4a3a00;
-    class K future;
+    class Z future;
