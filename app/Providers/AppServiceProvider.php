@@ -38,6 +38,7 @@ use App\Flows\Validators\RequiredTextValidator;
 use App\Flows\Validators\SedeValidator;
 use App\Flows\Validators\TipoCertificadoValidator;
 use App\Services\Notifications\Contracts\BusinessNotificationSender;
+use App\Services\Notifications\LaravelMailBusinessNotificationSender;
 use App\Services\Notifications\NullBusinessNotificationSender;
 use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
 use App\Services\Mapuche\MockMapucheWorkerProvider;
@@ -76,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(BusinessNotificationSender::class, function () {
             return match (config('medicina_laboral.mail.driver', 'null')) {
                 'null' => new NullBusinessNotificationSender(),
+                'laravel_mail' => new LaravelMailBusinessNotificationSender(app('mail.manager')),
                 default => throw new \InvalidArgumentException('Unsupported business notification driver configured.'),
             };
         });

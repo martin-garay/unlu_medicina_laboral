@@ -158,6 +158,7 @@ return [
     'mail' => [
         'driver' => env('MEDICINA_LABORAL_MAIL_DRIVER', 'null'),
         'aviso_registered_recipient' => env('MEDICINA_LABORAL_MAIL_AVISO_REGISTERED_RECIPIENT'),
+        'aviso_registered_subject' => env('MEDICINA_LABORAL_MAIL_AVISO_REGISTERED_SUBJECT', 'Aviso de ausencia registrado'),
     ],
 
     'storage' => [

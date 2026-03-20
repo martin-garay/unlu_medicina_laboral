@@ -142,6 +142,17 @@ Responsabilidades:
 - registrar eventos técnicos y funcionales
 - unificar trazabilidad no basada únicamente en mensajes
 
+### Servicios desacoplados de notificación de negocio
+Responsabilidades:
+- encapsular futuros envíos de email u otras notificaciones
+- permitir una implementación `null` por defecto
+- evitar acoplar servicios de negocio a `Mail` o a un proveedor concreto
+
+Implementación base sugerida:
+- contrato `BusinessNotificationSender`
+- implementación `NullBusinessNotificationSender`
+- implementación opcional `LaravelMailBusinessNotificationSender`
+
 ## Implementación base actual
 
 En la etapa 2 se implementa una primera versión simple de estos servicios:

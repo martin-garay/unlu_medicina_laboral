@@ -245,6 +245,9 @@ La implementación real contra Mapuche queda diferida y deberá reemplazar o com
 - `DraftAttachmentStorage` para encapsular la captura de metadata de adjuntos antes del storage definitivo
 - selección de drivers centralizada en `config/medicina_laboral.php`
 
+### Evolución mínima admitida para email
+Sin salir todavía a una integración productiva compleja, puede existir un driver opcional basado en `Mail` de Laravel, manteniendo `null` como default y evitando que handlers o controllers dependan de esa implementación concreta.
+
 ---
 
 ## 15. Catálogo de tipos de certificado
