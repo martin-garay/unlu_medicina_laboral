@@ -69,13 +69,10 @@ class CertificadoNumeroAvisoStepHandler extends AbstractStepHandler
 
     private function buildTipoCertificadoPrompt(): string
     {
-        $lines = [__('whatsapp.certificado.tipo_certificado')];
-
-        foreach (array_values(config('medicina_laboral.catalogos.tipos_certificado', [])) as $index => $label) {
-            $lines[] = ($index + 1) . '. ' . $label;
-        }
-
-        return implode("\n", $lines);
+        return $this->buildNumberedOptionsMessage(
+            'whatsapp.certificado.tipo_certificado',
+            config('medicina_laboral.catalogos.tipos_certificado', [])
+        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

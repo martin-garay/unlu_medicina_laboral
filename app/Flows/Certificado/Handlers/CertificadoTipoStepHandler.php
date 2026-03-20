@@ -51,13 +51,10 @@ class CertificadoTipoStepHandler extends AbstractStepHandler
 
     private function buildInvalidTipoCertificadoMessage(): string
     {
-        $lines = [__('whatsapp.errores.invalid_option')];
-
-        foreach (array_values(config('medicina_laboral.catalogos.tipos_certificado', [])) as $index => $label) {
-            $lines[] = ($index + 1) . '. ' . $label;
-        }
-
-        return implode("\n", $lines);
+        return $this->buildNumberedOptionsMessage(
+            'whatsapp.errores.invalid_option',
+            config('medicina_laboral.catalogos.tipos_certificado', [])
+        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

@@ -53,13 +53,10 @@ class AvisoFechaHastaStepHandler extends AbstractStepHandler
 
     private function buildTipoAusentismoPrompt(): string
     {
-        $lines = [__('whatsapp.aviso.prompts.tipo_ausentismo')];
-
-        foreach (array_values(config('medicina_laboral.catalogos.tipos_ausentismo', [])) as $index => $label) {
-            $lines[] = ($index + 1) . '. ' . $label;
-        }
-
-        return implode("\n", $lines);
+        return $this->buildNumberedOptionsMessage(
+            'whatsapp.aviso.prompts.tipo_ausentismo',
+            config('medicina_laboral.catalogos.tipos_ausentismo', [])
+        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

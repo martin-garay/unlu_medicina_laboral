@@ -50,13 +50,10 @@ class IdentificacionSedeStepHandler extends AbstractStepHandler
 
     private function buildInvalidSedeMessage(): string
     {
-        $lines = [__('whatsapp.errores.sede_invalida')];
-
-        foreach (array_values(config('medicina_laboral.catalogos.sedes', [])) as $index => $label) {
-            $lines[] = ($index + 1) . '. ' . $label;
-        }
-
-        return implode("\n", $lines);
+        return $this->buildNumberedOptionsMessage(
+            'whatsapp.errores.sede_invalida',
+            config('medicina_laboral.catalogos.sedes', [])
+        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

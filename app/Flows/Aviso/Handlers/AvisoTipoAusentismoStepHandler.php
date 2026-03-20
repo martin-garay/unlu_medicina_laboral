@@ -51,13 +51,10 @@ class AvisoTipoAusentismoStepHandler extends AbstractStepHandler
 
     private function buildInvalidTipoAusentismoMessage(): string
     {
-        $lines = [__('whatsapp.errores.invalid_option')];
-
-        foreach (array_values(config('medicina_laboral.catalogos.tipos_ausentismo', [])) as $index => $label) {
-            $lines[] = ($index + 1) . '. ' . $label;
-        }
-
-        return implode("\n", $lines);
+        return $this->buildNumberedOptionsMessage(
+            'whatsapp.errores.invalid_option',
+            config('medicina_laboral.catalogos.tipos_ausentismo', [])
+        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

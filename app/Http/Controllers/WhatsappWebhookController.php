@@ -318,13 +318,7 @@ class WhatsappWebhookController extends Controller
         }
 
         if ($action === 'create_aviso_certificado') {
-            // Camino transicional legado. El flujo actual de anticipo no utiliza esta rama.
-            \App\Models\Aviso::create([
-                'dni' => $conversation->dni,
-                'tipo' => 'certificado',
-                'certificado_base64' => $stepResult->payload['certificado_texto'] ?? null,
-                'wa_number' => $conversation->wa_number,
-            ]);
+            $this->createLegacyCertificadoAviso($conversation, $stepResult);
         }
 
         if ($action === 'create_anticipo_certificado_from_conversation') {
@@ -504,7 +498,7 @@ class WhatsappWebhookController extends Controller
         }
 
         return [
-            'body_text' => __('whatsapp.menu.prompt'),
+            'body_text' => $this->messageResolver->resolveKey('whatsapp.menu.prompt'),
             'buttons' => $buttons,
         ];
     }
@@ -512,5 +506,16 @@ class WhatsappWebhookController extends Controller
     private function resolveStepMessage(StepResult $stepResult): ?string
     {
         return $this->messageResolver->resolve($stepResult);
+    }
+
+    private function createLegacyCertificadoAviso(Conversacion $conversation, StepResult $stepResult): void
+    {
+        // Camino transicional legado. El flujo actual de anticipo no utiliza esta rama.
+        \App\Models\Aviso::create([
+            'dni' => $conversation->dni,
+            'tipo' => 'certificado',
+            'certificado_base64' => $stepResult->payload['certificado_texto'] ?? null,
+            'wa_number' => $conversation->wa_number,
+        ]);
     }
 }

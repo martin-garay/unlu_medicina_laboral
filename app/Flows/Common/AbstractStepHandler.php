@@ -37,6 +37,17 @@ abstract class AbstractStepHandler implements StepHandler
         return $this->matchesConfiguredKeyword($input, 'medicina_laboral.conversation.allowed_restart_keywords');
     }
 
+    protected function buildNumberedOptionsMessage(string $headerKey, array $options): string
+    {
+        $lines = [__($headerKey)];
+
+        foreach (array_values($options) as $index => $label) {
+            $lines[] = ($index + 1) . '. ' . $label;
+        }
+
+        return implode("\n", $lines);
+    }
+
     private function matchesConfiguredKeyword(array $input, string $configKey): bool
     {
         $text = $this->normalizedText($input);
