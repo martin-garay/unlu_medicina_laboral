@@ -23,6 +23,27 @@ Puede dejarse para más adelante:
 - almacenamiento definitivo de archivos con infraestructura final
 - validaciones avanzadas de plazos hábiles si requieren lógica adicional
 
+## Estado real del repo al 2026-03-20
+
+Hoy el flujo implementado llega hasta:
+
+- entrada desde menú principal
+- identificación común reutilizada
+- validación local del aviso previo
+- selección de tipo de certificado
+- captura de un adjunto por mensaje con metadata en borrador
+- render de un resumen de borrador
+- cancelación desde el paso placeholder posterior al adjunto
+
+Todavía no existe en el repo:
+
+- handler real de confirmación final del anticipo
+- alta de entidad `AnticipoCertificado`
+- persistencia definitiva de archivos asociados
+- mensaje final de anticipo registrado conectado al flujo
+
+El paso `certificado_confirmacion_pendiente` sigue siendo un placeholder documental/técnico y no una confirmación cerrada de negocio.
+
 ## Punto de entrada
 
 Desde el menú principal interesa implementar la opción:
@@ -225,6 +246,12 @@ Antes de registrar el anticipo, el sistema debe mostrar un resumen de la informa
 
 Usar template Blade para renderizar el mensaje de resumen final.
 
+## Estado real de este subflujo
+
+Actualmente no existe un handler de confirmación final que permita confirmar y materializar el anticipo.
+
+El repo solo renderiza un resumen de borrador y mantiene el flujo en `certificado_confirmacion_pendiente`, que hoy funciona como placeholder y punto de cancelación.
+
 ## Opciones esperadas
 
 - confirmar
@@ -257,6 +284,10 @@ Dependiendo del modelo operativo futuro, podría considerarse:
 
 La definición final deberá alinearse con el módulo administrativo posterior.
 
+## Estado real de este subflujo
+
+Todavía no existe una entidad de negocio `AnticipoCertificado`, ni migración, ni servicio de alta conectado al motor conversacional.
+
 ## Subflujo 7: mensaje final
 
 Una vez registrado el anticipo, el sistema debe informar al usuario que la carga fue realizada.
@@ -269,6 +300,10 @@ El mensaje final debería contener:
 - número o identificador del anticipo
 - aviso asociado
 - información adicional definida por negocio
+
+## Estado real de este subflujo
+
+Existe un template Blade preparado para un mensaje final de anticipo registrado, pero hoy no está conectado al flujo porque no existe la registración efectiva del anticipo.
 
 ## Validaciones y errores
 
