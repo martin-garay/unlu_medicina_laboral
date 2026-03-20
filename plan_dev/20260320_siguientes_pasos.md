@@ -225,6 +225,23 @@ Dejar el sistema mejor parado para una etapa preproductiva o productiva.
 
 ---
 
+## Posible paso futuro
+### Evaluar consola interna o canal alternativo a WhatsApp
+
+#### Objetivo
+Analizar o implementar una interfaz propia para conversar con el sistema sin depender exclusivamente de WhatsApp, reutilizando el motor conversacional existente.
+
+#### Alcance sugerido
+- normalizar input interno por canal
+- desacoplar envío saliente del `WhatsappWebhookController`
+- exponer una API interna o consola de debug
+- reutilizar trazabilidad, handlers, validadores y `MessageResolver`
+
+#### Entregable
+- diagnóstico de factibilidad o primera consola interna mínima
+
+---
+
 ## Orden recomendado
 
 1. confirmar estado real del anticipo

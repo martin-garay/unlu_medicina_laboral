@@ -415,3 +415,26 @@ La documentación visual del proyecto se mantiene como texto versionable dentro 
 
 ### Implicancia
 Cuando cambien flujos relevantes, relaciones estructurales o esquema de datos, los diagramas afectados deben actualizarse junto con la documentación correspondiente.
+
+---
+
+## 22. Evolución prevista hacia múltiples canales
+
+### Decisión
+Aunque el MVP actual usa WhatsApp Cloud API como canal principal, el motor conversacional debe poder evolucionar para soportar otros canales internos sin reescribir handlers, validadores ni servicios de negocio.
+
+### Implicancia de diseño
+La evolución esperada es:
+- mantener adapters de entrada por canal
+- normalizar el mensaje entrante a un formato interno estable
+- resolver la salida mediante un sender por canal o una abstracción equivalente
+- conservar `conversaciones`, `conversacion_mensajes` y `conversacion_eventos` como trazabilidad común
+
+### Aplicación futura
+Esto habilita, por ejemplo:
+- consola web interna para desarrollo
+- interfaz administrativa de simulación de conversaciones
+- canal interno alternativo reutilizable más allá de WhatsApp
+
+### Nota
+Hoy la frontera de entrada/salida sigue concentrada en el webhook y en `WhatsAppSender`, por lo que esta evolución requiere un desacople moderado en esa capa, no una reescritura del motor conversacional.
