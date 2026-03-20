@@ -16,6 +16,7 @@ return [
         ],
         'first_inactivity_minutes' => 30,
         'second_inactivity_minutes' => 60,
+        'second_inactivity_action' => env('MEDICINA_LABORAL_SECOND_INACTIVITY_ACTION', 'cancel'),
     ],
 
     'certificados' => [

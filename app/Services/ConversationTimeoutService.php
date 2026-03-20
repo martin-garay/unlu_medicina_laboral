@@ -23,32 +23,37 @@ class ConversationTimeoutService
 
         $summary = [
             'checked' => 0,
+            'eligible' => 0,
             'warning_1_sent' => 0,
             'cancelled' => 0,
+            'second_threshold_action' => $this->secondThresholdAction(),
         ];
 
         Conversacion::query()
             ->active()
             ->orderBy('id')
-            ->get()
-            ->each(function (Conversacion $conversation) use ($now, &$summary): void {
-                $summary['checked']++;
+            ->chunkById(100, function ($conversations) use ($now, &$summary): void {
+                $conversations->each(function (Conversacion $conversation) use ($now, &$summary): void {
+                    $summary['checked']++;
 
-                if (!$this->isEligibleForTimeout($conversation, $now)) {
-                    return;
-                }
+                    if (!$this->isEligibleForTimeout($conversation, $now)) {
+                        return;
+                    }
 
-                if ($this->shouldCancelByInactivity($conversation, $now)) {
-                    $this->cancelByInactivity($conversation, $now);
-                    $summary['cancelled']++;
+                    $summary['eligible']++;
 
-                    return;
-                }
+                    if ($this->shouldCancelByInactivity($conversation, $now)) {
+                        $this->cancelByInactivity($conversation, $now);
+                        $summary['cancelled']++;
 
-                if ($this->shouldSendFirstWarning($conversation, $now)) {
-                    $this->sendFirstWarning($conversation, $now);
-                    $summary['warning_1_sent']++;
-                }
+                        return;
+                    }
+
+                    if ($this->shouldSendFirstWarning($conversation, $now)) {
+                        $this->sendFirstWarning($conversation, $now);
+                        $summary['warning_1_sent']++;
+                    }
+                });
             });
 
         return $summary;
@@ -88,6 +93,10 @@ class ConversationTimeoutService
 
     private function shouldCancelByInactivity(Conversacion $conversation, CarbonInterface $now): bool
     {
+        if ($this->secondThresholdAction() !== 'cancel') {
+            return false;
+        }
+
         if ($conversation->segundo_umbral_notificado_en !== null) {
             return false;
         }
@@ -187,6 +196,7 @@ class ConversationTimeoutService
             'evaluated_at' => $now->toIso8601String(),
             'first_threshold_minutes' => $this->firstThresholdMinutes(),
             'second_threshold_minutes' => $this->secondThresholdMinutes(),
+            'second_threshold_action' => $this->secondThresholdAction(),
         ];
     }
 
@@ -196,6 +206,7 @@ class ConversationTimeoutService
             'flow_label' => $this->flowLabel($conversation),
             'first_threshold_minutes' => $this->firstThresholdMinutes(),
             'second_threshold_minutes' => $this->secondThresholdMinutes(),
+            'second_threshold_action' => $this->secondThresholdAction(),
         ];
     }
 
@@ -216,6 +227,13 @@ class ConversationTimeoutService
         $second = (int) config('medicina_laboral.conversation.second_inactivity_minutes', 60);
 
         return max($second, $this->firstThresholdMinutes());
+    }
+
+    private function secondThresholdAction(): string
+    {
+        $action = (string) config('medicina_laboral.conversation.second_inactivity_action', 'cancel');
+
+        return in_array($action, ['cancel'], true) ? $action : 'cancel';
     }
 
     private function flowLabel(Conversacion $conversation): string

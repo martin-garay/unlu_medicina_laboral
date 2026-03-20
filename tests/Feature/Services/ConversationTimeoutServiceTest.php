@@ -58,6 +58,7 @@ class ConversationTimeoutServiceTest extends TestCase
 
         $conversation = $conversation->fresh();
 
+        $this->assertSame(1, $summary['eligible']);
         $this->assertSame(1, $summary['warning_1_sent']);
         $this->assertNotNull($conversation->primer_umbral_notificado_en);
         $this->assertTrue($conversation->activa);
@@ -85,6 +86,7 @@ class ConversationTimeoutServiceTest extends TestCase
 
         $summary = app(ConversationTimeoutService::class)->process(Carbon::parse('2026-03-19 10:00:00'));
 
+        $this->assertSame(1, $summary['eligible']);
         $this->assertSame(0, $summary['warning_1_sent']);
         $this->assertDatabaseCount('conversacion_mensajes', 0);
     }
@@ -103,6 +105,8 @@ class ConversationTimeoutServiceTest extends TestCase
 
         $conversation = $conversation->fresh();
 
+        $this->assertSame(1, $summary['eligible']);
+        $this->assertSame('cancel', $summary['second_threshold_action']);
         $this->assertSame(1, $summary['cancelled']);
         $this->assertFalse($conversation->activa);
         $this->assertSame('inactivity_timeout', $conversation->motivo_finalizacion);
@@ -122,6 +126,24 @@ class ConversationTimeoutServiceTest extends TestCase
             'direccion' => 'out',
             'template_name' => config('medicina_laboral.mensajes.templates.inactividad_cancelacion'),
         ]);
+    }
+
+    public function test_process_uses_cancel_as_default_when_second_threshold_action_is_invalid(): void
+    {
+        config()->set('medicina_laboral.conversation.first_inactivity_minutes', 30);
+        config()->set('medicina_laboral.conversation.second_inactivity_minutes', 60);
+        config()->set('medicina_laboral.conversation.second_inactivity_action', 'unexpected');
+
+        $conversation = $this->createInactiveConversation([
+            'ultimo_mensaje_recibido_en' => Carbon::parse('2026-03-19 08:50:00'),
+            'primer_umbral_notificado_en' => Carbon::parse('2026-03-19 09:30:00'),
+        ]);
+
+        $summary = app(ConversationTimeoutService::class)->process(Carbon::parse('2026-03-19 10:00:00'));
+
+        $this->assertSame('cancel', $summary['second_threshold_action']);
+        $this->assertSame(1, $summary['cancelled']);
+        $this->assertSame('inactivity_timeout', $conversation->fresh()->motivo_finalizacion);
     }
 
     private function createInactiveConversation(array $attributes = []): Conversacion

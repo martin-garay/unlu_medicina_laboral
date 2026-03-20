@@ -48,6 +48,16 @@ Busca conversaciones activas que hayan superado ciertos umbrales.
 ### 3. Jobs opcionales
 Pueden utilizarse para enviar mensajes asincrónicos si se desea desacoplar la ejecución.
 
+### Estado actual
+
+En el estado actual del proyecto, los envíos automáticos siguen ejecutándose inline desde el comando schedulerizado.
+
+Esto se mantiene así porque:
+
+- la carga esperada del MVP sigue siendo baja
+- incorporar colas ahora agregaría complejidad operativa sin un cuello de botella comprobado
+- el punto de evolución hacia jobs queda identificado para una etapa posterior
+
 ### 4. Event log
 Registra cada recordatorio, advertencia o cancelación automática.
 
@@ -92,6 +102,14 @@ Si luego del recordatorio el usuario sigue sin responder y se supera un segundo 
 ### Política implementada en esta etapa
 En el MVP actual, el segundo umbral cancela directamente la conversación por inactividad y envía el mensaje final de cancelación.
 
+La acción del segundo umbral queda explicitada además en configuración mediante:
+
+- `medicina_laboral.conversation.second_inactivity_action`
+
+Valor soportado actualmente:
+
+- `cancel`
+
 ### Datos a registrar
 - fecha y hora
 - conversación
@@ -128,6 +146,12 @@ Ningún umbral debe quedar hardcodeado.
 ## Ubicación sugerida
 
 - `config/medicina_laboral.php`
+
+En el estado actual del repo, el scheduler corre:
+
+- `conversations:process-timeouts`
+- cada minuto
+- con `withoutOverlapping(10)` para evitar solapamientos accidentales
 
 ## Campos sugeridos en conversación
 

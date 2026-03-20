@@ -12,7 +12,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('conversations:process-timeouts')->everyMinute();
+        $schedule
+            ->command('conversations:process-timeouts')
+            ->name('conversations:process-timeouts')
+            ->everyMinute()
+            ->withoutOverlapping(10);
     }
 
     /**
