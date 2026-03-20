@@ -5,14 +5,14 @@ namespace App\Flows\Placeholders\Handlers;
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
-use App\Services\CertificadoMessageService;
+use App\Services\AnticipoCertificadoService;
 use App\Services\Conversation\ConversationContextService;
 
 class CertificadoConfirmacionPendienteStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
-        private readonly CertificadoMessageService $certificadoMessageService,
+        private readonly AnticipoCertificadoService $anticipoCertificadoService,
     ) {
     }
 
@@ -41,11 +41,15 @@ class CertificadoConfirmacionPendienteStepHandler extends AbstractStepHandler
             ]);
         }
 
-        return $this->success(null, [
-            'template' => config('medicina_laboral.mensajes.templates.certificado_resumen_borrador'),
-            'template_data' => $this->certificadoMessageService->buildDraftSummaryTemplateData($conversation, [
-                'mensaje_estado' => __('whatsapp.certificado.pendiente_confirmacion_siguiente_etapa'),
-            ]),
+        return StepResult::make(null, [
+            'template' => config('medicina_laboral.mensajes.templates.certificado_confirmacion_final'),
+            'template_data' => $this->anticipoCertificadoService->buildConfirmationStepResult($conversation)->templateData,
+            'next_step' => 'certificado_confirmacion_final',
+            'next_state' => 'certificado_confirmacion_final',
+            'payload' => [
+                'event_name' => 'certificado_confirmation_placeholder_redirected',
+                'event_description' => 'Placeholder legado redirigido a confirmación final real',
+            ],
         ]);
     }
 }

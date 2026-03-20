@@ -419,13 +419,11 @@ Representa el anticipo de certificado médico como entidad de negocio.
 
 ## Estado respecto del repo actual
 
-Esta tabla sigue siendo una definición objetivo de la documentación.
-
 En el estado actual del repositorio:
 
-- no existe migración para `anticipos_certificado`
-- no existe modelo Eloquent para `AnticipoCertificado`
-- el flujo conversacional de anticipo todavía no materializa esta entidad
+- existe migración para `anticipos_certificado`
+- existe modelo Eloquent `AnticipoCertificado`
+- el flujo conversacional de anticipo ya materializa esta entidad al confirmar el alta
 
 Debe quedar asociado a:
 
@@ -492,9 +490,11 @@ Registrar los archivos adjuntos asociados al anticipo de certificado.
 
 ## Estado respecto del repo actual
 
-Esta tabla sigue siendo una definición objetivo de la documentación.
+En el estado actual del repositorio:
 
-En el estado actual del repositorio no existe migración ni modelo para esta estructura.
+- existe migración para `anticipo_certificado_archivos`
+- existe modelo Eloquent para esta estructura
+- los adjuntos del borrador se materializan en esta tabla al confirmar el anticipo
 
 Se separa en una tabla propia para soportar múltiples archivos por anticipo.
 

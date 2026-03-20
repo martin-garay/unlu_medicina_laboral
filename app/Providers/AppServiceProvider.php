@@ -12,6 +12,7 @@ use App\Flows\Aviso\Handlers\AvisoMotivoStepHandler;
 use App\Flows\Aviso\Handlers\AvisoObservacionesStepHandler;
 use App\Flows\Aviso\Handlers\AvisoTipoAusentismoStepHandler;
 use App\Flows\Certificado\Handlers\CertificadoAdjuntoStepHandler;
+use App\Flows\Certificado\Handlers\CertificadoConfirmacionFinalStepHandler;
 use App\Flows\Certificado\Handlers\CertificadoNumeroAvisoStepHandler;
 use App\Flows\Certificado\Handlers\CertificadoTipoStepHandler;
 use App\Flows\Handlers\MainMenuStepHandler;
@@ -103,6 +104,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(CertificadoNumeroAvisoStepHandler::class),
                 $app->make(CertificadoTipoStepHandler::class),
                 $app->make(CertificadoAdjuntoStepHandler::class),
+                $app->make(CertificadoConfirmacionFinalStepHandler::class),
                 $app->make(CertificadoConfirmacionPendienteStepHandler::class),
                 $app->make(EsperandoDniStepHandler::class),
                 $app->make(EsperandoTipoStepHandler::class),
@@ -230,10 +232,16 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->bind(CertificadoConfirmacionFinalStepHandler::class, function ($app) {
+            return new CertificadoConfirmacionFinalStepHandler(
+                $app->make(ConversationContextService::class),
+            );
+        });
+
         $this->app->bind(CertificadoConfirmacionPendienteStepHandler::class, function ($app) {
             return new CertificadoConfirmacionPendienteStepHandler(
                 $app->make(ConversationContextService::class),
-                $app->make(CertificadoMessageService::class),
+                $app->make(\App\Services\AnticipoCertificadoService::class),
             );
         });
 

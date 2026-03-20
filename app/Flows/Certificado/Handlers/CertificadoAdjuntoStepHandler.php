@@ -47,16 +47,21 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
         $currentData = $this->conversationContextService->certificadoData($conversation);
         $attachments = $currentData['adjuntos'] ?? [];
 
+        if (count($attachments) >= (int) config('medicina_laboral.certificados.max_files', 3)) {
+            return $this->invalid('attachment_limit_exceeded', 'whatsapp.certificado.errores.max_archivos', [
+                'increment_attempts' => 1,
+            ]);
+        }
+
         $attachments[] = $this->draftAttachmentStorage->store($media, $incomingType)->toArray();
 
-        return $this->success(null, [
-            'template' => config('medicina_laboral.mensajes.templates.certificado_resumen_borrador'),
-            'template_data' => $this->certificadoMessageService->buildDraftSummaryTemplateData($conversation, [
+        return StepResult::make(null, [
+            'template' => config('medicina_laboral.mensajes.templates.certificado_confirmacion_final'),
+            'template_data' => $this->certificadoMessageService->buildConfirmationTemplateData($conversation, [
                 'adjuntos' => $attachments,
-                'mensaje_estado' => __('whatsapp.certificado.pendiente_confirmacion_siguiente_etapa'),
             ]),
-            'next_step' => 'certificado_confirmacion_pendiente',
-            'next_state' => 'certificado_confirmacion_pendiente',
+            'next_step' => 'certificado_confirmacion_final',
+            'next_state' => 'certificado_confirmacion_final',
             'payload' => [
                 'event_name' => 'certificado_attachment_registered',
                 'event_description' => 'Adjunto de certificado registrado en borrador',

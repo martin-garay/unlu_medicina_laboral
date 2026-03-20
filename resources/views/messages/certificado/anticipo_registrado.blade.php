@@ -4,6 +4,7 @@ Número de registro: {{ $numero_certificado }}
 Nombre: {{ $nombre }}
 Legajo: {{ $legajo }}
 Aviso asociado: {{ $aviso_asociado }}
+Tipo de certificado: {{ $tipo_certificado }}
 Fecha y hora de recepción: {{ $fecha_hora_recepcion }}
 
 Este mensaje fue generado automáticamente por el sistema.

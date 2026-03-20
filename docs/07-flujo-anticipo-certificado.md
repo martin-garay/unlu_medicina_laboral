@@ -25,24 +25,20 @@ Puede dejarse para más adelante:
 
 ## Estado real del repo al 2026-03-20
 
-Hoy el flujo implementado llega hasta:
+Hoy el flujo implementado cubre:
 
 - entrada desde menú principal
 - identificación común reutilizada
 - validación local del aviso previo
 - selección de tipo de certificado
-- captura de un adjunto por mensaje con metadata en borrador
-- render de un resumen de borrador
-- cancelación desde el paso placeholder posterior al adjunto
+- captura de adjuntos en borrador
+- confirmación final real
+- alta de `AnticipoCertificado`
+- persistencia real de registros asociados en `anticipo_certificado_archivos`
+- mensaje final de anticipo registrado
+- asociación de la conversación al anticipo creado y cierre consistente
 
-Todavía no existe en el repo:
-
-- handler real de confirmación final del anticipo
-- alta de entidad `AnticipoCertificado`
-- persistencia definitiva de archivos asociados
-- mensaje final de anticipo registrado conectado al flujo
-
-El paso `certificado_confirmacion_pendiente` sigue siendo un placeholder documental/técnico y no una confirmación cerrada de negocio.
+El paso `certificado_confirmacion_pendiente` puede seguir existiendo como compatibilidad para conversaciones previas, pero el camino principal actual ya utiliza `certificado_confirmacion_final`.
 
 ## Punto de entrada
 
@@ -127,7 +123,7 @@ La validación actual del aviso se apoya en la base local del proyecto:
 - verifica legajo cuando el aviso ya lo tiene persistido
 - verifica de forma simple el plazo configurado de carga
 
-El archivo adjunto todavía no se persiste como entidad definitiva; se registra metadata mínima en la conversación para preparar la confirmación final del paso siguiente.
+La conversación sigue guardando un borrador técnico en `metadata.certificado.adjuntos`, pero ese borrador ahora se materializa al confirmar el anticipo en registros reales asociados a la entidad de negocio.
 
 Más adelante puede evolucionarse a selección guiada.
 
@@ -248,9 +244,12 @@ Usar template Blade para renderizar el mensaje de resumen final.
 
 ## Estado real de este subflujo
 
-Actualmente no existe un handler de confirmación final que permita confirmar y materializar el anticipo.
+El repo ya cuenta con un handler real de confirmación final del anticipo.
 
-El repo solo renderiza un resumen de borrador y mantiene el flujo en `certificado_confirmacion_pendiente`, que hoy funciona como placeholder y punto de cancelación.
+Desde ese paso el usuario puede:
+
+- confirmar y disparar la registración efectiva
+- cancelar y volver al menú principal sin crear entidad de negocio
 
 ## Opciones esperadas
 
@@ -286,7 +285,7 @@ La definición final deberá alinearse con el módulo administrativo posterior.
 
 ## Estado real de este subflujo
 
-Todavía no existe una entidad de negocio `AnticipoCertificado`, ni migración, ni servicio de alta conectado al motor conversacional.
+El repo ya materializa `AnticipoCertificado` y sus archivos asociados desde un servicio de negocio conectado al motor conversacional.
 
 ## Subflujo 7: mensaje final
 
@@ -303,7 +302,7 @@ El mensaje final debería contener:
 
 ## Estado real de este subflujo
 
-Existe un template Blade preparado para un mensaje final de anticipo registrado, pero hoy no está conectado al flujo porque no existe la registración efectiva del anticipo.
+El template Blade de anticipo registrado ya está conectado al caso feliz del flujo y se envía luego del alta efectiva.
 
 ## Validaciones y errores
 

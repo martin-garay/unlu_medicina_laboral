@@ -7,34 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Aviso extends Model
+class AnticipoCertificado extends Model
 {
     use HasFactory;
 
+    protected $table = 'anticipos_certificado';
+
     protected $fillable = [
+        'uuid',
+        'numero_anticipo',
         'conversacion_id',
-        'dni',
+        'aviso_id',
+        'wa_number',
         'nombre_completo',
         'legajo',
         'sede',
         'jornada_laboral',
-        'tipo',
-        'tipo_ausentismo',
-        'fecha_inicio',
-        'fecha_fin',
-        'cantidad_dias',
-        'certificado_base64',
-        'motivo',
-        'domicilio_circunstancial',
+        'tipo_certificado',
+        'estado',
         'observaciones',
-        'wa_number',
+        'registrado_en',
         'metadata',
     ];
 
     protected $casts = [
-        'fecha_inicio' => 'date',
-        'fecha_fin' => 'date',
-        'cantidad_dias' => 'integer',
+        'registrado_en' => 'datetime',
         'metadata' => 'array',
     ];
 
@@ -43,8 +40,13 @@ class Aviso extends Model
         return $this->belongsTo(Conversacion::class, 'conversacion_id');
     }
 
-    public function anticiposCertificado(): HasMany
+    public function aviso(): BelongsTo
     {
-        return $this->hasMany(AnticipoCertificado::class, 'aviso_id');
+        return $this->belongsTo(Aviso::class, 'aviso_id');
+    }
+
+    public function archivos(): HasMany
+    {
+        return $this->hasMany(AnticipoCertificadoArchivo::class, 'anticipo_certificado_id');
     }
 }

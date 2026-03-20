@@ -91,6 +91,7 @@ return [
         'registrado_breve' => 'Certificado registrado. Revisá el detalle enviado por este canal.',
         'errores' => [
             'adjunto_requerido' => 'Para continuar con el anticipo, enviá un documento PDF o una imagen JPG/PNG del certificado.',
+            'max_archivos' => 'Se alcanzó la cantidad máxima de archivos permitidos para este anticipo.',
         ],
     ],
 

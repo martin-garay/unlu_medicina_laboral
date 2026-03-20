@@ -10,10 +10,12 @@ flowchart TD
     H -->|Valido| I[certificado_tipo]
     H -->|Invalido| G
     I --> J[certificado_adjunto]
-    J --> K[Guardar metadata minima del adjunto]
-    K --> L[certificado_confirmacion_pendiente]
-    L --> M[Placeholder del siguiente tramo]
-    M --> N[Confirmacion final y registracion efectiva\npendientes de implementacion]
+    J --> K[Guardar metadata draft del adjunto]
+    K --> L[certificado_confirmacion_final]
+    L -->|Confirmar| M[Crear AnticipoCertificado]
+    M --> N[Persistir anticipo_certificado_archivos]
+    N --> O[Asociar conversacion y cerrar flujo]
+    O --> P[Enviar mensaje final de anticipo registrado]
     C -->|Cancelar| B
     D -->|Cancelar| B
     E -->|Cancelar| B
@@ -24,4 +26,4 @@ flowchart TD
     L -->|Cancelar| B
 
     classDef future fill:#fff3cd,stroke:#946200,color:#4a3a00;
-    class L,M,N future;
+    class K future;

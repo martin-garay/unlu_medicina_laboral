@@ -2,12 +2,37 @@
 
 namespace App\Services;
 
+use App\Models\AnticipoCertificado;
 use App\Models\Conversacion;
 use Illuminate\Support\Arr;
 
 class CertificadoMessageService
 {
     public function buildDraftSummaryTemplateData(Conversacion $conversation, array $overrides = []): array
+    {
+        return $this->buildTemplateData($conversation, $overrides);
+    }
+
+    public function buildConfirmationTemplateData(Conversacion $conversation, array $overrides = []): array
+    {
+        return $this->buildTemplateData($conversation, array_merge($overrides, [
+            'mensaje_estado' => __('whatsapp.certificado.confirmacion_final'),
+        ]));
+    }
+
+    public function buildRegisteredTemplateData(AnticipoCertificado $anticipo): array
+    {
+        return [
+            'numero_certificado' => $anticipo->numero_anticipo,
+            'nombre' => $anticipo->nombre_completo ?? '-',
+            'legajo' => $anticipo->legajo ?? '-',
+            'aviso_asociado' => $anticipo->aviso?->id !== null ? 'AV-' . $anticipo->aviso->id : '-',
+            'tipo_certificado' => $anticipo->tipo_certificado ?? '-',
+            'fecha_hora_recepcion' => $anticipo->registrado_en?->format('d/m/Y H:i') ?? '-',
+        ];
+    }
+
+    private function buildTemplateData(Conversacion $conversation, array $overrides = []): array
     {
         $identificacion = Arr::get($conversation->metadata ?? [], 'identificacion', []);
         $certificado = array_merge(

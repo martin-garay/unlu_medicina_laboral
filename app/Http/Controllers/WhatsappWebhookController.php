@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Conversacion;
 use App\Flows\Common\MessageResolver;
 use App\Flows\Common\StepResult;
+use App\Services\AnticipoCertificadoService;
 use App\Services\AvisoService;
 use App\Services\Conversation\ConversationFlowResolver;
 use App\Services\ConversationEventService;
@@ -26,6 +27,7 @@ class WhatsappWebhookController extends Controller
         private readonly ConversationEventService $conversationEventService,
         private readonly ConversationFailureService $conversationFailureService,
         private readonly AvisoService $avisoService,
+        private readonly AnticipoCertificadoService $anticipoCertificadoService,
     ) {
     }
 
@@ -316,12 +318,31 @@ class WhatsappWebhookController extends Controller
         }
 
         if ($action === 'create_aviso_certificado') {
+            // Camino transicional legado. El flujo actual de anticipo no utiliza esta rama.
             \App\Models\Aviso::create([
                 'dni' => $conversation->dni,
                 'tipo' => 'certificado',
                 'certificado_base64' => $stepResult->payload['certificado_texto'] ?? null,
                 'wa_number' => $conversation->wa_number,
             ]);
+        }
+
+        if ($action === 'create_anticipo_certificado_from_conversation') {
+            $anticipo = $this->anticipoCertificadoService->createFromConversation($conversation);
+
+            $this->conversationEventService->record($conversation->refresh(), 'anticipo_created', [
+                'step_key' => $conversation->currentStepKey(),
+                'descripcion' => 'Anticipo de certificado creado a partir de la conversación',
+                'metadata' => [
+                    'anticipo_certificado_id' => $anticipo->id,
+                    'numero_anticipo' => $anticipo->numero_anticipo,
+                    'aviso_id' => $anticipo->aviso_id,
+                    'tipo_certificado' => $anticipo->tipo_certificado,
+                    'cantidad_archivos' => $anticipo->archivos()->count(),
+                ],
+            ]);
+
+            return $this->anticipoCertificadoService->buildRegisteredStepResult($anticipo);
         }
 
         return null;

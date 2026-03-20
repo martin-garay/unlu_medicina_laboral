@@ -38,15 +38,16 @@ class Aviso {
   +fecha_fin
 }
 
-class "AnticipoCertificado\n(futuro)" as AnticipoCertificado {
+class AnticipoCertificado {
   +id
   +conversacion_id
   +aviso_id
+  +numero_anticipo
   +tipo_certificado
   +estado
 }
 
-class "AnticipoCertificadoArchivo\n(futuro)" as AnticipoCertificadoArchivo {
+class AnticipoCertificadoArchivo {
   +id
   +anticipo_certificado_id
   +conversacion_id
@@ -64,6 +65,7 @@ class StepResult
 class ValidationResult
 class MessageResolver
 class AvisoService
+class AnticipoCertificadoService
 class ConversationContextService
 interface WorkerIdentificationService
 class MapucheWorkerIdentificationService
@@ -94,17 +96,14 @@ MessageResolver ..> StepResult
 AvisoService ..> Conversacion
 AvisoService ..> Aviso
 AvisoService ..> BusinessNotificationSender
+AnticipoCertificadoService ..> Conversacion
+AnticipoCertificadoService ..> AnticipoCertificado
+AnticipoCertificadoService ..> AnticipoCertificadoArchivo
 ConversationContextService ..> Conversacion
 StepHandler ..> WorkerIdentificationService
 StepHandler ..> DraftAttachmentStorage
 WorkerIdentificationService <|.. MapucheWorkerIdentificationService
 MapucheWorkerIdentificationService ..> MapucheWorkerProvider
-
-note right of AnticipoCertificado
-Entidad prevista por la documentacion.
-No existe todavia como modelo ni migracion
-en el estado actual del repo.
-end note
 
 note right of BusinessNotificationSender
 Punto de extension para email o notificaciones

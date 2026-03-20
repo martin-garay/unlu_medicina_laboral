@@ -4,7 +4,7 @@ namespace Tests\Unit\Flows\Placeholders\Handlers;
 
 use App\Flows\Placeholders\Handlers\CertificadoConfirmacionPendienteStepHandler;
 use App\Models\Conversacion;
-use App\Services\CertificadoMessageService;
+use App\Services\AnticipoCertificadoService;
 use App\Services\Conversation\ConversationContextService;
 use Tests\TestCase;
 
@@ -14,7 +14,7 @@ class CertificadoConfirmacionPendienteStepHandlerTest extends TestCase
     {
         $handler = new CertificadoConfirmacionPendienteStepHandler(
             new ConversationContextService(),
-            app(CertificadoMessageService::class),
+            app(AnticipoCertificadoService::class),
         );
 
         $conversation = new Conversacion([
@@ -36,16 +36,17 @@ class CertificadoConfirmacionPendienteStepHandlerTest extends TestCase
 
         $result = $handler->handle($conversation, ['text' => 'ok']);
 
-        $this->assertSame(config('medicina_laboral.mensajes.templates.certificado_resumen_borrador'), $result->template);
+        $this->assertSame(config('medicina_laboral.mensajes.templates.certificado_confirmacion_final'), $result->template);
         $this->assertSame('AV-8', $result->templateData['numero_aviso']);
         $this->assertSame(1, $result->templateData['cantidad_archivos']);
+        $this->assertSame('certificado_confirmacion_final', $result->nextStep);
     }
 
     public function test_cancel_uses_certificado_cancellation_template_and_returns_to_menu(): void
     {
         $handler = new CertificadoConfirmacionPendienteStepHandler(
             new ConversationContextService(),
-            app(CertificadoMessageService::class),
+            app(AnticipoCertificadoService::class),
         );
 
         $conversation = new Conversacion([

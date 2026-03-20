@@ -10,6 +10,8 @@ trait CreatesTestingSchema
     protected function createTestingSchema(): void
     {
         Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('anticipo_certificado_archivos');
+        Schema::dropIfExists('anticipos_certificado');
         Schema::dropIfExists('conversacion_eventos');
         Schema::dropIfExists('conversacion_mensajes');
         Schema::dropIfExists('conversaciones');
@@ -39,6 +41,7 @@ trait CreatesTestingSchema
             $table->timestamp('finalizada_en')->nullable();
             $table->string('motivo_finalizacion')->nullable();
             $table->unsignedBigInteger('aviso_id')->nullable();
+            $table->unsignedBigInteger('anticipo_certificado_id')->nullable();
             $table->json('metadata')->nullable();
             $table->string('estado')->nullable();
             $table->string('tipo')->nullable();
@@ -64,6 +67,44 @@ trait CreatesTestingSchema
             $table->string('domicilio_circunstancial')->nullable();
             $table->text('observaciones')->nullable();
             $table->string('wa_number')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('anticipos_certificado', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->nullable();
+            $table->string('numero_anticipo')->nullable();
+            $table->unsignedBigInteger('conversacion_id');
+            $table->unsignedBigInteger('aviso_id');
+            $table->string('wa_number')->nullable();
+            $table->string('nombre_completo')->nullable();
+            $table->string('legajo')->nullable();
+            $table->string('sede')->nullable();
+            $table->string('jornada_laboral')->nullable();
+            $table->string('tipo_certificado');
+            $table->string('estado')->nullable();
+            $table->text('observaciones')->nullable();
+            $table->timestamp('registrado_en')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('anticipo_certificado_archivos', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->nullable();
+            $table->unsignedBigInteger('anticipo_certificado_id');
+            $table->unsignedBigInteger('conversacion_id');
+            $table->string('provider_file_id')->nullable();
+            $table->string('nombre_original')->nullable();
+            $table->string('mime_type')->nullable();
+            $table->string('extension')->nullable();
+            $table->unsignedBigInteger('size_bytes')->nullable();
+            $table->string('storage_disk')->nullable();
+            $table->string('storage_path')->nullable();
+            $table->string('hash_archivo')->nullable();
+            $table->string('estado_validacion')->nullable();
+            $table->string('motivo_rechazo')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
         });

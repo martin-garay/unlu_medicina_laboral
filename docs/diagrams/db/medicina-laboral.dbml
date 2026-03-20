@@ -1,6 +1,6 @@
 Project medicina_laboral {
   database_type: "PostgreSQL"
-  Note: "Esquema actual del repo mas entidades futuras previstas documentalmente."
+  Note: "Esquema actual del repo con tablas conversacionales, avisos y anticipo de certificado."
 }
 
 Table conversaciones {
@@ -26,6 +26,7 @@ Table conversaciones {
   finalizada_en timestamp
   motivo_finalizacion varchar
   aviso_id bigint
+  anticipo_certificado_id bigint
   estado varchar [not null, default: 'esperando_dni']
   dni varchar
   tipo varchar
@@ -111,10 +112,9 @@ Table anticipos_certificado {
   estado varchar
   observaciones text
   registrado_en timestamp
+  metadata json
   created_at timestamp
   updated_at timestamp
-
-  Note: "Tabla futura prevista por la documentacion. No existe todavia en migraciones."
 }
 
 Table anticipo_certificado_archivos {
@@ -135,11 +135,10 @@ Table anticipo_certificado_archivos {
   metadata json
   created_at timestamp
   updated_at timestamp
-
-  Note: "Tabla futura prevista por la documentacion. No existe todavia en migraciones."
 }
 
 Ref: anticipos_certificado.conversacion_id > conversaciones.id
 Ref: anticipos_certificado.aviso_id > avisos.id
 Ref: anticipo_certificado_archivos.anticipo_certificado_id > anticipos_certificado.id
 Ref: anticipo_certificado_archivos.conversacion_id > conversaciones.id
+Ref: conversaciones.anticipo_certificado_id > anticipos_certificado.id

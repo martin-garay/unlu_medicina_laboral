@@ -4,8 +4,8 @@ namespace Tests\Unit\Flows\Certificado\Handlers;
 
 use App\Flows\Certificado\Handlers\CertificadoAdjuntoStepHandler;
 use App\Models\Conversacion;
-use App\Services\CertificadoMessageService;
 use App\Services\Conversation\ConversationContextService;
+use App\Services\CertificadoMessageService;
 use App\Services\Storage\MetadataDraftAttachmentStorage;
 use Tests\TestCase;
 
@@ -44,8 +44,8 @@ class CertificadoAdjuntoStepHandlerTest extends TestCase
             ],
         ]);
 
-        $this->assertSame(config('medicina_laboral.mensajes.templates.certificado_resumen_borrador'), $result->template);
-        $this->assertSame('certificado_confirmacion_pendiente', $result->nextStep);
+        $this->assertSame(config('medicina_laboral.mensajes.templates.certificado_confirmacion_final'), $result->template);
+        $this->assertSame('certificado_confirmacion_final', $result->nextStep);
         $this->assertSame(1, $result->templateData['cantidad_archivos']);
         $this->assertSame(['certificado.pdf'], $result->templateData['nombres_o_referencias_archivos']);
         $this->assertSame(

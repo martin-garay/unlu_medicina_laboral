@@ -37,6 +37,7 @@ class Conversacion extends Model
         'finalizada_en',
         'motivo_finalizacion',
         'aviso_id',
+        'anticipo_certificado_id',
         'metadata',
         'estado',
         'tipo',
@@ -88,5 +89,10 @@ class Conversacion extends Model
     public function aviso(): BelongsTo
     {
         return $this->belongsTo(Aviso::class, 'aviso_id');
+    }
+
+    public function anticipoCertificado(): BelongsTo
+    {
+        return $this->belongsTo(AnticipoCertificado::class, 'anticipo_certificado_id');
     }
 }
