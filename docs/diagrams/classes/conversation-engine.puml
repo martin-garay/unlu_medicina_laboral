@@ -73,6 +73,7 @@ class AnticipoCertificadoService
 class CertificadoMessageService
 class ConversationContextService
 interface WorkerIdentificationService
+class MockWorkerIdentificationService
 class MapucheWorkerIdentificationService
 interface MapucheWorkerProvider
 interface BusinessNotificationSender
@@ -124,6 +125,7 @@ AnticipoCertificadoService ..> CertificadoMessageService
 ConversationContextService ..> Conversacion
 StepHandler ..> WorkerIdentificationService
 StepHandler ..> DraftAttachmentStorage
+WorkerIdentificationService <|.. MockWorkerIdentificationService
 WorkerIdentificationService <|.. MapucheWorkerIdentificationService
 MapucheWorkerIdentificationService ..> MapucheWorkerProvider
 

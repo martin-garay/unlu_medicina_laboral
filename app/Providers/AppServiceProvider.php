@@ -48,6 +48,7 @@ use App\Services\Storage\Contracts\DraftAttachmentStorage;
 use App\Services\Storage\MetadataDraftAttachmentStorage;
 use App\Services\WorkerIdentification\Contracts\WorkerIdentificationService;
 use App\Services\WorkerIdentification\MapucheWorkerIdentificationService;
+use App\Services\WorkerIdentification\MockWorkerIdentificationService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -65,7 +66,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(WorkerIdentificationService::class, function ($app) {
-            return match (config('medicina_laboral.worker_identification.driver', 'mapuche')) {
+            return match (config('medicina_laboral.worker_identification.driver', 'mock')) {
+                'mock' => new MockWorkerIdentificationService(),
                 'mapuche' => new MapucheWorkerIdentificationService($app->make(MapucheWorkerProvider::class)),
                 default => throw new \InvalidArgumentException('Unsupported worker identification driver configured.'),
             };

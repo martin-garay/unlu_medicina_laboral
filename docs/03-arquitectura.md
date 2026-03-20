@@ -206,12 +206,19 @@ Responsabilidades:
 
 Implementación inicial sugerida:
 - contrato de aplicación `WorkerIdentificationService`
+- implementación `MockWorkerIdentificationService` para desarrollo y tests
 - adaptador `MapucheWorkerIdentificationService`
 - contrato `MapucheWorkerProvider`
 - implementación `MockMapucheWorkerProvider`
 
 Evolución futura:
 - implementación real contra Mapuche o API Mapuche sin acoplar handlers ni validadores al proveedor externo
+
+Datos mínimos esperados de la integración futura:
+- legajo
+- nombre completo
+- sede
+- jornada laboral
 
 La metadata del lookup puede persistirse en `metadata.identificacion.worker_lookup` como snapshot técnico del dato resuelto durante la conversación.
 

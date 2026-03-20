@@ -136,8 +136,23 @@ return [
     ],
 
     'worker_identification' => [
-        'driver' => env('WORKER_IDENTIFICATION_DRIVER', 'mapuche'),
+        'driver' => env('WORKER_IDENTIFICATION_DRIVER', 'mock'),
         'snapshot_metadata_key' => 'worker_lookup',
+        'mock' => [
+            'accept_unknown_legajo' => env('WORKER_IDENTIFICATION_MOCK_ACCEPT_UNKNOWN_LEGAJO', true),
+            'records' => [
+                '10001' => [
+                    'nombre_completo' => 'Ana Perez',
+                    'sede' => 'Sede Central',
+                    'jornada_laboral' => 'Manana',
+                ],
+                '10002' => [
+                    'nombre_completo' => 'Juan Gomez',
+                    'sede' => 'Campus Lujan',
+                    'jornada_laboral' => 'Tarde',
+                ],
+            ],
+        ],
     ],
 
     'mail' => [

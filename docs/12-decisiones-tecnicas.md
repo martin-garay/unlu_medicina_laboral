@@ -225,6 +225,7 @@ El foco inicial está en el motor de conversación y en los flujos.
 
 ### Implementación base
 - contrato de aplicación `WorkerIdentificationService` para el flujo conversacional
+- implementación `MockWorkerIdentificationService` como driver por defecto del flujo mientras no exista integración real
 - adaptador `MapucheWorkerIdentificationService` para reutilizar el proveedor de integración disponible
 - contrato pequeño `MapucheWorkerProvider` para lookup por legajo
 - implementación `MockMapucheWorkerProvider` configurable para desarrollo
@@ -232,6 +233,12 @@ El foco inicial está en el motor de conversación y en los flujos.
 
 ### Evolución prevista
 La implementación real contra Mapuche queda diferida y deberá reemplazar o complementar el mock sin acoplar los handlers conversacionales al proveedor externo.
+
+### Datos mínimos esperados de la integración futura
+- legajo
+- nombre completo
+- sede
+- jornada laboral
 
 ### Endurecimiento base recomendado
 - `BusinessNotificationSender` con implementación `null` para preparar envío real de emails sin acoplar servicios de negocio
