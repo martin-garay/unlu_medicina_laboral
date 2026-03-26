@@ -151,6 +151,7 @@ Si alguno no existe, dejarlo explícito en el resumen final.
 - `plan_dev/STATUS.md`: estado consolidado actual y resultado de la última ejecución relevante.
 - `plan_dev/daily/YYYY-MM-DD.md`: plan operativo del día y orden de milestones.
 - `plan_dev/BACKLOG.md`: hallazgos y pendientes fuera del alcance del día.
+- `plan_dev/RUNBOOK_PROMPT.md`: prompt lanzador estándar para iniciar una ejecución diaria con el mismo encuadre base.
 
 Si dos archivos parecen contradecirse, usar esta precedencia:
 1. `AGENTS.md`
@@ -159,6 +160,14 @@ Si dos archivos parecen contradecirse, usar esta precedencia:
 4. `plan_dev/MASTER_PLAN.md`
 
 Los archivos fechados legacy en `plan_dev/` solo deben usarse como contexto histórico o insumo puntual, no como fuente de verdad activa, salvo que `STATUS.md` o el plan diario los referencien explícitamente.
+
+### Prompt lanzador estándar
+
+Existe un prompt base en `plan_dev/RUNBOOK_PROMPT.md`.
+
+Debe usarse como punto de partida recomendado para abrir una ejecución diaria nueva, manteniendo consistencia entre sesiones.
+
+Ese prompt no reemplaza la lectura de `AGENTS.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/STATUS.md` ni del plan diario correspondiente.
 
 ---
 

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-03-26 02:20 -03
+2026-03-26 02:31 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: estructura de planificación operativa consolidada y aclarada; falta empezar a usar archivos diarios con fecha real en lugar de la plantilla.
-- Último bloque completado: ajuste de la estructura `MASTER_PLAN` / `STATUS` / `BACKLOG` / `daily/` y alineación con `AGENTS.md`.
-- Milestone actual: dejar lista la próxima ejecución diaria sobre un archivo real en `plan_dev/daily/`.
-- Próximo paso sugerido: crear o completar el primer plan diario fechado y ejecutar solo su primer milestone pendiente.
+- Estado general del proyecto: la estructura operativa ya incluye fuente de verdad, plantilla diaria y ahora un prompt lanzador estándar para abrir sesiones con menos variación.
+- Último bloque completado: incorporación del runbook prompt y ajuste menor de `AGENTS.md` para formalizar su uso.
+- Milestone actual: usar `plan_dev/RUNBOOK_PROMPT.md` como arranque recomendado de las próximas sesiones.
+- Próximo paso sugerido: seguir ejecutando el plan diario real vigente y no volver a describir manualmente la rutina base en cada prompt.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles y precedencia más claras; sigue pendiente sincronizar documentos técnicos que hoy se contradicen sobre el estado real del flujo de anticipo.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; sigue pendiente sincronizar documentos técnicos que hoy se contradicen sobre el estado real del flujo de anticipo.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -54,25 +54,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-03-26 02:20 -03
+- 2026-03-26 02:31 -03
 
 ### Plan diario usado
-- `plan_dev/daily/YYYY-MM-DD.md` como plantilla de referencia; no existe todavía un archivo diario fechado para hoy.
+- `plan_dev/daily/2026-03-26.md`
 
 ### Milestone trabajado
-- revisión y ajuste de la estructura de planificación operativa
+- formalización del prompt lanzador estándar para ejecuciones diarias
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se aclararon roles, precedencia y uso de archivos operativos; se marcaron los planes anteriores como históricos para que no compitan con la nueva estructura.
+- se agregó `plan_dev/RUNBOOK_PROMPT.md` y se dejó referenciado en `AGENTS.md` para usar siempre el mismo encuadre base al iniciar una sesión.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `AGENTS.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/STATUS.md`, `plan_dev/BACKLOG.md`, `plan_dev/daily/YYYY-MM-DD.md`, `plan_dev/20260315_plan_implementacion.md`, `plan_dev/20260320_siguientes_pasos.md`
-- resumen técnico: se redujo ambigüedad entre fuente de verdad, snapshot de estado, backlog y planes diarios; se agregaron notas históricas en documentos previos.
+- archivos tocados: `AGENTS.md`, `plan_dev/RUNBOOK_PROMPT.md`, `plan_dev/STATUS.md`
+- resumen técnico: se formalizó un prompt lanzador estándar para reducir variación entre sesiones sin duplicar la fuente de verdad documental.
 - documentación actualizada: sí, documentación operativa en `plan_dev/` y reglas de rutina en `AGENTS.md`
 - diagramas actualizados: no aplica
 
@@ -83,29 +83,27 @@ No debe reemplazar:
 ### Automáticas
 - tests corridos: no aplica para este milestone documental
 - resultado: no se ejecutaron tests
-- otros checks: lectura cruzada de `AGENTS.md`, `README.md`, `plan_dev/*.md`, `docs/README.md`, `docs/05-motor-de-conversacion.md`, `docs/diagrams/README.md`
-- resultado: se detectó una inconsistencia documental pendiente sobre el flujo de anticipo
+- otros checks: lectura de `AGENTS.md`, `plan_dev/STATUS.md` y `plan_dev/daily/2026-03-26.md` para alinear el runbook prompt con la rutina vigente
+- resultado: el prompt quedó consistente con la estructura operativa actual
 
 ### Manuales sugeridas
-- crear un archivo diario real con fecha efectiva y probar una ejecución completa usando solo esa cadena documental
+- abrir la próxima sesión usando `plan_dev/RUNBOOK_PROMPT.md` y verificar que no haga falta repetir instrucciones base
 - decidir si el alcance real del flujo de anticipo es el de `docs/05-motor-de-conversacion.md` o el de `docs/diagrams/README.md`
 
 ---
 
 ## Bloqueos actuales
-- no existe todavía un archivo diario fechado real para usar como fuente operativa del día
 - el estado documental del flujo de anticipo no está alineado entre todos los documentos
 
 ---
 
 ## Decisiones humanas pendientes
-- confirmar si la convención de `plan_dev/daily/YYYY-MM-DD.md` se usará como plantilla fija o si conviene adoptar archivos reales por fecha desde ahora
 - validar cuál es la referencia correcta sobre el estado implementado del flujo de anticipo
 
 ---
 
 ## Próximo milestone recomendado
-- crear o completar `plan_dev/daily/2026-03-26.md` y ejecutar su primer milestone pendiente
+- ejecutar el primer milestone pendiente de `plan_dev/daily/2026-03-26.md` usando `plan_dev/RUNBOOK_PROMPT.md` como arranque estándar
 
 ---
 
