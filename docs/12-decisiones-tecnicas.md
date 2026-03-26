@@ -467,3 +467,94 @@ Esto habilita, por ejemplo:
 
 ### Nota
 Hoy la frontera de entrada/salida sigue concentrada en el webhook y en `WhatsAppSender`, por lo que esta evolución requiere un desacople moderado en esa capa, no una reescritura del motor conversacional.
+
+### Plan técnico corto recomendado para una primera consola interna
+
+La recomendación para una primera implementación no es empezar por la UI.
+
+El orden sugerido es:
+
+#### Milestone A
+Extraer una capa de interacción común al canal.
+
+Objetivo:
+- encapsular la lógica que hoy vive repartida entre `WhatsappWebhookController`, registro de trazabilidad y aplicación de `StepResult`
+
+Entregables mínimos:
+- DTO interno de entrada
+- DTO o estructura interna de salida
+- servicio tipo `ConversationInteractionService`
+
+Qué debe seguir igual:
+- handlers
+- validadores
+- servicios de negocio
+- persistencia de conversaciones, mensajes y eventos
+
+#### Milestone B
+Hacer que WhatsApp use esa nueva capa sin cambiar comportamiento funcional.
+
+Objetivo:
+- convertir el webhook actual en un adapter de canal
+
+Entregables mínimos:
+- `WhatsappWebhookController` reducido a parseo de request y delegación
+- uso de sender/adapter de salida detrás de una abstracción
+- `ConversationTimeoutService` desacoplado de `WhatsAppSender`
+
+#### Milestone C
+Exponer un canal interno mínimo orientado a texto.
+
+Objetivo:
+- habilitar pruebas funcionales del motor sin depender de WhatsApp
+
+Entregables mínimos:
+- endpoint/controlador interno para enviar mensajes al motor
+- representación simple de salida en texto
+- soporte inicial para opciones numeradas en vez de botones ricos
+
+#### Milestone D
+Agregar una UI mínima de consola local.
+
+Objetivo:
+- poder conversar manualmente con el motor desde el navegador o una interfaz interna simple
+
+Entregables mínimos:
+- vista básica de chat
+- formulario de envío
+- render de respuestas textuales
+- render básico de opciones del menú principal
+
+### Alcance recomendado de la primera versión
+
+La primera versión debería incluir solamente:
+
+- texto
+- opciones numeradas o listas simples
+- continuidad de conversación sobre la misma trazabilidad
+- soporte suficiente para recorrer menú, identificación y flujos básicos
+
+### Qué no conviene incluir en la primera versión
+
+- frontend final o diseño definitivo
+- websockets o tiempo real
+- autenticación compleja
+- multicanal real simultáneo
+- paridad completa de adjuntos desde el primer corte
+- reemplazo del canal WhatsApp existente
+
+### Enfoque inicial recomendado
+
+El punto de arranque recomendado es:
+
+1. DTO interno + servicio de interacción
+2. adapter de salida por canal
+3. endpoint/controlador interno de prueba
+4. UI mínima después
+
+La razón es simple:
+
+- reduce riesgo de refactor
+- conserva el comportamiento vigente del canal principal
+- permite validar el motor con un canal alternativo antes de diseñar interfaz
+- deja una base reusable para otros canales futuros

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-03-26 02:31 -03
+2026-03-26 03:00 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la estructura operativa ya incluye fuente de verdad, plantilla diaria y ahora un prompt lanzador estándar para abrir sesiones con menos variación.
-- Último bloque completado: incorporación del runbook prompt y ajuste menor de `AGENTS.md` para formalizar su uso.
-- Milestone actual: usar `plan_dev/RUNBOOK_PROMPT.md` como arranque recomendado de las próximas sesiones.
-- Próximo paso sugerido: seguir ejecutando el plan diario real vigente y no volver a describir manualmente la rutina base en cada prompt.
+- Estado general del proyecto: el `daily` del 2026-03-26 ya dejó cerrados `M1` y `M2`, y ahora incorpora milestones explícitos de implementación para ejecutar ese plan sin saltos grandes.
+- Último bloque completado: ajuste del `daily` para insertar la secuencia técnica derivada de `M2`.
+- Milestone actual: `M3` del `daily/2026-03-26` ahora es la extracción de DTO interno y servicio de interacción conversacional.
+- Próximo paso sugerido: ejecutar el nuevo `M3` y usarlo como corte principal de refactor antes de tocar webhook interno o UI.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; sigue pendiente sincronizar documentos técnicos que hoy se contradicen sobre el estado real del flujo de anticipo.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; `docs/05-motor-de-conversacion.md` ahora documenta mejor el desacople por canal. Sigue pendiente sincronizar documentos técnicos que hoy se contradicen sobre el estado real del flujo de anticipo.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -54,26 +54,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-03-26 02:31 -03
+- 2026-03-26 03:00 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-03-26.md`
 
 ### Milestone trabajado
-- formalización del prompt lanzador estándar para ejecuciones diarias
+- ajuste del `daily` para secuenciar la implementación de `M2` antes del antiguo `M3`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agregó `plan_dev/RUNBOOK_PROMPT.md` y se dejó referenciado en `AGENTS.md` para usar siempre el mismo encuadre base al iniciar una sesión.
+- se insertaron milestones explícitos de implementación entre `M2` y el antiguo bloque de logs, para que la ejecución futura no salte del plan a la acción sin pasos intermedios.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `AGENTS.md`, `plan_dev/RUNBOOK_PROMPT.md`, `plan_dev/STATUS.md`
-- resumen técnico: se formalizó un prompt lanzador estándar para reducir variación entre sesiones sin duplicar la fuente de verdad documental.
-- documentación actualizada: sí, documentación operativa en `plan_dev/` y reglas de rutina en `AGENTS.md`
+- archivos tocados: `plan_dev/daily/2026-03-26.md`, `plan_dev/STATUS.md`
+- resumen técnico: se reordenó el plan diario para agregar los milestones concretos de implementación de la consola interna antes del bloque de trazabilidad y del chequeo de sedes.
+- documentación actualizada: sí, seguimiento operativo del daily y estado consolidado
 - diagramas actualizados: no aplica
 
 ---
@@ -83,11 +83,11 @@ No debe reemplazar:
 ### Automáticas
 - tests corridos: no aplica para este milestone documental
 - resultado: no se ejecutaron tests
-- otros checks: lectura de `AGENTS.md`, `plan_dev/STATUS.md` y `plan_dev/daily/2026-03-26.md` para alinear el runbook prompt con la rutina vigente
-- resultado: el prompt quedó consistente con la estructura operativa actual
+- otros checks: revisión de consistencia entre `M2`, los nuevos milestones del `daily` y el estado consolidado en `STATUS.md`
+- resultado: el plan diario ahora tiene continuidad explícita entre análisis, plan e implementación
 
 ### Manuales sugeridas
-- abrir la próxima sesión usando `plan_dev/RUNBOOK_PROMPT.md` y verificar que no haga falta repetir instrucciones base
+- validar si la primera versión de la consola puede aceptar explícitamente una limitación inicial sin adjuntos reales
 - decidir si el alcance real del flujo de anticipo es el de `docs/05-motor-de-conversacion.md` o el de `docs/diagrams/README.md`
 
 ---
@@ -103,7 +103,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar el primer milestone pendiente de `plan_dev/daily/2026-03-26.md` usando `plan_dev/RUNBOOK_PROMPT.md` como arranque estándar
+- ejecutar el nuevo `M3` de `plan_dev/daily/2026-03-26.md` para extraer DTO interno y servicio de interacción conversacional
 
 ---
 

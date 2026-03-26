@@ -113,6 +113,183 @@ En el siguiente paso del refactor conviene mover progresivamente más estados re
 - `MessageResolver` resuelva la mayor parte de los mensajes de salida
 - el controller quede concentrado en orquestar efectos técnicos
 
+## Estado actual de desacople respecto del canal
+
+El estado real del repo ya muestra una separación parcial entre:
+
+- núcleo conversacional reusable
+- adapters específicos del canal WhatsApp
+
+### Piezas que ya están bastante desacopladas del canal
+
+Estas piezas pueden reutilizarse con cambios relativamente menores para un canal interno o alternativo:
+
+- `ConversationManager`
+- `ConversationMessageService`
+- `ConversationEventService`
+- `ConversationFlowResolver`
+- `StepResult`
+- `MessageResolver`
+- handlers por paso
+- validadores
+- `ConversationContextService`
+- servicios de materialización de `Aviso` y `AnticipoCertificado`
+
+La razón principal es que el núcleo del flujo ya trabaja sobre:
+
+- conversación persistida
+- estado/paso actual
+- metadata acumulada
+- un input normalizado como array
+- un `StepResult` que describe transición, mensaje y efectos
+
+Esto significa que la lógica de negocio principal no depende de `Illuminate\Http\Request` ni del payload crudo de Meta una vez superada la capa de entrada.
+
+### Piezas que siguen acopladas a WhatsApp
+
+El acople más fuerte todavía vive en los bordes de entrada y salida.
+
+#### Entrada
+
+`WhatsappWebhookController` hoy:
+
+- interpreta directamente el payload de Meta
+- extrae `from`, `text`, `interactive.button_reply`, `document`, `image`
+- define `incoming_message_type`
+- arma metadata de adjuntos con claves como `provider_media_id`
+- asume que el identificador principal del usuario es `wa_number`
+
+Ese controller ya normaliza parte de la entrada, pero la normalización sigue embebida en un adapter concreto de WhatsApp.
+
+#### Salida
+
+La respuesta saliente hoy también queda acoplada al canal porque:
+
+- el controller llama directamente a `WhatsAppSender`
+- el menú principal se emite como `interactive` de WhatsApp
+- la trazabilidad saliente se registra en el controller con payloads que reflejan la forma del canal WhatsApp
+- `ConversationTimeoutService` también depende directamente de `WhatsAppSender`
+
+#### Modelo de conversación
+
+La conversación conserva hoy un sesgo de canal en algunos campos:
+
+- `wa_number`
+- `canal` con default WhatsApp
+
+Eso no bloquea sumar otro canal, pero obliga a definir una estrategia de identidad/canal antes de generalizar demasiado.
+
+### Qué tan reutilizable es el flujo actual
+
+La reutilización para otro canal es viable, pero no inmediata de punta a punta.
+
+Conclusión práctica:
+
+- el motor conversacional y los handlers ya permiten reutilización real
+- el webhook y el envío saliente todavía funcionan como adapter único y dominante
+- hoy sería razonable abrir un segundo canal sin reescribir los handlers
+- no sería razonable hacerlo sin antes extraer una capa de orquestación de canal mínima
+
+## Recomendación mínima para soportar un canal interno
+
+La estrategia recomendada no es reescribir el motor, sino aislar mejor los adapters.
+
+### 1. DTO interno de entrada
+
+Crear un objeto o estructura interna equivalente a:
+
+- `channel`
+- `user_id`
+- `text`
+- `action_id`
+- `incoming_message_type`
+- `media`
+- `provider_message_id`
+- `raw_payload`
+
+Ese DTO debe representar una interacción entrante independientemente de si vino de:
+
+- WhatsApp webhook
+- consola web interna
+- endpoint HTTP local de prueba
+
+### 2. Servicio de orquestación de interacción
+
+Conviene extraer del controller una pieza tipo:
+
+- `ConversationInteractionService`
+- o `ConversationEngine`
+
+Responsabilidades:
+
+- obtener o crear conversación activa
+- normalizar aplicación de `StepResult`
+- registrar mensajes y eventos
+- ejecutar acción de negocio si corresponde
+- devolver una respuesta saliente estructurada
+
+Así, `WhatsappWebhookController` pasaría a ser solo un adapter de transporte.
+
+### 3. Abstracción de salida por canal
+
+Conviene introducir una interfaz de salida, por ejemplo:
+
+- `ConversationChannelSender`
+
+Con implementaciones como:
+
+- `WhatsAppChannelSender`
+- `LocalChatChannelSender`
+
+Esto permitiría que:
+
+- el controller no conozca detalles del provider
+- `ConversationTimeoutService` deje de depender de `WhatsAppSender`
+- un canal interno pueda renderizar texto y opciones sin usar payloads de Meta
+
+### 4. Salida estructurada del motor
+
+En vez de que el controller decida si manda texto o menú interactivo con lógica específica de WhatsApp, la capa de aplicación debería devolver algo como:
+
+- mensaje de texto
+- menú/opciones
+- metadatos de trazabilidad
+
+Luego cada adapter decide cómo representarlo:
+
+- botones interactivos en WhatsApp
+- lista clickable en consola interna
+- texto numerado como fallback
+
+## Esfuerzo estimado
+
+Para una primera consola local o canal interno mínimo:
+
+- esfuerzo `low-medium` si el objetivo es texto + opciones numeradas + reutilización de handlers actuales
+- esfuerzo `medium` si además se quiere paridad con adjuntos, menú rico y storage equivalente al flujo de certificado
+
+## Riesgos y límites actuales
+
+- el menú principal todavía tiene una salida optimizada para botones interactivos de WhatsApp, aunque ya acepta texto y aliases
+- la identidad del usuario sigue modelada principalmente alrededor de `wa_number`
+- la trazabilidad saliente registra hoy payloads cercanos al canal real, no una representación canónica independiente del transporte
+- `ConversationTimeoutService` comparte el mismo acople de salida que el webhook
+
+## Conclusión operativa
+
+El repo ya está razonablemente preparado para sumar otro canal sin reescribir el dominio conversacional.
+
+El cuello de botella no está en los handlers ni en `StepResult`.
+Está en que:
+
+- entrada
+- salida
+- y parte de la orquestación de mensajes
+
+todavía viven acopladas a WhatsApp.
+
+El siguiente paso correcto no es construir directamente una consola completa, sino extraer primero una capa de interacción multicanal mínima sobre el motor actual.
+
 ## Menú principal conversacional
 
 La conversación nueva puede iniciar en `menu_principal` y usar un handler específico para:
