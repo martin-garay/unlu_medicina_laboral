@@ -1,4 +1,7 @@
 # Planificación de siguientes pasos
+
+> Nota histórica: este documento se conserva como referencia de transición. Los siguientes pasos activos deben definirse ahora en `plan_dev/daily/` y consolidarse en `plan_dev/STATUS.md`.
+
 ## Fecha
 2026-03-20
 

@@ -1,5 +1,7 @@
 # Plan de implementación y desarrollo
 
+> Nota histórica: este documento queda preservado como referencia previa. La fuente de verdad activa del trabajo pasó a ser la estructura formada por `plan_dev/MASTER_PLAN.md`, `plan_dev/STATUS.md`, `plan_dev/BACKLOG.md` y `plan_dev/daily/`.
+
 ## Objetivo
 
 Este documento organiza el plan de implementación del proyecto Medicina Laboral WhatsApp MVP en etapas concretas, atómicas y orientadas al desarrollo.
@@ -10,7 +12,7 @@ La idea es usarlo como base de trabajo para ir sacando tareas, pedir prompts pun
 
 ## Rol de este documento
 
-Este archivo es el **plan maestro** del proyecto.
+Este archivo fue el **plan maestro** del proyecto en una etapa previa.
 
 Debe funcionar como fuente principal para:
 
@@ -20,7 +22,7 @@ Debe funcionar como fuente principal para:
 - roadmap general
 - orden recomendado de implementación
 
-Cuando se necesiten planes de trabajo más cortos o de una tanda específica, esos documentos deben vivir como anexos operativos o históricos, no como otra fuente principal en competencia con este plan.
+Hoy debe leerse como contexto histórico y base de transición, no como fuente principal en competencia con `plan_dev/MASTER_PLAN.md`.
 
 ---
 
