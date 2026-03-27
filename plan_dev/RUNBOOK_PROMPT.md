@@ -33,6 +33,8 @@ Reglas de ejecución:
 - si aparece trabajo fuera del alcance, registralo en `plan_dev/BACKLOG.md` sin desviar la ejecución
 - al cerrar el milestone, actualizá `plan_dev/STATUS.md` con resultado, validaciones y próximo paso sugerido
 - si el cambio impacta documentación, diagramas, arquitectura, flujos, testing o modelo, actualizá los documentos correspondientes
+- preferí commits chicos y trazables; si el corte es claro, separá `refactor`, `feat`, `test` y `docs`
+- en cada commit, dejá en el cuerpo la referencia al `daily` y al `milestone`
 
 Formato esperado de respuesta:
 1. análisis breve del estado actual para el milestone

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-03-27 12:47 -03
+2026-03-27 12:54 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el `daily` del 2026-03-26 quedó ejecutado de punta a punta desde `M1` hasta `M8`, dejando una base mínima multicanal operativa y validada.
 - Último bloque completado: implementación y validación de `M3` a `M8`, incluyendo la consola local, el endpoint interno, el desacople del sender y una mejora acotada de trazabilidad.
 - Milestone actual: no quedan milestones pendientes en `plan_dev/daily/2026-03-26.md`.
-- Próximo paso sugerido: abrir un nuevo `daily` para el siguiente bloque del roadmap, usando la consola local como herramienta de prueba manual.
+- Próximo paso sugerido: abrir un nuevo `daily` para el siguiente bloque del roadmap, usando la consola local como herramienta de prueba manual y aplicando la nueva regla de commits chicos por corte claro.
 
 ---
 
@@ -54,25 +54,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-03-27 12:47 -03
+- 2026-03-27 12:54 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-03-26.md`
 
 ### Milestone trabajado
-- `M3` a `M8`
+- ajuste de reglas operativas para estrategia de commits
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se implementó la base común de interacción conversacional, se adaptó WhatsApp a esa capa, se expuso un endpoint interno de prueba, se agregó una consola local mínima, se mejoró la trazabilidad con logs estructurados y se confirmó que la sede ya está tipificada.
+- se formalizó en `AGENTS.md` la política de commits chicos, separando `refactor`, `feat`, `test` y `docs` cuando el corte sea claro, y se dejó alineado el prompt lanzador para recordar esa regla.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Http/Controllers/InternalChatController.php`, `app/Http/Controllers/InternalChatConsoleController.php`, `app/Http/Controllers/WhatsappWebhookController.php`, `app/Models/Conversacion.php`, `app/Providers/AppServiceProvider.php`, `app/Services/Conversation/ConversationInboundMessage.php`, `app/Services/Conversation/ConversationOutboundMessage.php`, `app/Services/Conversation/ConversationInteractionResult.php`, `app/Services/Conversation/ConversationInteractionService.php`, `app/Services/Conversation/Contracts/ConversationChannelSender.php`, `app/Services/Conversation/ConversationChannelRouter.php`, `app/Services/ConversationManager.php`, `app/Services/ConversationTimeoutService.php`, `lang/es/internal_chat.php`, `resources/views/internal_chat/console.blade.php`, `routes/api.php`, `routes/web.php`, `tests/Feature/Http/InternalChatConsoleControllerTest.php`, `tests/Feature/Http/InternalChatControllerTest.php`, `tests/Feature/Services/Conversation/ConversationInteractionServiceTest.php`, `tests/Feature/Services/ConversationManagerTest.php`, `tests/Feature/Services/ConversationTimeoutServiceTest.php`, `plan_dev/daily/2026-03-26.md`, `plan_dev/STATUS.md`
-- resumen técnico: el núcleo conversacional quedó reutilizable por canal, WhatsApp pasó a ser un adapter, existe un endpoint interno de prueba y una consola web mínima para debug manual. Además, la trazabilidad ahora también deja logs estructurados a nivel aplicación.
+- archivos tocados: `AGENTS.md`, `plan_dev/RUNBOOK_PROMPT.md`, `plan_dev/STATUS.md`
+- resumen técnico: se agregó una regla explícita para preferir commits pequeños, con separación por tipo cuando el corte sea claro y con referencia obligatoria a `daily` y `milestone` en el cuerpo del commit.
 - documentación actualizada: sí, seguimiento operativo del daily y estado consolidado
 - diagramas actualizados: no aplica para este recorte
 
@@ -81,13 +81,13 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `114 passed (379 assertions)`
-- otros checks: validación funcional indirecta del canal interno vía tests HTTP del endpoint y de la consola local
-- resultado: el refactor multicanal mínimo, la UI local y la mejora de logs quedaron cubiertos sin regresiones detectadas
+- tests corridos: no aplica
+- resultado: cambio documental/operativo
+- otros checks: revisión de consistencia entre `AGENTS.md`, `plan_dev/RUNBOOK_PROMPT.md` y la rutina operativa vigente
+- resultado: la regla de commits quedó alineada con la ejecución diaria y el prompt lanzador
 
 ### Manuales sugeridas
-- probar manualmente `/internal/chat` para recorrer menú principal e identificación desde navegador
+- en el próximo daily, aplicar la convención nueva sobre un milestone real con más de un corte natural
 - decidir si el alcance real del flujo de anticipo es el de `docs/05-motor-de-conversacion.md` o el de `docs/diagrams/README.md`
 
 ---

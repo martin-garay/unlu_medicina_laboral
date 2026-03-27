@@ -256,6 +256,41 @@ No dejar el repo en un estado donde no quede claro qué pasó en la última ejec
 
 ---
 
+## Regla de commits
+
+Preferir commits pequeños y trazables.
+
+Cuando el corte sea claro, separar en commits distintos:
+- `refactor`: reorganización interna sin cambio funcional esperado
+- `feat`: funcionalidad nueva o ampliación concreta de comportamiento
+- `test`: tests agregados o ajustados como corte independiente cuando no sea más claro dejarlos junto al cambio principal
+- `docs`: cambios documentales u operativos sin impacto en runtime
+
+Reglas prácticas:
+- no mezclar en un mismo commit cambios no relacionados aunque pertenezcan al mismo día
+- si un milestone tiene más de un corte natural, dividirlo en varios commits chicos
+- si el test es necesario para entender o validar el cambio principal, puede vivir en el mismo commit del `refactor` o `feat`
+- evitar commits gigantes de “implementación completa del día” salvo que el trabajo ya haya quedado mezclado y separarlo de forma segura no sea razonable
+- actualizar `plan_dev/STATUS.md` y el `daily` antes del commit que cierre el milestone o al menos dentro del último commit de ese milestone
+- si hay cambios fuera de alcance detectados durante el trabajo, no incluirlos en el commit del milestone; moverlos a backlog o dejarlos para otro corte
+
+Formato recomendado:
+- título: `<tipo>: <resumen corto>`
+- cuerpo:
+  - `Daily: plan_dev/daily/YYYY-MM-DD.md`
+  - `Milestone: MX`
+  - `Resumen: <1 o 2 líneas con el objetivo del corte>`
+
+Ejemplos válidos:
+- `refactor: extraer conversation interaction service`
+- `feat: agregar endpoint interno de chat`
+- `test: cubrir consola local y timeout logging`
+- `docs: actualizar daily y status tras cerrar M6`
+
+Si el usuario no indica otra cosa, el agente debe proponer y preferir estos cortes chicos durante la ejecución.
+
+---
+
 ## Documentación viva
 
 Si un cambio impacta de forma relevante en:
