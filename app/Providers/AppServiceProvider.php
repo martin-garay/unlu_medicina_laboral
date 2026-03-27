@@ -40,6 +40,8 @@ use App\Flows\Validators\TipoCertificadoValidator;
 use App\Services\Notifications\Contracts\BusinessNotificationSender;
 use App\Services\Notifications\LaravelMailBusinessNotificationSender;
 use App\Services\Notifications\NullBusinessNotificationSender;
+use App\Services\Conversation\Contracts\ConversationChannelSender;
+use App\Services\Conversation\ConversationChannelRouter;
 use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
 use App\Services\Mapuche\MockMapucheWorkerProvider;
 use App\Services\CertificadoMessageService;
@@ -96,6 +98,12 @@ class AppServiceProvider extends ServiceProvider
                 'metadata' => new MetadataFinalAttachmentStorage(),
                 default => throw new \InvalidArgumentException('Unsupported final attachment storage driver configured.'),
             };
+        });
+
+        $this->app->singleton(ConversationChannelSender::class, function ($app) {
+            return new ConversationChannelRouter(
+                $app->make(\App\Services\WhatsAppSender::class),
+            );
         });
 
         $this->app->singleton(ConversationFlowResolver::class, function ($app) {

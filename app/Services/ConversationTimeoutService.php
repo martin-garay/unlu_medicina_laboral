@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\Conversacion;
 use App\Flows\Common\MessageResolver;
+use App\Services\Conversation\Contracts\ConversationChannelSender;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Log;
 
 class ConversationTimeoutService
 {
@@ -12,7 +14,7 @@ class ConversationTimeoutService
         private readonly ConversationManager $conversationManager,
         private readonly ConversationMessageService $conversationMessageService,
         private readonly ConversationEventService $conversationEventService,
-        private readonly WhatsAppSender $whatsAppSender,
+        private readonly ConversationChannelSender $channelSender,
         private readonly MessageResolver $messageResolver,
     ) {
     }
@@ -115,7 +117,7 @@ class ConversationTimeoutService
         $template = config('medicina_laboral.mensajes.templates.inactividad_recordatorio');
         $message = $this->messageResolver->resolveTemplate($template, $this->timeoutTemplateData($conversation));
 
-        $this->whatsAppSender->sendText($conversation->wa_number, $message);
+        $this->channelSender->sendText((string) $conversation->canal, (string) $conversation->wa_number, $message);
 
         $this->conversationMessageService->registerOutgoingMessage($conversation, [
             'tipo_mensaje' => 'text',
@@ -136,6 +138,14 @@ class ConversationTimeoutService
             'codigo' => 'timeout_warning_1',
             'metadata' => $this->timeoutMetadata($conversation, $now),
         ]);
+
+        Log::info('Conversation timeout warning sent', [
+            'conversation_id' => $conversation->id,
+            'channel' => $conversation->canal,
+            'participant_id' => $conversation->wa_number,
+            'step_key' => $conversation->currentStepKey(),
+            'timeout_stage' => 'warning_1',
+        ]);
     }
 
     private function cancelByInactivity(Conversacion $conversation, CarbonInterface $now): void
@@ -143,7 +153,7 @@ class ConversationTimeoutService
         $template = config('medicina_laboral.mensajes.templates.inactividad_cancelacion');
         $message = $this->messageResolver->resolveTemplate($template, $this->timeoutTemplateData($conversation));
 
-        $this->whatsAppSender->sendText($conversation->wa_number, $message);
+        $this->channelSender->sendText((string) $conversation->canal, (string) $conversation->wa_number, $message);
 
         $this->conversationMessageService->registerOutgoingMessage($conversation, [
             'tipo_mensaje' => 'text',
@@ -185,6 +195,15 @@ class ConversationTimeoutService
         $this->conversationEventService->recordConversationClosed($conversation, 'inactivity_timeout', [
             'automatic' => true,
             'trigger' => 'scheduler',
+        ]);
+
+        Log::warning('Conversation cancelled by inactivity timeout', [
+            'conversation_id' => $conversation->id,
+            'channel' => $conversation->canal,
+            'participant_id' => $conversation->wa_number,
+            'step_key' => $conversation->currentStepKey(),
+            'timeout_stage' => 'warning_2',
+            'reason' => 'inactivity_timeout',
         ]);
     }
 

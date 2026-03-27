@@ -7,6 +7,7 @@ use App\Services\ConversationManager;
 use App\Services\ConversationTimeoutService;
 use App\Services\WhatsAppSender;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Tests\Concerns\CreatesTestingSchema;
 use Tests\TestCase;
 
@@ -93,6 +94,7 @@ class ConversationTimeoutServiceTest extends TestCase
 
     public function test_process_cancels_conversation_when_second_threshold_is_reached(): void
     {
+        Log::spy();
         config()->set('medicina_laboral.conversation.first_inactivity_minutes', 30);
         config()->set('medicina_laboral.conversation.second_inactivity_minutes', 60);
 
@@ -126,6 +128,13 @@ class ConversationTimeoutServiceTest extends TestCase
             'direccion' => 'out',
             'template_name' => config('medicina_laboral.mensajes.templates.inactividad_cancelacion'),
         ]);
+        Log::shouldHaveReceived('warning')
+            ->withArgs(function (string $message, array $context) use ($conversation): bool {
+                return $message === 'Conversation cancelled by inactivity timeout'
+                    && $context['conversation_id'] === $conversation->id
+                    && $context['reason'] === 'inactivity_timeout';
+            })
+            ->once();
     }
 
     public function test_process_uses_cancel_as_default_when_second_threshold_action_is_invalid(): void

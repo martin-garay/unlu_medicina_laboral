@@ -11,30 +11,56 @@ class ConversationManager
 {
     public function findActiveByWaNumber(string $waNumber): ?Conversacion
     {
+        return $this->findActiveByParticipant(Conversacion::CANAL_WHATSAPP, $waNumber);
+    }
+
+    public function findActiveByParticipant(string $channel, string $participantId): ?Conversacion
+    {
         return Conversacion::query()
             ->active()
-            ->where('wa_number', $waNumber)
+            ->where('canal', $channel)
+            ->where('wa_number', $participantId)
             ->latest('id')
             ->first();
     }
 
     public function createConversation(string $waNumber, array $attributes = []): Conversacion
     {
+        return $this->createConversationForChannel(Conversacion::CANAL_WHATSAPP, $waNumber, $attributes);
+    }
+
+    public function createConversationForChannel(
+        string $channel,
+        string $participantId,
+        array $attributes = [],
+    ): Conversacion {
         return Conversacion::create(array_merge(
-            $this->defaultConversationAttributes($waNumber),
+            $this->defaultConversationAttributes($participantId, $channel),
             Arr::except($attributes, ['wa_number'])
         ));
     }
 
     public function getOrCreateActiveConversation(string $waNumber, array $attributes = []): Conversacion
     {
-        $conversation = $this->findActiveByWaNumber($waNumber);
+        return $this->getOrCreateActiveConversationForChannel(
+            Conversacion::CANAL_WHATSAPP,
+            $waNumber,
+            $attributes
+        );
+    }
+
+    public function getOrCreateActiveConversationForChannel(
+        string $channel,
+        string $participantId,
+        array $attributes = [],
+    ): Conversacion {
+        $conversation = $this->findActiveByParticipant($channel, $participantId);
 
         if ($conversation) {
             return $conversation;
         }
 
-        return $this->createConversation($waNumber, $attributes);
+        return $this->createConversationForChannel($channel, $participantId, $attributes);
     }
 
     public function touchIncomingActivity(Conversacion $conversation, CarbonInterface|string|null $timestamp = null): Conversacion
@@ -145,12 +171,12 @@ class ConversationManager
         return $conversation->refresh();
     }
 
-    private function defaultConversationAttributes(string $waNumber): array
+    private function defaultConversationAttributes(string $participantId, string $channel): array
     {
         return [
             'uuid' => (string) Str::uuid(),
-            'wa_number' => $waNumber,
-            'canal' => Conversacion::CANAL_WHATSAPP,
+            'wa_number' => $participantId,
+            'canal' => $channel,
             'estado_actual' => 'menu_principal',
             'paso_actual' => 'menu_principal',
             'activa' => true,

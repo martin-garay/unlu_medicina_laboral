@@ -41,6 +41,14 @@ class ConversationManagerTest extends TestCase
         $this->assertSame('2026-03-19 10:00:00', $updated->ultimo_mensaje_recibido_en?->format('Y-m-d H:i:s'));
     }
 
+    public function test_create_conversation_for_channel_persists_participant_and_channel(): void
+    {
+        $conversation = app(ConversationManager::class)->createConversationForChannel('internal_chat', 'dev-user-1');
+
+        $this->assertSame('dev-user-1', $conversation->wa_number);
+        $this->assertSame('internal_chat', $conversation->canal);
+    }
+
     public function test_close_conversation_marks_it_inactive_and_sets_reason(): void
     {
         $manager = app(ConversationManager::class);

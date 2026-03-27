@@ -12,6 +12,7 @@ class Conversacion extends Model
     use HasFactory;
 
     public const CANAL_WHATSAPP = 'whatsapp';
+    public const CANAL_INTERNO = 'internal_chat';
 
     protected $table = 'conversaciones';
 

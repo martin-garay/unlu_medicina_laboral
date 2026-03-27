@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-03-26 03:00 -03
+2026-03-27 12:47 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: el `daily` del 2026-03-26 ya dejó cerrados `M1` y `M2`, y ahora incorpora milestones explícitos de implementación para ejecutar ese plan sin saltos grandes.
-- Último bloque completado: ajuste del `daily` para insertar la secuencia técnica derivada de `M2`.
-- Milestone actual: `M3` del `daily/2026-03-26` ahora es la extracción de DTO interno y servicio de interacción conversacional.
-- Próximo paso sugerido: ejecutar el nuevo `M3` y usarlo como corte principal de refactor antes de tocar webhook interno o UI.
+- Estado general del proyecto: el `daily` del 2026-03-26 quedó ejecutado de punta a punta desde `M1` hasta `M8`, dejando una base mínima multicanal operativa y validada.
+- Último bloque completado: implementación y validación de `M3` a `M8`, incluyendo la consola local, el endpoint interno, el desacople del sender y una mejora acotada de trazabilidad.
+- Milestone actual: no quedan milestones pendientes en `plan_dev/daily/2026-03-26.md`.
+- Próximo paso sugerido: abrir un nuevo `daily` para el siguiente bloque del roadmap, usando la consola local como herramienta de prueba manual.
 
 ---
 
@@ -26,11 +26,11 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; `docs/05-motor-de-conversacion.md` ahora documenta mejor el desacople por canal. Sigue pendiente sincronizar documentos técnicos que hoy se contradicen sobre el estado real del flujo de anticipo.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; `docs/05-motor-de-conversacion.md` documenta el desacople por canal. Sigue pendiente sincronizar documentos técnicos que hoy se contradicen sobre el estado real del flujo de anticipo.
 
 ### Motor de conversación
 - estado: `in_progress`
-- notas: la documentación disponible describe una base implementada y un refactor gradual todavía en curso.
+- notas: el motor ya tiene una capa común de interacción (`ConversationInteractionService`), lookup/alta por canal y una entrada interna de prueba sin depender de WhatsApp.
 
 ### Flujos
 - aviso: `in_progress`
@@ -39,7 +39,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: hay criterios y comandos documentados, pero este milestone no ejecutó test suite porque solo tocó documentación operativa.
+- notas: la suite completa pasó luego del refactor multicanal y de la consola local (`114 passed`).
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -54,40 +54,40 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-03-26 03:00 -03
+- 2026-03-27 12:47 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-03-26.md`
 
 ### Milestone trabajado
-- ajuste del `daily` para secuenciar la implementación de `M2` antes del antiguo `M3`
+- `M3` a `M8`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se insertaron milestones explícitos de implementación entre `M2` y el antiguo bloque de logs, para que la ejecución futura no salte del plan a la acción sin pasos intermedios.
+- se implementó la base común de interacción conversacional, se adaptó WhatsApp a esa capa, se expuso un endpoint interno de prueba, se agregó una consola local mínima, se mejoró la trazabilidad con logs estructurados y se confirmó que la sede ya está tipificada.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-03-26.md`, `plan_dev/STATUS.md`
-- resumen técnico: se reordenó el plan diario para agregar los milestones concretos de implementación de la consola interna antes del bloque de trazabilidad y del chequeo de sedes.
+- archivos tocados: `app/Http/Controllers/InternalChatController.php`, `app/Http/Controllers/InternalChatConsoleController.php`, `app/Http/Controllers/WhatsappWebhookController.php`, `app/Models/Conversacion.php`, `app/Providers/AppServiceProvider.php`, `app/Services/Conversation/ConversationInboundMessage.php`, `app/Services/Conversation/ConversationOutboundMessage.php`, `app/Services/Conversation/ConversationInteractionResult.php`, `app/Services/Conversation/ConversationInteractionService.php`, `app/Services/Conversation/Contracts/ConversationChannelSender.php`, `app/Services/Conversation/ConversationChannelRouter.php`, `app/Services/ConversationManager.php`, `app/Services/ConversationTimeoutService.php`, `lang/es/internal_chat.php`, `resources/views/internal_chat/console.blade.php`, `routes/api.php`, `routes/web.php`, `tests/Feature/Http/InternalChatConsoleControllerTest.php`, `tests/Feature/Http/InternalChatControllerTest.php`, `tests/Feature/Services/Conversation/ConversationInteractionServiceTest.php`, `tests/Feature/Services/ConversationManagerTest.php`, `tests/Feature/Services/ConversationTimeoutServiceTest.php`, `plan_dev/daily/2026-03-26.md`, `plan_dev/STATUS.md`
+- resumen técnico: el núcleo conversacional quedó reutilizable por canal, WhatsApp pasó a ser un adapter, existe un endpoint interno de prueba y una consola web mínima para debug manual. Además, la trazabilidad ahora también deja logs estructurados a nivel aplicación.
 - documentación actualizada: sí, seguimiento operativo del daily y estado consolidado
-- diagramas actualizados: no aplica
+- diagramas actualizados: no aplica para este recorte
 
 ---
 
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica para este milestone documental
-- resultado: no se ejecutaron tests
-- otros checks: revisión de consistencia entre `M2`, los nuevos milestones del `daily` y el estado consolidado en `STATUS.md`
-- resultado: el plan diario ahora tiene continuidad explícita entre análisis, plan e implementación
+- tests corridos: `make test`
+- resultado: `114 passed (379 assertions)`
+- otros checks: validación funcional indirecta del canal interno vía tests HTTP del endpoint y de la consola local
+- resultado: el refactor multicanal mínimo, la UI local y la mejora de logs quedaron cubiertos sin regresiones detectadas
 
 ### Manuales sugeridas
-- validar si la primera versión de la consola puede aceptar explícitamente una limitación inicial sin adjuntos reales
+- probar manualmente `/internal/chat` para recorrer menú principal e identificación desde navegador
 - decidir si el alcance real del flujo de anticipo es el de `docs/05-motor-de-conversacion.md` o el de `docs/diagrams/README.md`
 
 ---
@@ -103,7 +103,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar el nuevo `M3` de `plan_dev/daily/2026-03-26.md` para extraer DTO interno y servicio de interacción conversacional
+- abrir un nuevo `daily` alineado con `MASTER_PLAN.md` y usar `/internal/chat` como canal interno de prueba para el siguiente bloque de trabajo
 
 ---
 
