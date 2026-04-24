@@ -736,3 +736,90 @@ El corte de implementación debería incluir:
 
 ### Stop condition
 Si no hay credenciales o contrato confiable para descargar media de WhatsApp, la implementación debe quedar limitada a diseño o a fakes de test. No se debe simular almacenamiento real con metadata-only bajo nombre de driver local.
+
+---
+
+## 28. Plan de implementación de estados de negocio
+
+### Decisión
+Avisos y anticipos/certificados deben nacer en estado técnico `inicial`.
+
+Los estados con intervención de operador se implementarán sobre las entidades actuales:
+
+- `Aviso`
+- `AnticipoCertificado`
+
+No se crea una entidad nueva para certificados.
+
+### Migraciones recomendadas
+Primer corte:
+
+- agregar `avisos.estado` con default `inicial`
+- agregar índice sobre `avisos.estado`
+- backfill de avisos existentes a `inicial`
+- cambiar default de `anticipos_certificado.estado` de `registrado` a `inicial`
+- migrar anticipos existentes con estado `registrado` a `inicial`, salvo que ya tengan otro estado explícito futuro
+
+Segundo corte, idealmente junto con admin:
+
+- crear una tabla de historial de estados de negocio
+
+Campos sugeridos:
+
+- `id`
+- `entidad_tipo` (`aviso` / `anticipo_certificado`)
+- `entidad_id`
+- `estado_anterior`
+- `estado_nuevo`
+- `origen` (`sistema` / `operador` / `migracion`)
+- `actor_user_id` nullable, preparado para el futuro módulo admin
+- `motivo` nullable
+- `observacion` nullable
+- `metadata` json nullable
+- `created_at`
+
+### Estados de avisos
+Valores técnicos:
+
+- `inicial`
+- `observado`
+- `verificado`
+- `cancelado`
+- `invalido`
+
+### Estados de anticipos/certificados
+Valores técnicos:
+
+- `inicial`
+- `observado`
+- `vinculado`
+- `cancelado`
+- `invalido`
+
+### Materialización desde conversación
+Los servicios de materialización deben asignar estado explícito al crear registros:
+
+- `AvisoService::createFromConversation()` debe crear avisos con `estado = inicial`
+- `AnticipoCertificadoService::createFromConversation()` debe crear anticipos con `estado = inicial`
+
+Esto evita depender solo del default de base de datos y deja el comportamiento claro en tests.
+
+### Elegibilidad de aviso para cargar anticipo
+Regla provisional hasta que exista workflow de operador:
+
+- estados elegibles: todo aviso que no esté `cancelado` ni `invalido`
+- estados bloqueantes: `cancelado`, `invalido`
+
+Esta regla conserva compatibilidad con el flujo actual y permite que `inicial`, `observado` y `verificado` puedan recibir un anticipo mientras no exista una decisión de negocio más restrictiva.
+
+### Ubicación de reglas
+Las listas de estados y reglas de elegibilidad pueden comenzar en `config/medicina_laboral.php`, para mantener coherencia con los catálogos existentes y evitar hardcodear valores en validadores.
+
+### Tests mínimos
+El corte de implementación debería incluir:
+
+- test de migración/modelo para avisos con estado default `inicial`
+- test de `AvisoService` creando aviso con estado `inicial`
+- test de `AnticipoCertificadoService` creando anticipo con estado `inicial`
+- tests de `AvisoReferenciaValidator` bloqueando avisos `cancelado` e `invalido`
+- test de historial de cambios de estado cuando se implemente el servicio de transición

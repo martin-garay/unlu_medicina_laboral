@@ -394,6 +394,16 @@ Ejemplos:
 
 La definición operativa confirmada al 2026-04-24 es que los avisos nacen con estado funcional **Inicial** (`inicial` como valor técnico) y luego pueden pasar a estados con intervención de operador.
 
+### Implementación incremental de estado
+El esquema real actual todavía no tiene `avisos.estado`.
+
+La migración recomendada debe:
+
+- agregar `estado` con default `inicial`
+- indexar `estado`
+- completar avisos existentes con `inicial`
+- mantener el valor asignado explícitamente desde `AvisoService`
+
 ## Índices sugeridos
 
 - índice por `numero_aviso`
@@ -467,6 +477,16 @@ Ejemplos:
 - `invalido`
 
 La definición operativa confirmada al 2026-04-24 es que el certificado del sistema corresponde a la entidad actual `AnticipoCertificado`; no se crea una entidad nueva `certificados`.
+
+### Implementación incremental de estado
+El esquema real actual ya tiene `anticipos_certificado.estado` con default `registrado`.
+
+La migración recomendada debe:
+
+- cambiar el default a `inicial`
+- convertir registros existentes con `registrado` a `inicial`
+- conservar otros valores si aparecieran antes de la migración
+- mantener el valor asignado explícitamente desde `AnticipoCertificadoService`
 
 ## Índices sugeridos
 
@@ -572,6 +592,23 @@ El modelo actual todavía conserva `anticipos_certificado.aviso_id` como víncul
 
 ## Anticipo → archivos
 Un anticipo puede tener uno o muchos archivos.
+
+## Historial de estados de negocio
+Para trazabilidad de intervención de operador conviene agregar una tabla de historial de estados.
+
+Una estructura inicial suficiente puede usar:
+
+- `entidad_tipo`
+- `entidad_id`
+- `estado_anterior`
+- `estado_nuevo`
+- `origen`
+- `actor_user_id` nullable
+- `motivo`
+- `observacion`
+- `metadata`
+
+Esta tabla debe agregarse cuando se implemente la transición de estados o el módulo administrativo, no necesariamente junto con el primer default `inicial`.
 
 ---
 

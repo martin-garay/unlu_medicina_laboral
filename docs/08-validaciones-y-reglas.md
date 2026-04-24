@@ -319,6 +319,15 @@ Ejemplos de validaciones esperables:
 - cantidad máxima de archivos no excedida
 - confirmación final explícita
 
+### Elegibilidad por estado del aviso
+
+Desde la definición de estados de negocio del 2026-04-24, la regla provisional para permitir anticipo de certificado es:
+
+- permitir avisos en cualquier estado que no sea bloqueante
+- bloquear avisos `cancelado` o `invalido`
+
+Esto mantiene compatible el flujo actual, donde los avisos recién creados nacerán con estado `inicial`, y deja margen para endurecer la regla cuando exista workflow administrativo.
+
 ## Catálogos
 
 Los pasos que dependan de opciones predefinidas deben desacoplar el catálogo de la lógica.

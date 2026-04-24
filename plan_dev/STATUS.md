@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-24 03:05 -03
+2026-04-24 03:18 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el `daily` del 2026-04-24 quedó abierto con prioridades actualizadas sobre motor conversacional, estados de negocio, logs, admin y Ansible.
-- Último bloque completado: `M3` del daily 2026-04-24, planificando storage real de certificados sobre `AnticipoCertificado`.
-- Milestone actual: próximo milestone pendiente `M4 - Diseñar estados de avisos y anticipos`.
-- Próximo paso sugerido: ejecutar M4 como diseño de migraciones/servicios para estado inicial `inicial` y estados con intervención de operador.
+- Último bloque completado: `M4` del daily 2026-04-24, diseñando estados de avisos y anticipos.
+- Milestone actual: próximo milestone pendiente `M5 - Diseñar relación de AnticipoCertificado con múltiples avisos`.
+- Próximo paso sugerido: ejecutar M5 como diseño incremental de pivot/backfill para asociación múltiple.
 
 ---
 
@@ -39,7 +39,7 @@ No debe reemplazar:
 
 ### Modelo de datos
 - estado: `in_progress`
-- notas: se definió `inicial` como valor técnico de estado inicial para avisos y anticipos/certificados. Para storage real no se identificó migración obligatoria inicial porque `anticipo_certificado_archivos` ya cubre disco, path, hash, tamaño, MIME y estado de validación. Falta implementar migraciones de estados y decidir la estrategia de asociación de `AnticipoCertificado` con N avisos.
+- notas: se diseñó el corte de estados: agregar `avisos.estado`, cambiar default de `anticipos_certificado.estado` a `inicial`, persistir estado explícito desde servicios y agregar historial de estados como segundo corte. Falta implementar migraciones y decidir la estrategia de asociación de `AnticipoCertificado` con N avisos.
 
 ### Testing
 - estado: `in_progress`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-24 03:05 -03
+- 2026-04-24 03:18 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-24.md`
 
 ### Milestone trabajado
-- `M3 - Planificar storage real de certificados sobre AnticipoCertificado`
+- `M4 - Diseñar estados de avisos y anticipos`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se documentó el plan técnico para evolucionar de metadata-only a storage local real de archivos de `AnticipoCertificado`, manteniendo interfaces actuales y encapsulando la descarga de WhatsApp media.
+- se documentó el plan incremental para estados de negocio, con `inicial` como default, historial futuro de cambios y regla provisional de elegibilidad de avisos para anticipo.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `.gitignore`, `docs/12-decisiones-tecnicas.md`, `docs/07-flujo-anticipo-certificado.md`, `plan_dev/daily/2026-04-24.md`, `plan_dev/STATUS.md`
-- resumen técnico: se agregó `.codex` al ignore y se documentó el plan de storage real con driver local, servicio de descarga de media de WhatsApp y tests mínimos.
-- documentación actualizada: sí, documentación técnica del flujo de anticipo, decisiones técnicas y seguimiento operativo
+- archivos tocados: `docs/12-decisiones-tecnicas.md`, `docs/04-modelo-de-datos.md`, `docs/08-validaciones-y-reglas.md`, `plan_dev/daily/2026-04-24.md`, `plan_dev/STATUS.md`
+- resumen técnico: se definió el plan de migraciones y servicios para estados de avisos y anticipos, incluyendo historial y elegibilidad provisional para anticipo.
+- documentación actualizada: sí, documentación técnica de modelo, validaciones, decisiones y seguimiento operativo
 - diagramas actualizados: no aplica para este recorte; no cambió estructura de flujo ni DB.
 
 ---
@@ -103,8 +103,8 @@ No debe reemplazar:
 - resultado: sin errores de whitespace
 
 ### Manuales sugeridas
-- revisar el plan de storage local real antes de implementar el driver
-- validar si las credenciales de WhatsApp disponibles permiten descargar media en entorno local
+- revisar con negocio si `observado` debe seguir permitiendo carga de anticipo o debe bloquearse
+- revisar si el historial de estados debe implementarse antes o junto con el primer admin
 
 ---
 
@@ -117,11 +117,12 @@ No debe reemplazar:
 ## Decisiones humanas pendientes
 - definir matriz mínima de permisos para `auditor` y `director`
 - definir regla operativa de asociación múltiple entre `AnticipoCertificado` y avisos
+- confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
 
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M4` de `plan_dev/daily/2026-04-24.md`: diseñar estados de avisos y anticipos
+- ejecutar `M5` de `plan_dev/daily/2026-04-24.md`: diseñar relación de `AnticipoCertificado` con múltiples avisos
 
 ---
 
