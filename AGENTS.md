@@ -258,7 +258,7 @@ No dejar el repo en un estado donde no quede claro qué pasó en la última ejec
 
 ## Regla de commits
 
-Preferir commits pequeños y trazables.
+Cada milestone cerrado debe quedar respaldado por al menos un commit pequeño y trazable, salvo que el usuario pida explícitamente no commitear o que el milestone quede `blocked` / `needs_review` sin cambios listos para integrar.
 
 Cuando el corte sea claro, separar en commits distintos:
 - `refactor`: reorganización interna sin cambio funcional esperado
@@ -273,6 +273,7 @@ Reglas prácticas:
 - evitar commits gigantes de “implementación completa del día” salvo que el trabajo ya haya quedado mezclado y separarlo de forma segura no sea razonable
 - actualizar `plan_dev/STATUS.md` y el `daily` antes del commit que cierre el milestone o al menos dentro del último commit de ese milestone
 - si hay cambios fuera de alcance detectados durante el trabajo, no incluirlos en el commit del milestone; moverlos a backlog o dejarlos para otro corte
+- si un milestone combina documentación operativa y runtime, separar commits por corte lógico siempre que pueda hacerse sin reescritura riesgosa
 
 Formato recomendado:
 - título: `<tipo>: <resumen corto>`
