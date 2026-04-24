@@ -29,8 +29,10 @@ class ConversationInteractionService
 
     public function handleInboundMessage(ConversationInboundMessage $message): ConversationInteractionResult
     {
-        $conversation = $this->findOrCreateConversationFromInbound($message);
-        $stepResult = $this->processConversationStep($conversation, $message->toFlowInput());
+        ['conversation' => $conversation, 'was_created' => $wasCreated] = $this->findOrCreateConversationFromInbound($message);
+        $stepResult = $wasCreated
+            ? $this->initialMenuStepResult()
+            : $this->processConversationStep($conversation, $message->toFlowInput());
 
         $this->registerIncomingTrace($conversation, $message, $stepResult);
 
@@ -51,13 +53,15 @@ class ConversationInteractionService
         );
     }
 
-    private function findOrCreateConversationFromInbound(
-        ConversationInboundMessage $message,
-    ): Conversacion {
+    private function findOrCreateConversationFromInbound(ConversationInboundMessage $message): array
+    {
         $conversation = $this->conversationManager->findActiveByParticipant($message->channel, $message->participantId);
 
         if ($conversation) {
-            return $conversation;
+            return [
+                'conversation' => $conversation,
+                'was_created' => false,
+            ];
         }
 
         $conversation = $this->conversationManager->createConversationForChannel($message->channel, $message->participantId, [
@@ -77,7 +81,10 @@ class ConversationInteractionService
             ],
         ]);
 
-        return $conversation;
+        return [
+            'conversation' => $conversation,
+            'was_created' => true,
+        ];
     }
 
     private function processConversationStep(Conversacion $conversation, array $flowInput): StepResult
@@ -85,6 +92,18 @@ class ConversationInteractionService
         return $this->conversationFlowResolver
             ->resolve($conversation)
             ->handle($conversation, $flowInput);
+    }
+
+    private function initialMenuStepResult(): StepResult
+    {
+        return StepResult::make(null, [
+            'template' => config('medicina_laboral.mensajes.templates.bienvenida'),
+            'should_show_menu' => true,
+            'payload' => [
+                'event_name' => 'main_menu_presented',
+                'event_description' => 'Menú principal presentado al iniciar conversación',
+            ],
+        ]);
     }
 
     private function registerIncomingTrace(

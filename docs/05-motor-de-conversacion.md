@@ -301,6 +301,14 @@ La conversación nueva puede iniciar en `menu_principal` y usar un handler espec
 
 En esta etapa, volver al menú principal no cierra la conversación: reinicia el subflujo dentro de la misma sesión técnica para no perder trazabilidad y para mantener el cambio acotado.
 
+### Comportamiento al crear una conversación nueva
+
+Cuando no existe una conversación activa para el participante y el canal, el primer mensaje entrante crea una conversación nueva y el sistema responde bienvenida institucional + menú principal.
+
+Ese primer mensaje queda trazado dentro de la conversación, pero no se interpreta como selección de flujo aunque coincida con una opción válida. La selección de `aviso de ausencia` o `anticipo de certificado médico` se procesa desde el siguiente mensaje sobre la conversación ya activa.
+
+Esta regla mantiene una entrada consistente entre WhatsApp y el canal interno, evita saltar la bienvenida institucional y preserva una única representación parametrizada del menú.
+
 ## Identificación común reutilizable
 
 Para los flujos principales de aviso y anticipo, la conversación puede pasar por un bloque común de identificación que:

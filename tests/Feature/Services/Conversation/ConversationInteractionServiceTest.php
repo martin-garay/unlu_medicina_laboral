@@ -59,7 +59,7 @@ class ConversationInteractionServiceTest extends TestCase
         ]);
     }
 
-    public function test_valid_menu_selection_returns_next_step_text_and_updates_conversation(): void
+    public function test_first_valid_menu_selection_still_presents_welcome_and_menu(): void
     {
         $result = app(ConversationInteractionService::class)->handleInboundMessage(
             new ConversationInboundMessage(
@@ -67,6 +67,41 @@ class ConversationInteractionServiceTest extends TestCase
                 participantId: '5492222222222',
                 text: '2',
                 providerMessageId: 'wamid-2',
+                incomingMessageType: 'text',
+                rawPayload: ['text' => ['body' => '2']],
+                content: '2',
+            )
+        );
+
+        $conversation = $result->conversation->fresh();
+
+        $this->assertSame('menu_principal', $conversation->currentStepKey());
+        $this->assertNull($conversation->tipo_flujo);
+        $this->assertCount(2, $result->outboundMessages);
+        $this->assertTrue($result->outboundMessages[0]->isText());
+        $this->assertTrue($result->outboundMessages[1]->isMenu());
+    }
+
+    public function test_valid_menu_selection_returns_next_step_text_and_updates_existing_conversation(): void
+    {
+        app(ConversationInteractionService::class)->handleInboundMessage(
+            new ConversationInboundMessage(
+                channel: Conversacion::CANAL_WHATSAPP,
+                participantId: '5493333333333',
+                text: 'hola',
+                providerMessageId: 'wamid-3',
+                incomingMessageType: 'text',
+                rawPayload: ['text' => ['body' => 'hola']],
+                content: 'hola',
+            )
+        );
+
+        $result = app(ConversationInteractionService::class)->handleInboundMessage(
+            new ConversationInboundMessage(
+                channel: Conversacion::CANAL_WHATSAPP,
+                participantId: '5493333333333',
+                text: '2',
+                providerMessageId: 'wamid-4',
                 incomingMessageType: 'text',
                 rawPayload: ['text' => ['body' => '2']],
                 content: '2',
