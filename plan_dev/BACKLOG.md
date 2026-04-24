@@ -73,3 +73,15 @@ Usar una categoría para agrupar mejor:
 - dependencia:
 - notas:
 ```
+
+---
+
+### [LOG-001] Definir política de datos sensibles en logs
+- estado: `pending`
+- prioridad: `high`
+- categoría: `operacion`
+- detectado en: `plan_dev/daily/2026-04-24.md`
+- contexto: el sistema ya registra logs operativos y de debugging, incluyendo payloads o identificadores que pueden contener datos personales o sensibles.
+- acción sugerida: definir política de redacción/minimización de PII, campos permitidos en logs, correlación segura, retención y criterios antes de ampliar el módulo administrativo.
+- dependencia: definición de alcance del admin y criterios institucionales de protección de datos.
+- notas: por decisión humana del 2026-04-24 no se implementa todavía, pero debe tratarse como pendiente importante.

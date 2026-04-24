@@ -386,13 +386,13 @@ Ejemplo:
 
 ### `estado`
 Ejemplos:
-- `pendiente`
-- `registrado`
-- `a_validar`
-- `invalidado`
+- `inicial`
+- `observado`
+- `verificado`
 - `cancelado`
+- `invalido`
 
-La definición final deberá alinearse con el módulo administrativo futuro.
+La definición operativa confirmada al 2026-04-24 es que los avisos nacen con estado funcional **Inicial** (`inicial` como valor técnico) y luego pueden pasar a estados con intervención de operador.
 
 ## Índices sugeridos
 
@@ -460,11 +460,13 @@ Más adelante podría migrarse a catálogo administrable.
 
 ### `estado`
 Ejemplos:
-- `pendiente`
-- `registrado`
-- `a_validar`
+- `inicial`
+- `observado`
 - `vinculado`
-- `invalidado`
+- `cancelado`
+- `invalido`
+
+La definición operativa confirmada al 2026-04-24 es que el certificado del sistema corresponde a la entidad actual `AnticipoCertificado`; no se crea una entidad nueva `certificados`.
 
 ## Índices sugeridos
 
@@ -562,6 +564,11 @@ Una conversación puede generar cero o un anticipo.
 
 ## Aviso → anticipos
 Un aviso puede tener cero o muchos anticipos, según la regla funcional que finalmente se adopte.
+
+## Anticipo → avisos
+La evolución requerida al 2026-04-24 indica que un anticipo/certificado puede quedar asociado a N avisos.
+
+El modelo actual todavía conserva `anticipos_certificado.aviso_id` como vínculo simple con un aviso. La evolución recomendada es agregar una tabla pivot entre `anticipos_certificado` y `avisos`, con backfill desde el vínculo actual, sin crear una entidad nueva `certificados`.
 
 ## Anticipo → archivos
 Un anticipo puede tener uno o muchos archivos.

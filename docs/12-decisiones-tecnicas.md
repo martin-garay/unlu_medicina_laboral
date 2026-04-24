@@ -558,3 +558,87 @@ La razón es simple:
 - conserva el comportamiento vigente del canal principal
 - permite validar el motor con un canal alternativo antes de diseñar interfaz
 - deja una base reusable para otros canales futuros
+
+---
+
+## 23. Certificado como `AnticipoCertificado`
+
+### Decisión
+Cuando el proyecto habla de `certificado` en el alcance actual, se refiere a la entidad de negocio ya existente `AnticipoCertificado`.
+
+No se crea una entidad nueva `certificados` en esta etapa.
+
+### Motivo
+El modelo actual ya materializa el anticipo de certificado y sus archivos asociados mediante:
+
+- `anticipos_certificado`
+- `anticipo_certificado_archivos`
+
+Crear una entidad adicional duplicaría conceptos y aumentaría la complejidad sin una necesidad funcional nueva.
+
+### Implicancia
+La evolución para asociar un certificado a N avisos debe resolverse extendiendo la relación de `AnticipoCertificado` con `Aviso`, no introduciendo una tabla principal nueva de certificados.
+
+---
+
+## 24. Estado inicial de avisos y anticipos
+
+### Decisión
+El estado inicial funcional para avisos y anticipos/certificados será **Inicial**.
+
+Como valor técnico recomendado en base de datos se usará `inicial`, manteniendo la etiqueta visible "Inicial".
+
+### Motivo
+Permite distinguir claramente registros recién creados por el flujo conversacional de estados posteriores con intervención de operador.
+
+### Estados con intervención de operador previstos
+
+Para avisos:
+
+- `observado`
+- `verificado`
+- `cancelado`
+- `invalido`
+
+Para anticipos/certificados:
+
+- `observado`
+- `vinculado`
+- `cancelado`
+- `invalido`
+
+### Implicancia
+Las futuras migraciones deben agregar o ajustar el campo `estado` para que los registros nuevos nazcan en `inicial`, sin asumir todavía un workflow administrativo completo.
+
+---
+
+## 25. Permisos sin control por columnas o campos
+
+### Decisión
+El módulo administrativo no implementará permisos por columna o campo sensible en esta etapa.
+
+### Alcance esperado
+La autorización deberá modelarse inicialmente a nivel de:
+
+- módulo
+- acción
+- entidad o recurso
+
+### Motivo
+Los permisos por campo agregan complejidad significativa al backend, frontend, auditoría y tests. Para el alcance actual se prioriza un modelo administrable y mantenible.
+
+### Implicancia
+Los roles mínimos (`admin`, `auditor`, `director`) deberán definirse con permisos de módulo/acción/recurso. La protección específica de campos sensibles queda fuera de alcance salvo decisión futura explícita.
+
+---
+
+## 26. Datos sensibles en logs
+
+### Decisión
+La política de datos sensibles en logs queda identificada como pendiente importante, pero no se implementa en el corte actual.
+
+### Motivo
+El sistema ya registra logs útiles para debugging y operación inicial, pero antes de ampliar el módulo administrativo conviene definir una política explícita de redacción, minimización y retención de datos sensibles.
+
+### Implicancia
+Este pendiente debe figurar en `plan_dev/BACKLOG.md` con prioridad alta y ser considerado antes de exponer información sensible en interfaces administrativas.
