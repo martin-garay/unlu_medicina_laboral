@@ -8,6 +8,7 @@
 /.phpunit.result.cache
 /.idea
 /.vscode
+/.codex
 Homestead.yaml
 Homestead.json
 npm-debug.log
