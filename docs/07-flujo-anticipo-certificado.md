@@ -222,6 +222,19 @@ La estrategia actual ya distingue dos momentos:
 
 Esto permite migrar más adelante a local, S3 u otro backend sin acoplar el handler conversacional al almacenamiento final.
 
+### Plan de evolución a storage local real
+
+El siguiente corte técnico recomendado no cambia la entidad de negocio: el certificado sigue siendo `AnticipoCertificado`.
+
+La evolución debe agregar un driver local para descargar y guardar el binario enviado por WhatsApp, manteniendo las interfaces actuales:
+
+- `DraftAttachmentStorage`
+- `FinalAttachmentStorage`
+
+El handler conversacional debe seguir trabajando contra esas interfaces. La descarga del binario debe quedar encapsulada detrás de un servicio de media de WhatsApp, no dentro del handler ni del controller.
+
+Para el primer corte no se requiere una migración nueva: `anticipo_certificado_archivos` ya tiene campos para disco, path, hash, tamaño, MIME y estado de validación.
+
 ## Recomendación de trazabilidad
 
 Registrar por cada archivo:

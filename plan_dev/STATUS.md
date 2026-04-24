@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-24 02:52 -03
+2026-04-24 03:05 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el `daily` del 2026-04-24 quedó abierto con prioridades actualizadas sobre motor conversacional, estados de negocio, logs, admin y Ansible.
-- Último bloque completado: `M2` del daily 2026-04-24, ajustando bienvenida y menú inicial para conversaciones nuevas.
-- Milestone actual: próximo milestone pendiente `M3 - Planificar storage real de certificados sobre AnticipoCertificado`.
-- Próximo paso sugerido: ejecutar M3 como diseño técnico del storage real de certificados.
+- Último bloque completado: `M3` del daily 2026-04-24, planificando storage real de certificados sobre `AnticipoCertificado`.
+- Milestone actual: próximo milestone pendiente `M4 - Diseñar estados de avisos y anticipos`.
+- Próximo paso sugerido: ejecutar M4 como diseño de migraciones/servicios para estado inicial `inicial` y estados con intervención de operador.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; el daily 2026-04-24 consolida que `AnticipoCertificado` es la entidad de certificado y que no se crea una entidad nueva `certificados`. `docs/05-motor-de-conversacion.md` documenta la nueva regla de bienvenida + menú al crear conversación. Sigue pendiente sincronizar por completo documentos que describen el anticipo como parcial.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; el daily 2026-04-24 consolida que `AnticipoCertificado` es la entidad de certificado y que no se crea una entidad nueva `certificados`. `docs/05-motor-de-conversacion.md` documenta la regla de bienvenida + menú al crear conversación. `docs/12` y `docs/07` documentan el plan de storage local real. Sigue pendiente sincronizar por completo documentos que describen el anticipo como parcial.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -39,7 +39,7 @@ No debe reemplazar:
 
 ### Modelo de datos
 - estado: `in_progress`
-- notas: se definió `inicial` como valor técnico de estado inicial para avisos y anticipos/certificados. Falta implementar migraciones y decidir la estrategia de asociación de `AnticipoCertificado` con N avisos.
+- notas: se definió `inicial` como valor técnico de estado inicial para avisos y anticipos/certificados. Para storage real no se identificó migración obligatoria inicial porque `anticipo_certificado_archivos` ya cubre disco, path, hash, tamaño, MIME y estado de validación. Falta implementar migraciones de estados y decidir la estrategia de asociación de `AnticipoCertificado` con N avisos.
 
 ### Testing
 - estado: `in_progress`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-24 02:52 -03
+- 2026-04-24 03:05 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-24.md`
 
 ### Milestone trabajado
-- `M2 - Ajustar bienvenida y menú parametrizado multicanal`
+- `M3 - Planificar storage real de certificados sobre AnticipoCertificado`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se ajustó el motor para que la primera interacción sin conversación activa cree la conversación, registre el mensaje y responda bienvenida + menú, sin avanzar flujo aunque el mensaje coincida con una opción válida.
+- se documentó el plan técnico para evolucionar de metadata-only a storage local real de archivos de `AnticipoCertificado`, manteniendo interfaces actuales y encapsulando la descarga de WhatsApp media.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Services/Conversation/ConversationInteractionService.php`, `tests/Feature/Services/Conversation/ConversationInteractionServiceTest.php`, `docs/05-motor-de-conversacion.md`, `plan_dev/daily/2026-04-24.md`, `plan_dev/STATUS.md`
-- resumen técnico: se agregó una rama explícita para conversaciones recién creadas, devolviendo el template de bienvenida y el menú parametrizado antes de procesar selecciones de flujo. Se cubrió el caso donde el primer texto ya es una opción válida.
-- documentación actualizada: sí, documentación técnica del motor y seguimiento operativo
+- archivos tocados: `.gitignore`, `docs/12-decisiones-tecnicas.md`, `docs/07-flujo-anticipo-certificado.md`, `plan_dev/daily/2026-04-24.md`, `plan_dev/STATUS.md`
+- resumen técnico: se agregó `.codex` al ignore y se documentó el plan de storage real con driver local, servicio de descarga de media de WhatsApp y tests mínimos.
+- documentación actualizada: sí, documentación técnica del flujo de anticipo, decisiones técnicas y seguimiento operativo
 - diagramas actualizados: no aplica para este recorte; no cambió estructura de flujo ni DB.
 
 ---
@@ -97,14 +97,14 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `115 passed (384 assertions)`
+- tests corridos: no aplica
+- resultado: cambio documental/devex sin impacto runtime
 - otros checks: `git diff --check`
 - resultado: sin errores de whitespace
 
 ### Manuales sugeridas
-- probar `/internal/chat` desde una sesión nueva y verificar que el primer envío muestra bienvenida + menú
-- probar por WhatsApp/ngrok que el primer mensaje de una conversación nueva no saltea la bienvenida institucional
+- revisar el plan de storage local real antes de implementar el driver
+- validar si las credenciales de WhatsApp disponibles permiten descargar media en entorno local
 
 ---
 
@@ -121,7 +121,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M3` de `plan_dev/daily/2026-04-24.md`: planificar storage real de certificados sobre `AnticipoCertificado`
+- ejecutar `M4` de `plan_dev/daily/2026-04-24.md`: diseñar estados de avisos y anticipos
 
 ---
 
