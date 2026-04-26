@@ -33,6 +33,7 @@ class Aviso {
   +id
   +conversacion_id
   +legajo
+  +estado
   +tipo_ausentismo
   +fecha_inicio
   +fecha_fin

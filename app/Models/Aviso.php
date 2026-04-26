@@ -19,6 +19,7 @@ class Aviso extends Model
         'sede',
         'jornada_laboral',
         'tipo',
+        'estado',
         'tipo_ausentismo',
         'fecha_inicio',
         'fecha_fin',

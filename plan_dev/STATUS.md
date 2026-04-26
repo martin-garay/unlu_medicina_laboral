@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-26 02:28 -03
+2026-04-26 02:57 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: se abrió el `daily` del 2026-04-26 para retomar M5 antes de avanzar a logs/admin/Ansible.
-- Último bloque completado: `M5.0` del daily 2026-04-26, reabriendo M5 como cadena ejecutable para RF-03, RF-03.1 y RF-03.2.
-- Milestone actual: próximo milestone pendiente `M5.1 - Implementar estado inicial en avisos y anticipos`.
-- Próximo paso sugerido: ejecutar M5.1 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
+- Último bloque completado: `M5.1` del daily 2026-04-26, implementando estado `inicial` en avisos y anticipos/certificados.
+- Milestone actual: próximo milestone pendiente `M5.2 - Permitir hasta 3 adjuntos antes de confirmar certificado`.
+- Próximo paso sugerido: ejecutar M5.2 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
 
 ---
 
@@ -39,11 +39,11 @@ No debe reemplazar:
 
 ### Modelo de datos
 - estado: `in_progress`
-- notas: se diseñó el corte de estados y la asociación N avisos mediante pivot `anticipo_certificado_aviso`, con backfill desde `anticipos_certificado.aviso_id` y convivencia temporal del campo legacy. La implementación runtime queda planificada en M5.1 y M5.3.
+- notas: M5.1 implementó `avisos.estado` con default `inicial`, cambio de default de `anticipos_certificado.estado` a `inicial` y migración de anticipos existentes con estado `registrado`. La asociación N avisos mediante pivot queda planificada para M5.3.
 
 ### Testing
 - estado: `in_progress`
-- notas: baseline ejecutada en M5.0 del 2026-04-26 con `make test`: `115 passed`, `384 assertions`.
+- notas: M5.1 ejecutó `make test`: `115 passed`, `385 assertions`.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -70,27 +70,27 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-26 02:28 -03
+- 2026-04-26 02:57 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26.md`
 
 ### Milestone trabajado
-- `M5.0 - Reabrir M5 y fijar plan ejecutable RF-03`
+- `M5.1 - Implementar estado inicial en avisos y anticipos`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se creó el daily vigente 2026-04-26 y se ordenó la cadena M5.x para implementar estado `inicial`, carga de hasta 3 adjuntos y relación N a N antes de avanzar a M6.
+- se agregó soporte runtime para estado `inicial` en avisos y anticipos/certificados, incluyendo migración, servicios, tests y diagramas.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-04-26.md`, `plan_dev/STATUS.md`
-- resumen técnico: se reabrió M5 como cadena ejecutable `M5.1` a `M5.4`, dejando M6 bloqueado operativamente hasta cerrar los cortes de anticipo/certificado.
+- archivos tocados: migración `2026_04_26_000006_add_initial_status_to_business_records.php`, modelos/servicios de aviso y anticipo, esquema auxiliar de tests, tests de servicios, DBML, diagrama de clases, daily y status
+- resumen técnico: avisos y anticipos/certificados nacen en estado `inicial`; anticipos existentes en `registrado` se migran a `inicial`; se preserva `registrado_en` como timestamp de recepción.
 - documentación actualizada: sí, planificación operativa y estado consolidado
-- diagramas actualizados: no aplica para este recorte; no cambió estructura de flujo ni DB.
+- diagramas actualizados: sí, DBML y clase `Aviso`/`AnticipoCertificado`
 
 ---
 
@@ -98,12 +98,12 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `115 passed`, `384 assertions`
-- otros checks: `git diff --check`
-- resultado: sin errores de whitespace
+- resultado: `115 passed`, `385 assertions`
+- otros checks: `php artisan migrate --pretend`, `make diagrams`, `git diff --check`
+- resultado: SQL esperado generado para PostgreSQL; diagramas regenerados; sin errores de whitespace
 
 ### Manuales sugeridas
-- revisar que el orden `M5.1 -> M5.2 -> M5.3 -> M5.4` cubra RF-03, RF-03.1 y RF-03.2 antes de M6
+- recorrer flujo de aviso y anticipo en canal interno y confirmar que las entidades quedan en `inicial`
 - revisar si `aviso_id` debe quedar como cache del primer aviso o eliminarse luego de migrar lecturas a la pivot
 
 ---
@@ -123,7 +123,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M5.1` de `plan_dev/daily/2026-04-26.md`: implementar estado inicial en avisos y anticipos
+- ejecutar `M5.2` de `plan_dev/daily/2026-04-26.md`: permitir hasta 3 adjuntos antes de confirmar certificado
 
 ---
 

@@ -71,7 +71,7 @@ class AnticipoCertificadoServiceTest extends TestCase
             'conversacion_id' => $conversation->id,
             'aviso_id' => $aviso->id,
             'tipo_certificado' => 'electronico',
-            'estado' => 'registrado',
+            'estado' => 'inicial',
         ]);
         $this->assertDatabaseHas('anticipo_certificado_archivos', [
             'anticipo_certificado_id' => $anticipo->id,
@@ -101,7 +101,7 @@ class AnticipoCertificadoServiceTest extends TestCase
             'nombre_completo' => 'Ana Perez',
             'legajo' => '123',
             'tipo_certificado' => 'electronico',
-            'estado' => 'registrado',
+            'estado' => 'inicial',
             'registrado_en' => now(),
         ]);
 

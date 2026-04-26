@@ -60,6 +60,7 @@ class AvisoService
             'conversacion_id' => $conversation->id,
             'dni' => $conversation->dni,
             'tipo' => 'inasistencia',
+            'estado' => 'inicial',
             'tipo_ausentismo' => $aviso['tipo_ausentismo'] ?? null,
             'fecha_inicio' => $fechaDesde,
             'fecha_fin' => $fechaHasta,

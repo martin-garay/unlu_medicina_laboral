@@ -96,9 +96,11 @@ class AvisoServiceTest extends TestCase
             'id' => $aviso->id,
             'conversacion_id' => $conversation->id,
             'tipo' => 'inasistencia',
+            'estado' => 'inicial',
             'legajo' => '123',
             'cantidad_dias' => 2,
         ]);
+        $this->assertSame('inicial', $aviso->estado);
         $this->assertSame('Ana Perez', $aviso->metadata['identificacion']['nombre_completo']);
         $this->assertSame('Fiebre', $aviso->metadata['aviso']['motivo']);
     }

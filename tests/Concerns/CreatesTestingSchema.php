@@ -58,6 +58,7 @@ trait CreatesTestingSchema
             $table->string('sede')->nullable();
             $table->string('jornada_laboral')->nullable();
             $table->string('tipo');
+            $table->string('estado')->default('inicial');
             $table->string('tipo_ausentismo')->nullable();
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable();
@@ -83,7 +84,7 @@ trait CreatesTestingSchema
             $table->string('sede')->nullable();
             $table->string('jornada_laboral')->nullable();
             $table->string('tipo_certificado');
-            $table->string('estado')->nullable();
+            $table->string('estado')->default('inicial');
             $table->text('observaciones')->nullable();
             $table->timestamp('registrado_en')->nullable();
             $table->json('metadata')->nullable();

@@ -78,6 +78,7 @@ Table avisos {
   sede varchar
   jornada_laboral varchar
   tipo varchar [not null]
+  estado varchar [not null, default: 'inicial']
   tipo_ausentismo varchar
   fecha_inicio date
   fecha_fin date
@@ -109,7 +110,7 @@ Table anticipos_certificado {
   sede varchar
   jornada_laboral varchar
   tipo_certificado varchar [not null]
-  estado varchar [not null, default: 'registrado']
+  estado varchar [not null, default: 'inicial']
   observaciones text
   registrado_en timestamp
   metadata json

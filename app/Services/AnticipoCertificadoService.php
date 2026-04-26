@@ -43,7 +43,7 @@ class AnticipoCertificadoService
                 'sede' => $identificacion['sede'] ?? null,
                 'jornada_laboral' => $identificacion['jornada_laboral'] ?? null,
                 'tipo_certificado' => $certificado['tipo_certificado'] ?? null,
-                'estado' => 'registrado',
+                'estado' => 'inicial',
                 'observaciones' => $certificado['observaciones'] ?? null,
                 'registrado_en' => now(),
                 'metadata' => [
