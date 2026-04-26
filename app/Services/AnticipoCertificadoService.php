@@ -56,6 +56,8 @@ class AnticipoCertificadoService
                 'numero_anticipo' => $this->displayNumber($anticipo),
             ])->save();
 
+            $this->attachInitialAviso($anticipo, $certificado);
+
             foreach ($certificado['adjuntos'] ?? [] as $attachment) {
                 $storedAttachment = $this->finalAttachmentStorage->persist($attachment, $conversation, $anticipo);
 
@@ -72,6 +74,25 @@ class AnticipoCertificadoService
 
             return $anticipo->refresh();
         });
+    }
+
+    private function attachInitialAviso(AnticipoCertificado $anticipo, array $certificado): void
+    {
+        $avisoId = $certificado['aviso_id'] ?? null;
+
+        if ($avisoId === null) {
+            return;
+        }
+
+        $anticipo->avisos()->syncWithoutDetaching([
+            $avisoId => [
+                'origen' => 'conversacion',
+                'estado_vinculo' => 'activo',
+                'metadata' => json_encode([
+                    'numero_aviso' => $certificado['numero_aviso'] ?? null,
+                ]),
+            ],
+        ]);
     }
 
     public function buildRegisteredStepResult(AnticipoCertificado $anticipo): StepResult

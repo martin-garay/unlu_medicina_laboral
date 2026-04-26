@@ -10,6 +10,7 @@ trait CreatesTestingSchema
     protected function createTestingSchema(): void
     {
         Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('anticipo_certificado_aviso');
         Schema::dropIfExists('anticipo_certificado_archivos');
         Schema::dropIfExists('anticipos_certificado');
         Schema::dropIfExists('conversacion_eventos');
@@ -108,6 +109,21 @@ trait CreatesTestingSchema
             $table->string('motivo_rechazo')->nullable();
             $table->json('metadata')->nullable();
             $table->timestamps();
+        });
+
+        Schema::create('anticipo_certificado_aviso', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('anticipo_certificado_id');
+            $table->unsignedBigInteger('aviso_id');
+            $table->string('origen')->default('conversacion');
+            $table->string('estado_vinculo')->default('activo');
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+
+            $table->unique(['anticipo_certificado_id', 'aviso_id'], 'anticipo_certificado_aviso_unique');
+            $table->index('anticipo_certificado_id', 'anticipo_certificado_aviso_anticipo_idx');
+            $table->index('aviso_id', 'anticipo_certificado_aviso_aviso_idx');
+            $table->index('estado_vinculo', 'anticipo_certificado_aviso_estado_idx');
         });
 
         Schema::create('conversacion_mensajes', function (Blueprint $table) {

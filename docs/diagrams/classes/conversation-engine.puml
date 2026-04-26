@@ -56,6 +56,14 @@ class AnticipoCertificadoArchivo {
   +storage_path
 }
 
+class AnticipoCertificadoAviso {
+  +id
+  +anticipo_certificado_id
+  +aviso_id
+  +origen
+  +estado_vinculo
+}
+
 class WhatsappWebhookController
 class WhatsAppSender
 class ConversationManager
@@ -83,7 +91,9 @@ interface DraftAttachmentStorage
 Conversacion "1" -- "0..*" ConversacionMensaje : mensajes
 Conversacion "1" -- "0..*" ConversacionEvento : eventos
 Conversacion "0..1" -- "0..1" Aviso : aviso materializado
-Aviso "1" -- "0..*" AnticipoCertificado : aviso previo
+Aviso "1" -- "0..*" AnticipoCertificado : aviso previo legacy
+Aviso "1" -- "0..*" AnticipoCertificadoAviso : vinculos
+AnticipoCertificado "1" -- "0..*" AnticipoCertificadoAviso : vinculos
 AnticipoCertificado "1" -- "1..*" AnticipoCertificadoArchivo : adjuntos
 Conversacion "0..1" -- "0..1" AnticipoCertificado : anticipo materializado
 

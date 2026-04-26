@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AnticipoCertificado extends Model
@@ -43,6 +44,13 @@ class AnticipoCertificado extends Model
     public function aviso(): BelongsTo
     {
         return $this->belongsTo(Aviso::class, 'aviso_id');
+    }
+
+    public function avisos(): BelongsToMany
+    {
+        return $this->belongsToMany(Aviso::class, 'anticipo_certificado_aviso')
+            ->withPivot(['origen', 'estado_vinculo', 'metadata'])
+            ->withTimestamps();
     }
 
     public function archivos(): HasMany

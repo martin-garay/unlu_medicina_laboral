@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Services;
 
+use App\Models\AnticipoCertificado;
 use App\Models\Aviso;
 use App\Services\AnticipoCertificadoService;
 use App\Services\ConversationManager;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Tests\Concerns\CreatesTestingSchema;
 use Tests\TestCase;
 
@@ -80,6 +83,12 @@ class AnticipoCertificadoServiceTest extends TestCase
             'nombre_original' => 'certificado.pdf',
             'estado_validacion' => 'aceptado',
         ]);
+        $this->assertDatabaseHas('anticipo_certificado_aviso', [
+            'anticipo_certificado_id' => $anticipo->id,
+            'aviso_id' => $aviso->id,
+            'origen' => 'conversacion',
+            'estado_vinculo' => 'activo',
+        ]);
         $this->assertSame('AC-' . $anticipo->id, $anticipo->numero_anticipo);
         $this->assertSame($anticipo->id, $conversation->refresh()->anticipo_certificado_id);
     }
@@ -93,7 +102,7 @@ class AnticipoCertificadoServiceTest extends TestCase
             'wa_number' => '5491111111111',
         ]);
 
-        $anticipo = \App\Models\AnticipoCertificado::create([
+        $anticipo = AnticipoCertificado::create([
             'uuid' => 'test-uuid',
             'numero_anticipo' => 'AC-1',
             'conversacion_id' => $conversation->id,
@@ -110,5 +119,96 @@ class AnticipoCertificadoServiceTest extends TestCase
         $this->assertSame(config('medicina_laboral.mensajes.templates.certificado_registrado'), $result->template);
         $this->assertSame('AC-1', $result->templateData['numero_certificado']);
         $this->assertSame('AV-' . $aviso->id, $result->templateData['aviso_asociado']);
+    }
+
+    public function test_anticipo_and_aviso_can_be_loaded_through_many_to_many_relationships(): void
+    {
+        $conversation = app(ConversationManager::class)->createConversation('5491111111111');
+        $aviso = Aviso::create([
+            'conversacion_id' => $conversation->id,
+            'tipo' => 'inasistencia',
+            'legajo' => '123',
+            'wa_number' => '5491111111111',
+        ]);
+        $otroAviso = Aviso::create([
+            'conversacion_id' => $conversation->id,
+            'tipo' => 'inasistencia',
+            'legajo' => '123',
+            'wa_number' => '5491111111111',
+        ]);
+        $anticipo = AnticipoCertificado::create([
+            'uuid' => 'test-uuid',
+            'numero_anticipo' => 'AC-1',
+            'conversacion_id' => $conversation->id,
+            'aviso_id' => $aviso->id,
+            'tipo_certificado' => 'electronico',
+            'estado' => 'inicial',
+            'registrado_en' => now(),
+        ]);
+
+        $anticipo->avisos()->attach([
+            $aviso->id => [
+                'origen' => 'conversacion',
+                'estado_vinculo' => 'activo',
+                'metadata' => json_encode(['numero_aviso' => 'AV-' . $aviso->id]),
+            ],
+            $otroAviso->id => [
+                'origen' => 'manual',
+                'estado_vinculo' => 'activo',
+                'metadata' => json_encode(['numero_aviso' => 'AV-' . $otroAviso->id]),
+            ],
+        ]);
+
+        $this->assertSame(
+            [$aviso->id, $otroAviso->id],
+            $anticipo->refresh()->avisos()->orderBy('avisos.id')->pluck('avisos.id')->all()
+        );
+        $this->assertSame(
+            [$anticipo->id],
+            $aviso->refresh()->anticiposCertificado()->pluck('anticipos_certificado.id')->all()
+        );
+        $this->assertSame(
+            [$anticipo->id],
+            $aviso->refresh()->anticiposCertificadoLegacy()->pluck('anticipos_certificado.id')->all()
+        );
+    }
+
+    public function test_pivot_rejects_duplicate_anticipo_aviso_links(): void
+    {
+        $conversation = app(ConversationManager::class)->createConversation('5491111111111');
+        $aviso = Aviso::create([
+            'conversacion_id' => $conversation->id,
+            'tipo' => 'inasistencia',
+            'wa_number' => '5491111111111',
+        ]);
+        $anticipo = AnticipoCertificado::create([
+            'uuid' => 'test-uuid',
+            'numero_anticipo' => 'AC-1',
+            'conversacion_id' => $conversation->id,
+            'aviso_id' => $aviso->id,
+            'tipo_certificado' => 'electronico',
+            'estado' => 'inicial',
+            'registrado_en' => now(),
+        ]);
+
+        DB::table('anticipo_certificado_aviso')->insert([
+            'anticipo_certificado_id' => $anticipo->id,
+            'aviso_id' => $aviso->id,
+            'origen' => 'conversacion',
+            'estado_vinculo' => 'activo',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->expectException(QueryException::class);
+
+        DB::table('anticipo_certificado_aviso')->insert([
+            'anticipo_certificado_id' => $anticipo->id,
+            'aviso_id' => $aviso->id,
+            'origen' => 'manual',
+            'estado_vinculo' => 'activo',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

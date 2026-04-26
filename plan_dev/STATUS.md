@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-26 03:12 -03
+2026-04-26 03:26 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: se abrió el `daily` del 2026-04-26 para retomar M5 antes de avanzar a logs/admin/Ansible.
-- Último bloque completado: `M5.2` del daily 2026-04-26, permitiendo cargar hasta 3 adjuntos antes de confirmar el anticipo/certificado.
-- Milestone actual: próximo milestone pendiente `M5.3 - Implementar relación N a N aviso-certificado`.
-- Próximo paso sugerido: ejecutar M5.3 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
+- Último bloque completado: `M5.3` del daily 2026-04-26, implementando relación N a N entre avisos y anticipos/certificados.
+- Milestone actual: próximo milestone pendiente `M5.4 - Sincronizar documentación y diagramas de anticipo/certificado`.
+- Próximo paso sugerido: ejecutar M5.4 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
 
 ---
 
@@ -39,11 +39,11 @@ No debe reemplazar:
 
 ### Modelo de datos
 - estado: `in_progress`
-- notas: M5.1 implementó `avisos.estado` con default `inicial`, cambio de default de `anticipos_certificado.estado` a `inicial` y migración de anticipos existentes con estado `registrado`. La asociación N avisos mediante pivot queda planificada para M5.3.
+- notas: M5.1 implementó `avisos.estado` con default `inicial`, cambio de default de `anticipos_certificado.estado` a `inicial` y migración de anticipos existentes con estado `registrado`. M5.3 agregó la pivot `anticipo_certificado_aviso` para relación N a N, con backfill desde `anticipos_certificado.aviso_id` y compatibilidad temporal con la relación legacy.
 
 ### Testing
 - estado: `in_progress`
-- notas: M5.2 ejecutó `make test`: `121 passed`, `413 assertions`.
+- notas: M5.3 ejecutó `make test`: `124 passed`, `420 assertions`.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -70,27 +70,27 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-26 03:12 -03
+- 2026-04-26 03:26 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26.md`
 
 ### Milestone trabajado
-- `M5.2 - Permitir hasta 3 adjuntos antes de confirmar certificado`
+- `M5.3 - Implementar relación N a N aviso-certificado`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agregó el paso de decisión para adjuntar otro archivo o continuar, acumulando hasta 3 adjuntos antes de la confirmación final del anticipo/certificado.
+- se agregó la tabla pivot aviso-anticipo/certificado, relaciones Eloquent N a N y escritura del vínculo al materializar el anticipo.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: handlers del flujo de certificado, wiring de `AppServiceProvider`, config de certificado, tests unitarios de handlers, diagrama de flujo de anticipo y estado operativo
-- resumen técnico: `certificado_adjunto` registra un adjunto y, si no se alcanzó el máximo, transiciona a `certificado_adjuntar_otro`; el nuevo paso permite volver a adjuntar o pasar a `certificado_confirmacion_final`; el cuarto adjunto se rechaza.
+- archivos tocados: migración `2026_04_26_000007_create_anticipo_certificado_aviso_table.php`, modelos `Aviso`/`AnticipoCertificado`, `AnticipoCertificadoService`, esquema auxiliar de tests, tests de servicio y migración, DBML, diagrama de clases, daily y status
+- resumen técnico: se mantiene `anticipos_certificado.aviso_id` como compatibilidad temporal y se agrega pivot N a N con backfill; el servicio escribe ambos vínculos al crear anticipos desde conversación.
 - documentación actualizada: sí, planificación operativa y estado consolidado
-- diagramas actualizados: sí, flujo de anticipo de certificado
+- diagramas actualizados: sí, DBML y diagrama de clases
 
 ---
 
@@ -98,13 +98,13 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `121 passed`, `413 assertions`
-- otros checks: `make diagrams`
-- resultado: diagramas regenerados
+- resultado: `124 passed`, `420 assertions`
+- otros checks: `php artisan migrate --pretend`, `make diagrams`
+- resultado: SQL esperado generado para PostgreSQL; diagramas regenerados
 
 ### Manuales sugeridas
-- recorrer flujo de anticipo en canal interno o WhatsApp con 1, 2 y 3 adjuntos
-- verificar que el cuarto adjunto sea rechazado
+- crear anticipo desde flujo y verificar que el aviso inicial quede tanto en `aviso_id` como en `anticipo_certificado_aviso`
+- crear manualmente un segundo vínculo y verificar navegación por relaciones Eloquent
 - revisar si `aviso_id` debe quedar como cache del primer aviso o eliminarse luego de migrar lecturas a la pivot
 
 ---
@@ -124,7 +124,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M5.3` de `plan_dev/daily/2026-04-26.md`: implementar relación N a N aviso-certificado
+- ejecutar `M5.4` de `plan_dev/daily/2026-04-26.md`: sincronizar documentación y diagramas de anticipo/certificado
 
 ---
 

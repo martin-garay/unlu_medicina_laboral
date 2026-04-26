@@ -142,8 +142,30 @@ Table anticipo_certificado_archivos {
   Note: "Persistencia real de metadata asociada al anticipo. El storage binario definitivo sigue pendiente."
 }
 
+Table anticipo_certificado_aviso {
+  id bigint [pk]
+  anticipo_certificado_id bigint [not null]
+  aviso_id bigint [not null]
+  origen varchar [not null, default: 'conversacion']
+  estado_vinculo varchar [not null, default: 'activo']
+  metadata json
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (anticipo_certificado_id, aviso_id) [unique, name: 'anticipo_certificado_aviso_unique']
+    anticipo_certificado_id [name: 'anticipo_certificado_aviso_anticipo_idx']
+    aviso_id [name: 'anticipo_certificado_aviso_aviso_idx']
+    estado_vinculo [name: 'anticipo_certificado_aviso_estado_idx']
+  }
+
+  Note: "Relacion N a N entre anticipos/certificados y avisos. aviso_id en anticipos_certificado se conserva como compatibilidad temporal."
+}
+
 Ref: anticipos_certificado.conversacion_id > conversaciones.id
 Ref: anticipos_certificado.aviso_id > avisos.id
 Ref: anticipo_certificado_archivos.anticipo_certificado_id > anticipos_certificado.id
 Ref: anticipo_certificado_archivos.conversacion_id > conversaciones.id
 Ref: conversaciones.anticipo_certificado_id > anticipos_certificado.id
+Ref: anticipo_certificado_aviso.anticipo_certificado_id > anticipos_certificado.id
+Ref: anticipo_certificado_aviso.aviso_id > avisos.id
