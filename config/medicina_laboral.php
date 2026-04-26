@@ -21,7 +21,6 @@ return [
 
     'certificados' => [
         'max_files' => 3,
-        'max_files_initial_step' => 1,
         'allowed_extensions' => [
             'pdf',
             'jpg',
@@ -38,6 +37,19 @@ return [
         'allowed_incoming_message_types' => [
             'document',
             'image',
+        ],
+        'attach_more_yes_keywords' => [
+            '1',
+            '1.',
+            'si',
+            'sí',
+        ],
+        'attach_more_no_keywords' => [
+            '2',
+            '2.',
+            'no',
+            'continuar',
+            'no, continuar',
         ],
     ],
 

@@ -54,8 +54,24 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
         }
 
         $attachments[] = $this->draftAttachmentStorage->store($media, $incomingType)->toArray();
+        $nextResult = count($attachments) >= (int) config('medicina_laboral.certificados.max_files', 3)
+            ? $this->buildConfirmationResult($conversation, $attachments)
+            : $this->buildAttachMoreResult($conversation, $attachments);
 
-        return StepResult::make(null, [
+        return StepResult::make($nextResult['message_key'] ?? null, [
+            ...$nextResult,
+            'payload' => [
+                ...$nextResult['payload'],
+                'conversation_updates' => $this->conversationContextService->withCertificadoData($conversation, [
+                    'adjuntos' => $attachments,
+                ]),
+            ],
+        ]);
+    }
+
+    private function buildConfirmationResult(Conversacion $conversation, array $attachments): array
+    {
+        return [
             'template' => config('medicina_laboral.mensajes.templates.certificado_confirmacion_final'),
             'template_data' => $this->certificadoMessageService->buildConfirmationTemplateData($conversation, [
                 'adjuntos' => $attachments,
@@ -67,12 +83,36 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
                 'event_description' => 'Adjunto de certificado registrado en borrador',
                 'event_metadata' => [
                     'attachments_count' => count($attachments),
-                    'source_type' => $media['source_type'] ?? $incomingType,
+                    'max_files_reached' => true,
                 ],
-                'conversation_updates' => $this->conversationContextService->withCertificadoData($conversation, [
-                    'adjuntos' => $attachments,
-                ]),
             ],
+        ];
+    }
+
+    private function buildAttachMoreResult(Conversacion $conversation, array $attachments): array
+    {
+        return [
+            'message' => $this->buildAttachMorePrompt(),
+            'next_step' => 'certificado_adjuntar_otro',
+            'next_state' => 'certificado_adjuntar_otro',
+            'payload' => [
+                'event_name' => 'certificado_attachment_registered',
+                'event_description' => 'Adjunto de certificado registrado en borrador',
+                'event_metadata' => [
+                    'attachments_count' => count($attachments),
+                    'max_files_reached' => false,
+                    'max_files' => (int) config('medicina_laboral.certificados.max_files', 3),
+                ],
+            ],
+        ];
+    }
+
+    private function buildAttachMorePrompt(): string
+    {
+        return implode("\n", [
+            __('whatsapp.certificado.adjuntar_otro_archivo'),
+            '1. ' . __('whatsapp.certificado.options.si'),
+            '2. ' . __('whatsapp.certificado.options.no_continuar'),
         ]);
     }
 

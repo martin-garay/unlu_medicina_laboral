@@ -11,7 +11,10 @@ flowchart TD
     H -->|Invalido| G
     I --> J[certificado_adjunto]
     J --> K[Guardar metadata draft del adjunto]
-    K --> L[certificado_confirmacion_final]
+    K -->|Menos de 3 adjuntos| KA[certificado_adjuntar_otro]
+    K -->|Maximo de 3 adjuntos| L[certificado_confirmacion_final]
+    KA -->|Adjuntar otro| J
+    KA -->|No, continuar| L
     L -->|Confirmar| M[Crear AnticipoCertificado]
     M --> N[Persistir anticipo_certificado_archivos]
     N --> O[Asociar conversacion y cerrar flujo]
@@ -24,6 +27,7 @@ flowchart TD
     G -->|Cancelar| B
     I -->|Cancelar| B
     J -->|Cancelar| B
+    KA -->|Cancelar| B
     L -->|Cancelar| B
 
     classDef future fill:#fff3cd,stroke:#946200,color:#4a3a00;

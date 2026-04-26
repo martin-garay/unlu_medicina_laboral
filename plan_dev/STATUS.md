@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-26 02:57 -03
+2026-04-26 03:12 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: se abrió el `daily` del 2026-04-26 para retomar M5 antes de avanzar a logs/admin/Ansible.
-- Último bloque completado: `M5.1` del daily 2026-04-26, implementando estado `inicial` en avisos y anticipos/certificados.
-- Milestone actual: próximo milestone pendiente `M5.2 - Permitir hasta 3 adjuntos antes de confirmar certificado`.
-- Próximo paso sugerido: ejecutar M5.2 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
+- Último bloque completado: `M5.2` del daily 2026-04-26, permitiendo cargar hasta 3 adjuntos antes de confirmar el anticipo/certificado.
+- Milestone actual: próximo milestone pendiente `M5.3 - Implementar relación N a N aviso-certificado`.
+- Próximo paso sugerido: ejecutar M5.3 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
 
 ---
 
@@ -35,7 +35,7 @@ No debe reemplazar:
 ### Flujos
 - aviso: `in_progress`
 - anticipo: `in_progress`
-- notas: la decisión vigente es tomar `AnticipoCertificado` como entidad actual de certificado y no crear una entidad nueva. RF-03.1 queda pendiente porque el flujo actual pasa a confirmación después del primer adjunto y debe evolucionar para aceptar hasta 3 adjuntos antes de confirmar.
+- notas: la decisión vigente es tomar `AnticipoCertificado` como entidad actual de certificado y no crear una entidad nueva. RF-03.1 quedó cubierto en M5.2: el flujo permite adjuntar hasta `medicina_laboral.certificados.max_files` archivos/imágenes antes de confirmar.
 
 ### Modelo de datos
 - estado: `in_progress`
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: M5.1 ejecutó `make test`: `115 passed`, `385 assertions`.
+- notas: M5.2 ejecutó `make test`: `121 passed`, `413 assertions`.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -70,27 +70,27 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-26 02:57 -03
+- 2026-04-26 03:12 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26.md`
 
 ### Milestone trabajado
-- `M5.1 - Implementar estado inicial en avisos y anticipos`
+- `M5.2 - Permitir hasta 3 adjuntos antes de confirmar certificado`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agregó soporte runtime para estado `inicial` en avisos y anticipos/certificados, incluyendo migración, servicios, tests y diagramas.
+- se agregó el paso de decisión para adjuntar otro archivo o continuar, acumulando hasta 3 adjuntos antes de la confirmación final del anticipo/certificado.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: migración `2026_04_26_000006_add_initial_status_to_business_records.php`, modelos/servicios de aviso y anticipo, esquema auxiliar de tests, tests de servicios, DBML, diagrama de clases, daily y status
-- resumen técnico: avisos y anticipos/certificados nacen en estado `inicial`; anticipos existentes en `registrado` se migran a `inicial`; se preserva `registrado_en` como timestamp de recepción.
+- archivos tocados: handlers del flujo de certificado, wiring de `AppServiceProvider`, config de certificado, tests unitarios de handlers, diagrama de flujo de anticipo y estado operativo
+- resumen técnico: `certificado_adjunto` registra un adjunto y, si no se alcanzó el máximo, transiciona a `certificado_adjuntar_otro`; el nuevo paso permite volver a adjuntar o pasar a `certificado_confirmacion_final`; el cuarto adjunto se rechaza.
 - documentación actualizada: sí, planificación operativa y estado consolidado
-- diagramas actualizados: sí, DBML y clase `Aviso`/`AnticipoCertificado`
+- diagramas actualizados: sí, flujo de anticipo de certificado
 
 ---
 
@@ -98,12 +98,13 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `115 passed`, `385 assertions`
-- otros checks: `php artisan migrate --pretend`, `make diagrams`, `git diff --check`
-- resultado: SQL esperado generado para PostgreSQL; diagramas regenerados; sin errores de whitespace
+- resultado: `121 passed`, `413 assertions`
+- otros checks: `make diagrams`
+- resultado: diagramas regenerados
 
 ### Manuales sugeridas
-- recorrer flujo de aviso y anticipo en canal interno y confirmar que las entidades quedan en `inicial`
+- recorrer flujo de anticipo en canal interno o WhatsApp con 1, 2 y 3 adjuntos
+- verificar que el cuarto adjunto sea rechazado
 - revisar si `aviso_id` debe quedar como cache del primer aviso o eliminarse luego de migrar lecturas a la pivot
 
 ---
@@ -123,7 +124,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M5.2` de `plan_dev/daily/2026-04-26.md`: permitir hasta 3 adjuntos antes de confirmar certificado
+- ejecutar `M5.3` de `plan_dev/daily/2026-04-26.md`: implementar relación N a N aviso-certificado
 
 ---
 
