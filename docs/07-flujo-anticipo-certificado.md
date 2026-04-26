@@ -23,7 +23,7 @@ Puede dejarse para más adelante:
 - almacenamiento definitivo de archivos con infraestructura final
 - validaciones avanzadas de plazos hábiles si requieren lógica adicional
 
-## Estado real del repo al 2026-03-20
+## Estado real del repo al 2026-04-26
 
 Hoy el flujo implementado cubre:
 
@@ -31,10 +31,13 @@ Hoy el flujo implementado cubre:
 - identificación común reutilizada
 - validación local del aviso previo
 - selección de tipo de certificado
-- captura de adjuntos en borrador
+- captura de hasta 3 adjuntos en borrador, según `medicina_laboral.certificados.max_files`
+- decisión explícita entre adjuntar otro archivo o continuar a confirmación
 - confirmación final real
 - alta de `AnticipoCertificado`
 - persistencia real de registros asociados en `anticipo_certificado_archivos`
+- relación N a N entre avisos y anticipos/certificados mediante `anticipo_certificado_aviso`
+- compatibilidad temporal con `anticipos_certificado.aviso_id` como aviso inicial legacy
 - mensaje final de anticipo registrado
 - asociación de la conversación al anticipo creado y cierre consistente
 
@@ -54,9 +57,10 @@ El flujo de anticipo de certificado se compone de estas etapas:
 2. Identificación del aviso previo
 3. Tipo de certificado
 4. Adjuntar archivo
-5. Confirmación final
-6. Registración efectiva del anticipo
-7. Mensaje final
+5. Decidir si se adjunta otro archivo o se continúa
+6. Confirmación final
+7. Registración efectiva del anticipo
+8. Mensaje final
 
 ## Regla de diseño importante
 
@@ -126,6 +130,18 @@ La validación actual del aviso se apoya en la base local del proyecto:
 La conversación sigue guardando un borrador técnico en `metadata.certificado.adjuntos`, pero ese borrador ahora se materializa al confirmar el anticipo en registros reales asociados a la entidad de negocio.
 
 Más adelante puede evolucionarse a selección guiada.
+
+### Asociación con múltiples avisos
+
+El modelo permite que un anticipo/certificado quede asociado a N avisos mediante la tabla pivot `anticipo_certificado_aviso`.
+
+El flujo conversacional mantiene una regla simple:
+
+- el usuario informa un aviso inicial
+- ese aviso se valida y se usa como vínculo inicial del anticipo
+- asociaciones adicionales quedan para intervención posterior de operador/admin o una regla automática futura explícita
+
+Al confirmar el anticipo, `AnticipoCertificadoService::createFromConversation()` escribe tanto `anticipos_certificado.aviso_id` como la fila pivot con `origen = conversacion`.
 
 ## Validaciones principales
 
@@ -205,7 +221,7 @@ El flujo debe contemplar mensajes con adjuntos.
 
 ## Implementación actual de esta etapa
 
-Por ahora el paso acepta un adjunto por vez y registra metadata mínima del mensaje `document` o `image`:
+El paso acepta un adjunto por vez y registra metadata mínima del mensaje `document` o `image`:
 
 - `provider_media_id`
 - `mime_type`
@@ -213,7 +229,9 @@ Por ahora el paso acepta un adjunto por vez y registra metadata mínima del mens
 - `caption` si existe
 - `source_type`
 
-Se validan tipos MIME permitidos desde configuración, pero no se realiza todavía descarga ni almacenamiento definitivo del archivo.
+Se validan tipos MIME permitidos desde configuración. Después de cada adjunto, si todavía no se alcanzó el máximo configurado, el bot pregunta si se desea adjuntar otro archivo o continuar a confirmación. Al llegar al máximo, pasa directamente a confirmación final. Un cuarto adjunto se rechaza.
+
+No se realiza todavía descarga ni almacenamiento definitivo del binario.
 
 La estrategia actual ya distingue dos momentos:
 

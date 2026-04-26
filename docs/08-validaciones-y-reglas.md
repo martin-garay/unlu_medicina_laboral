@@ -319,6 +319,12 @@ Ejemplos de validaciones esperables:
 - cantidad máxima de archivos no excedida
 - confirmación final explícita
 
+### Adjuntos de certificado
+
+La cantidad máxima de archivos se toma de `medicina_laboral.certificados.max_files`.
+
+El flujo acepta un adjunto por mensaje y permite repetir la carga hasta alcanzar ese máximo. Si el usuario intenta cargar un archivo adicional luego de alcanzar el límite, la interacción debe rechazarse con un error específico de máximo de archivos.
+
 ### Elegibilidad por estado del aviso
 
 Desde la definición de estados de negocio del 2026-04-24, la regla provisional para permitir anticipo de certificado es:

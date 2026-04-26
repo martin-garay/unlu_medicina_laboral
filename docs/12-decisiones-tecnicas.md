@@ -823,3 +823,97 @@ El corte de implementación debería incluir:
 - test de `AnticipoCertificadoService` creando anticipo con estado `inicial`
 - tests de `AvisoReferenciaValidator` bloqueando avisos `cancelado` e `invalido`
 - test de historial de cambios de estado cuando se implemente el servicio de transición
+
+---
+
+## 29. Asociación de `AnticipoCertificado` con múltiples avisos
+
+### Decisión
+Un anticipo/certificado podrá estar asociado a N avisos usando la entidad actual `AnticipoCertificado`.
+
+No se crea una entidad nueva `certificados`.
+
+La conversación seguirá capturando un aviso inicial, como ocurre hoy. Las asociaciones adicionales se resolverán luego por intervención de operador desde el módulo administrativo o por una regla explícita futura.
+
+### Motivo
+El flujo conversacional actual ya valida un aviso previo y materializa el anticipo con una relación simple.
+
+Para evolucionar sin romper compatibilidad:
+
+- se conserva el flujo conversacional actual
+- se agrega una tabla pivot para soportar múltiples avisos
+- se mantiene `anticipos_certificado.aviso_id` transitoriamente como vínculo legacy/compatibilidad
+
+### Implementación
+Implementado en M5.3 del daily 2026-04-26.
+
+Tabla pivot:
+
+- `anticipo_certificado_aviso`
+
+Campos implementados:
+
+- `id`
+- `anticipo_certificado_id`
+- `aviso_id`
+- `origen`
+- `estado_vinculo` default `activo`
+- `metadata` json nullable
+- `created_at`
+- `updated_at`
+
+Restricciones e índices:
+
+- unique compuesto por `anticipo_certificado_id` + `aviso_id`
+- índice por `aviso_id`
+- índice por `anticipo_certificado_id`
+- índice por `estado_vinculo`
+- foreign keys a `anticipos_certificado` y `avisos`
+
+### Backfill
+La migración `2026_04_26_000007_create_anticipo_certificado_aviso_table.php` puebla la pivot desde el vínculo actual:
+
+- por cada `anticipos_certificado.aviso_id` no nulo, crear una fila pivot
+- usar `origen = legacy_aviso_id`
+- usar `estado_vinculo = activo`
+
+### Escritura durante la transición
+En el primer corte de implementación:
+
+- `AnticipoCertificadoService::createFromConversation()` sigue escribiendo `aviso_id`
+- además crea la fila pivot correspondiente con `origen = conversacion`
+
+Esto mantiene compatibilidad con lecturas actuales y habilita las nuevas relaciones.
+
+### Lecturas implementadas
+Relaciones Eloquent:
+
+- `AnticipoCertificado::avisos()` como `belongsToMany`
+- `Aviso::anticiposCertificado()` como `belongsToMany` por pivot
+- `AnticipoCertificado::aviso()` se conserva como relación legacy
+- `Aviso::anticiposCertificadoLegacy()` se conserva como relación legacy por `aviso_id`
+
+### Deprecación de `aviso_id`
+No eliminar `anticipos_certificado.aviso_id` en el primer corte.
+
+Plan recomendado:
+
+1. crear pivot y backfill
+2. escribir en ambos lugares desde servicios
+3. migrar lecturas/reportes/admin a la pivot
+4. recién después evaluar si `aviso_id` queda como compatibilidad, cache del primer aviso o se elimina
+
+### Regla funcional vigente
+Hasta nueva definición de negocio:
+
+- el bot vincula el anticipo al aviso informado durante el flujo
+- vínculos adicionales son manuales por operador/admin
+- reglas automáticas de asociación múltiple quedan fuera del primer corte
+
+### Tests cubiertos
+El corte de implementación incluye:
+
+- migración/backfill desde `anticipos_certificado.aviso_id`
+- test de `AnticipoCertificadoService` creando pivot al confirmar anticipo
+- test de relaciones Eloquent desde aviso hacia anticipos y desde anticipo hacia avisos
+- test de unique compuesto para evitar vínculos duplicados

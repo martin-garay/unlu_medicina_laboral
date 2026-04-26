@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-26 03:26 -03
+2026-04-26 03:35 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: se abrió el `daily` del 2026-04-26 para retomar M5 antes de avanzar a logs/admin/Ansible.
-- Último bloque completado: `M5.3` del daily 2026-04-26, implementando relación N a N entre avisos y anticipos/certificados.
-- Milestone actual: próximo milestone pendiente `M5.4 - Sincronizar documentación y diagramas de anticipo/certificado`.
-- Próximo paso sugerido: ejecutar M5.4 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
+- Último bloque completado: `M5.4` del daily 2026-04-26, sincronizando documentación de anticipo/certificado con RF-03, RF-03.1 y RF-03.2.
+- Milestone actual: cadena M5.x cerrada; próximo milestone recomendado `M6 - Relevar logs actuales y definir estructura objetivo`.
+- Próximo paso sugerido: ejecutar M6 del daily 2026-04-26.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; el daily 2026-04-26 retoma M5 y ordena la implementación de estado `inicial`, adjuntos múltiples y relación N a N antes de M6. Sigue pendiente sincronizar por completo documentos que describen el anticipo como parcial.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. M5.4 sincronizó documentos de modelo, flujo, validaciones y decisiones técnicas para reflejar estado `inicial`, adjuntos múltiples y relación N a N antes de M6.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -70,27 +70,27 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-26 03:26 -03
+- 2026-04-26 03:35 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26.md`
 
 ### Milestone trabajado
-- `M5.3 - Implementar relación N a N aviso-certificado`
+- `M5.4 - Sincronizar documentación y diagramas de anticipo/certificado`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agregó la tabla pivot aviso-anticipo/certificado, relaciones Eloquent N a N y escritura del vínculo al materializar el anticipo.
+- se alineó la documentación viva con la implementación de RF-03, RF-03.1 y RF-03.2.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: migración `2026_04_26_000007_create_anticipo_certificado_aviso_table.php`, modelos `Aviso`/`AnticipoCertificado`, `AnticipoCertificadoService`, esquema auxiliar de tests, tests de servicio y migración, DBML, diagrama de clases, daily y status
-- resumen técnico: se mantiene `anticipos_certificado.aviso_id` como compatibilidad temporal y se agrega pivot N a N con backfill; el servicio escribe ambos vínculos al crear anticipos desde conversación.
+- archivos tocados: `docs/04-modelo-de-datos.md`, `docs/07-flujo-anticipo-certificado.md`, `docs/08-validaciones-y-reglas.md`, `docs/12-decisiones-tecnicas.md`, daily y status
+- resumen técnico: la documentación describe el estado real al 2026-04-26: avisos y anticipos nacen en `inicial`, el flujo permite hasta 3 adjuntos configurables antes de confirmar y la relación aviso-anticipo/certificado es N a N mediante pivot con `aviso_id` legacy temporal.
 - documentación actualizada: sí, planificación operativa y estado consolidado
-- diagramas actualizados: sí, DBML y diagrama de clases
+- diagramas actualizados: verificados; las fuentes y renders estructurales quedaron actualizados en M5.3
 
 ---
 
@@ -99,18 +99,16 @@ No debe reemplazar:
 ### Automáticas
 - tests corridos: `make test`
 - resultado: `124 passed`, `420 assertions`
-- otros checks: `php artisan migrate --pretend`, `make diagrams`
-- resultado: SQL esperado generado para PostgreSQL; diagramas regenerados
+- otros checks: `make diagrams-check`, `git diff --check`
+- resultado: diagramas sincronizados; sin errores de whitespace
 
 ### Manuales sugeridas
-- crear anticipo desde flujo y verificar que el aviso inicial quede tanto en `aviso_id` como en `anticipo_certificado_aviso`
-- crear manualmente un segundo vínculo y verificar navegación por relaciones Eloquent
+- revisar que RF-03, RF-03.1 y RF-03.2 puedan mapearse desde docs a código y tests
 - revisar si `aviso_id` debe quedar como cache del primer aviso o eliminarse luego de migrar lecturas a la pivot
 
 ---
 
 ## Bloqueos actuales
-- M6 queda postergado operativamente hasta cerrar o bloquear explícitamente la cadena M5.x del daily 2026-04-26
 - falta definir matriz mínima de permisos para `auditor` y `director`
 
 ---
@@ -124,7 +122,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M5.4` de `plan_dev/daily/2026-04-26.md`: sincronizar documentación y diagramas de anticipo/certificado
+- ejecutar `M6` de `plan_dev/daily/2026-04-26.md`: relevar logs actuales y definir estructura objetivo
 
 ---
 

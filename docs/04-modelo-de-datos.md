@@ -583,12 +583,36 @@ Una conversación puede generar cero o un aviso.
 Una conversación puede generar cero o un anticipo.
 
 ## Aviso → anticipos
-Un aviso puede tener cero o muchos anticipos, según la regla funcional que finalmente se adopte.
+Un aviso puede tener cero o muchos anticipos/certificados por medio de la pivot `anticipo_certificado_aviso`.
 
 ## Anticipo → avisos
-La evolución requerida al 2026-04-24 indica que un anticipo/certificado puede quedar asociado a N avisos.
+Un anticipo/certificado puede quedar asociado a uno o más avisos.
 
-El modelo actual todavía conserva `anticipos_certificado.aviso_id` como vínculo simple con un aviso. La evolución recomendada es agregar una tabla pivot entre `anticipos_certificado` y `avisos`, con backfill desde el vínculo actual, sin crear una entidad nueva `certificados`.
+El modelo conserva `anticipos_certificado.aviso_id` como vínculo legacy del aviso inicial, y agrega la tabla pivot `anticipo_certificado_aviso` como relación N a N. No se crea una entidad principal nueva `certificados`: la entidad de negocio vigente es `AnticipoCertificado`.
+
+### Tabla pivot implementada
+Nombre:
+
+- `anticipo_certificado_aviso`
+
+Campos:
+
+- `id`
+- `anticipo_certificado_id`
+- `aviso_id`
+- `origen`
+- `estado_vinculo`
+- `metadata`
+- `created_at`
+- `updated_at`
+
+Restricción:
+
+- unique compuesto `anticipo_certificado_id` + `aviso_id`
+
+Durante la transición, `anticipos_certificado.aviso_id` se conserva para compatibilidad y se puebla en paralelo con la pivot.
+
+La migración `2026_04_26_000007_create_anticipo_certificado_aviso_table.php` hace backfill desde `anticipos_certificado.aviso_id` con `origen = legacy_aviso_id` y `estado_vinculo = activo`.
 
 ## Anticipo → archivos
 Un anticipo puede tener uno o muchos archivos.
@@ -622,9 +646,14 @@ conversaciones
   └── anticipo_certificado (0..1)
 
 avisos
-  └── anticipos_certificado (0..n)
+  └── anticipo_certificado_aviso (0..n)
+
+anticipo_certificado_aviso
+  ├── avisos (n..1)
+  └── anticipos_certificado (n..1)
 
 anticipos_certificado
+  ├── avisos (1..n via pivot)
   └── anticipo_certificado_archivos (1..n)
 ```
 
