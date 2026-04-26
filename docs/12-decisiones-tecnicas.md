@@ -917,3 +917,74 @@ El corte de implementación incluye:
 - test de `AnticipoCertificadoService` creando pivot al confirmar anticipo
 - test de relaciones Eloquent desde aviso hacia anticipos y desde anticipo hacia avisos
 - test de unique compuesto para evitar vínculos duplicados
+
+---
+
+## 30. Relevamiento de logs y trazabilidad operativa
+
+### Estado actual
+El sistema combina dos mecanismos de trazabilidad:
+
+- logs técnicos de Laravel mediante `Log::`
+- eventos persistidos en `conversacion_eventos`
+
+Los eventos persistidos son la fuente más apta para auditoría funcional porque quedan asociados a una conversación y sobreviven al ciclo de vida del proceso. Los logs de aplicación hoy cumplen un rol de debugging y operación inicial.
+
+### Usos actuales de `Log::`
+
+| Ubicación | Nivel | Uso actual | Riesgo principal |
+| --- | --- | --- | --- |
+| `WhatsappWebhookController::receive()` | `info` | registra payload completo del webhook entrante | alto: puede incluir teléfono, texto, adjuntos y payload crudo |
+| `WhatsAppSender::dispatch()` | `warning` | credenciales faltantes | bajo |
+| `WhatsAppSender::dispatch()` | `info` | registra payload saliente y destinatario | alto: puede incluir teléfono y texto enviado |
+| `WhatsAppSender::dispatch()` | `info` | registra respuesta de WhatsApp | medio: puede incluir identificadores del proveedor |
+| `WhatsAppSender::dispatch()` | `error` | registra error, payload y destinatario | alto: puede duplicar contenido sensible en errores |
+| `ConversationInteractionService::logInteractionProcessed()` | `info` / `warning` | registra estado conversacional estructurado | medio: incluye participante/canal, pero no texto del mensaje |
+| `ConversationTimeoutService` | `info` / `warning` | registra recordatorio y cancelación por inactividad | medio: incluye participante/canal |
+
+### Eventos persistidos actuales
+`conversacion_eventos` ya registra hechos relevantes para auditoría técnica:
+
+- inicio de conversación
+- mensaje entrante recibido
+- cambios de estado
+- validaciones fallidas
+- reintentos
+- cierres de conversación
+- timeouts
+- creación de aviso
+- creación de anticipo/certificado
+
+Estos eventos todavía no reemplazan todos los logs operativos, pero ya dan una base mejor para auditoría que los archivos de log.
+
+### Gaps detectados
+
+- No existe una política implementada de redacción/minimización de PII en logs.
+- El webhook registra el payload completo del proveedor.
+- El sender registra payloads salientes completos, incluyendo texto y destinatario.
+- No hay convención documentada para separar logs de debugging, auditoría, operación y métricas.
+- No hay correlación explícita estable fuera de `conversation_id`/`provider_message_id`.
+- No hay política de retención de logs ni distinción de campos permitidos por ambiente.
+- Las métricas se derivan indirectamente de eventos y contadores, pero no hay una capa de métricas propia.
+
+### Estructura objetivo
+Evolucionar hacia cuatro categorías:
+
+1. `debug`: diagnóstico técnico de bajo nivel, deshabilitable o minimizado en producción.
+2. `operacion`: salud del canal, envíos fallidos, timeouts y errores recuperables.
+3. `auditoria`: hechos de negocio y cambios de estado persistidos en tablas, no sólo en logs.
+4. `metricas`: contadores agregados sin PII para seguimiento operativo.
+
+### Plan incremental recomendado
+
+1. Definir política de datos sensibles (`LOG-001`) antes de ampliar logs o admin.
+2. Introducir un servicio/helper de contexto seguro para logs conversacionales.
+3. Reemplazar logs de payload completo por campos permitidos: `conversation_id`, `channel`, `provider_message_id`, `message_type`, `step_key`, `event_name`, `error_code`.
+4. Mantener texto, teléfono completo, payload crudo y adjuntos fuera de logs de aplicación por defecto.
+5. Promover auditoría funcional a eventos persistidos y, para admin, agregar auditoría específica de acciones administrativas.
+6. Definir métricas agregadas desde eventos/contadores sin depender de parsear logs.
+
+### Decisión del corte
+No se implementa redacción parcial en este milestone.
+
+La protección de datos sensibles queda pendiente explícito en `plan_dev/BACKLOG.md` (`LOG-001`) y debe resolverse antes de endurecer el módulo administrativo o ampliar la visibilidad operativa.

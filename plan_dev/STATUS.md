@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-26 03:35 -03
+2026-04-26 03:48 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: se abrió el `daily` del 2026-04-26 para retomar M5 antes de avanzar a logs/admin/Ansible.
-- Último bloque completado: `M5.4` del daily 2026-04-26, sincronizando documentación de anticipo/certificado con RF-03, RF-03.1 y RF-03.2.
-- Milestone actual: cadena M5.x cerrada; próximo milestone recomendado `M6 - Relevar logs actuales y definir estructura objetivo`.
-- Próximo paso sugerido: ejecutar M6 del daily 2026-04-26.
+- Último bloque completado: `M6` del daily 2026-04-26, relevando logs actuales y definiendo estructura objetivo de trazabilidad.
+- Milestone actual: próximo milestone recomendado `M7 - Diseñar admin, roles y permisos sin permisos por campo`.
+- Próximo paso sugerido: ejecutar M7 del daily 2026-04-24/2026-04-26 si se decide avanzar con admin.
 
 ---
 
@@ -51,7 +51,7 @@ No debe reemplazar:
 
 ### Logs / operación
 - estado: `in_progress`
-- notas: la política de datos sensibles en logs queda como pendiente importante en `plan_dev/BACKLOG.md` (`LOG-001`), por decisión humana no se implementa todavía.
+- notas: M6 relevó logs actuales y clasificó estructura objetivo en debug, operación, auditoría y métricas. La política de datos sensibles en logs queda como pendiente importante en `plan_dev/BACKLOG.md` (`LOG-001`), por decisión humana no se implementa todavía.
 
 ### Admin / roles / permisos
 - estado: `pending`
@@ -70,40 +70,40 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-26 03:35 -03
+- 2026-04-26 03:48 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26.md`
 
 ### Milestone trabajado
-- `M5.4 - Sincronizar documentación y diagramas de anticipo/certificado`
+- `M6 - Relevar logs actuales y definir estructura objetivo`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se alineó la documentación viva con la implementación de RF-03, RF-03.1 y RF-03.2.
+- se relevó el uso actual de logs y eventos, se documentaron gaps de operación/auditoría y se dejó una estructura objetivo incremental.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/04-modelo-de-datos.md`, `docs/07-flujo-anticipo-certificado.md`, `docs/08-validaciones-y-reglas.md`, `docs/12-decisiones-tecnicas.md`, daily y status
-- resumen técnico: la documentación describe el estado real al 2026-04-26: avisos y anticipos nacen en `inicial`, el flujo permite hasta 3 adjuntos configurables antes de confirmar y la relación aviso-anticipo/certificado es N a N mediante pivot con `aviso_id` legacy temporal.
+- archivos tocados: `docs/12-decisiones-tecnicas.md`, `plan_dev/BACKLOG.md`, daily y status
+- resumen técnico: se clasificaron logs existentes, se identificaron riesgos de payloads completos/datos sensibles y se propuso evolucionar hacia categorías debug, operación, auditoría y métricas.
 - documentación actualizada: sí, planificación operativa y estado consolidado
-- diagramas actualizados: verificados; las fuentes y renders estructurales quedaron actualizados en M5.3
+- diagramas actualizados: no aplica en M6
 
 ---
 
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `124 passed`, `420 assertions`
-- otros checks: `make diagrams-check`, `git diff --check`
-- resultado: diagramas sincronizados; sin errores de whitespace
+- tests corridos: no aplica, milestone documental/analítico sin cambios runtime
+- resultado: no aplica
+- otros checks: `git diff --check`
+- resultado: sin errores de whitespace
 
 ### Manuales sugeridas
-- revisar que RF-03, RF-03.1 y RF-03.2 puedan mapearse desde docs a código y tests
+- revisar gap analysis de logs y validar categorías objetivo antes de implementar redacción/minimización
 - revisar si `aviso_id` debe quedar como cache del primer aviso o eliminarse luego de migrar lecturas a la pivot
 
 ---
@@ -122,7 +122,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M6` de `plan_dev/daily/2026-04-26.md`: relevar logs actuales y definir estructura objetivo
+- ejecutar `M7`: diseñar admin, roles y permisos sin permisos por campo
 
 ---
 

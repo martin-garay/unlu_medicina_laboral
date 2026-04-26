@@ -84,4 +84,4 @@ Usar una categoría para agrupar mejor:
 - contexto: el sistema ya registra logs operativos y de debugging, incluyendo payloads o identificadores que pueden contener datos personales o sensibles.
 - acción sugerida: definir política de redacción/minimización de PII, campos permitidos en logs, correlación segura, retención y criterios antes de ampliar el módulo administrativo.
 - dependencia: definición de alcance del admin y criterios institucionales de protección de datos.
-- notas: por decisión humana del 2026-04-24 no se implementa todavía, pero debe tratarse como pendiente importante.
+- notas: por decisión humana del 2026-04-24 no se implementa todavía, pero debe tratarse como pendiente importante. M6 del 2026-04-26 confirmó que existen logs con payloads completos en webhook/sender y que no debe aplicarse redacción parcial sin política explícita.
