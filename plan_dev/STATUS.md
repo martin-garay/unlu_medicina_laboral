@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-24 03:18 -03
+2026-04-26 02:28 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: el `daily` del 2026-04-24 quedó abierto con prioridades actualizadas sobre motor conversacional, estados de negocio, logs, admin y Ansible.
-- Último bloque completado: `M4` del daily 2026-04-24, diseñando estados de avisos y anticipos.
-- Milestone actual: próximo milestone pendiente `M5 - Diseñar relación de AnticipoCertificado con múltiples avisos`.
-- Próximo paso sugerido: ejecutar M5 como diseño incremental de pivot/backfill para asociación múltiple.
+- Estado general del proyecto: se abrió el `daily` del 2026-04-26 para retomar M5 antes de avanzar a logs/admin/Ansible.
+- Último bloque completado: `M5.0` del daily 2026-04-26, reabriendo M5 como cadena ejecutable para RF-03, RF-03.1 y RF-03.2.
+- Milestone actual: próximo milestone pendiente `M5.1 - Implementar estado inicial en avisos y anticipos`.
+- Próximo paso sugerido: ejecutar M5.1 y no avanzar a M6 hasta cerrar o bloquear explícitamente la cadena M5.x.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; el daily 2026-04-24 consolida que `AnticipoCertificado` es la entidad de certificado y que no se crea una entidad nueva `certificados`. `docs/05-motor-de-conversacion.md` documenta la regla de bienvenida + menú al crear conversación. `docs/12` y `docs/07` documentan el plan de storage local real. Sigue pendiente sincronizar por completo documentos que describen el anticipo como parcial.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar; el daily 2026-04-26 retoma M5 y ordena la implementación de estado `inicial`, adjuntos múltiples y relación N a N antes de M6. Sigue pendiente sincronizar por completo documentos que describen el anticipo como parcial.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -35,15 +35,15 @@ No debe reemplazar:
 ### Flujos
 - aviso: `in_progress`
 - anticipo: `in_progress`
-- notas: existe contradicción documental entre `docs/05-motor-de-conversacion.md` y `docs/diagrams/README.md` sobre el alcance real del anticipo; la decisión vigente es tomar `AnticipoCertificado` como entidad actual de certificado y no crear una entidad nueva.
+- notas: la decisión vigente es tomar `AnticipoCertificado` como entidad actual de certificado y no crear una entidad nueva. RF-03.1 queda pendiente porque el flujo actual pasa a confirmación después del primer adjunto y debe evolucionar para aceptar hasta 3 adjuntos antes de confirmar.
 
 ### Modelo de datos
 - estado: `in_progress`
-- notas: se diseñó el corte de estados: agregar `avisos.estado`, cambiar default de `anticipos_certificado.estado` a `inicial`, persistir estado explícito desde servicios y agregar historial de estados como segundo corte. Falta implementar migraciones y decidir la estrategia de asociación de `AnticipoCertificado` con N avisos.
+- notas: se diseñó el corte de estados y la asociación N avisos mediante pivot `anticipo_certificado_aviso`, con backfill desde `anticipos_certificado.aviso_id` y convivencia temporal del campo legacy. La implementación runtime queda planificada en M5.1 y M5.3.
 
 ### Testing
 - estado: `in_progress`
-- notas: la suite completa pasó en M2 (`115 passed`, `384 assertions`).
+- notas: baseline ejecutada en M5.0 del 2026-04-26 con `make test`: `115 passed`, `384 assertions`.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-24 03:18 -03
+- 2026-04-26 02:28 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-24.md`
+- `plan_dev/daily/2026-04-26.md`
 
 ### Milestone trabajado
-- `M4 - Diseñar estados de avisos y anticipos`
+- `M5.0 - Reabrir M5 y fijar plan ejecutable RF-03`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se documentó el plan incremental para estados de negocio, con `inicial` como default, historial futuro de cambios y regla provisional de elegibilidad de avisos para anticipo.
+- se creó el daily vigente 2026-04-26 y se ordenó la cadena M5.x para implementar estado `inicial`, carga de hasta 3 adjuntos y relación N a N antes de avanzar a M6.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/12-decisiones-tecnicas.md`, `docs/04-modelo-de-datos.md`, `docs/08-validaciones-y-reglas.md`, `plan_dev/daily/2026-04-24.md`, `plan_dev/STATUS.md`
-- resumen técnico: se definió el plan de migraciones y servicios para estados de avisos y anticipos, incluyendo historial y elegibilidad provisional para anticipo.
-- documentación actualizada: sí, documentación técnica de modelo, validaciones, decisiones y seguimiento operativo
+- archivos tocados: `plan_dev/daily/2026-04-26.md`, `plan_dev/STATUS.md`
+- resumen técnico: se reabrió M5 como cadena ejecutable `M5.1` a `M5.4`, dejando M6 bloqueado operativamente hasta cerrar los cortes de anticipo/certificado.
+- documentación actualizada: sí, planificación operativa y estado consolidado
 - diagramas actualizados: no aplica para este recorte; no cambió estructura de flujo ni DB.
 
 ---
@@ -97,32 +97,33 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica
-- resultado: cambio documental/devex sin impacto runtime
+- tests corridos: `make test`
+- resultado: `115 passed`, `384 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores de whitespace
 
 ### Manuales sugeridas
-- revisar con negocio si `observado` debe seguir permitiendo carga de anticipo o debe bloquearse
-- revisar si el historial de estados debe implementarse antes o junto con el primer admin
+- revisar que el orden `M5.1 -> M5.2 -> M5.3 -> M5.4` cubra RF-03, RF-03.1 y RF-03.2 antes de M6
+- revisar si `aviso_id` debe quedar como cache del primer aviso o eliminarse luego de migrar lecturas a la pivot
 
 ---
 
 ## Bloqueos actuales
-- el estado documental del flujo de anticipo no está alineado entre todos los documentos; M1 deja decisión vigente, pero falta sincronización completa de `docs/05-motor-de-conversacion.md`
-- falta definir si la asociación múltiple de anticipos a avisos será manual por operador o automática por reglas
+- M6 queda postergado operativamente hasta cerrar o bloquear explícitamente la cadena M5.x del daily 2026-04-26
+- falta definir matriz mínima de permisos para `auditor` y `director`
 
 ---
 
 ## Decisiones humanas pendientes
 - definir matriz mínima de permisos para `auditor` y `director`
-- definir regla operativa de asociación múltiple entre `AnticipoCertificado` y avisos
 - confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
+- confirmar si futuras asociaciones adicionales de avisos serán manuales, automáticas o mixtas
+- confirmar si `anticipos_certificado.aviso_id` quedará como cache del primer aviso o se eliminará luego de migrar lecturas a pivot
 
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M5` de `plan_dev/daily/2026-04-24.md`: diseñar relación de `AnticipoCertificado` con múltiples avisos
+- ejecutar `M5.1` de `plan_dev/daily/2026-04-26.md`: implementar estado inicial en avisos y anticipos
 
 ---
 
