@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-26 03:48 -03
+2026-04-26 15:30 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: se abrió el `daily` del 2026-04-26 para retomar M5 antes de avanzar a logs/admin/Ansible.
-- Último bloque completado: `M6` del daily 2026-04-26, relevando logs actuales y definiendo estructura objetivo de trazabilidad.
-- Milestone actual: próximo milestone recomendado `M7 - Diseñar admin, roles y permisos sin permisos por campo`.
-- Próximo paso sugerido: ejecutar M7 del daily 2026-04-24/2026-04-26 si se decide avanzar con admin.
+- Estado general del proyecto: se abrió una segunda daily del 2026-04-26 para planificar el backoffice con Filament antes de implementar.
+- Último bloque completado: `BO-0` del daily `2026-04-26-02-backoffice`, creando el plan operativo de planificación del backoffice.
+- Milestone actual: próximo milestone pendiente `BO-1 - Crear documentación arquitectónica base del backoffice`.
+- Próximo paso sugerido: ejecutar BO-1 sin implementar código funcional todavía.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `pending`
-- notas: se definió que no se implementarán permisos por columna/campo; el diseño debe concentrarse en módulo, acción y entidad/recurso.
+- notas: se definió que no se implementarán permisos por columna/campo; el diseño debe concentrarse en módulo, acción y entidad/recurso. La segunda daily del 2026-04-26 ordena primero documentación arquitectónica y plan incremental de backoffice con Filament.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,27 +70,27 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-26 03:48 -03
+- 2026-04-26 15:30 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-26.md`
+- `plan_dev/daily/2026-04-26-02-backoffice.md`
 
 ### Milestone trabajado
-- `M6 - Relevar logs actuales y definir estructura objetivo`
+- `BO-0 - Abrir daily de backoffice y fijar alcance de planificacion`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se relevó el uso actual de logs y eventos, se documentaron gaps de operación/auditoría y se dejó una estructura objetivo incremental.
+- se analizaron los prompts externos de backoffice, el estado actual del proyecto y se creó una segunda daily para planificar arquitectura e implementación antes de tocar runtime.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/12-decisiones-tecnicas.md`, `plan_dev/BACKLOG.md`, daily y status
-- resumen técnico: se clasificaron logs existentes, se identificaron riesgos de payloads completos/datos sensibles y se propuso evolucionar hacia categorías debug, operación, auditoría y métricas.
+- archivos tocados: `plan_dev/daily/2026-04-26-02-backoffice.md` y `plan_dev/STATUS.md`
+- resumen técnico: se detectó que Filament, Spatie Permission, `User`, `app/Filament`, `app/Application` y `app/Domain` aún no existen; la relación N a N aviso-certificado y el storage metadata-only quedan como base para la planificación.
 - documentación actualizada: sí, planificación operativa y estado consolidado
-- diagramas actualizados: no aplica en M6
+- diagramas actualizados: no aplica en BO-0
 
 ---
 
@@ -103,8 +103,8 @@ No debe reemplazar:
 - resultado: sin errores de whitespace
 
 ### Manuales sugeridas
-- revisar gap analysis de logs y validar categorías objetivo antes de implementar redacción/minimización
-- revisar si `aviso_id` debe quedar como cache del primer aviso o eliminarse luego de migrar lecturas a la pivot
+- revisar que la nueva daily no modifique ni reabra `plan_dev/daily/2026-04-26.md`
+- revisar que BO-1/BO-2 cubran los prompts externos antes de implementar Filament
 
 ---
 
@@ -118,11 +118,13 @@ No debe reemplazar:
 - confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
 - confirmar si futuras asociaciones adicionales de avisos serán manuales, automáticas o mixtas
 - confirmar si `anticipos_certificado.aviso_id` quedará como cache del primer aviso o se eliminará luego de migrar lecturas a pivot
+- confirmar stack de permisos para backoffice: Spatie Laravel Permission o implementación propia mínima
+- confirmar estrategia de storage privado para certificados médicos
 
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M7`: diseñar admin, roles y permisos sin permisos por campo
+- ejecutar `BO-1` de `plan_dev/daily/2026-04-26-02-backoffice.md`: crear documentación arquitectónica base del backoffice con Filament
 
 ---
 
