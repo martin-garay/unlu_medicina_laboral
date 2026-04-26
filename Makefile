@@ -6,9 +6,10 @@ export
 UID := $(shell id -u)
 GID := $(shell id -g)
 DC := DOCKER_CONFIG=$(CURDIR)/.docker docker-compose
+CHAT_URL ?= http://localhost:8000/internal/chat
 
 
-.PHONY: help db ps up down restart setup install key migrate logs sh artisan doctor test test-unit test-feature timeouts timeouts-now schedule-run diagrams diagrams-check diagrams-clean
+.PHONY: help db ps up down restart setup install key migrate logs sh artisan doctor chat test test-unit test-feature timeouts timeouts-now schedule-run diagrams diagrams-check diagrams-clean
 
 help:
 	@printf "%s\n" \
@@ -24,6 +25,7 @@ help:
 	"make sh            - shell dentro del contenedor app" \
 	"make artisan CMD='about' - ejecuta un comando artisan arbitrario" \
 	"make doctor        - chequeo operativo rápido del entorno" \
+	"make chat          - abre la consola local de chat en el navegador" \
 	"make test          - corre toda la suite" \
 	"make test-unit     - corre tests unitarios" \
 	"make test-feature  - corre tests feature" \
@@ -66,6 +68,16 @@ artisan:
 
 doctor:
 	UID=$(UID) GID=$(GID) $(DC) exec app php artisan medicina:doctor
+
+chat:
+	@printf "Abriendo consola local de chat: %s\n" "$(CHAT_URL)"
+	@if command -v xdg-open >/dev/null 2>&1; then \
+		xdg-open "$(CHAT_URL)" >/dev/null 2>&1 || printf "No se pudo abrir el navegador automaticamente. Abrir manualmente: %s\n" "$(CHAT_URL)"; \
+	elif command -v open >/dev/null 2>&1; then \
+		open "$(CHAT_URL)" || printf "No se pudo abrir el navegador automaticamente. Abrir manualmente: %s\n" "$(CHAT_URL)"; \
+	else \
+		printf "No se encontro xdg-open/open. Abrir manualmente: %s\n" "$(CHAT_URL)"; \
+	fi
 
 db:
 	UID=$(UID) GID=$(GID) $(DC) exec db \

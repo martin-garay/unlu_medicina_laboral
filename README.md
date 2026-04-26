@@ -77,6 +77,7 @@ Si prefieres usar `make`:
 - `make schedule-run` → ejecuta una pasada del scheduler
 - `make timeouts` → `docker compose exec app php artisan conversations:process-timeouts`
 - `make timeouts-now NOW="2026-03-20 10:00:00"` → procesa timeouts con hora fija
+- `make chat` → abre `http://localhost:8000/internal/chat` en el navegador
 - `make logs` → `docker compose logs -f app`
 
 ## Testing
