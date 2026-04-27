@@ -24,6 +24,7 @@ Debe servir como base común para:
 - `11-testing-y-criterios.md`
 - `12-decisiones-tecnicas.md`
 - `13-operacion-y-soporte.md`
+- `backoffice/README.md`
 
 ## Diagramas como código
 
