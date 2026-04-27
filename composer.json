@@ -2,10 +2,15 @@
     "name": "unlu/medicina-laboral",
     "type": "project",
     "description": "Sistema de avisos de medicina laboral via WhatsApp Cloud API.",
-    "keywords": ["laravel", "whatsapp", "postgresql"],
+    "keywords": [
+        "laravel",
+        "whatsapp",
+        "postgresql"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "filament/filament": "^5.0",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9"
     },
@@ -37,7 +42,8 @@
             "php artisan key:generate"
         ],
         "post-autoload-dump": [
-            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump"
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan filament:upgrade"
         ],
         "test": "phpunit"
     },

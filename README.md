@@ -41,7 +41,7 @@ Proyecto Laravel + PostgreSQL dockerizado para un chatbot básico usando la What
 ## Servicios en `docker-compose.yml`
 - `app`: PHP 8.3 CLI con extensiones de PostgreSQL y Laravel; monta el repo en `/var/www/html` y expone `8000`.
 - `db`: PostgreSQL 16 con volumen persistente `db_data`.
-- `composer`: imagen oficial `composer:2` para correr comandos sin instalar Composer localmente.
+- `composer`: usa la misma imagen PHP del proyecto con Composer instalado para resolver dependencias con las mismas extensiones que runtime.
 
 ## Variables de entorno
 Usa `.env.docker.example` como plantilla. Valores claves:

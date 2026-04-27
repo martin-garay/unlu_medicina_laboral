@@ -11,6 +11,7 @@ RUN apt-get update \
         git \
         unzip \
         curl \
+        libicu-dev \
         libpq-dev \
         libzip-dev \
         libxml2-dev \
@@ -22,9 +23,13 @@ RUN apt-get update \
 RUN docker-php-ext-install \
         pdo_pgsql \
         pgsql \
+        intl \
         mbstring \
         xml \
         zip
+
+# Install Composer in the same PHP image so dependency resolution sees the same extensions.
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Create a non-root user that matches the host (helps prevent permission issues)
 RUN groupadd -g ${GID} appuser \

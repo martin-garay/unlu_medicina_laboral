@@ -35,11 +35,17 @@ services:
       - "5432:5432"
 
   composer:
-    image: composer:2
-    working_dir: /app
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    working_dir: /var/www/html
     user: "${UID:-1000}:${GID:-1000}"
     volumes:
-      - ./:/app
+      - ./:/var/www/html
+    entrypoint: ["composer"]
     # Run composer commands like `docker compose run --rm composer install`
 
 volumes:

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-27 15:04 -03
+2026-04-27 16:00 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la etapa de planificacion del backoffice con Filament quedó cerrada; todavía no hay runtime de Filament implementado.
-- Último bloque completado: `BO-3` del daily `2026-04-26-02-backoffice`, sincronizando estado operativo y backlog.
-- Milestone actual: listo para comenzar `I1 - Base tecnica de Filament`.
-- Próximo paso sugerido: iniciar `I1` con instalación/configuración base de Filament y resolver el prerequisito mínimo de usuario administrativo si el panel lo exige.
+- Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
+- Último bloque completado: `I1 - Base tecnica de Filament` del daily `2026-04-26-02-backoffice`.
+- Milestone actual: listo para preparar `I2 - Auth, usuarios, roles y permisos`.
+- Próximo paso sugerido: resolver `BO-001` antes de implementar `I2`, definiendo stack y matriz minima de permisos para `admin`, `auditor` y `director`.
 
 ---
 
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: M5.3 ejecutó `make test`: `124 passed`, `420 assertions`.
+- notas: I1 ejecuto `make test`: `127 passed`, `425 assertions`, incluyendo cobertura basica de acceso al panel Filament.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `in_progress`
-- notas: BO-1/BO-2/BO-3 dejaron arquitectura, plan incremental y backlog del backoffice. Aun no hay implementacion runtime de Filament, auth administrativa ni permisos.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. Roles y permisos granulares siguen pendientes para I2 y dependen de `BO-001`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,46 +70,45 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-27 15:04 -03
+- 2026-04-27 16:00 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26-02-backoffice.md`
 
 ### Milestone trabajado
-- `BO-3 - Sincronizar estado operativo y backlog del frente backoffice`
+- `I1 - Base tecnica de Filament`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se cerro la etapa de planificacion del backoffice, se sincronizo el estado consolidado y se registraron en backlog las decisiones que condicionan permisos, storage y asociaciones.
+- se instalo y configuro la base tecnica de Filament, se agrego auth administrativa minima y el panel quedo accesible en `/admin` sin exponer contenido administrativo a usuarios no autenticados.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/BACKLOG.md`, `plan_dev/daily/2026-04-26-02-backoffice.md` y `plan_dev/STATUS.md`
-- resumen técnico: se dejaron pendientes trazables para stack/matriz de permisos, storage privado, operación manual de asociaciones aviso-certificado y futuro de `anticipos_certificado.aviso_id`.
-- documentación actualizada: sí, backlog operativo y estado consolidado
-- diagramas actualizados: no aplica en BO-3
+- archivos tocados: `composer.json`, `composer.lock`, `docker-compose.yml`, `docker/app/Dockerfile`, `README.md`, `config/app.php`, `config/auth.php`, `app/Providers/Filament/AdminPanelProvider.php`, `app/Models/User.php`, `database/migrations/2026_04_27_000008_create_users_table.php`, `app/Application/.gitkeep`, `app/Domain/.gitkeep`, assets publicados de Filament, `tests/Feature/Backoffice/AdminPanelAccessTest.php`, `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-26-02-backoffice.md` y `plan_dev/STATUS.md`
+- resumen técnico: Docker ahora permite usar Composer y Laravel con `ext-intl`; Filament quedo instalado; el panel admin se registro en `/admin`; se agrego usuario autenticable minimo con flag `is_admin` y tests de acceso basico.
+- documentación actualizada: sí, plan incremental, daily y estado consolidado
+- diagramas actualizados: no aplica en I1
 
 ---
 
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, milestone documental/analítico sin cambios runtime
-- resultado: no aplica
-- otros checks: `git diff --check`
-- resultado: sin errores de whitespace
+- tests corridos: `make test`
+- resultado: `127 passed`, `425 assertions`
+- otros checks: `git diff --check`, `make migrate`, `php artisan route:list --path=admin`, `php artisan about`
+- resultado: sin errores
 
 ### Manuales sugeridas
-- revisar si `I1` puede crear el usuario administrativo minimo o si se prefiere separarlo como primer corte de `I2`
-- revisar `BO-001` y `BO-002` antes de avanzar sobre permisos y storage
+- abrir `/admin/login` en el navegador local y verificar render visual del login de Filament.
+- definir `BO-001` antes de avanzar con roles y permisos granulares.
 
 ---
 
 ## Bloqueos actuales
-- no hay bloqueo para iniciar `I1`
 - `I2` depende de `BO-001`
 - `I4` depende de `BO-002`
 - `I7` depende de `BO-003`
@@ -117,7 +116,6 @@ No debe reemplazar:
 ---
 
 ## Decisiones humanas pendientes
-- confirmar si `I1` puede crear el modelo/tabla `User` minimo o si se separa en `I2`
 - definir matriz mínima de permisos para `auditor` y `director`
 - confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
 - confirmar si futuras asociaciones adicionales de avisos serán manuales, automáticas o mixtas
@@ -128,7 +126,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- iniciar `I1 - Base tecnica de Filament` segun `docs/backoffice/implementation-plan.md`
+- resolver `BO-001` y luego iniciar `I2 - Auth, usuarios, roles y permisos` segun `docs/backoffice/implementation-plan.md`
 
 ---
 

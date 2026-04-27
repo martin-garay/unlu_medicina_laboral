@@ -71,6 +71,18 @@ Cubierto por `BO-1` y este documento `BO-2`.
 ### Objetivo
 Instalar y configurar la base mínima del panel administrativo sin desarrollar todavía módulos funcionales.
 
+### Estado
+`done` en `plan_dev/daily/2026-04-26-02-backoffice.md`.
+
+### Resultado
+- Filament `v5.6.1` instalado.
+- Panel base disponible en `/admin`.
+- Auth administrativa mínima agregada con `App\Models\User`, `config/auth.php` y migración de `users`.
+- Acceso al panel restringido por `User::canAccessPanel()` usando `is_admin`.
+- Estructuras base `app/Application` y `app/Domain` versionadas como placeholders.
+- Docker ajustado para ejecutar Composer y Laravel con `ext-intl`.
+- Sin Resources funcionales todavía.
+
 ### Alcance
 - instalar Filament
 - crear panel base
