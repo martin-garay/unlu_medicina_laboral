@@ -12,11 +12,11 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-27 16:00 -03
+2026-04-27 16:25 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
-- Último bloque completado: `I1 - Base tecnica de Filament` del daily `2026-04-26-02-backoffice`.
+- Último bloque completado: fix operativo posterior a `I1` para configurar cache local de Laravel/Filament sin depender de tabla `cache`.
 - Milestone actual: listo para preparar `I2 - Auth, usuarios, roles y permisos`.
 - Próximo paso sugerido: resolver `BO-001` antes de implementar `I2`, definiendo stack y matriz minima de permisos para `admin`, `auditor` y `director`.
 
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-27 16:00 -03
+- 2026-04-27 16:25 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26-02-backoffice.md`
 
 ### Milestone trabajado
-- `I1 - Base tecnica de Filament`
+- Fix operativo posterior a `I1 - Base tecnica de Filament`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se instalo y configuro la base tecnica de Filament, se agrego auth administrativa minima y el panel quedo accesible en `/admin` sin exponer contenido administrativo a usuarios no autenticados.
+- se corrigio la configuracion de cache para evitar que Filament/Livewire intente usar la tabla PostgreSQL `cache` en entorno local.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `composer.json`, `composer.lock`, `docker-compose.yml`, `docker/app/Dockerfile`, `README.md`, `config/app.php`, `config/auth.php`, `app/Providers/Filament/AdminPanelProvider.php`, `app/Models/User.php`, `database/migrations/2026_04_27_000008_create_users_table.php`, `app/Application/.gitkeep`, `app/Domain/.gitkeep`, assets publicados de Filament, `tests/Feature/Backoffice/AdminPanelAccessTest.php`, `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-26-02-backoffice.md` y `plan_dev/STATUS.md`
-- resumen técnico: Docker ahora permite usar Composer y Laravel con `ext-intl`; Filament quedo instalado; el panel admin se registro en `/admin`; se agrego usuario autenticable minimo con flag `is_admin` y tests de acceso basico.
-- documentación actualizada: sí, plan incremental, daily y estado consolidado
+- archivos tocados: `config/cache.php`, `.env.example`, `.env.docker.example`, `.env` local no versionado, `tests/Feature/Backoffice/CacheConfigurationTest.php` y `plan_dev/STATUS.md`
+- resumen técnico: se agrego configuracion explicita de cache con fallback `CACHE_STORE`/`CACHE_DRIVER`, se fijo `CACHE_STORE=file` para entornos locales y se limpio la cache de configuracion del contenedor.
+- documentación actualizada: sí, estado consolidado
 - diagramas actualizados: no aplica en I1
 
 ---
@@ -98,8 +98,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `127 passed`, `425 assertions`
-- otros checks: `git diff --check`, `make migrate`, `php artisan route:list --path=admin`, `php artisan about`
+- resultado: `129 passed`, `429 assertions`
+- otros checks: `git diff --check`, `php artisan config:clear`, `php artisan config:show cache.default`
 - resultado: sin errores
 
 ### Manuales sugeridas
