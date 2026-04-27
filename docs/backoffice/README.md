@@ -23,6 +23,7 @@ Al momento de abrir este frente:
 - `architecture.md`: arquitectura objetivo del backoffice y alcance inicial.
 - `domain-separation.md`: separación entre Filament, Application Actions, Domain Services y Models.
 - `filament-guidelines.md`: criterios de implementación de Resources, Pages, Widgets, Actions y RelationManagers.
+- `implementation-plan.md`: milestones, tareas, validaciones y commits sugeridos para implementar el backoffice.
 - `security-and-audit.md`: seguridad, permisos y auditoría administrativa.
 - `storage-and-sensitive-files.md`: estrategia esperada para archivos médicos sensibles.
 

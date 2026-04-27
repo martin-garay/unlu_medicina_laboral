@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-27 14:59 -03
+2026-04-27 15:03 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: se esta ejecutando la segunda daily del 2026-04-26 para preparar el backoffice con Filament antes de implementar runtime.
-- Último bloque completado: `BO-1` del daily `2026-04-26-02-backoffice`, creando la documentacion arquitectonica base del backoffice.
-- Milestone actual: próximo milestone pendiente `BO-2 - Crear plan de implementacion incremental del backoffice`.
-- Próximo paso sugerido: ejecutar BO-2 para ordenar milestones, tests y criterios de aceptacion antes de instalar Filament o crear Resources.
+- Último bloque completado: `BO-2` del daily `2026-04-26-02-backoffice`, creando el plan incremental de implementacion del backoffice.
+- Milestone actual: próximo milestone pendiente `BO-3 - Sincronizar estado operativo y backlog del frente backoffice`.
+- Próximo paso sugerido: ejecutar BO-3 para cerrar la etapa de planificacion y dejar listo el inicio de `I1 - Base tecnica de Filament`.
 
 ---
 
@@ -70,27 +70,27 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-27 14:59 -03
+- 2026-04-27 15:03 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-26-02-backoffice.md`
 
 ### Milestone trabajado
-- `BO-1 - Crear documentacion arquitectonica base del backoffice`
+- `BO-2 - Crear plan de implementacion incremental del backoffice`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se creo la documentacion arquitectonica base del backoffice con Filament, dejando fijada la separacion entre UI administrativa, Application Actions, Domain Services, modelos, seguridad, auditoria y storage de archivos medicos.
+- se creo el plan incremental de implementacion del backoffice, con milestones I1 a I12, tareas, dependencias, tests, criterios de aceptacion, commits sugeridos y decisiones previas para permisos y storage.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/README.md`, `docs/backoffice/README.md`, `docs/backoffice/architecture.md`, `docs/backoffice/domain-separation.md`, `docs/backoffice/filament-guidelines.md`, `docs/backoffice/security-and-audit.md`, `docs/backoffice/storage-and-sensitive-files.md`, `plan_dev/daily/2026-04-26-02-backoffice.md` y `plan_dev/STATUS.md`
-- resumen técnico: la documentacion toma como base que `AnticipoCertificado` es la entidad vigente de certificado, que la relacion N a N existe mediante `anticipo_certificado_aviso`, y que Filament debe delegar operaciones de negocio en Application Actions reutilizables.
-- documentación actualizada: sí, arquitectura base de backoffice y estado consolidado
-- diagramas actualizados: no aplica en BO-1
+- archivos tocados: `docs/backoffice/README.md`, `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-26-02-backoffice.md` y `plan_dev/STATUS.md`
+- resumen técnico: el plan define la cadena I1-I12, empezando por base tecnica de Filament y dejando auth/permisos, auditoria, storage privado, Resources, relacion N a N, historicos, dashboard, reportes, configuracion y API futura como cortes incrementales.
+- documentación actualizada: sí, plan incremental de backoffice y estado consolidado
+- diagramas actualizados: no aplica en BO-2
 
 ---
 
@@ -103,8 +103,8 @@ No debe reemplazar:
 - resultado: sin errores de whitespace
 
 ### Manuales sugeridas
-- revisar que la documentacion de `docs/backoffice/` sea suficiente para iniciar el plan incremental de BO-2
-- revisar que la estrategia de seguridad de archivos medicos quede como requisito base antes de implementar Filament
+- revisar que `I1 - Base tecnica de Filament` sea el primer corte de implementacion posterior
+- revisar decisiones previas de `User`, permisos y storage antes de ejecutar I1/I2/I4
 
 ---
 
@@ -124,7 +124,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `BO-2` de `plan_dev/daily/2026-04-26-02-backoffice.md`: crear plan de implementacion incremental del backoffice
+- ejecutar `BO-3` de `plan_dev/daily/2026-04-26-02-backoffice.md`: sincronizar estado operativo y backlog del frente backoffice
 
 ---
 
