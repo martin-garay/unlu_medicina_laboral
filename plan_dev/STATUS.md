@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 15:15 -03
+2026-04-28 15:25 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
-- Último bloque completado: `D4 - Restringir acceso del panel por permiso`.
-- Milestone actual: `D5 - Cierre operativo de I2 base`.
-- Próximo paso sugerido: consolidar estado, cerrar I2 base y decidir el siguiente daily.
+- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada.
+- Último bloque completado: `D5 - Cierre operativo de I2 base`.
+- Milestone actual: listo para planificar `I3 - Auditoria administrativa base`.
+- Próximo paso sugerido: crear una nueva daily para I3 antes de avanzar con Resources o storage privado.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. M5.4 sincronizó documentos de modelo, flujo, validaciones y decisiones técnicas para reflejar estado `inicial`, adjuntos múltiples y relación N a N antes de M6.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1 e I2 base, incluyendo permisos y cierre de alcance.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -54,8 +54,8 @@ No debe reemplazar:
 - notas: M6 relevó logs actuales y clasificó estructura objetivo en debug, operación, auditoría y métricas. La política de datos sensibles en logs queda como pendiente importante en `plan_dev/BACKLOG.md` (`LOG-001`), por decisión humana no se implementa todavía.
 
 ### Admin / roles / permisos
-- estado: `in_progress`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User`. D1 resolvio `BO-001`. D2 instalo Spatie Laravel Permission `6.25.0`. D3 agrego matriz en `config/backoffice.php` y seeder idempotente de roles/permisos/admin local. D4 reemplazo acceso por `is_admin` con permiso `backoffice.access`.
+- estado: `base_done`
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. No incluye UI de gestion de usuarios/roles.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 15:15 -03
+- 2026-04-28 15:25 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28.md`
 
 ### Milestone trabajado
-- `D4 - Restringir acceso del panel por permiso`
+- `D5 - Cierre operativo de I2 base`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se reemplazo la autorizacion transitoria por `is_admin` por acceso basado en permiso `backoffice.access`.
+- se cerro la ejecucion del daily 2026-04-28 y se dejo I2 base como `base_done`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Models/User.php`, `tests/Feature/Backoffice/AdminPanelAccessTest.php`, `docs/backoffice/README.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
-- resumen técnico: `User::canAccessPanel()` ahora usa `backoffice.access`; los tests cubren invitado, usuario sin permiso y usuario autorizado.
-- documentación actualizada: sí, README del backoffice, daily y estado consolidado
+- archivos tocados: `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
+- resumen técnico: se consolido I2 base como cerrado y se dejo explicitado que la UI de usuarios/roles queda fuera de este corte.
+- documentación actualizada: sí, plan incremental, daily y estado consolidado
 - diagramas actualizados: no aplica
 
 ---
@@ -104,7 +104,7 @@ No debe reemplazar:
 
 ### Manuales sugeridas
 - validar login con `admin@admin.com`.
-- ejecutar `D5` para cierre operativo.
+- preparar una nueva daily para `I3 - Auditoria administrativa base`.
 
 ---
 
@@ -123,7 +123,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `D5 - Cierre operativo de I2 base` del daily `plan_dev/daily/2026-04-28.md`
+- crear nueva daily para `I3 - Auditoria administrativa base`
 
 ---
 

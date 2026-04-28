@@ -129,6 +129,24 @@ Instalar y configurar la base mínima del panel administrativo sin desarrollar t
 ### Objetivo
 Implementar acceso administrativo con roles y permisos por módulo, acción y recurso.
 
+### Estado
+`base done` en `plan_dev/daily/2026-04-28.md`.
+
+### Resultado
+- Stack de permisos definido: Spatie Laravel Permission con guard `web`.
+- Matriz inicial documentada en `docs/backoffice/permissions.md`.
+- Roles base: `admin`, `auditor`, `director`.
+- Permisos base materializados en `config/backoffice.php`.
+- Seeder idempotente disponible: `Database\Seeders\BackofficeRolesAndPermissionsSeeder`.
+- Panel Filament restringido por permiso `backoffice.access`.
+- Usuario admin local de prueba creado por seeder cuando `BACKOFFICE_LOCAL_ADMIN_ENABLED=true`.
+
+### Fuera del cierre base
+- UI de gestión de usuarios.
+- UI de gestión de roles y permisos.
+- permisos de lectura/descarga de archivos médicos sensibles.
+- auditoría administrativa.
+
 ### Decisión D1
 `BO-001` queda resuelto en `plan_dev/daily/2026-04-28.md`: el stack elegido es Spatie Laravel Permission con guard `web`.
 
