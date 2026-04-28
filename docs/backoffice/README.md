@@ -8,13 +8,13 @@ La decisión vigente es implementar el backoffice con Laravel + Filament, usando
 
 ## Estado actual
 
-Estado despues de `I1`:
+Estado despues de `I2` base:
 
 - Filament está instalado.
 - Existe panel base en `/admin`.
 - Existe `App\Models\User` y tabla `users`.
 - Existe autenticación administrativa mínima.
-- El acceso al panel sigue transitoriamente restringido por `is_admin` hasta cerrar `I2`.
+- El acceso al panel se restringe por permiso `backoffice.access`.
 - La matriz inicial de roles y permisos está definida en `permissions.md`.
 - La relación N a N entre avisos y anticipos/certificados ya existe mediante `anticipo_certificado_aviso`.
 - La entidad vigente para certificados médicos es `AnticipoCertificado`; no se crea una entidad principal nueva `certificados`.

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 15:05 -03
+2026-04-28 15:15 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
-- Último bloque completado: `D3 - Crear roles, permisos base y seed local`.
-- Milestone actual: `D4 - Restringir acceso del panel por permiso`.
-- Próximo paso sugerido: reemplazar `is_admin` por `backoffice.access` en `User::canAccessPanel()`.
+- Último bloque completado: `D4 - Restringir acceso del panel por permiso`.
+- Milestone actual: `D5 - Cierre operativo de I2 base`.
+- Próximo paso sugerido: consolidar estado, cerrar I2 base y decidir el siguiente daily.
 
 ---
 
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: D3 ejecuto `make test`: `133 passed`, `445 assertions`, incluyendo cobertura de seeder idempotente de roles/permisos y admin local.
+- notas: D4 ejecuto `make test`: `135 passed`, `447 assertions`, incluyendo acceso al panel por permiso `backoffice.access`.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `in_progress`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. D1 resolvio `BO-001`. D2 instalo Spatie Laravel Permission `6.25.0`. D3 agrego matriz en `config/backoffice.php` y seeder idempotente de roles/permisos/admin local. Falta reemplazar `is_admin` por `backoffice.access`.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User`. D1 resolvio `BO-001`. D2 instalo Spatie Laravel Permission `6.25.0`. D3 agrego matriz en `config/backoffice.php` y seeder idempotente de roles/permisos/admin local. D4 reemplazo acceso por `is_admin` con permiso `backoffice.access`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 15:05 -03
+- 2026-04-28 15:15 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28.md`
 
 ### Milestone trabajado
-- `D3 - Crear roles, permisos base y seed local`
+- `D4 - Restringir acceso del panel por permiso`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego config de backoffice, seeder idempotente de roles/permisos y usuario admin local de prueba.
+- se reemplazo la autorizacion transitoria por `is_admin` por acceso basado en permiso `backoffice.access`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `config/backoffice.php`, `database/seeders/BackofficeRolesAndPermissionsSeeder.php`, `composer.json`, `.env.example`, `.env.docker.example`, `.env` local no versionado, `README.md`, `tests/Feature/Backoffice/BackofficeRolesAndPermissionsSeederTest.php`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
-- resumen técnico: se materializo la matriz de permisos en configuracion, se agrego seeder idempotente y se actualizo el flujo local para crear admin con rol.
-- documentación actualizada: sí, README, daily y estado consolidado
+- archivos tocados: `app/Models/User.php`, `tests/Feature/Backoffice/AdminPanelAccessTest.php`, `docs/backoffice/README.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
+- resumen técnico: `User::canAccessPanel()` ahora usa `backoffice.access`; los tests cubren invitado, usuario sin permiso y usuario autorizado.
+- documentación actualizada: sí, README del backoffice, daily y estado consolidado
 - diagramas actualizados: no aplica
 
 ---
@@ -98,13 +98,13 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `133 passed`, `445 assertions`
-- otros checks: `composer dump-autoload --no-scripts`, `make artisan CMD='config:clear'`, `make artisan CMD='db:seed --class=Database\\Seeders\\BackofficeRolesAndPermissionsSeeder'`, `git diff --check`
+- resultado: `135 passed`, `447 assertions`
+- otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- ejecutar `D4` para reemplazar `is_admin` por permiso real.
-- validar login con `admin@admin.com` luego de D4.
+- validar login con `admin@admin.com`.
+- ejecutar `D5` para cierre operativo.
 
 ---
 
@@ -123,7 +123,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `D4 - Restringir acceso del panel por permiso` del daily `plan_dev/daily/2026-04-28.md`
+- ejecutar `D5 - Cierre operativo de I2 base` del daily `plan_dev/daily/2026-04-28.md`
 
 ---
 
