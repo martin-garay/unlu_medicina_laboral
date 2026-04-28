@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 15:25 -03
+2026-04-28 15:35 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada.
-- Último bloque completado: `D5 - Cierre operativo de I2 base`.
-- Milestone actual: listo para planificar `I3 - Auditoria administrativa base`.
-- Próximo paso sugerido: crear una nueva daily para I3 antes de avanzar con Resources o storage privado.
+- Último bloque completado: apertura del daily `2026-04-28-02-backoffice-auditoria` para `I3 - Auditoria administrativa base`.
+- Milestone actual: `A1 - Diseñar contrato de auditoria administrativa`.
+- Próximo paso sugerido: ejecutar `A1` antes de crear migrations o servicios de auditoria.
 
 ---
 
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 15:25 -03
+- 2026-04-28 15:35 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-28.md`
+- `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ### Milestone trabajado
-- `D5 - Cierre operativo de I2 base`
+- `A0 - Abrir daily de auditoria administrativa`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se cerro la ejecucion del daily 2026-04-28 y se dejo I2 base como `base_done`.
+- se creo una segunda daily para ordenar `I3 - Auditoria administrativa base` despues del cierre de permisos.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
-- resumen técnico: se consolido I2 base como cerrado y se dejo explicitado que la UI de usuarios/roles queda fuera de este corte.
-- documentación actualizada: sí, plan incremental, daily y estado consolidado
+- archivos tocados: `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
+- resumen técnico: se planifico el frente de auditoria con milestones A1-A5, sin iniciar runtime.
+- documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
 ---
@@ -97,14 +97,14 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `135 passed`, `447 assertions`
+- tests corridos: no aplica, cambio documental/planificacion
+- resultado: no aplica
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- validar login con `admin@admin.com`.
-- preparar una nueva daily para `I3 - Auditoria administrativa base`.
+- revisar el contrato propuesto para auditoria antes de ejecutar A2.
+- no avanzar a Resources ni storage privado antes de cerrar I3.
 
 ---
 
@@ -123,7 +123,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- crear nueva daily para `I3 - Auditoria administrativa base`
+- ejecutar `A1 - Diseñar contrato de auditoria administrativa` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ---
 
