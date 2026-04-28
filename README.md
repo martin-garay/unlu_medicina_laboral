@@ -60,9 +60,9 @@ Usa `.env.docker.example` como plantilla. Valores claves:
 
 ## Backoffice local
 - El panel administrativo local queda disponible en `http://localhost:8000/admin`.
-- Para crear un usuario administrador de prueba:
+- Para crear roles, permisos y un usuario administrador de prueba:
   ```bash
-  make artisan CMD="tinker --execute=\"App\Models\User::create(['name' => 'Admin', 'email' => 'admin@admin.com', 'password' => 'admin123456', 'is_admin' => true]);\""
+  make artisan CMD='db:seed --class=Database\\Seeders\\BackofficeRolesAndPermissionsSeeder'
   ```
 - Credenciales de prueba:
   - Email: `admin@admin.com`

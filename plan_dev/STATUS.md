@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 14:50 -03
+2026-04-28 15:05 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
-- Último bloque completado: `D2 - Instalar y configurar stack de permisos`.
-- Milestone actual: `D3 - Crear roles, permisos base y seed local`.
-- Próximo paso sugerido: crear seeders idempotentes para roles/permisos base y usuario admin local.
+- Último bloque completado: `D3 - Crear roles, permisos base y seed local`.
+- Milestone actual: `D4 - Restringir acceso del panel por permiso`.
+- Próximo paso sugerido: reemplazar `is_admin` por `backoffice.access` en `User::canAccessPanel()`.
 
 ---
 
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: D2 ejecuto `make test`: `131 passed`, `433 assertions`, incluyendo cobertura basica de acceso al panel Filament y stack Spatie.
+- notas: D3 ejecuto `make test`: `133 passed`, `445 assertions`, incluyendo cobertura de seeder idempotente de roles/permisos y admin local.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `in_progress`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. D1 resolvio `BO-001`. D2 instalo Spatie Laravel Permission `6.25.0`, publico config/migration e integro `HasRoles` en `User`. Falta materializar roles/permisos en seeders y reemplazar `is_admin` por `backoffice.access`.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. D1 resolvio `BO-001`. D2 instalo Spatie Laravel Permission `6.25.0`. D3 agrego matriz en `config/backoffice.php` y seeder idempotente de roles/permisos/admin local. Falta reemplazar `is_admin` por `backoffice.access`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 14:50 -03
+- 2026-04-28 15:05 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28.md`
 
 ### Milestone trabajado
-- `D2 - Instalar y configurar stack de permisos`
+- `D3 - Crear roles, permisos base y seed local`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se instalo Spatie Laravel Permission, se publicaron config/migrations y se integro `HasRoles` en `App\Models\User`.
+- se agrego config de backoffice, seeder idempotente de roles/permisos y usuario admin local de prueba.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `composer.json`, `composer.lock`, `config/permission.php`, `database/migrations/2026_04_28_173621_create_permission_tables.php`, `app/Models/User.php`, `tests/Feature/Backoffice/PermissionStackTest.php`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agrego la dependencia de permisos, tablas de Spatie, trait `HasRoles` y tests de asignacion rol-permiso con guard `web`.
-- documentación actualizada: sí, daily y estado consolidado
+- archivos tocados: `config/backoffice.php`, `database/seeders/BackofficeRolesAndPermissionsSeeder.php`, `composer.json`, `.env.example`, `.env.docker.example`, `.env` local no versionado, `README.md`, `tests/Feature/Backoffice/BackofficeRolesAndPermissionsSeederTest.php`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
+- resumen técnico: se materializo la matriz de permisos en configuracion, se agrego seeder idempotente y se actualizo el flujo local para crear admin con rol.
+- documentación actualizada: sí, README, daily y estado consolidado
 - diagramas actualizados: no aplica
 
 ---
@@ -98,13 +98,13 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `131 passed`, `433 assertions`
-- otros checks: `make artisan CMD='config:clear'`, `make migrate`, `git diff --check`
+- resultado: `133 passed`, `445 assertions`
+- otros checks: `composer dump-autoload --no-scripts`, `make artisan CMD='config:clear'`, `make artisan CMD='db:seed --class=Database\\Seeders\\BackofficeRolesAndPermissionsSeeder'`, `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- ejecutar `D3` para crear seeders idempotentes de roles/permisos.
-- luego validar login admin una vez que `D4` reemplace `is_admin` por permiso.
+- ejecutar `D4` para reemplazar `is_admin` por permiso real.
+- validar login con `admin@admin.com` luego de D4.
 
 ---
 
@@ -123,7 +123,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `D3 - Crear roles, permisos base y seed local` del daily `plan_dev/daily/2026-04-28.md`
+- ejecutar `D4 - Restringir acceso del panel por permiso` del daily `plan_dev/daily/2026-04-28.md`
 
 ---
 
