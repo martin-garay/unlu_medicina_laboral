@@ -8,12 +8,14 @@ La decisión vigente es implementar el backoffice con Laravel + Filament, usando
 
 ## Estado actual
 
-Al momento de abrir este frente:
+Estado despues de `I1`:
 
-- Filament todavía no está instalado.
-- No existe `app/Filament`.
-- No existe estructura `app/Application` ni `app/Domain`.
-- No existe todavía autenticación administrativa ni modelo `User`.
+- Filament está instalado.
+- Existe panel base en `/admin`.
+- Existe `App\Models\User` y tabla `users`.
+- Existe autenticación administrativa mínima.
+- El acceso al panel sigue transitoriamente restringido por `is_admin` hasta cerrar `I2`.
+- La matriz inicial de roles y permisos está definida en `permissions.md`.
 - La relación N a N entre avisos y anticipos/certificados ya existe mediante `anticipo_certificado_aviso`.
 - La entidad vigente para certificados médicos es `AnticipoCertificado`; no se crea una entidad principal nueva `certificados`.
 - El storage real de archivos médicos sigue pendiente; hoy existe persistencia de metadata.
@@ -24,6 +26,7 @@ Al momento de abrir este frente:
 - `domain-separation.md`: separación entre Filament, Application Actions, Domain Services y Models.
 - `filament-guidelines.md`: criterios de implementación de Resources, Pages, Widgets, Actions y RelationManagers.
 - `implementation-plan.md`: milestones, tareas, validaciones y commits sugeridos para implementar el backoffice.
+- `permissions.md`: stack elegido, roles iniciales y matriz base de permisos.
 - `security-and-audit.md`: seguridad, permisos y auditoría administrativa.
 - `storage-and-sensitive-files.md`: estrategia esperada para archivos médicos sensibles.
 
@@ -38,7 +41,6 @@ Al momento de abrir este frente:
 
 ## Fuera de alcance de esta etapa
 
-- instalar Filament
 - crear Resources, Pages, Widgets o Actions reales
 - crear migrations runtime
 - implementar State Machine

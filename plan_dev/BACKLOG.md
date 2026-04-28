@@ -87,14 +87,14 @@ Usar una categoría para agrupar mejor:
 - notas: por decisión humana del 2026-04-24 no se implementa todavía, pero debe tratarse como pendiente importante. M6 del 2026-04-26 confirmó que existen logs con payloads completos en webhook/sender y que no debe aplicarse redacción parcial sin política explícita.
 
 ### [BO-001] Definir stack y matriz de permisos del backoffice
-- estado: `pending`
+- estado: `done`
 - prioridad: `high`
 - categoría: `arquitectura`
 - detectado en: `plan_dev/daily/2026-04-26-02-backoffice.md`
 - contexto: el backoffice requiere roles y permisos por módulo, acción y recurso. Todavía no está definido si se usará Spatie Laravel Permission o una implementación propia mínima.
 - acción sugerida: confirmar stack de permisos y matriz inicial para `admin`, `auditor` y `director`, incluyendo si `director` tendrá solo lectura/reportes o acciones de estado.
-- dependencia: antes de ejecutar `I2 - Auth, usuarios, roles y permisos`.
-- notas: no se implementan permisos por campo o columna.
+- dependencia: resuelto antes de ejecutar `I2 - Auth, usuarios, roles y permisos`.
+- notas: resuelto en `plan_dev/daily/2026-04-28.md` D1. Stack elegido: Spatie Laravel Permission. Roles iniciales: `admin`, `auditor`, `director`. Matriz documentada en `docs/backoffice/permissions.md`. No se implementan permisos por campo o columna.
 
 ### [BO-002] Definir estrategia de storage privado de certificados
 - estado: `pending`

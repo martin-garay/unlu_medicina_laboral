@@ -129,6 +129,11 @@ Instalar y configurar la base mínima del panel administrativo sin desarrollar t
 ### Objetivo
 Implementar acceso administrativo con roles y permisos por módulo, acción y recurso.
 
+### Decisión D1
+`BO-001` queda resuelto en `plan_dev/daily/2026-04-28.md`: el stack elegido es Spatie Laravel Permission con guard `web`.
+
+La matriz inicial se documenta en `docs/backoffice/permissions.md` y define roles `admin`, `auditor` y `director`.
+
 ### Alcance
 - modelo y migración de usuarios si faltan
 - decisión de stack de permisos
@@ -139,8 +144,7 @@ Implementar acceso administrativo con roles y permisos por módulo, acción y re
 
 ### Dependencias
 - I1 cerrado o decisión de fusionar auth mínima con I1
-- decisión humana sobre Spatie Laravel Permission o implementación propia mínima
-- matriz inicial para `admin`, `auditor`, `director`
+- `BO-001` resuelto por `D1` del daily 2026-04-28
 
 ### Tareas sugeridas
 

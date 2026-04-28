@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 09:30 -03
+2026-04-28 10:05 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
-- Último bloque completado: apertura del daily ejecutable `2026-04-28` para resolver `BO-001` y avanzar con `I2 - Auth, usuarios, roles y permisos`.
-- Milestone actual: `D1 - Resolver BO-001: stack y matriz inicial de permisos`.
-- Próximo paso sugerido: ejecutar `D1` del daily `plan_dev/daily/2026-04-28.md`.
+- Último bloque completado: `D1 - Resolver BO-001: stack y matriz inicial de permisos`.
+- Milestone actual: `D2 - Instalar y configurar stack de permisos`.
+- Próximo paso sugerido: instalar Spatie Laravel Permission e integrarlo con `App\Models\User`.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `in_progress`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. El daily 2026-04-28 propone Spatie Laravel Permission, roles `admin`, `auditor`, `director` y permisos base para desbloquear I2.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. D1 resolvio `BO-001`: se usara Spatie Laravel Permission con guard `web`, roles `admin`, `auditor`, `director` y matriz inicial documentada en `docs/backoffice/permissions.md`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 09:30 -03
+- 2026-04-28 10:05 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28.md`
 
 ### Milestone trabajado
-- `D0 - Abrir daily ejecutable de backoffice para I2`
+- `D1 - Resolver BO-001: stack y matriz inicial de permisos`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se creo el daily 2026-04-28 para ejecutar `BO-001` e `I2`, dejando `D1` como primer milestone pendiente.
+- se definio Spatie Laravel Permission como stack de permisos y se documento la matriz inicial para `admin`, `auditor` y `director`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `README.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
-- resumen técnico: se documento el usuario local de prueba en README y se planifico la ejecucion de permisos del backoffice.
-- documentación actualizada: sí, README operativo, daily y estado consolidado
+- archivos tocados: `docs/backoffice/permissions.md`, `docs/backoffice/README.md`, `docs/backoffice/security-and-audit.md`, `docs/backoffice/implementation-plan.md`, `plan_dev/BACKLOG.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
+- resumen técnico: se cerro la decision `BO-001`, se fijo Spatie como stack base y se dejo matriz inicial de permisos para desbloquear I2.
+- documentación actualizada: sí, docs de backoffice, backlog, daily y estado consolidado
 - diagramas actualizados: no aplica
 
 ---
@@ -103,36 +103,33 @@ No debe reemplazar:
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar la matriz propuesta en `plan_dev/daily/2026-04-28.md`.
-- ejecutar `D1` antes de instalar dependencias o tocar runtime.
+- revisar `docs/backoffice/permissions.md`.
+- ejecutar `D2` para instalar e integrar Spatie Laravel Permission.
 
 ---
 
 ## Bloqueos actuales
-- `I2` depende de `BO-001`
 - `I4` depende de `BO-002`
 - `I7` depende de `BO-003`
 
 ---
 
 ## Decisiones humanas pendientes
-- definir matriz mínima de permisos para `auditor` y `director`
 - confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
 - confirmar si futuras asociaciones adicionales de avisos serán manuales, automáticas o mixtas
 - confirmar si `anticipos_certificado.aviso_id` quedará como cache del primer aviso o se eliminará luego de migrar lecturas a pivot
-- confirmar stack de permisos para backoffice: Spatie Laravel Permission o implementación propia mínima
 - confirmar estrategia de storage privado para certificados médicos
 
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `D1 - Resolver BO-001: stack y matriz inicial de permisos` del daily `plan_dev/daily/2026-04-28.md`
+- ejecutar `D2 - Instalar y configurar stack de permisos` del daily `plan_dev/daily/2026-04-28.md`
 
 ---
 
 ## Referencia breve a backlog
 - `LOG-001`: definir política de datos sensibles en logs quedó registrado como pendiente importante.
-- `BO-001`: definir stack y matriz de permisos del backoffice.
+- `BO-001`: definido y marcado `done`; matriz en `docs/backoffice/permissions.md`.
 - `BO-002`: definir estrategia de storage privado de certificados.
 - `BO-003`: definir operación manual de asociaciones aviso-certificado.
 - `BO-004`: definir futuro de `anticipos_certificado.aviso_id`.

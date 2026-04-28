@@ -18,9 +18,15 @@ El backoffice debe contemplar:
 
 No se implementan por ahora permisos por campo o columna.
 
-La matriz mínima para roles como `admin`, `auditor` y `director` sigue pendiente de definición funcional. Hasta resolverla, el diseño debe permitir permisos por módulo, acción y entidad/recurso.
+El stack de permisos elegido para el backoffice es Spatie Laravel Permission, usando el guard `web`.
 
-Spatie Laravel Permission es una opción recomendada para evaluar en la implementación, pero el proyecto todavía no lo tiene instalado.
+La matriz inicial está documentada en `docs/backoffice/permissions.md` y define:
+
+- rol `admin` para administración completa
+- rol `auditor` para lectura operativa y auditoría sin acciones de estado
+- rol `director` para lectura operativa y reportes sin auditoría sensible
+
+Los permisos de acceso a archivos médicos quedan diferidos a `I4`, junto con storage privado y auditoría de lectura.
 
 ## Acciones administrativas auditables
 
@@ -87,7 +93,5 @@ Errores técnicos inesperados deben quedar trazados para soporte, pero sin filtr
 
 ## Decisiones pendientes
 
-- matriz mínima de permisos para `admin`, `auditor` y `director`
-- stack definitivo de permisos: Spatie Laravel Permission o implementación propia mínima
 - formato final de tabla o mecanismo de auditoría administrativa
 - nivel de detalle permitido en auditoría de lectura
