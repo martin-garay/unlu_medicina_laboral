@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 10:05 -03
+2026-04-28 14:50 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
-- Último bloque completado: `D1 - Resolver BO-001: stack y matriz inicial de permisos`.
-- Milestone actual: `D2 - Instalar y configurar stack de permisos`.
-- Próximo paso sugerido: instalar Spatie Laravel Permission e integrarlo con `App\Models\User`.
+- Último bloque completado: `D2 - Instalar y configurar stack de permisos`.
+- Milestone actual: `D3 - Crear roles, permisos base y seed local`.
+- Próximo paso sugerido: crear seeders idempotentes para roles/permisos base y usuario admin local.
 
 ---
 
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: I1 ejecuto `make test`: `127 passed`, `425 assertions`, incluyendo cobertura basica de acceso al panel Filament.
+- notas: D2 ejecuto `make test`: `131 passed`, `433 assertions`, incluyendo cobertura basica de acceso al panel Filament y stack Spatie.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `in_progress`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. D1 resolvio `BO-001`: se usara Spatie Laravel Permission con guard `web`, roles `admin`, `auditor`, `director` y matriz inicial documentada en `docs/backoffice/permissions.md`.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. D1 resolvio `BO-001`. D2 instalo Spatie Laravel Permission `6.25.0`, publico config/migration e integro `HasRoles` en `User`. Falta materializar roles/permisos en seeders y reemplazar `is_admin` por `backoffice.access`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,26 +70,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 10:05 -03
+- 2026-04-28 14:50 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28.md`
 
 ### Milestone trabajado
-- `D1 - Resolver BO-001: stack y matriz inicial de permisos`
+- `D2 - Instalar y configurar stack de permisos`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se definio Spatie Laravel Permission como stack de permisos y se documento la matriz inicial para `admin`, `auditor` y `director`.
+- se instalo Spatie Laravel Permission, se publicaron config/migrations y se integro `HasRoles` en `App\Models\User`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/backoffice/permissions.md`, `docs/backoffice/README.md`, `docs/backoffice/security-and-audit.md`, `docs/backoffice/implementation-plan.md`, `plan_dev/BACKLOG.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
-- resumen técnico: se cerro la decision `BO-001`, se fijo Spatie como stack base y se dejo matriz inicial de permisos para desbloquear I2.
-- documentación actualizada: sí, docs de backoffice, backlog, daily y estado consolidado
+- archivos tocados: `composer.json`, `composer.lock`, `config/permission.php`, `database/migrations/2026_04_28_173621_create_permission_tables.php`, `app/Models/User.php`, `tests/Feature/Backoffice/PermissionStackTest.php`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agrego la dependencia de permisos, tablas de Spatie, trait `HasRoles` y tests de asignacion rol-permiso con guard `web`.
+- documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
 ---
@@ -97,14 +97,14 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, cambio documental/planificacion
-- resultado: no aplica
-- otros checks: `git diff --check`
+- tests corridos: `make test`
+- resultado: `131 passed`, `433 assertions`
+- otros checks: `make artisan CMD='config:clear'`, `make migrate`, `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar `docs/backoffice/permissions.md`.
-- ejecutar `D2` para instalar e integrar Spatie Laravel Permission.
+- ejecutar `D3` para crear seeders idempotentes de roles/permisos.
+- luego validar login admin una vez que `D4` reemplace `is_admin` por permiso.
 
 ---
 
@@ -123,7 +123,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `D2 - Instalar y configurar stack de permisos` del daily `plan_dev/daily/2026-04-28.md`
+- ejecutar `D3 - Crear roles, permisos base y seed local` del daily `plan_dev/daily/2026-04-28.md`
 
 ---
 
