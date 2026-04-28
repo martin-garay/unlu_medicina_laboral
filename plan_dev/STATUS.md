@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-27 16:25 -03
+2026-04-28 09:30 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament quedo instalada y validada.
-- Último bloque completado: fix operativo posterior a `I1` para configurar cache local de Laravel/Filament sin depender de tabla `cache`.
-- Milestone actual: listo para preparar `I2 - Auth, usuarios, roles y permisos`.
-- Próximo paso sugerido: resolver `BO-001` antes de implementar `I2`, definiendo stack y matriz minima de permisos para `admin`, `auditor` y `director`.
+- Último bloque completado: apertura del daily ejecutable `2026-04-28` para resolver `BO-001` y avanzar con `I2 - Auth, usuarios, roles y permisos`.
+- Milestone actual: `D1 - Resolver BO-001: stack y matriz inicial de permisos`.
+- Próximo paso sugerido: ejecutar `D1` del daily `plan_dev/daily/2026-04-28.md`.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `in_progress`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. Roles y permisos granulares siguen pendientes para I2 y dependen de `BO-001`.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin`, auth minima con `App\Models\User` y restriccion por `is_admin`. El daily 2026-04-28 propone Spatie Laravel Permission, roles `admin`, `auditor`, `director` y permisos base para desbloquear I2.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -70,41 +70,41 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-27 16:25 -03
+- 2026-04-28 09:30 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-26-02-backoffice.md`
+- `plan_dev/daily/2026-04-28.md`
 
 ### Milestone trabajado
-- Fix operativo posterior a `I1 - Base tecnica de Filament`
+- `D0 - Abrir daily ejecutable de backoffice para I2`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se corrigio la configuracion de cache para evitar que Filament/Livewire intente usar la tabla PostgreSQL `cache` en entorno local.
+- se creo el daily 2026-04-28 para ejecutar `BO-001` e `I2`, dejando `D1` como primer milestone pendiente.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `config/cache.php`, `.env.example`, `.env.docker.example`, `.env` local no versionado, `tests/Feature/Backoffice/CacheConfigurationTest.php` y `plan_dev/STATUS.md`
-- resumen técnico: se agrego configuracion explicita de cache con fallback `CACHE_STORE`/`CACHE_DRIVER`, se fijo `CACHE_STORE=file` para entornos locales y se limpio la cache de configuracion del contenedor.
-- documentación actualizada: sí, estado consolidado
-- diagramas actualizados: no aplica en I1
+- archivos tocados: `README.md`, `plan_dev/daily/2026-04-28.md` y `plan_dev/STATUS.md`
+- resumen técnico: se documento el usuario local de prueba en README y se planifico la ejecucion de permisos del backoffice.
+- documentación actualizada: sí, README operativo, daily y estado consolidado
+- diagramas actualizados: no aplica
 
 ---
 
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `129 passed`, `429 assertions`
-- otros checks: `git diff --check`, `php artisan config:clear`, `php artisan config:show cache.default`
+- tests corridos: no aplica, cambio documental/planificacion
+- resultado: no aplica
+- otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- abrir `/admin/login` en el navegador local y verificar render visual del login de Filament.
-- definir `BO-001` antes de avanzar con roles y permisos granulares.
+- revisar la matriz propuesta en `plan_dev/daily/2026-04-28.md`.
+- ejecutar `D1` antes de instalar dependencias o tocar runtime.
 
 ---
 
@@ -126,7 +126,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- resolver `BO-001` y luego iniciar `I2 - Auth, usuarios, roles y permisos` segun `docs/backoffice/implementation-plan.md`
+- ejecutar `D1 - Resolver BO-001: stack y matriz inicial de permisos` del daily `plan_dev/daily/2026-04-28.md`
 
 ---
 

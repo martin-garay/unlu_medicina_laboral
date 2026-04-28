@@ -58,6 +58,16 @@ Usa `.env.docker.example` como plantilla. Valores claves:
   - Callback URL: `https://<tu-subdominio-ngrok>/api/whatsapp/webhook`
   - Verify token: el valor de `WHATSAPP_VERIFY_TOKEN` en `.env`
 
+## Backoffice local
+- El panel administrativo local queda disponible en `http://localhost:8000/admin`.
+- Para crear un usuario administrador de prueba:
+  ```bash
+  make artisan CMD="tinker --execute=\"App\Models\User::create(['name' => 'Admin', 'email' => 'admin@admin.com', 'password' => 'admin123456', 'is_admin' => true]);\""
+  ```
+- Credenciales de prueba:
+  - Email: `admin@admin.com`
+  - Password: `admin123456`
+
 ## Comandos de ayuda (Makefile)
 Si prefieres usar `make`:
 - `make help` → lista de atajos operativos disponibles
