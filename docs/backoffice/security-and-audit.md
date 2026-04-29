@@ -52,6 +52,89 @@ Ejemplos:
 - exportación de información sensible
 - cambios de roles o permisos
 
+## Contrato de auditoría administrativa
+
+La auditoría administrativa debe vivir en una tabla propia, separada de los logs técnicos y de los eventos conversacionales.
+
+El contrato mínimo del evento auditable es:
+
+| Campo | Obligatorio | Descripción |
+| --- | --- | --- |
+| `id` | sí | Identificador interno del evento. |
+| `actor_user_id` | no | Usuario administrativo que ejecutó la acción. Debe ser nullable para eventos de comandos, jobs o sistema. |
+| `action` | sí | Acción controlada por la aplicación. |
+| `origin` | sí | Origen operativo de la acción. |
+| `auditable_type` | no | Clase o tipo de entidad afectada. |
+| `auditable_id` | no | Identificador de la entidad afectada. |
+| `before_values` | no | Estado anterior mínimo, estructurado y sin contenido sensible completo. |
+| `after_values` | no | Estado nuevo mínimo, estructurado y sin contenido sensible completo. |
+| `metadata` | no | Metadata auxiliar mínima para trazabilidad. |
+| `created_at` | sí | Fecha y hora de registro del evento. |
+
+El contrato no debe reemplazar las tablas de negocio. Debe guardar referencias, estados, códigos y cantidades suficientes para reconstruir qué acción administrativa ocurrió, sin copiar contenido médico ni payloads completos.
+
+### Orígenes iniciales
+
+Los valores iniciales permitidos para `origin` son:
+
+- `filament`: acción iniciada desde el panel administrativo.
+- `command`: acción ejecutada desde un comando Artisan.
+- `job`: acción ejecutada desde un job o proceso asincrónico.
+- `system`: acción generada por el sistema sin operador directo.
+
+Si en el futuro se incorpora una API administrativa, debe agregarse como origen explícito y documentado antes de usarlo.
+
+### Acciones iniciales esperadas
+
+Las acciones iniciales deben nombrarse con formato estable `<recurso>.<accion>` y mantenerse controladas desde configuración o constantes de aplicación.
+
+Acciones previstas para los próximos cortes:
+
+- `roles.seeded`
+- `permissions.seeded`
+- `aviso.verified`
+- `aviso.observed`
+- `aviso.cancelled`
+- `certificado.verified`
+- `certificado.observed`
+- `certificado.invalidated`
+- `aviso_certificado.attached`
+- `aviso_certificado.detached`
+- `report.generated`
+- `report.exported`
+- `user_role.assigned`
+- `user_role.revoked`
+
+La auditoría de lectura o descarga de archivos médicos queda diferida a `I4`, porque depende de storage privado y de un mecanismo seguro de acceso. Cuando se implemente, las acciones esperadas serán:
+
+- `certificado_file.viewed`
+- `certificado_file.downloaded`
+
+### Reglas de minimización
+
+La auditoría administrativa debe guardar solo datos necesarios para trazabilidad operativa.
+
+Queda prohibido registrar en auditoría:
+
+- contenido médico completo
+- binarios de archivos
+- rutas públicas o temporales de descarga
+- payloads completos de WhatsApp o de otros proveedores
+- cuerpo completo de mensajes conversacionales
+- copias completas de certificados, observaciones clínicas o adjuntos
+- snapshots completos de modelos si contienen datos personales o médicos no necesarios
+
+Los campos `before_values`, `after_values` y `metadata` deben construirse con listas explícitas de claves permitidas por acción. Como regla inicial, pueden incluir:
+
+- identificadores internos
+- estados anteriores y nuevos
+- códigos de acción o error
+- cantidades de archivos o asociaciones
+- nombres de campos modificados cuando no expongan contenido sensible
+- referencias a entidades persistidas
+
+Si una acción requiere guardar más detalle para ser auditable, debe evaluarse contra `LOG-001` antes de ampliar el contrato.
+
 ## Auditoría de lectura
 
 Los certificados médicos requieren auditoría de lectura, no solo auditoría de escritura.
@@ -93,5 +176,4 @@ Errores técnicos inesperados deben quedar trazados para soporte, pero sin filtr
 
 ## Decisiones pendientes
 
-- formato final de tabla o mecanismo de auditoría administrativa
 - nivel de detalle permitido en auditoría de lectura

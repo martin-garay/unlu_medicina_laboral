@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 15:35 -03
+2026-04-28 23:03 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada.
-- Último bloque completado: apertura del daily `2026-04-28-02-backoffice-auditoria` para `I3 - Auditoria administrativa base`.
-- Milestone actual: `A1 - Diseñar contrato de auditoria administrativa`.
-- Próximo paso sugerido: ejecutar `A1` antes de crear migrations o servicios de auditoria.
+- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental inicial.
+- Último bloque completado: `A1 - Diseñar contrato de auditoria administrativa`.
+- Milestone actual: `A2 - Crear tabla y modelo de auditoria administrativa`.
+- Próximo paso sugerido: ejecutar `A2` usando el contrato documentado antes de crear el servicio.
 
 ---
 
@@ -57,6 +57,10 @@ No debe reemplazar:
 - estado: `base_done`
 - notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. No incluye UI de gestion de usuarios/roles.
 
+### Auditoria administrativa
+- estado: `in_progress`
+- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`, incluyendo campos base, origenes `filament`, `command`, `job` y `system`, acciones iniciales esperadas y reglas de minimizacion. No existe todavia tabla, modelo ni servicio.
+
 ### Integraciones futuras
 - estado: `pending`
 - notas: siguen planteadas como desacopladas y futuras.
@@ -70,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 15:35 -03
+- 2026-04-28 23:03 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ### Milestone trabajado
-- `A0 - Abrir daily de auditoria administrativa`
+- `A1 - Diseñar contrato de auditoria administrativa`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se creo una segunda daily para ordenar `I3 - Auditoria administrativa base` despues del cierre de permisos.
+- se documento el contrato minimo de auditoria administrativa antes de crear migrations, modelos o servicios.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
-- resumen técnico: se planifico el frente de auditoria con milestones A1-A5, sin iniciar runtime.
+- archivos tocados: `docs/backoffice/security-and-audit.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
+- resumen técnico: se definieron campos, origenes, acciones iniciales y reglas de minimizacion para auditoria administrativa. Se dejo diferida la auditoria de lectura/descarga de archivos medicos a `I4`, junto con storage privado.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -103,7 +107,7 @@ No debe reemplazar:
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar el contrato propuesto para auditoria antes de ejecutar A2.
+- revisar que el contrato propuesto para auditoria sea suficiente para futuras acciones de certificados, avisos y asociaciones.
 - no avanzar a Resources ni storage privado antes de cerrar I3.
 
 ---
@@ -123,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `A1 - Diseñar contrato de auditoria administrativa` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
+- ejecutar `A2 - Crear tabla y modelo de auditoria administrativa` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ---
 

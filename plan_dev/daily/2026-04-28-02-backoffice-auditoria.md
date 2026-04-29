@@ -123,7 +123,17 @@ Definir campos, tipos de evento, origenes y reglas de minimizacion antes de crea
 - `docs: definir contrato de auditoria administrativa`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se actualizo `docs/backoffice/security-and-audit.md` con el contrato minimo de auditoria administrativa.
+- Se definieron campos base, origenes iniciales `filament`, `command`, `job` y `system`.
+- Se documentaron acciones iniciales esperadas para roles, permisos, avisos, certificados, asociaciones, reportes y usuarios.
+- Se dejo explicito que contenido medico, archivos, payloads completos y cuerpos de mensajes no deben guardarse en auditoria.
+- La auditoria de lectura/descarga de archivos medicos queda diferida a `I4`, junto con storage privado.
+
+### Validacion ejecutada
+- `git diff --check`
 
 ---
 
