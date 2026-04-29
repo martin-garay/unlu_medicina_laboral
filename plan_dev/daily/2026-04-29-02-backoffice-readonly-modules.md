@@ -324,4 +324,19 @@ Agregar consulta de auditoría administrativa con filtros principales.
 - `git diff --check`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se creo `AuditoriaAdministrativaResource` read-only.
+- Se agrego listado con actor, accion, origen, auditable y fecha.
+- Se agrego detalle read-only con actor, before_values, after_values y metadata.
+- Se agregaron filtros por actor, accion, origen, auditable y fecha.
+- Se bloqueo create/edit/delete y acciones masivas.
+- Se agregaron tests de acceso por rol, filtros, busqueda, detalle y bloqueo de escritura.
+
+### Validacion ejecutada
+- `make test`: `189 passed`, `788 assertions`.
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `feat: agregar auditoria administrativa read-only`
