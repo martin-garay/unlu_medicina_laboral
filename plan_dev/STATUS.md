@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 10:29 -03
+2026-04-29 10:30 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
 - Último bloque completado: `P1 - Implementar UserResource read-only`.
-- Milestone actual: `P2 - Agregar gestión básica de usuarios` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
-- Próximo paso sugerido: revisar P2; puede requerir decisiones de auditoría para roles/password antes de implementar cambios de escritura.
+- Milestone actual: `P2 - Agregar gestión básica de usuarios` quedo `blocked` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- Próximo paso sugerido: definir auditoría y flujo de reset de password antes de habilitar escritura en usuarios/roles.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 10:29 -03
+- 2026-04-29 10:30 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`
 
 ### Milestone trabajado
-- `P1 - Implementar UserResource read-only`
+- `P2 - Agregar gestión básica de usuarios`
 
 ### Resultado
-- `done`
+- `blocked`
 
 ### Resumen corto
-- se agrego UserResource read-only con listado, detalle, filtro por rol y tests de no exposicion de password.
+- se freno antes de implementar escritura de usuarios porque no esta definido si la auditoria critica vive en P2 o P5, ni el flujo de reset de password.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Filament/Resources/UserResource.php`, `app/Filament/Resources/UserResource/Pages/ListUsers.php`, `app/Filament/Resources/UserResource/Pages/ViewUser.php`, `resources/views/filament/resources/user-resource/pages/view-user.blade.php`, `tests/Feature/Backoffice/UserResourceTest.php`, `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agrego Resource de usuarios read-only con busqueda, filtro por rol, detalle sin password y bloqueo create/edit/delete.
+- archivos tocados: `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md` y `plan_dev/STATUS.md`
+- resumen técnico: se marco P2 como bloqueado por ambigüedad funcional/arquitectonica antes de habilitar escritura sobre usuarios.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,19 +101,21 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `200 passed`, `831 assertions`
+- tests corridos: no aplica, no hubo cambio de codigo en P2
+- resultado: no aplica
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar visualmente `/admin/usuarios` y el detalle desde la accion de ojo.
+- definir si la auditoria de creacion/edicion/roles/password debe implementarse antes o dentro de P2.
+- definir flujo de reset de password y salvaguardas exactas para self-access y ultimo admin.
 
 ---
 
 ## Bloqueos actuales
 - `I4` depende de `BO-002`
 - `I7` depende de `BO-003`
+- `P2 users/roles` bloqueado hasta definir auditoria de cambios criticos y flujo de reset de password
 
 ---
 
@@ -126,7 +128,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- evaluar `P2 - Agregar gestión básica de usuarios` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- resolver definiciones de `P2 - Agregar gestión básica de usuarios` antes de continuar con dailies posteriores de escritura.
 
 ---
 

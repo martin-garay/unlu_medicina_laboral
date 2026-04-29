@@ -116,7 +116,31 @@ Permitir crear/editar usuarios administrativos de forma controlada.
 - si no queda claro cómo auditar cambios de roles/password, frenar y documentar.
 
 ### Estado
-`pending`
+`blocked`
+
+### Resultado de evaluacion
+- Se frena antes de implementar escritura sobre usuarios.
+- P2 requiere crear/editar usuarios, asignar roles y resetear password.
+- Las reglas de la daily exigen auditar cambios criticos cuando exista accion de modificacion.
+- La misma daily separa la auditoria de usuarios/roles en P5, por lo que no queda definido si la auditoria debe implementarse dentro de P2 o diferirse.
+- Tambien falta definir el flujo de reset de password:
+  - seteo manual por admin
+  - password temporal generado
+  - envio por email o entrega manual
+  - obligar cambio posterior o no
+
+### Bloqueo
+- Definir antes de continuar:
+  - si P2 debe incluir auditoria completa de creacion/edicion/roles/password o si P5 debe moverse antes de P2;
+  - flujo esperado de reset de password;
+  - protecciones exactas para impedir que el usuario actual se quite acceso y para no dejar el sistema sin `admin`.
+
+### Validacion ejecutada
+- No se modifico codigo en este milestone.
+- `git diff --check`: sin errores.
+
+### Proximo paso sugerido
+- Reordenar la daily para definir/auditar Application Actions antes de habilitar escritura, o acotar P2 a una pantalla read-only extendida.
 
 ---
 
