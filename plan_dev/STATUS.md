@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 23:18 -03
+2026-04-28 23:20 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental, tabla, modelo y servicio interno inicial.
-- Último bloque completado: `A3 - Crear servicio de auditoria administrativa`.
-- Milestone actual: `A4 - Integrar auditoria en eventos administrativos base`.
-- Próximo paso sugerido: evaluar `A4`; si no hay evento administrativo real para integrar sin forzar diseño, marcarlo `needs_review` y cerrar con el servicio listo.
+- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental, tabla, modelo, servicio interno e integracion inicial.
+- Último bloque completado: `A4 - Integrar auditoria en eventos administrativos base`.
+- Milestone actual: `A5 - Cierre operativo de I3`.
+- Próximo paso sugerido: ejecutar `A5` para consolidar documentacion, estado y proximo frente recomendado.
 
 ---
 
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: A3 ejecuto `make test`: `141 passed`, `468 assertions`, incluyendo modelo y servicio de auditoria administrativa.
+- notas: A4 ejecuto `make test`: `141 passed`, `472 assertions`, incluyendo modelo, servicio e integracion del seeder con auditoria administrativa.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -59,7 +59,7 @@ No debe reemplazar:
 
 ### Auditoria administrativa
 - estado: `in_progress`
-- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`. A2 agrego la tabla `auditoria_administrativa`, el modelo `App\Models\AuditoriaAdministrativa`, tests de persistencia/casts/relaciones y actualizacion del DBML. A3 agrego `App\Domain\Auditoria\Services\AuditoriaAdministrativaService` con validacion de origenes y accion.
+- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`. A2 agrego la tabla `auditoria_administrativa`, el modelo `App\Models\AuditoriaAdministrativa`, tests de persistencia/casts/relaciones y actualizacion del DBML. A3 agrego `App\Domain\Auditoria\Services\AuditoriaAdministrativaService` con validacion de origenes y accion. A4 integro auditoria en el seeder de roles/permisos con eventos `permissions.seeded` y `roles.seeded`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 23:18 -03
+- 2026-04-28 23:20 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ### Milestone trabajado
-- `A3 - Crear servicio de auditoria administrativa`
+- `A4 - Integrar auditoria en eventos administrativos base`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego el servicio interno para registrar eventos de auditoria administrativa sin acoplar futuras acciones a Filament ni al modelo directamente.
+- se integro auditoria administrativa en el seeder de roles y permisos, registrando eventos de comando con metadata minima.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Domain/Auditoria/Services/AuditoriaAdministrativaService.php`, `tests/Feature/Domain/Auditoria/AuditoriaAdministrativaServiceTest.php`, `docs/backoffice/security-and-audit.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
-- resumen técnico: el servicio `AuditoriaAdministrativaService` registra eventos con actor nullable, origen controlado, entidad auditable opcional y metadata/before/after minimizados. Rechaza acciones vacias y origenes no soportados.
+- archivos tocados: `database/seeders/BackofficeRolesAndPermissionsSeeder.php`, `tests/Feature/Backoffice/BackofficeRolesAndPermissionsSeederTest.php`, `docs/backoffice/security-and-audit.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
+- resumen técnico: el seeder registra `permissions.seeded` y `roles.seeded` con `origin = command`, actor nulo y metadata limitada a guard y conteos. Se evita fallo en entornos parcialmente migrados cuando la tabla de auditoria no existe.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -102,12 +102,12 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `make test`: `141 passed`, `468 assertions`
+- resultado: `make test`: `141 passed`, `472 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar que el servicio sea suficiente para futuras Application Actions de certificados, avisos y asociaciones.
+- revisar que la integracion inicial del seeder sea suficiente como evento administrativo base.
 - no avanzar a Resources ni storage privado antes de cerrar I3.
 
 ---
@@ -127,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `A4 - Integrar auditoria en eventos administrativos base` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`, o marcarlo `needs_review` si no hay evento administrativo real sin forzar diseño.
+- ejecutar `A5 - Cierre operativo de I3` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ---
 

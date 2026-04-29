@@ -271,7 +271,18 @@ Usar el servicio de auditoria en operaciones administrativas ya existentes del b
 - `feat: integrar auditoria administrativa base`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se integro auditoria en `Database\Seeders\BackofficeRolesAndPermissionsSeeder`.
+- Cada ejecucion registra `permissions.seeded` y `roles.seeded` con `origin = command`.
+- La metadata se limita a guard y conteos.
+- El seeder no falla si la tabla de auditoria no existe en un entorno parcialmente migrado.
+- Se ajustaron tests del seeder para validar los eventos auditados.
+
+### Validacion ejecutada
+- `make test`: `141 passed`, `472 assertions`
+- `git diff --check`
 
 ---
 

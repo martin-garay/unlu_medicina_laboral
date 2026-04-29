@@ -153,6 +153,15 @@ Este servicio centraliza:
 
 Las futuras Application Actions de avisos, certificados, asociaciones, reportes o usuarios deben depender de este servicio o de una fachada equivalente, no del modelo Eloquent directamente.
 
+### Integración actual
+
+La integración inicial registra la ejecución del seeder de roles y permisos del backoffice:
+
+- `permissions.seeded`
+- `roles.seeded`
+
+Estos eventos usan `origin = command`, `actor_user_id = null` y metadata mínima con guard y conteos. No registran usuarios, passwords, payloads ni contenido sensible.
+
 ## Auditoría de lectura
 
 Los certificados médicos requieren auditoría de lectura, no solo auditoría de escritura.

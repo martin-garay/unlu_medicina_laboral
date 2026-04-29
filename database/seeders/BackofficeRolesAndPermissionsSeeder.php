@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Domain\Auditoria\Services\AuditoriaAdministrativaService;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -33,6 +35,7 @@ class BackofficeRolesAndPermissionsSeeder extends Seeder
         }
 
         $this->seedLocalAdmin($guard);
+        $this->recordAuditEvents($guard);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
@@ -55,5 +58,32 @@ class BackofficeRolesAndPermissionsSeeder extends Seeder
         );
 
         $user->assignRole(Role::findByName($roleName, $guard));
+    }
+
+    private function recordAuditEvents(string $guard): void
+    {
+        if (! Schema::hasTable('auditoria_administrativa')) {
+            return;
+        }
+
+        $audit = app(AuditoriaAdministrativaService::class);
+
+        $audit->record(
+            action: 'permissions.seeded',
+            origin: AuditoriaAdministrativaService::ORIGIN_COMMAND,
+            metadata: [
+                'guard' => $guard,
+                'permissions_count' => count(config('backoffice.permissions', [])),
+            ],
+        );
+
+        $audit->record(
+            action: 'roles.seeded',
+            origin: AuditoriaAdministrativaService::ORIGIN_COMMAND,
+            metadata: [
+                'guard' => $guard,
+                'roles_count' => count(config('backoffice.roles', [])),
+            ],
+        );
     }
 }
