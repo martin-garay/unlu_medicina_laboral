@@ -84,13 +84,13 @@ db:
 	psql -h localhost -U $(DB_USERNAME) -d $(DB_DATABASE)
 
 test:
-	UID=$(UID) GID=$(GID) $(DC) exec app php artisan test
+	UID=$(UID) GID=$(GID) $(DC) exec -e CACHE_STORE=array app php artisan test
 
 test-unit:
-	UID=$(UID) GID=$(GID) $(DC) exec app php artisan test --testsuite=Unit
+	UID=$(UID) GID=$(GID) $(DC) exec -e CACHE_STORE=array app php artisan test --testsuite=Unit
 
 test-feature:
-	UID=$(UID) GID=$(GID) $(DC) exec app php artisan test --testsuite=Feature
+	UID=$(UID) GID=$(GID) $(DC) exec -e CACHE_STORE=array app php artisan test --testsuite=Feature
 
 timeouts:
 	UID=$(UID) GID=$(GID) $(DC) exec app php artisan conversations:process-timeouts
