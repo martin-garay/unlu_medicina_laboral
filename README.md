@@ -60,6 +60,7 @@ Usa `.env.docker.example` como plantilla. Valores claves:
 
 ## Backoffice local
 - El panel administrativo local queda disponible en `http://localhost:8000/admin`.
+- El acceso al panel requiere el permiso `backoffice.access`.
 - Para crear roles, permisos y un usuario administrador de prueba:
   ```bash
   make artisan CMD='db:seed --class=Database\\Seeders\\BackofficeRolesAndPermissionsSeeder'
@@ -67,6 +68,30 @@ Usa `.env.docker.example` como plantilla. Valores claves:
 - Credenciales de prueba:
   - Email: `admin@admin.com`
   - Password: `admin123456`
+
+### Admin local de desarrollo
+
+En un entorno local/desarrollo, el rol `admin` representa acceso total a los permisos disponibles del backoffice.
+
+La matriz de permisos vive en `config/backoffice.php`. El seeder `BackofficeRolesAndPermissionsSeeder` sincroniza el rol `admin` con todos los permisos definidos en esa configuración. Cuando `BACKOFFICE_LOCAL_ADMIN_ENABLED=true`, el usuario local de prueba se crea o actualiza y se asocia al rol `admin`.
+
+Variables habituales para desarrollo:
+
+```env
+BACKOFFICE_LOCAL_ADMIN_ENABLED=true
+BACKOFFICE_LOCAL_ADMIN_EMAIL=admin@admin.com
+BACKOFFICE_LOCAL_ADMIN_PASSWORD=admin123456
+BACKOFFICE_LOCAL_ADMIN_ROLE=admin
+```
+
+Esta regla significa:
+
+- `admin` puede entrar al panel y ver los módulos habilitados por permisos.
+- `admin` recibe automáticamente permisos nuevos cuando se agregan a `config/backoffice.php` y se vuelve a ejecutar el seeder.
+- `admin` no saltea restricciones funcionales definidas por módulo.
+- Si un Resource fue implementado como read-only, como el listado inicial de conversaciones, `admin` puede acceder a la pantalla pero no puede crear, editar ni borrar registros desde esa interfaz.
+
+Para habilitar acciones administrativas nuevas se deben implementar explícitamente en el Resource o en Application Actions, sumar auditoría cuando corresponda y cubrirlas con tests.
 
 ## Comandos de ayuda (Makefile)
 Si prefieres usar `make`:
