@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 23:15 -03
+2026-04-28 23:18 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental, tabla y modelo inicial.
-- Último bloque completado: `A2 - Crear tabla y modelo de auditoria administrativa`.
-- Milestone actual: `A3 - Crear servicio de auditoria administrativa`.
-- Próximo paso sugerido: ejecutar `A3` para crear una API interna de registro antes de integrar Filament o acciones administrativas.
+- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental, tabla, modelo y servicio interno inicial.
+- Último bloque completado: `A3 - Crear servicio de auditoria administrativa`.
+- Milestone actual: `A4 - Integrar auditoria en eventos administrativos base`.
+- Próximo paso sugerido: evaluar `A4`; si no hay evento administrativo real para integrar sin forzar diseño, marcarlo `needs_review` y cerrar con el servicio listo.
 
 ---
 
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: A2 ejecuto `make test`: `137 passed`, `455 assertions`, incluyendo modelo de auditoria administrativa y cache de test forzada a `array` desde Makefile.
+- notas: A3 ejecuto `make test`: `141 passed`, `468 assertions`, incluyendo modelo y servicio de auditoria administrativa.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -59,7 +59,7 @@ No debe reemplazar:
 
 ### Auditoria administrativa
 - estado: `in_progress`
-- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`. A2 agrego la tabla `auditoria_administrativa`, el modelo `App\Models\AuditoriaAdministrativa`, tests de persistencia/casts/relaciones y actualizacion del DBML. No existe todavia `AuditoriaService`.
+- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`. A2 agrego la tabla `auditoria_administrativa`, el modelo `App\Models\AuditoriaAdministrativa`, tests de persistencia/casts/relaciones y actualizacion del DBML. A3 agrego `App\Domain\Auditoria\Services\AuditoriaAdministrativaService` con validacion de origenes y accion.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -74,40 +74,40 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 23:15 -03
+- 2026-04-28 23:18 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ### Milestone trabajado
-- `A2 - Crear tabla y modelo de auditoria administrativa`
+- `A3 - Crear servicio de auditoria administrativa`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego persistencia minima para auditoria administrativa con migration, modelo, relaciones, casts y tests.
+- se agrego el servicio interno para registrar eventos de auditoria administrativa sin acoplar futuras acciones a Filament ni al modelo directamente.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Models/AuditoriaAdministrativa.php`, `database/migrations/2026_04_28_230300_create_auditoria_administrativa_table.php`, `tests/Feature/Backoffice/AuditoriaAdministrativaModelTest.php`, `docs/diagrams/db/medicina-laboral.dbml`, `Makefile`, `phpunit.xml`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
-- resumen técnico: se creo la tabla `auditoria_administrativa` con `actor_user_id`, `action`, `origin`, entidad polimorfica, valores before/after, metadata y `created_at`; el modelo castea JSON y expone relaciones a actor y auditable. El Makefile fuerza `CACHE_STORE=array` en tests para evitar que `.env` local invalide la suite.
+- archivos tocados: `app/Domain/Auditoria/Services/AuditoriaAdministrativaService.php`, `tests/Feature/Domain/Auditoria/AuditoriaAdministrativaServiceTest.php`, `docs/backoffice/security-and-audit.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
+- resumen técnico: el servicio `AuditoriaAdministrativaService` registra eventos con actor nullable, origen controlado, entidad auditable opcional y metadata/before/after minimizados. Rechaza acciones vacias y origenes no soportados.
 - documentación actualizada: sí, daily y estado consolidado
-- diagramas actualizados: sí, DBML de base de datos
+- diagramas actualizados: no aplica
 
 ---
 
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make migrate`, `make test`
-- resultado: `make migrate` ok; `make test`: `137 passed`, `455 assertions`
+- tests corridos: `make test`
+- resultado: `make test`: `141 passed`, `468 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar que la tabla y el modelo alcancen para futuras acciones de certificados, avisos y asociaciones.
+- revisar que el servicio sea suficiente para futuras Application Actions de certificados, avisos y asociaciones.
 - no avanzar a Resources ni storage privado antes de cerrar I3.
 
 ---
@@ -127,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `A3 - Crear servicio de auditoria administrativa` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
+- ejecutar `A4 - Integrar auditoria en eventos administrativos base` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`, o marcarlo `needs_review` si no hay evento administrativo real sin forzar diseño.
 
 ---
 

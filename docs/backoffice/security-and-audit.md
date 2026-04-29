@@ -135,6 +135,24 @@ Los campos `before_values`, `after_values` y `metadata` deben construirse con li
 
 Si una acción requiere guardar más detalle para ser auditable, debe evaluarse contra `LOG-001` antes de ampliar el contrato.
 
+### Servicio interno
+
+Las capas administrativas no deben escribir eventos directamente desde Resources o controllers.
+
+El punto de entrada inicial para registrar auditoría administrativa es:
+
+- `App\Domain\Auditoria\Services\AuditoriaAdministrativaService`
+
+Este servicio centraliza:
+
+- validación de `action` no vacía
+- validación de `origin` contra los orígenes permitidos
+- actor administrativo nullable
+- entidad auditable polimórfica opcional
+- normalización de arrays vacíos a `null` para `before_values`, `after_values` y `metadata`
+
+Las futuras Application Actions de avisos, certificados, asociaciones, reportes o usuarios deben depender de este servicio o de una fachada equivalente, no del modelo Eloquent directamente.
+
 ## Auditoría de lectura
 
 Los certificados médicos requieren auditoría de lectura, no solo auditoría de escritura.

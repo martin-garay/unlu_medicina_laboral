@@ -222,7 +222,18 @@ Crear una API interna para registrar eventos auditables sin acoplar la logica a 
 - `feat: agregar servicio de auditoria administrativa`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se creo `App\Domain\Auditoria\Services\AuditoriaAdministrativaService`.
+- El servicio registra actor nullable, accion, origen, entidad auditable opcional, before/after y metadata minima.
+- Se validan acciones no vacias y origenes permitidos.
+- Se agrego `tests/Feature/Domain/Auditoria/AuditoriaAdministrativaServiceTest.php`.
+- Se documento el servicio interno en `docs/backoffice/security-and-audit.md`.
+
+### Validacion ejecutada
+- `make test`: `141 passed`, `468 assertions`
+- `git diff --check`
 
 ---
 
