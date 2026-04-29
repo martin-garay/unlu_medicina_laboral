@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 23:21 -03
+2026-04-29 00:49 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada.
-- Último bloque completado: `A5 - Cierre operativo de I3`.
-- Milestone actual: sin milestone pendiente en el daily `2026-04-28-02-backoffice-auditoria`.
-- Próximo paso sugerido: no implementar `I4 - Storage privado de certificados` todavia; cuando se retome, primero resolver `BO-002` y definir estrategia de storage/acceso seguro.
+- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada.
+- Último bloque completado: `P1 - Especificar módulos administrativos read-only y estrategia de tests`.
+- Milestone actual: `P2 - Implementar ConversacionResource read-only`.
+- Próximo paso sugerido: implementar `ConversacionResource` read-only con tests, sin tocar `I4` ni archivos médicos.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base e I3 base.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base, I3 base y especificación fina de módulos administrativos en `docs/backoffice/module-specs.md`.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 23:21 -03
+- 2026-04-29 00:49 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
+- `plan_dev/daily/2026-04-29.md`
 
 ### Milestone trabajado
-- `A5 - Cierre operativo de I3`
+- `P1 - Especificar módulos administrativos read-only y estrategia de tests`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se consolido el cierre operativo de `I3 - Auditoria administrativa base` y se dejo `I4` pendiente sin implementarlo.
+- se creo la planificación fina de módulos administrativos/read-only, con columnas, filtros, relaciones, restricciones y tests esperados.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
-- resumen técnico: se marco `I3` como `base done`, se documento el resultado del frente y se dejo explicito que `I4` no se implementa por ahora.
+- archivos tocados: `docs/backoffice/module-specs.md`, `docs/backoffice/README.md`, `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-29.md` y `plan_dev/STATUS.md`
+- resumen técnico: se especificaron módulos read-only de conversaciones, avisos, anticipos/certificados, auditoría, dashboard e informes futuros. Se definió como primer módulo recomendado `ConversacionResource` read-only.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,14 +101,15 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `make test`: `141 passed`, `472 assertions`
+- tests corridos: no aplica, cambio documental/planificacion
+- resultado: no aplica
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar que la integracion inicial del seeder sea suficiente como evento administrativo base.
-- no avanzar a Resources ni storage privado antes de cerrar I3.
+- revisar la especificación de `ConversacionResource` antes de implementar P2.
+- confirmar si se conserva la matriz actual `*.view` o si se agregan permisos `*.viewAny` más adelante.
+- no implementar `I4` ni descarga/visualización de archivos médicos.
 
 ---
 
@@ -127,7 +128,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- no hay milestone pendiente en el daily actual. Antes de implementar `I4`, resolver `BO-002` sobre storage privado de certificados.
+- ejecutar `P2 - Implementar ConversacionResource read-only` del daily `plan_dev/daily/2026-04-29.md`.
 
 ---
 

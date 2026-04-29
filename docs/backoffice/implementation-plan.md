@@ -12,6 +12,10 @@ La arquitectura base está documentada en:
 - `docs/backoffice/security-and-audit.md`
 - `docs/backoffice/storage-and-sensitive-files.md`
 
+La especificación fina de módulos, pantallas read-only, permisos, restricciones de datos sensibles y tests esperados está documentada en:
+
+- `docs/backoffice/module-specs.md`
+
 ## Reglas del plan
 
 - Filament es interfaz administrativa.
@@ -595,17 +599,11 @@ Revisar que lo implementado pueda reutilizarse desde una API futura sin duplicar
 
 ## Próximo milestone recomendado
 
-El primer milestone de implementación posterior es `I1 - Base técnica de Filament`.
+Con `I1`, `I2` e `I3` base cerrados, el primer módulo administrativo recomendado es:
 
-Antes de ejecutarlo conviene confirmar:
+- `ConversacionResource` read-only, según `docs/backoffice/module-specs.md`
 
-- si se puede crear el modelo/tabla `User` mínimo dentro de I1 o si debe abrirse como primer corte de I2
-- si la instalación de dependencias puede usar red desde el entorno actual
-
-Antes de `I2` deben confirmarse:
-
-- stack de permisos: Spatie Laravel Permission o implementación propia mínima
-- matriz inicial de permisos para `admin`, `auditor`, `director`
+Este corte permite validar Resources, permisos, listados, filtros, detalle y trazabilidad sin tocar storage privado ni archivos médicos.
 
 Antes de `I4` deben confirmarse:
 
