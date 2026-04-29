@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 01:53 -03
+2026-04-29 10:05 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource`.
-- Milestone actual: `P2 - Implementar AvisoResource listado read-only` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
-- Próximo paso sugerido: ejecutar P2 de la daily read-only.
+- Último bloque completado: `P2 - Implementar AvisoResource listado read-only`.
+- Milestone actual: `P3 - Agregar detalle read-only de avisos` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
+- Próximo paso sugerido: ejecutar P3 de la daily read-only.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `base_done`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. No incluye UI de gestion de usuarios/roles.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2 se agrego `AvisoResource` con listado read-only. No incluye UI de gestion de usuarios/roles.
 
 ### Auditoria administrativa
 - estado: `base_done`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 01:53 -03
+- 2026-04-29 10:05 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`
 
 ### Milestone trabajado
-- `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource`
+- `P2 - Implementar AvisoResource listado read-only`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agregaron filtros operativos y búsqueda cubierta por tests en `ConversacionResource`.
+- se agrego listado read-only de avisos con búsqueda, filtros y tests de no exposición de `certificado_base64`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Filament/Resources/ConversacionResource.php`, `tests/Feature/Backoffice/ConversacionResourceTest.php`, `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agregaron filtros por canal, tipo de flujo, estado actual, activa y rangos de fechas. Se cubrió búsqueda por `uuid`, `wa_number` y `dni`.
+- archivos tocados: `app/Filament/Resources/AvisoResource.php`, `app/Filament/Resources/AvisoResource/Pages/ListAvisos.php`, `tests/Feature/Backoffice/AvisoResourceTest.php`, `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agrego Resource de avisos con columnas operativas, filtros básicos, búsqueda, bloqueo create/edit/delete y tests de acceso/listado.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -102,12 +102,12 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `154 passed`, `560 assertions`
+- resultado: `163 passed`, `604 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar visualmente los filtros en `/admin/conversaciones`.
+- revisar visualmente `/admin/avisos`.
 - no implementar `I4` ni descarga/visualización de archivos médicos.
 
 ---
@@ -127,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `P2 - Implementar AvisoResource listado read-only` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
+- ejecutar `P3 - Agregar detalle read-only de avisos` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
 
 ---
 

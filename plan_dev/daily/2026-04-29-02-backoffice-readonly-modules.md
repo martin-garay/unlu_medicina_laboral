@@ -132,7 +132,20 @@ Agregar consulta inicial de avisos de ausencia en Filament, sin detalle complejo
 - `git diff --check`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se creo `AvisoResource` con listado read-only.
+- Se agregaron columnas operativas, búsqueda por `dni`, `nombre_completo`, `legajo`, `wa_number` y filtros por `estado`, `tipo`, `tipo_ausentismo`, `sede`.
+- Se bloqueo create/edit/delete y acciones masivas.
+- Se agregaron tests de acceso, listado, búsqueda, filtros y no exposición de `certificado_base64`.
+
+### Validacion ejecutada
+- `make test`: `163 passed`, `604 assertions`.
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `feat: agregar listado read-only de avisos`
 
 ---
 
