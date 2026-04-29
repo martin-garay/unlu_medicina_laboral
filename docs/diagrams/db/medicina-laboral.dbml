@@ -1,6 +1,20 @@
 Project medicina_laboral {
   database_type: "PostgreSQL"
-  Note: "Esquema actual del repo con tablas conversacionales, avisos y anticipo de certificado."
+  Note: "Esquema actual del repo con tablas conversacionales, avisos, anticipo de certificado y auditoria administrativa base."
+}
+
+Table users {
+  id bigint [pk]
+  name varchar [not null]
+  email varchar [not null, unique]
+  email_verified_at timestamp
+  password varchar [not null]
+  is_admin boolean [not null, default: false]
+  remember_token varchar
+  created_at timestamp
+  updated_at timestamp
+
+  Note: "Usuario administrativo autenticable para Filament. Los roles y permisos viven en tablas de Spatie Laravel Permission."
 }
 
 Table conversaciones {
@@ -162,6 +176,29 @@ Table anticipo_certificado_aviso {
   Note: "Relacion N a N entre anticipos/certificados y avisos. aviso_id en anticipos_certificado se conserva como compatibilidad temporal."
 }
 
+Table auditoria_administrativa {
+  id bigint [pk]
+  actor_user_id bigint
+  action varchar [not null]
+  origin varchar [not null]
+  auditable_type varchar
+  auditable_id bigint
+  before_values json
+  after_values json
+  metadata json
+  created_at timestamp [not null]
+
+  indexes {
+    actor_user_id [name: 'auditoria_administrativa_actor_user_id_foreign']
+    (auditable_type, auditable_id) [name: 'auditoria_admin_auditable_idx']
+    action [name: 'auditoria_admin_action_idx']
+    origin [name: 'auditoria_admin_origin_idx']
+    created_at [name: 'auditoria_admin_created_at_idx']
+  }
+
+  Note: "Eventos de auditoria administrativa. No guarda contenido medico, binarios, payloads completos ni cuerpos de mensajes."
+}
+
 Ref: anticipos_certificado.conversacion_id > conversaciones.id
 Ref: anticipos_certificado.aviso_id > avisos.id
 Ref: anticipo_certificado_archivos.anticipo_certificado_id > anticipos_certificado.id
@@ -169,3 +206,4 @@ Ref: anticipo_certificado_archivos.conversacion_id > conversaciones.id
 Ref: conversaciones.anticipo_certificado_id > anticipos_certificado.id
 Ref: anticipo_certificado_aviso.anticipo_certificado_id > anticipos_certificado.id
 Ref: anticipo_certificado_aviso.aviso_id > avisos.id
+Ref: auditoria_administrativa.actor_user_id > users.id [delete: set null]

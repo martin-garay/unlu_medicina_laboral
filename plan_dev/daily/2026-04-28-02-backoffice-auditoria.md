@@ -173,7 +173,21 @@ Agregar persistencia minima para eventos de auditoria administrativa.
 - `feat: agregar modelo de auditoria administrativa`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se creo la migration `2026_04_28_230300_create_auditoria_administrativa_table.php`.
+- Se creo el modelo `App\Models\AuditoriaAdministrativa`.
+- Se agregaron casts para `before_values`, `after_values` y `metadata`.
+- Se agregaron relaciones `actor()` y `auditable()`.
+- Se agrego `tests/Feature/Backoffice/AuditoriaAdministrativaModelTest.php`.
+- Se actualizo el DBML en `docs/diagrams/db/medicina-laboral.dbml` para incluir `users` y `auditoria_administrativa`.
+- Se ajusto el atajo `make test` para forzar `CACHE_STORE=array` durante la suite dentro de Docker.
+
+### Validacion ejecutada
+- `make migrate`
+- `make test`: `137 passed`, `455 assertions`
+- `git diff --check`
 
 ---
 

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 23:03 -03
+2026-04-28 23:15 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental inicial.
-- Último bloque completado: `A1 - Diseñar contrato de auditoria administrativa`.
-- Milestone actual: `A2 - Crear tabla y modelo de auditoria administrativa`.
-- Próximo paso sugerido: ejecutar `A2` usando el contrato documentado antes de crear el servicio.
+- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental, tabla y modelo inicial.
+- Último bloque completado: `A2 - Crear tabla y modelo de auditoria administrativa`.
+- Milestone actual: `A3 - Crear servicio de auditoria administrativa`.
+- Próximo paso sugerido: ejecutar `A3` para crear una API interna de registro antes de integrar Filament o acciones administrativas.
 
 ---
 
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: D4 ejecuto `make test`: `135 passed`, `447 assertions`, incluyendo acceso al panel por permiso `backoffice.access`.
+- notas: A2 ejecuto `make test`: `137 passed`, `455 assertions`, incluyendo modelo de auditoria administrativa y cache de test forzada a `array` desde Makefile.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -59,7 +59,7 @@ No debe reemplazar:
 
 ### Auditoria administrativa
 - estado: `in_progress`
-- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`, incluyendo campos base, origenes `filament`, `command`, `job` y `system`, acciones iniciales esperadas y reglas de minimizacion. No existe todavia tabla, modelo ni servicio.
+- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`. A2 agrego la tabla `auditoria_administrativa`, el modelo `App\Models\AuditoriaAdministrativa`, tests de persistencia/casts/relaciones y actualizacion del DBML. No existe todavia `AuditoriaService`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -74,40 +74,40 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 23:03 -03
+- 2026-04-28 23:15 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ### Milestone trabajado
-- `A1 - Diseñar contrato de auditoria administrativa`
+- `A2 - Crear tabla y modelo de auditoria administrativa`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se documento el contrato minimo de auditoria administrativa antes de crear migrations, modelos o servicios.
+- se agrego persistencia minima para auditoria administrativa con migration, modelo, relaciones, casts y tests.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/backoffice/security-and-audit.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
-- resumen técnico: se definieron campos, origenes, acciones iniciales y reglas de minimizacion para auditoria administrativa. Se dejo diferida la auditoria de lectura/descarga de archivos medicos a `I4`, junto con storage privado.
+- archivos tocados: `app/Models/AuditoriaAdministrativa.php`, `database/migrations/2026_04_28_230300_create_auditoria_administrativa_table.php`, `tests/Feature/Backoffice/AuditoriaAdministrativaModelTest.php`, `docs/diagrams/db/medicina-laboral.dbml`, `Makefile`, `phpunit.xml`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
+- resumen técnico: se creo la tabla `auditoria_administrativa` con `actor_user_id`, `action`, `origin`, entidad polimorfica, valores before/after, metadata y `created_at`; el modelo castea JSON y expone relaciones a actor y auditable. El Makefile fuerza `CACHE_STORE=array` en tests para evitar que `.env` local invalide la suite.
 - documentación actualizada: sí, daily y estado consolidado
-- diagramas actualizados: no aplica
+- diagramas actualizados: sí, DBML de base de datos
 
 ---
 
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, cambio documental/planificacion
-- resultado: no aplica
+- tests corridos: `make migrate`, `make test`
+- resultado: `make migrate` ok; `make test`: `137 passed`, `455 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar que el contrato propuesto para auditoria sea suficiente para futuras acciones de certificados, avisos y asociaciones.
+- revisar que la tabla y el modelo alcancen para futuras acciones de certificados, avisos y asociaciones.
 - no avanzar a Resources ni storage privado antes de cerrar I3.
 
 ---
@@ -127,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `A2 - Crear tabla y modelo de auditoria administrativa` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
+- ejecutar `A3 - Crear servicio de auditoria administrativa` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ---
 
