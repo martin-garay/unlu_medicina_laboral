@@ -23,6 +23,7 @@ Puede:
 - ver avisos
 - ver certificados médicos
 - ver conversaciones
+- ver historial de conversaciones
 - ver auditoría
 - ver reportes
 
@@ -37,6 +38,7 @@ Puede:
 - ver avisos
 - ver certificados médicos
 - ver conversaciones
+- ver historial de conversaciones
 - ver auditoría
 - ver reportes
 
@@ -57,6 +59,7 @@ Puede:
 - ver avisos
 - ver certificados médicos
 - ver conversaciones
+- ver historial de conversaciones
 - ver reportes
 
 No puede:
@@ -78,7 +81,8 @@ No puede:
 | `roles.manage` | Administrar roles y permisos | si | no | no |
 | `avisos.view` | Ver avisos de ausencia | si | si | si |
 | `certificados.view` | Ver anticipos/certificados médicos | si | si | si |
-| `conversaciones.view` | Ver conversaciones, mensajes y trazabilidad conversacional | si | si | si |
+| `conversaciones.view` | Ver listado de conversaciones | si | si | si |
+| `conversaciones.historial.view` | Ver historial completo de mensajes y eventos de una conversación | si | si | si |
 | `auditoria.view` | Ver auditoría administrativa | si | si | no |
 | `reportes.view` | Ver reportes administrativos | si | si | si |
 
@@ -100,3 +104,4 @@ No deben mezclarse con `certificados.view` hasta definir esa capa.
 - Las Application Actions futuras deben recibir un usuario autorizado o validar permisos explícitamente cuando ejecuten operaciones críticas.
 - Las acciones de estado sobre avisos o certificados requieren permisos nuevos y no quedan habilitadas por esta matriz inicial.
 - Cualquier operación sobre archivos médicos debe auditar lectura y descarga cuando se implemente `I4`.
+- `conversaciones.view` habilita el listado; `conversaciones.historial.view` habilita la acción de ojo y la pantalla de detalle/historial. La URL directa del historial debe denegarse sin ese permiso.

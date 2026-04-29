@@ -353,7 +353,8 @@ Implementar `ConversacionResource` como primer módulo de trazabilidad conversac
 
 - Grupo sugerido: `Trazabilidad`
 - Label: `Conversaciones`
-- Permiso requerido: `conversaciones.view`
+- Permiso requerido para listado: `conversaciones.view`
+- Permiso requerido para historial/detalle: `conversaciones.historial.view`
 
 ### Listado
 
@@ -401,6 +402,12 @@ Orden default:
 
 ### Detalle
 
+Entrada desde listado:
+
+- acción visual con icono de ojo
+- visible solo con `conversaciones.historial.view`
+- acceso backend denegado sin `conversaciones.historial.view`, incluso por URL directa
+
 Secciones:
 
 - resumen de conversación
@@ -410,6 +417,33 @@ Secciones:
 - relaciones de negocio
 - timeline de mensajes
 - timeline de eventos
+
+Hilo de mensajes:
+
+- debe representar la interacción completa entre usuario y chatbot
+- debe diferenciar mensajes entrantes (`in`) como usuario y salientes (`out`) como chatbot
+- debe ordenarse cronológicamente por `created_at` y, ante empate, por `id`
+- debe mostrar solo campos seguros:
+  - `direccion`
+  - `tipo_mensaje`
+  - `step_key`
+  - `contenido_texto`
+  - `es_valido`
+  - `motivo_invalidez`
+  - `message_key`
+  - `template_name`
+  - `created_at`
+
+Eventos:
+
+- deben mostrarse como trazabilidad complementaria read-only
+- deben ordenarse cronológicamente por `created_at` y, ante empate, por `id`
+- deben mostrar:
+  - `tipo_evento`
+  - `step_key`
+  - `descripcion`
+  - `codigo`
+  - `created_at`
 
 No mostrar:
 
@@ -429,7 +463,7 @@ Primera versión:
 
 Permitido:
 
-- `View`
+- `View` con icono de ojo para abrir historial/detalle
 
 No permitido:
 
@@ -446,12 +480,15 @@ No permitido:
 - `admin`, `auditor` y `director` con `conversaciones.view` pueden acceder.
 - usuario sin `backoffice.access` no accede al panel.
 - usuario con `backoffice.access` pero sin `conversaciones.view` no accede al Resource.
+- usuario con `conversaciones.view` pero sin `conversaciones.historial.view` ve listado pero no ve acción de ojo.
+- usuario sin `conversaciones.historial.view` no puede entrar al historial por URL directa.
+- usuario con `conversaciones.historial.view` puede abrir historial/detalle.
 - listado carga registros.
 - búsqueda por `wa_number`, `dni` y `uuid` funciona.
 - filtros `canal`, `activa`, `tipo_flujo` y fecha funcionan.
 - detalle carga.
-- mensajes se muestran ordenados por `created_at`.
-- eventos se muestran ordenados por `created_at`.
+- mensajes se muestran ordenados por `created_at` e `id`.
+- eventos se muestran ordenados por `created_at` e `id`.
 - `payload_crudo` no aparece completo por defecto.
 - `metadata` completa no aparece por defecto.
 - acciones de crear/editar/borrar no aparecen o quedan denegadas.
@@ -460,9 +497,10 @@ No permitido:
 
 1. Crear `ConversacionResource` con listado y permisos.
 2. Agregar filtros y búsqueda.
-3. Agregar página de detalle.
-4. Agregar RelationManagers o secciones read-only de mensajes/eventos.
-5. Agregar tests de seguridad de datos sensibles.
+3. Agregar permiso `conversaciones.historial.view`.
+4. Agregar acción de ojo y página de historial/detalle.
+5. Agregar RelationManagers o secciones read-only de mensajes/eventos.
+6. Agregar tests de seguridad de datos sensibles.
 
 Commits sugeridos:
 

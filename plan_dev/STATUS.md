@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 01:25 -03
+2026-04-29 01:28 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y la regla de `admin` total en desarrollo quedó explicitada.
-- Último bloque completado: `P2.1 - Documentar acceso total de admin en desarrollo`.
-- Milestone actual: `P3 - Agregar detalle y timeline read-only de conversaciones`.
-- Próximo paso sugerido: implementar detalle/timeline de conversaciones con mensajes y eventos, sin exponer `payload_crudo` completo ni metadata completa.
+- Último bloque completado: documentación de alcance para `P3 - Agregar visualización de historial de conversación`.
+- Milestone actual: `P3 - Agregar visualización de historial de conversación`.
+- Próximo paso sugerido: implementar acción de ojo y pantalla de historial de conversaciones con mensajes/eventos, sin exponer `payload_crudo` completo ni metadata completa.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `base_done`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. No incluye UI de gestion de usuarios/roles.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. P3 queda especificado con permiso nuevo `conversaciones.historial.view` para acción de ojo y pantalla de historial. No incluye UI de gestion de usuarios/roles.
 
 ### Auditoria administrativa
 - estado: `base_done`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 01:25 -03
+- 2026-04-29 01:28 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29.md`
 
 ### Milestone trabajado
-- `P2.1 - Documentar acceso total de admin en desarrollo`
+- Documentación de alcance para `P3 - Agregar visualización de historial de conversación`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se documento que el rol `admin` en desarrollo tiene todos los permisos definidos, pero no puede saltear restricciones funcionales read-only de los módulos.
+- se detallo el próximo milestone para agregar una acción de ojo que abra el historial completo de mensajes y eventos de una conversación.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `README.md`, `plan_dev/daily/2026-04-29.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agrego la regla operativa de admin total en desarrollo: el rol `admin` sincroniza todos los permisos desde `config/backoffice.php`, el usuario local puede asociarse a ese rol y las restricciones read-only siguen vigentes.
+- archivos tocados: `plan_dev/daily/2026-04-29.md`, `docs/backoffice/module-specs.md`, `docs/backoffice/permissions.md` y `plan_dev/STATUS.md`
+- resumen técnico: se especifico `conversaciones.historial.view` como permiso para historial/detalle, la acción visual de ojo, la pantalla read-only del hilo usuario/chatbot, los campos seguros de mensajes/eventos y los tests esperados.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -107,9 +107,8 @@ No debe reemplazar:
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar que la explicación del README coincida con la política deseada para entorno local/desarrollo.
-- revisar visualmente `/admin/conversaciones` con un usuario `admin`, `auditor` o `director`.
-- confirmar si se conserva la matriz actual `*.view` o si se agregan permisos `*.viewAny` más adelante.
+- confirmar el nombre del permiso `conversaciones.historial.view` antes de implementar P3 si se prefiere otra nomenclatura.
+- revisar visualmente `/admin/conversaciones` con un usuario `admin`, `auditor` o `director` luego de implementar P3.
 - no implementar `I4` ni descarga/visualización de archivos médicos.
 
 ---
@@ -129,7 +128,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `P3 - Agregar detalle y timeline read-only de conversaciones` del daily `plan_dev/daily/2026-04-29.md`.
+- ejecutar `P3 - Agregar visualización de historial de conversación` del daily `plan_dev/daily/2026-04-29.md`.
 
 ---
 
