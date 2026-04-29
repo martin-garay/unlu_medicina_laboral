@@ -86,7 +86,19 @@ Completar la tabla de conversaciones con filtros operativos definidos en `docs/b
 - `git diff --check`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se agregaron filtros a `ConversacionResource` por canal, flujo, estado actual, activa y rangos de fechas.
+- Se mantuvo búsqueda por `uuid`, `wa_number` y `dni`.
+- Se agregaron tests Livewire/Filament de búsqueda y filtros.
+
+### Validacion ejecutada
+- `make test`: `154 passed`, `560 assertions`.
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `feat: agregar filtros de conversaciones`
 
 ---
 
@@ -258,4 +270,3 @@ Agregar consulta de auditoría administrativa con filtros principales.
 
 ### Estado
 `pending`
-

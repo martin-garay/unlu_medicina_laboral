@@ -5,11 +5,16 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ConversacionResource\Pages;
 use App\Models\Conversacion;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class ConversacionResource extends Resource
@@ -123,6 +128,57 @@ class ConversacionResource extends Resource
                     ->sortable()
                     ->toggleable(),
             ])
+            ->filters([
+                SelectFilter::make('canal')
+                    ->label('Canal')
+                    ->options([
+                        Conversacion::CANAL_WHATSAPP => 'WhatsApp',
+                        Conversacion::CANAL_INTERNO => 'Chat interno',
+                    ]),
+                SelectFilter::make('tipo_flujo')
+                    ->label('Flujo')
+                    ->options(fn (): array => static::distinctOptions('tipo_flujo')),
+                SelectFilter::make('estado_actual')
+                    ->label('Estado actual')
+                    ->options(fn (): array => static::distinctOptions('estado_actual')),
+                TernaryFilter::make('activa')
+                    ->label('Activa')
+                    ->trueLabel('Activas')
+                    ->falseLabel('Inactivas'),
+                Filter::make('ultimo_mensaje_recibido_en')
+                    ->label('Ultimo mensaje recibido')
+                    ->schema([
+                        DatePicker::make('desde')->label('Desde'),
+                        DatePicker::make('hasta')->label('Hasta'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => static::applyDateRangeFilter(
+                        $query,
+                        'ultimo_mensaje_recibido_en',
+                        $data,
+                    )),
+                Filter::make('finalizada_en')
+                    ->label('Finalizada')
+                    ->schema([
+                        DatePicker::make('desde')->label('Desde'),
+                        DatePicker::make('hasta')->label('Hasta'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => static::applyDateRangeFilter(
+                        $query,
+                        'finalizada_en',
+                        $data,
+                    )),
+                Filter::make('created_at')
+                    ->label('Creada')
+                    ->schema([
+                        DatePicker::make('desde')->label('Desde'),
+                        DatePicker::make('hasta')->label('Hasta'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => static::applyDateRangeFilter(
+                        $query,
+                        'created_at',
+                        $data,
+                    )),
+            ])
             ->actions([
                 ViewAction::make()
                     ->label('Ver historial')
@@ -136,6 +192,26 @@ class ConversacionResource extends Resource
     public static function canViewAny(): bool
     {
         return (bool) auth()->user()?->can('conversaciones.view');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function distinctOptions(string $column): array
+    {
+        return Conversacion::query()
+            ->whereNotNull($column)
+            ->distinct()
+            ->orderBy($column)
+            ->pluck($column, $column)
+            ->all();
+    }
+
+    private static function applyDateRangeFilter(Builder $query, string $column, array $data): Builder
+    {
+        return $query
+            ->when($data['desde'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate($column, '>=', $date))
+            ->when($data['hasta'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate($column, '<=', $date));
     }
 
     public static function canView(Model $record): bool

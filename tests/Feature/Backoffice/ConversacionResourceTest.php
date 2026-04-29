@@ -100,6 +100,113 @@ class ConversacionResourceTest extends TestCase
             ->assertDontSee('metadata');
     }
 
+    public function test_authorized_user_can_search_conversations_by_main_fields(): void
+    {
+        $user = $this->createUser();
+        $user->assignRole('admin');
+        $conversacion = $this->createConversacion([
+            'uuid' => '11111111-1111-1111-1111-111111111111',
+            'wa_number' => '549116667777',
+            'dni' => '31111222',
+        ]);
+        $otraConversacion = $this->createConversacion([
+            'uuid' => '22222222-2222-2222-2222-222222222222',
+            'wa_number' => '549118889999',
+            'dni' => '32222333',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->searchTable('31111222')
+            ->assertCanSeeTableRecords([$conversacion])
+            ->assertCanNotSeeTableRecords([$otraConversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->searchTable('549118889999')
+            ->assertCanSeeTableRecords([$otraConversacion])
+            ->assertCanNotSeeTableRecords([$conversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->searchTable('11111111-1111-1111-1111-111111111111')
+            ->assertCanSeeTableRecords([$conversacion])
+            ->assertCanNotSeeTableRecords([$otraConversacion]);
+    }
+
+    public function test_authorized_user_can_filter_conversations_by_operational_fields(): void
+    {
+        $user = $this->createUser();
+        $user->assignRole('admin');
+        $conversacion = $this->createConversacion([
+            'canal' => Conversacion::CANAL_WHATSAPP,
+            'tipo_flujo' => 'aviso_ausencia',
+            'estado_actual' => 'en_progreso',
+            'activa' => true,
+            'ultimo_mensaje_recibido_en' => now()->setDate(2026, 4, 10)->setTime(9, 0),
+            'finalizada_en' => null,
+            'created_at' => now()->setDate(2026, 4, 10)->setTime(9, 1),
+        ]);
+        $otraConversacion = $this->createConversacion([
+            'canal' => Conversacion::CANAL_INTERNO,
+            'tipo_flujo' => 'anticipo_certificado',
+            'estado_actual' => 'finalizada',
+            'activa' => false,
+            'ultimo_mensaje_recibido_en' => now()->setDate(2026, 3, 5)->setTime(9, 0),
+            'finalizada_en' => now()->setDate(2026, 3, 5)->setTime(9, 30),
+            'created_at' => now()->setDate(2026, 3, 5)->setTime(9, 1),
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->assertTableFilterExists('canal')
+            ->assertTableFilterExists('tipo_flujo')
+            ->assertTableFilterExists('estado_actual')
+            ->assertTableFilterExists('activa')
+            ->assertTableFilterExists('ultimo_mensaje_recibido_en')
+            ->assertTableFilterExists('finalizada_en')
+            ->assertTableFilterExists('created_at')
+            ->filterTable('canal', Conversacion::CANAL_WHATSAPP)
+            ->assertCanSeeTableRecords([$conversacion])
+            ->assertCanNotSeeTableRecords([$otraConversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->filterTable('tipo_flujo', 'anticipo_certificado')
+            ->assertCanSeeTableRecords([$otraConversacion])
+            ->assertCanNotSeeTableRecords([$conversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->filterTable('estado_actual', 'en_progreso')
+            ->assertCanSeeTableRecords([$conversacion])
+            ->assertCanNotSeeTableRecords([$otraConversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->filterTable('activa', true)
+            ->assertCanSeeTableRecords([$conversacion])
+            ->assertCanNotSeeTableRecords([$otraConversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->filterTable('ultimo_mensaje_recibido_en', ['desde' => '2026-04-01', 'hasta' => '2026-04-30'])
+            ->assertCanSeeTableRecords([$conversacion])
+            ->assertCanNotSeeTableRecords([$otraConversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->filterTable('finalizada_en', ['desde' => '2026-03-01', 'hasta' => '2026-03-31'])
+            ->assertCanSeeTableRecords([$otraConversacion])
+            ->assertCanNotSeeTableRecords([$conversacion]);
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->filterTable('created_at', ['desde' => '2026-04-01', 'hasta' => '2026-04-30'])
+            ->assertCanSeeTableRecords([$conversacion])
+            ->assertCanNotSeeTableRecords([$otraConversacion]);
+    }
+
     public function test_conversaciones_resource_is_read_only(): void
     {
         $user = $this->createUser();
@@ -253,7 +360,10 @@ class ConversacionResourceTest extends TestCase
 
     private function createConversacion(array $attributes = []): Conversacion
     {
-        return Conversacion::create([
+        $createdAt = $attributes['created_at'] ?? null;
+        $updatedAt = $attributes['updated_at'] ?? $createdAt;
+
+        $conversacion = Conversacion::create([
             'uuid' => $attributes['uuid'] ?? Str::uuid()->toString(),
             'wa_number' => $attributes['wa_number'] ?? '5491112345678',
             'canal' => $attributes['canal'] ?? Conversacion::CANAL_WHATSAPP,
@@ -274,6 +384,14 @@ class ConversacionResourceTest extends TestCase
             'tipo' => $attributes['tipo'] ?? null,
             'metadata' => $attributes['metadata'] ?? ['ip' => '127.0.0.1'],
         ]);
+
+        if ($createdAt) {
+            $conversacion->created_at = $createdAt;
+            $conversacion->updated_at = $updatedAt;
+            $conversacion->save();
+        }
+
+        return $conversacion;
     }
 
     private function createMensaje(Conversacion $conversacion, array $attributes = []): ConversacionMensaje

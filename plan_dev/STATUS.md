@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 01:50 -03
+2026-04-29 01:53 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P0 - Abrir daily de continuación read-only`.
-- Milestone actual: `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
-- Próximo paso sugerido: ejecutar P1 de la daily read-only.
+- Último bloque completado: `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource`.
+- Milestone actual: `P2 - Implementar AvisoResource listado read-only` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
+- Próximo paso sugerido: ejecutar P2 de la daily read-only.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 01:50 -03
+- 2026-04-29 01:53 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`
 
 ### Milestone trabajado
-- `P0 - Abrir daily de continuación read-only`
+- `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se crearon dailies separadas para continuar los frentes pendientes del backoffice y se dejó activa la daily de módulos read-only.
+- se agregaron filtros operativos y búsqueda cubierta por tests en `ConversacionResource`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`, `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`, `plan_dev/daily/2026-04-29-04-backoffice-dashboard-reportes.md`, `plan_dev/daily/2026-04-29-05-backoffice-storage-configuracion.md` y `plan_dev/STATUS.md`
-- resumen técnico: se separaron los pendientes en planes operativos independientes y se marcó como próximo corte `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource`.
+- archivos tocados: `app/Filament/Resources/ConversacionResource.php`, `tests/Feature/Backoffice/ConversacionResourceTest.php`, `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agregaron filtros por canal, tipo de flujo, estado actual, activa y rangos de fechas. Se cubrió búsqueda por `uuid`, `wa_number` y `dni`.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,14 +101,13 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, cambio documental/operativo
-- resultado: no aplica
+- tests corridos: `make test`
+- resultado: `154 passed`, `560 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar el orden de dailies creado.
-- confirmar si el próximo frente posterior a read-only debe ser usuarios/roles o dashboard/reportes.
+- revisar visualmente los filtros en `/admin/conversaciones`.
 - no implementar `I4` ni descarga/visualización de archivos médicos.
 
 ---
@@ -128,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
+- ejecutar `P2 - Implementar AvisoResource listado read-only` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
 
 ---
 
