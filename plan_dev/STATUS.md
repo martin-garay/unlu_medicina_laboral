@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 10:23 -03
+2026-04-29 10:29 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P0 - Abrir daily de usuarios y roles`.
-- Milestone actual: `P1 - Implementar UserResource read-only` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
-- Próximo paso sugerido: ejecutar P1 de la daily de usuarios y roles.
+- Último bloque completado: `P1 - Implementar UserResource read-only`.
+- Milestone actual: `P2 - Agregar gestión básica de usuarios` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- Próximo paso sugerido: revisar P2; puede requerir decisiones de auditoría para roles/password antes de implementar cambios de escritura.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `base_done`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2/P3 se agrego `AvisoResource` con listado y detalle read-only. En P4/P5 se agrego `AnticipoCertificadoResource` con listado y detalle read-only, sin descarga, preview ni exposicion de `storage_path`. En P6 se agrego `AuditoriaAdministrativaResource` read-only. No incluye UI de gestion de usuarios/roles.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2/P3 se agrego `AvisoResource` con listado y detalle read-only. En P4/P5 se agrego `AnticipoCertificadoResource` con listado y detalle read-only, sin descarga, preview ni exposicion de `storage_path`. En P6 se agrego `AuditoriaAdministrativaResource` read-only. En la daily de usuarios P1 se agrego `UserResource` read-only.
 
 ### Auditoria administrativa
 - estado: `base_done`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 10:23 -03
+- 2026-04-29 10:29 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`
 
 ### Milestone trabajado
-- `P0 - Abrir daily de usuarios y roles`
+- `P1 - Implementar UserResource read-only`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se cerro el hito documental de apertura de la daily de usuarios y roles.
+- se agrego UserResource read-only con listado, detalle, filtro por rol y tests de no exposicion de password.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md` y `plan_dev/STATUS.md`
-- resumen técnico: se marco P0 como cerrado y se dejo P1 de usuarios read-only como proximo milestone.
+- archivos tocados: `app/Filament/Resources/UserResource.php`, `app/Filament/Resources/UserResource/Pages/ListUsers.php`, `app/Filament/Resources/UserResource/Pages/ViewUser.php`, `resources/views/filament/resources/user-resource/pages/view-user.blade.php`, `tests/Feature/Backoffice/UserResourceTest.php`, `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agrego Resource de usuarios read-only con busqueda, filtro por rol, detalle sin password y bloqueo create/edit/delete.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,13 +101,13 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, cambio documental
-- resultado: no aplica
+- tests corridos: `make test`
+- resultado: `200 passed`, `831 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar el alcance de `P1 - Implementar UserResource read-only`.
+- revisar visualmente `/admin/usuarios` y el detalle desde la accion de ojo.
 
 ---
 
@@ -126,7 +126,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `P1 - Implementar UserResource read-only` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- evaluar `P2 - Agregar gestión básica de usuarios` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
 
 ---
 

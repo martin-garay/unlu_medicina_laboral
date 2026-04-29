@@ -74,7 +74,22 @@ Agregar listado y detalle read-only de usuarios administrativos.
 - tests de permisos y listado
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se creo `UserResource` read-only.
+- Se agrego listado con nombre, email, roles, `is_admin` y fecha de creacion.
+- Se agrego busqueda por nombre/email y filtro por rol.
+- Se agrego detalle read-only sin exponer `password` ni `remember_token`.
+- Se bloqueo create/edit/delete y acciones masivas.
+- Se agregaron tests de permisos, listado, busqueda, filtro, detalle y bloqueo de escritura.
+
+### Validacion ejecutada
+- `make test`: `200 passed`, `831 assertions`.
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `feat: agregar usuarios read-only`
 
 ---
 
