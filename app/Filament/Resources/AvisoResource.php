@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AvisoResource\Pages;
 use App\Models\Aviso;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -114,7 +115,13 @@ class AvisoResource extends Resource
                     ->label('Sede')
                     ->options(fn (): array => static::distinctOptions('sede')),
             ])
-            ->actions([])
+            ->actions([
+                ViewAction::make()
+                    ->label('Ver detalle')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Aviso $record): string => static::getUrl('view', ['record' => $record]))
+                    ->visible(fn (Aviso $record): bool => static::canView($record)),
+            ])
             ->bulkActions([]);
     }
 
@@ -165,6 +172,7 @@ class AvisoResource extends Resource
     {
         return [
             'index' => Pages\ListAvisos::route('/'),
+            'view' => Pages\ViewAviso::route('/{record}'),
         ];
     }
 }

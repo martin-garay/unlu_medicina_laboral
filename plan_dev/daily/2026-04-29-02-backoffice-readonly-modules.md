@@ -176,7 +176,21 @@ Agregar pantalla de detalle de aviso con relaciones principales sin exponer dato
 - `git diff --check`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se agrego pagina `View` read-only para avisos.
+- Se agrego accion visual de ojo en el listado para abrir el detalle.
+- El detalle muestra datos del agente, datos del aviso, observaciones, conversacion asociada y anticipos N a N/legacy.
+- Se evito exponer `certificado_base64` y metadata tecnica completa.
+- Se agregaron tests de accion de detalle, acceso directo, relaciones y no exposicion de datos sensibles.
+
+### Validacion ejecutada
+- `make test`: `166 passed`, `632 assertions`.
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `feat: agregar detalle read-only de avisos`
 
 ---
 
