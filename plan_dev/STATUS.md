@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 10:22 -03
+2026-04-29 10:23 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P6 - Implementar AuditoriaAdministrativaResource read-only`.
-- Milestone actual: daily read-only `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md` completada.
-- Próximo paso sugerido: continuar con `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- Último bloque completado: `P0 - Abrir daily de usuarios y roles`.
+- Milestone actual: `P1 - Implementar UserResource read-only` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- Próximo paso sugerido: ejecutar P1 de la daily de usuarios y roles.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 10:22 -03
+- 2026-04-29 10:23 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`
+- `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`
 
 ### Milestone trabajado
-- `P6 - Implementar AuditoriaAdministrativaResource read-only`
+- `P0 - Abrir daily de usuarios y roles`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego auditoria administrativa read-only con listado, filtros, detalle y tests de permisos por rol.
+- se cerro el hito documental de apertura de la daily de usuarios y roles.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Filament/Resources/AuditoriaAdministrativaResource.php`, `app/Filament/Resources/AuditoriaAdministrativaResource/Pages/ListAuditoriaAdministrativa.php`, `app/Filament/Resources/AuditoriaAdministrativaResource/Pages/ViewAuditoriaAdministrativa.php`, `resources/views/filament/resources/auditoria-administrativa-resource/pages/view-auditoria-administrativa.blade.php`, `tests/Feature/Backoffice/AuditoriaAdministrativaResourceTest.php`, `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agrego Resource de auditoria administrativa con listado, filtros, accion de detalle, vista read-only y tests de permisos/read-only.
+- archivos tocados: `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md` y `plan_dev/STATUS.md`
+- resumen técnico: se marco P0 como cerrado y se dejo P1 de usuarios read-only como proximo milestone.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,14 +101,13 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `189 passed`, `788 assertions`
+- tests corridos: no aplica, cambio documental
+- resultado: no aplica
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar visualmente `/admin/auditoria-administrativa` y el detalle desde la accion de ojo.
-- no implementar `I4` ni descarga/visualización de archivos médicos.
+- revisar el alcance de `P1 - Implementar UserResource read-only`.
 
 ---
 
@@ -127,7 +126,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- continuar con `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- ejecutar `P1 - Implementar UserResource read-only` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
 
 ---
 

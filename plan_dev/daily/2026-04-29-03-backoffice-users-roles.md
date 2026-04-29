@@ -41,7 +41,17 @@ Dejar ordenado el frente de administración de seguridad del backoffice.
 - `git diff --check`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- La daily de usuarios y roles quedo abierta como frente separado.
+- Se confirma como proximo corte `P1 - Implementar UserResource read-only`.
+
+### Validacion ejecutada
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `docs: abrir daily de usuarios y roles`
 
 ---
 
@@ -158,4 +168,3 @@ Registrar cambios administrativos relevantes en `auditoria_administrativa`.
 
 ### Estado
 `pending`
-
