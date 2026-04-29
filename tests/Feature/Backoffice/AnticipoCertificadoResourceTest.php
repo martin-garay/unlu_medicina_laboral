@@ -228,6 +228,104 @@ class AnticipoCertificadoResourceTest extends TestCase
         $this->assertFalse(AnticipoCertificadoResource::canDeleteAny());
     }
 
+    public function test_authorized_user_sees_detail_action_and_can_access_certificado_detail(): void
+    {
+        $user = $this->createUser();
+        $user->assignRole('admin');
+        [$conversacion, $aviso] = $this->createConversationAndAviso();
+        $anticipo = $this->createAnticipo($conversacion, $aviso);
+
+        Livewire::actingAs($user)
+            ->test(ListAnticipoCertificados::class)
+            ->assertTableActionVisible('view', $anticipo)
+            ->assertTableActionHasIcon('view', 'heroicon-o-eye', $anticipo)
+            ->assertTableActionHasLabel('view', 'Ver detalle', $anticipo)
+            ->assertTableActionHasUrl(
+                'view',
+                AnticipoCertificadoResource::getUrl('view', ['record' => $anticipo]),
+                $anticipo,
+            );
+
+        $this->actingAs($user)
+            ->get(AnticipoCertificadoResource::getUrl('view', ['record' => $anticipo]))
+            ->assertOk();
+    }
+
+    public function test_certificado_detail_shows_safe_file_metadata_without_public_links(): void
+    {
+        $user = $this->createUser();
+        $user->assignRole('admin');
+        [$conversacion, $aviso] = $this->createConversationAndAviso();
+        $anticipo = $this->createAnticipo($conversacion, $aviso, [
+            'numero_anticipo' => 'ANT-DETALLE-1',
+            'nombre_completo' => 'Ana Laboral',
+            'legajo' => 'LEG-DET-1',
+            'sede' => 'Lujan',
+            'tipo_certificado' => 'reposo',
+            'estado' => 'recibido',
+            'observaciones' => 'Observacion segura del anticipo',
+            'metadata' => ['secret' => 'NO_MOSTRAR_METADATA_ANTICIPO_DETALLE'],
+        ]);
+        $anticipo->avisos()->attach($aviso->id, [
+            'origen' => 'manual',
+            'estado_vinculo' => 'activo',
+        ]);
+        $this->createArchivo($conversacion, $anticipo, [
+            'nombre_original' => 'certificado-laboral.pdf',
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+            'size_bytes' => 4096,
+            'storage_disk' => 'local',
+            'storage_path' => 'certificados/privado/no-exponer.pdf',
+            'hash_archivo' => 'HASH-SEGURO-123',
+            'estado_validacion' => 'aceptado',
+            'motivo_rechazo' => 'Sin rechazo',
+            'metadata' => ['secret' => 'NO_MOSTRAR_METADATA_ARCHIVO'],
+        ]);
+
+        $this->actingAs($user)
+            ->get(AnticipoCertificadoResource::getUrl('view', ['record' => $anticipo]))
+            ->assertOk()
+            ->assertSee('ANT-DETALLE-1')
+            ->assertSee('Ana Laboral')
+            ->assertSee('LEG-DET-1')
+            ->assertSee('reposo')
+            ->assertSee('recibido')
+            ->assertSee('Observacion segura del anticipo')
+            ->assertSee('Conversacion asociada')
+            ->assertSee('Aviso legacy asociado')
+            ->assertSee('Avisos asociados')
+            ->assertSee('manual')
+            ->assertSee('activo')
+            ->assertSee('certificado-laboral.pdf')
+            ->assertSee('application/pdf')
+            ->assertSee('4096')
+            ->assertSee('aceptado')
+            ->assertSee('Sin rechazo')
+            ->assertSee('HASH-SEGURO-123')
+            ->assertSee('local')
+            ->assertDontSee('certificados/privado/no-exponer.pdf')
+            ->assertDontSee('storage_path')
+            ->assertDontSee('NO_MOSTRAR_METADATA_ANTICIPO_DETALLE')
+            ->assertDontSee('NO_MOSTRAR_METADATA_ARCHIVO')
+            ->assertDontSee('metadata')
+            ->assertDontSee('Descargar')
+            ->assertDontSee('Preview')
+            ->assertDontSee('Visualizar');
+    }
+
+    public function test_user_without_certificados_permission_cannot_access_certificado_detail_by_direct_url(): void
+    {
+        $user = $this->createUser();
+        $user->givePermissionTo(Permission::findByName('backoffice.access'));
+        [$conversacion, $aviso] = $this->createConversationAndAviso();
+        $anticipo = $this->createAnticipo($conversacion, $aviso);
+
+        $this->actingAs($user)
+            ->get(AnticipoCertificadoResource::getUrl('view', ['record' => $anticipo]))
+            ->assertForbidden();
+    }
+
     public static function rolesWithCertificadosAccessProvider(): array
     {
         return [

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 10:15 -03
+2026-04-29 10:18 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P4 - Implementar AnticipoCertificadoResource listado read-only`.
-- Milestone actual: `P5 - Agregar detalle y metadata de archivos de anticipos` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
-- Próximo paso sugerido: ejecutar P5 de la daily read-only.
+- Último bloque completado: `P5 - Agregar detalle y metadata de archivos de anticipos`.
+- Milestone actual: `P6 - Implementar AuditoriaAdministrativaResource read-only` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
+- Próximo paso sugerido: ejecutar P6 de la daily read-only.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `base_done`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2/P3 se agrego `AvisoResource` con listado y detalle read-only. En P4 se agrego `AnticipoCertificadoResource` con listado read-only sin acciones de archivo. No incluye UI de gestion de usuarios/roles.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2/P3 se agrego `AvisoResource` con listado y detalle read-only. En P4/P5 se agrego `AnticipoCertificadoResource` con listado y detalle read-only, sin descarga, preview ni exposicion de `storage_path`. No incluye UI de gestion de usuarios/roles.
 
 ### Auditoria administrativa
 - estado: `base_done`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 10:15 -03
+- 2026-04-29 10:18 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`
 
 ### Milestone trabajado
-- `P4 - Implementar AnticipoCertificadoResource listado read-only`
+- `P5 - Agregar detalle y metadata de archivos de anticipos`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego listado read-only de certificados medicos/anticipos con busqueda, filtros y tests de ausencia de descarga/preview.
+- se agrego detalle read-only de certificados medicos/anticipos con metadata segura de archivos y tests de no exposicion de rutas internas.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Filament/Resources/AnticipoCertificadoResource.php`, `app/Filament/Resources/AnticipoCertificadoResource/Pages/ListAnticipoCertificados.php`, `tests/Feature/Backoffice/AnticipoCertificadoResourceTest.php`, `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agrego Resource de certificados medicos/anticipos con columnas operativas, busqueda, filtros, contador de archivos y bloqueo de acciones de escritura o archivo.
+- archivos tocados: `app/Filament/Resources/AnticipoCertificadoResource.php`, `app/Filament/Resources/AnticipoCertificadoResource/Pages/ViewAnticipoCertificado.php`, `resources/views/filament/resources/anticipo-certificado-resource/pages/view-anticipo-certificado.blade.php`, `tests/Feature/Backoffice/AnticipoCertificadoResourceTest.php`, `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agrego vista de detalle read-only de certificados medicos/anticipos con relaciones y tabla de archivos limitada a metadata permitida.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -102,12 +102,12 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `175 passed`, `686 assertions`
+- resultado: `178 passed`, `723 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar visualmente `/admin/certificados-medicos`.
+- revisar visualmente `/admin/certificados-medicos` y el detalle desde la accion de ojo.
 - no implementar `I4` ni descarga/visualización de archivos médicos.
 
 ---
@@ -127,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `P5 - Agregar detalle y metadata de archivos de anticipos` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
+- ejecutar `P6 - Implementar AuditoriaAdministrativaResource read-only` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
 
 ---
 

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AnticipoCertificadoResource\Pages;
 use App\Models\AnticipoCertificado;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -129,7 +130,13 @@ class AnticipoCertificadoResource extends Resource
                         $data,
                     )),
             ])
-            ->actions([])
+            ->actions([
+                ViewAction::make()
+                    ->label('Ver detalle')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (AnticipoCertificado $record): string => static::getUrl('view', ['record' => $record]))
+                    ->visible(fn (AnticipoCertificado $record): bool => static::canView($record)),
+            ])
             ->bulkActions([]);
     }
 
@@ -192,6 +199,7 @@ class AnticipoCertificadoResource extends Resource
     {
         return [
             'index' => Pages\ListAnticipoCertificados::route('/'),
+            'view' => Pages\ViewAnticipoCertificado::route('/{record}'),
         ];
     }
 }

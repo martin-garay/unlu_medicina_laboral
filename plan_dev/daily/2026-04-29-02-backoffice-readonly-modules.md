@@ -278,7 +278,21 @@ Mostrar detalle read-only de anticipo y metadata segura de archivos asociados.
 - `git diff --check`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se agrego pagina `View` read-only para certificados medicos/anticipos.
+- Se agrego accion visual de ojo en el listado para abrir el detalle.
+- El detalle muestra datos del agente, datos del certificado, observaciones, conversacion asociada, aviso legacy, avisos N a N y archivos asociados.
+- Los archivos se muestran solo con metadata permitida y no exponen `storage_path`, descarga, preview ni URL publica.
+- Se agregaron tests de accion de detalle, acceso directo, relaciones, metadata segura y no exposicion de rutas internas.
+
+### Validacion ejecutada
+- `make test`: `178 passed`, `723 assertions`.
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `feat: agregar detalle read-only de certificados`
 
 ---
 
