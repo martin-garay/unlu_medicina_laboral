@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 00:49 -03
+2026-04-29 01:00 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada.
-- Último bloque completado: `P1 - Especificar módulos administrativos read-only y estrategia de tests`.
-- Milestone actual: `P2 - Implementar ConversacionResource read-only`.
-- Próximo paso sugerido: implementar `ConversacionResource` read-only con tests, sin tocar `I4` ni archivos médicos.
+- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada y el primer Resource read-only fue implementado.
+- Último bloque completado: `P2 - Implementar ConversacionResource read-only`.
+- Milestone actual: `P3 - Agregar detalle y timeline read-only de conversaciones`.
+- Próximo paso sugerido: implementar detalle/timeline de conversaciones con mensajes y eventos, sin exponer `payload_crudo` completo ni metadata completa.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `base_done`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. No incluye UI de gestion de usuarios/roles.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. No incluye UI de gestion de usuarios/roles.
 
 ### Auditoria administrativa
 - estado: `base_done`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 00:49 -03
+- 2026-04-29 01:00 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29.md`
 
 ### Milestone trabajado
-- `P1 - Especificar módulos administrativos read-only y estrategia de tests`
+- `P2 - Implementar ConversacionResource read-only`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se creo la planificación fina de módulos administrativos/read-only, con columnas, filtros, relaciones, restricciones y tests esperados.
+- se implemento el primer módulo administrativo read-only: listado de conversaciones en Filament con permisos, sin acciones de creación, edición o borrado, y con tests de acceso/listado.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `docs/backoffice/module-specs.md`, `docs/backoffice/README.md`, `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-29.md` y `plan_dev/STATUS.md`
-- resumen técnico: se especificaron módulos read-only de conversaciones, avisos, anticipos/certificados, auditoría, dashboard e informes futuros. Se definió como primer módulo recomendado `ConversacionResource` read-only.
+- archivos tocados: `app/Filament/Resources/ConversacionResource.php`, `app/Filament/Resources/ConversacionResource/Pages/ListConversaciones.php`, `tests/Feature/Backoffice/ConversacionResourceTest.php`, `plan_dev/daily/2026-04-29.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agrego `ConversacionResource` en grupo `Trazabilidad`, con listado read-only, columnas operativas, búsqueda por `wa_number`, `dni` y `uuid`, autorización por `conversaciones.view` y bloqueo de create/edit/delete.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,13 +101,14 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, cambio documental/planificacion
-- resultado: no aplica
+- tests corridos: `make test`
+- resultado: `148 passed`, `492 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
+- nota: se intento `php artisan test --filter=ConversacionResourceTest` fuera del contenedor, pero no se ejecuto porque `php` no esta instalado localmente. La validacion completa se ejecuto por Docker con `make test`.
 
 ### Manuales sugeridas
-- revisar la especificación de `ConversacionResource` antes de implementar P2.
+- revisar visualmente `/admin/conversaciones` con un usuario `admin`, `auditor` o `director`.
 - confirmar si se conserva la matriz actual `*.view` o si se agregan permisos `*.viewAny` más adelante.
 - no implementar `I4` ni descarga/visualización de archivos médicos.
 
@@ -128,7 +129,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `P2 - Implementar ConversacionResource read-only` del daily `plan_dev/daily/2026-04-29.md`.
+- ejecutar `P3 - Agregar detalle y timeline read-only de conversaciones` del daily `plan_dev/daily/2026-04-29.md`.
 
 ---
 
