@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-28 23:20 -03
+2026-04-28 23:21 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament y permisos quedo instalada y validada; `I3 - Auditoria administrativa base` ya tiene contrato documental, tabla, modelo, servicio interno e integracion inicial.
-- Último bloque completado: `A4 - Integrar auditoria en eventos administrativos base`.
-- Milestone actual: `A5 - Cierre operativo de I3`.
-- Próximo paso sugerido: ejecutar `A5` para consolidar documentacion, estado y proximo frente recomendado.
+- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada.
+- Último bloque completado: `A5 - Cierre operativo de I3`.
+- Milestone actual: sin milestone pendiente en el daily `2026-04-28-02-backoffice-auditoria`.
+- Próximo paso sugerido: no implementar `I4 - Storage privado de certificados` todavia; cuando se retome, primero resolver `BO-002` y definir estrategia de storage/acceso seguro.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1 e I2 base, incluyendo permisos y cierre de alcance.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base e I3 base.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -58,8 +58,8 @@ No debe reemplazar:
 - notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. No incluye UI de gestion de usuarios/roles.
 
 ### Auditoria administrativa
-- estado: `in_progress`
-- notas: A1 definio el contrato minimo de evento administrativo en `docs/backoffice/security-and-audit.md`. A2 agrego la tabla `auditoria_administrativa`, el modelo `App\Models\AuditoriaAdministrativa`, tests de persistencia/casts/relaciones y actualizacion del DBML. A3 agrego `App\Domain\Auditoria\Services\AuditoriaAdministrativaService` con validacion de origenes y accion. A4 integro auditoria en el seeder de roles/permisos con eventos `permissions.seeded` y `roles.seeded`.
+- estado: `base_done`
+- notas: I3 base quedo cerrado. Existe contrato documental, tabla `auditoria_administrativa`, modelo `App\Models\AuditoriaAdministrativa`, servicio `App\Domain\Auditoria\Services\AuditoriaAdministrativaService`, tests y una integracion inicial en el seeder de roles/permisos con eventos `permissions.seeded` y `roles.seeded`.
 
 ### Integraciones futuras
 - estado: `pending`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-28 23:20 -03
+- 2026-04-28 23:21 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
 
 ### Milestone trabajado
-- `A4 - Integrar auditoria en eventos administrativos base`
+- `A5 - Cierre operativo de I3`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se integro auditoria administrativa en el seeder de roles y permisos, registrando eventos de comando con metadata minima.
+- se consolido el cierre operativo de `I3 - Auditoria administrativa base` y se dejo `I4` pendiente sin implementarlo.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `database/seeders/BackofficeRolesAndPermissionsSeeder.php`, `tests/Feature/Backoffice/BackofficeRolesAndPermissionsSeederTest.php`, `docs/backoffice/security-and-audit.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
-- resumen técnico: el seeder registra `permissions.seeded` y `roles.seeded` con `origin = command`, actor nulo y metadata limitada a guard y conteos. Se evita fallo en entornos parcialmente migrados cuando la tabla de auditoria no existe.
+- archivos tocados: `docs/backoffice/implementation-plan.md`, `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md` y `plan_dev/STATUS.md`
+- resumen técnico: se marco `I3` como `base done`, se documento el resultado del frente y se dejo explicito que `I4` no se implementa por ahora.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -127,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `A5 - Cierre operativo de I3` del daily `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`
+- no hay milestone pendiente en el daily actual. Antes de implementar `I4`, resolver `BO-002` sobre storage privado de certificados.
 
 ---
 

@@ -197,6 +197,23 @@ La matriz inicial se documenta en `docs/backoffice/permissions.md` y define role
 ### Objetivo
 Crear una base reutilizable para auditar acciones administrativas y accesos sensibles.
 
+### Estado
+`base done` en `plan_dev/daily/2026-04-28-02-backoffice-auditoria.md`.
+
+### Resultado
+- Contrato mínimo documentado en `docs/backoffice/security-and-audit.md`.
+- Tabla `auditoria_administrativa` creada.
+- Modelo `App\Models\AuditoriaAdministrativa` disponible con casts y relaciones.
+- Servicio `App\Domain\Auditoria\Services\AuditoriaAdministrativaService` disponible como API interna.
+- Seeder de roles/permisos integrado con eventos `permissions.seeded` y `roles.seeded`.
+- DBML actualizado con la tabla de auditoría administrativa.
+
+### Fuera del cierre base
+- auditoría de lectura/descarga de archivos médicos
+- Resources funcionales de Filament
+- Application Actions de avisos, certificados o asociaciones
+- storage privado de certificados
+
 ### Alcance
 - modelo y migración de auditoría
 - `AuditoriaService`
