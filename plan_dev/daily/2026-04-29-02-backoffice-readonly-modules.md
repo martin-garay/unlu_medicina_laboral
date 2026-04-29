@@ -224,7 +224,21 @@ Agregar consulta de anticipos/certificados sin acceso a archivos médicos.
 - `git diff --check`
 
 ### Estado
-`pending`
+`done`
+
+### Resultado de ejecucion
+- Se creo `AnticipoCertificadoResource` con label operativo de certificados medicos.
+- Se agrego listado read-only protegido por `certificados.view`.
+- Se agregaron columnas operativas, contador de archivos, busqueda por `uuid`, `numero_anticipo`, `nombre_completo`, `legajo`, `wa_number` y filtros por `estado`, `tipo_certificado`, `sede`, `registrado_en` y `created_at`.
+- Se bloquearon create/edit/delete, acciones de fila y acciones masivas.
+- Se agregaron tests de acceso, listado, busqueda, filtros, bloqueo de escritura y ausencia de descarga/preview.
+
+### Validacion ejecutada
+- `make test`: `175 passed`, `686 assertions`.
+- `git diff --check`: sin errores.
+
+### Commit sugerido
+- `feat: agregar listado read-only de certificados`
 
 ---
 
