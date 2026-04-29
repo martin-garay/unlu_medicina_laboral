@@ -5,6 +5,8 @@ namespace Tests\Feature\Backoffice;
 use App\Filament\Resources\ConversacionResource;
 use App\Filament\Resources\ConversacionResource\Pages\ListConversaciones;
 use App\Models\Conversacion;
+use App\Models\ConversacionEvento;
+use App\Models\ConversacionMensaje;
 use App\Models\User;
 use Database\Seeders\BackofficeRolesAndPermissionsSeeder;
 use Filament\Facades\Filament;
@@ -114,6 +116,122 @@ class ConversacionResourceTest extends TestCase
         $this->assertFalse(ConversacionResource::canDeleteAny());
     }
 
+    public function test_user_with_list_permission_but_without_history_permission_does_not_see_view_action(): void
+    {
+        $user = $this->createUser();
+        $user->givePermissionTo('backoffice.access', 'conversaciones.view');
+        $conversacion = $this->createConversacion();
+
+        $this->actingAs($user)
+            ->get(ConversacionResource::getUrl('index'))
+            ->assertOk();
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->assertTableActionHidden('view', $conversacion);
+    }
+
+    public function test_user_without_history_permission_cannot_access_history_by_direct_url(): void
+    {
+        $user = $this->createUser();
+        $user->givePermissionTo('backoffice.access', 'conversaciones.view');
+        $conversacion = $this->createConversacion();
+
+        $this->actingAs($user)
+            ->get(ConversacionResource::getUrl('view', ['record' => $conversacion]))
+            ->assertForbidden();
+    }
+
+    public function test_user_with_history_permission_sees_eye_action_and_can_access_history(): void
+    {
+        $user = $this->createUser();
+        $user->assignRole('admin');
+        $conversacion = $this->createConversacion();
+
+        Livewire::actingAs($user)
+            ->test(ListConversaciones::class)
+            ->assertTableActionVisible('view', $conversacion)
+            ->assertTableActionHasIcon('view', 'heroicon-o-eye', $conversacion)
+            ->assertTableActionHasLabel('view', 'Ver historial', $conversacion)
+            ->assertTableActionHasUrl(
+                'view',
+                ConversacionResource::getUrl('view', ['record' => $conversacion]),
+                $conversacion,
+            );
+
+        $this->actingAs($user)
+            ->get(ConversacionResource::getUrl('view', ['record' => $conversacion]))
+            ->assertOk();
+    }
+
+    public function test_history_page_shows_ordered_message_thread_and_events_without_sensitive_payloads(): void
+    {
+        $user = $this->createUser();
+        $user->assignRole('admin');
+        $conversacion = $this->createConversacion([
+            'wa_number' => '549113334444',
+            'dni' => '30999888',
+            'estado_actual' => 'en_progreso',
+            'paso_actual' => 'aviso.fecha_desde',
+            'metadata' => ['secret' => 'NO_MOSTRAR_METADATA_CONVERSACION'],
+        ]);
+
+        $this->createMensaje($conversacion, [
+            'direccion' => ConversacionMensaje::DIRECCION_SALIENTE,
+            'contenido_texto' => 'Segundo mensaje chatbot',
+            'tipo_mensaje' => 'text',
+            'step_key' => 'menu_principal',
+            'message_key' => 'mensaje.segundo',
+            'template_name' => 'template_segundo',
+            'payload_crudo' => ['secret' => 'NO_MOSTRAR_PAYLOAD_SEGUNDO'],
+            'metadata' => ['secret' => 'NO_MOSTRAR_METADATA_SEGUNDO'],
+            'created_at' => now()->setTime(10, 1),
+        ]);
+        $this->createMensaje($conversacion, [
+            'direccion' => ConversacionMensaje::DIRECCION_ENTRANTE,
+            'contenido_texto' => 'Primer mensaje usuario',
+            'tipo_mensaje' => 'text',
+            'step_key' => 'inicio',
+            'payload_crudo' => ['secret' => 'NO_MOSTRAR_PAYLOAD_PRIMERO'],
+            'metadata' => ['secret' => 'NO_MOSTRAR_METADATA_PRIMERO'],
+            'created_at' => now()->setTime(10, 0),
+        ]);
+
+        $this->createEvento($conversacion, [
+            'tipo_evento' => 'evento_segundo',
+            'descripcion' => 'Segundo evento registrado',
+            'codigo' => 'SEGUNDO',
+            'created_at' => now()->setTime(10, 3),
+        ]);
+        $this->createEvento($conversacion, [
+            'tipo_evento' => 'evento_primero',
+            'descripcion' => 'Primer evento registrado',
+            'codigo' => 'PRIMERO',
+            'created_at' => now()->setTime(10, 2),
+        ]);
+
+        $this->actingAs($user)
+            ->get(ConversacionResource::getUrl('view', ['record' => $conversacion]))
+            ->assertOk()
+            ->assertSee('549113334444')
+            ->assertSee('30999888')
+            ->assertSee('en_progreso')
+            ->assertSee('Usuario')
+            ->assertSee('Chatbot')
+            ->assertSeeInOrder(['Primer mensaje usuario', 'Segundo mensaje chatbot'])
+            ->assertSeeInOrder(['evento_primero', 'evento_segundo'])
+            ->assertSeeInOrder(['Primer evento registrado', 'Segundo evento registrado'])
+            ->assertDontSee('NO_MOSTRAR_PAYLOAD_PRIMERO')
+            ->assertDontSee('NO_MOSTRAR_PAYLOAD_SEGUNDO')
+            ->assertDontSee('NO_MOSTRAR_METADATA_PRIMERO')
+            ->assertDontSee('NO_MOSTRAR_METADATA_SEGUNDO')
+            ->assertDontSee('NO_MOSTRAR_METADATA_CONVERSACION')
+            ->assertDontSee('payload_crudo')
+            ->assertDontSee('Reprocesar')
+            ->assertDontSee('Responder')
+            ->assertDontSee('Reenviar');
+    }
+
     public static function rolesWithConversationAccessProvider(): array
     {
         return [
@@ -156,5 +274,51 @@ class ConversacionResourceTest extends TestCase
             'tipo' => $attributes['tipo'] ?? null,
             'metadata' => $attributes['metadata'] ?? ['ip' => '127.0.0.1'],
         ]);
+    }
+
+    private function createMensaje(Conversacion $conversacion, array $attributes = []): ConversacionMensaje
+    {
+        $createdAt = $attributes['created_at'] ?? now();
+
+        $mensaje = new ConversacionMensaje([
+            'uuid' => $attributes['uuid'] ?? Str::uuid()->toString(),
+            'conversacion_id' => $conversacion->id,
+            'direccion' => $attributes['direccion'] ?? ConversacionMensaje::DIRECCION_ENTRANTE,
+            'provider_message_id' => $attributes['provider_message_id'] ?? null,
+            'tipo_mensaje' => $attributes['tipo_mensaje'] ?? 'text',
+            'step_key' => $attributes['step_key'] ?? 'inicio',
+            'contenido_texto' => $attributes['contenido_texto'] ?? 'Mensaje de prueba',
+            'es_valido' => $attributes['es_valido'] ?? true,
+            'motivo_invalidez' => $attributes['motivo_invalidez'] ?? null,
+            'message_key' => $attributes['message_key'] ?? null,
+            'template_name' => $attributes['template_name'] ?? null,
+            'payload_crudo' => $attributes['payload_crudo'] ?? null,
+            'metadata' => $attributes['metadata'] ?? null,
+        ]);
+        $mensaje->created_at = $createdAt;
+        $mensaje->updated_at = $createdAt;
+        $mensaje->save();
+
+        return $mensaje;
+    }
+
+    private function createEvento(Conversacion $conversacion, array $attributes = []): ConversacionEvento
+    {
+        $createdAt = $attributes['created_at'] ?? now();
+
+        $evento = new ConversacionEvento([
+            'uuid' => $attributes['uuid'] ?? Str::uuid()->toString(),
+            'conversacion_id' => $conversacion->id,
+            'tipo_evento' => $attributes['tipo_evento'] ?? 'evento_prueba',
+            'step_key' => $attributes['step_key'] ?? 'inicio',
+            'descripcion' => $attributes['descripcion'] ?? 'Evento de prueba',
+            'codigo' => $attributes['codigo'] ?? null,
+            'metadata' => $attributes['metadata'] ?? null,
+        ]);
+        $evento->created_at = $createdAt;
+        $evento->updated_at = $createdAt;
+        $evento->save();
+
+        return $evento;
     }
 }

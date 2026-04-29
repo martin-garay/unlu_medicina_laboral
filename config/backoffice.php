@@ -10,6 +10,7 @@ $permissions = [
     'avisos.view',
     'certificados.view',
     'conversaciones.view',
+    'conversaciones.historial.view',
     'auditoria.view',
     'reportes.view',
 ];
@@ -27,6 +28,7 @@ return [
             'avisos.view',
             'certificados.view',
             'conversaciones.view',
+            'conversaciones.historial.view',
             'auditoria.view',
             'reportes.view',
         ],
@@ -36,6 +38,7 @@ return [
             'avisos.view',
             'certificados.view',
             'conversaciones.view',
+            'conversaciones.historial.view',
             'reportes.view',
         ],
     ],

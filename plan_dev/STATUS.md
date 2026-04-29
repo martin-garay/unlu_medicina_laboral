@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 01:28 -03
+2026-04-29 01:36 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y la regla de `admin` total en desarrollo quedó explicitada.
-- Último bloque completado: documentación de alcance para `P3 - Agregar visualización de historial de conversación`.
-- Milestone actual: `P3 - Agregar visualización de historial de conversación`.
-- Próximo paso sugerido: implementar acción de ojo y pantalla de historial de conversaciones con mensajes/eventos, sin exponer `payload_crudo` completo ni metadata completa.
+- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
+- Último bloque completado: `P3 - Agregar visualización de historial de conversación`.
+- Milestone actual: cierre de daily 2026-04-29.
+- Próximo paso sugerido: abrir próximo milestone/daily para filtros de conversaciones o para iniciar `AvisoResource` read-only.
 
 ---
 
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `base_done`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. P3 queda especificado con permiso nuevo `conversaciones.historial.view` para acción de ojo y pantalla de historial. No incluye UI de gestion de usuarios/roles.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. No incluye UI de gestion de usuarios/roles.
 
 ### Auditoria administrativa
 - estado: `base_done`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 01:28 -03
+- 2026-04-29 01:36 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-04-29.md`
 
 ### Milestone trabajado
-- Documentación de alcance para `P3 - Agregar visualización de historial de conversación`
+- `P3 - Agregar visualización de historial de conversación`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se detallo el próximo milestone para agregar una acción de ojo que abra el historial completo de mensajes y eventos de una conversación.
+- se agrego el permiso `conversaciones.historial.view`, la acción de ojo en el listado y una pantalla read-only para ver el hilo usuario/chatbot con eventos de trazabilidad.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-04-29.md`, `docs/backoffice/module-specs.md`, `docs/backoffice/permissions.md` y `plan_dev/STATUS.md`
-- resumen técnico: se especifico `conversaciones.historial.view` como permiso para historial/detalle, la acción visual de ojo, la pantalla read-only del hilo usuario/chatbot, los campos seguros de mensajes/eventos y los tests esperados.
+- archivos tocados: `config/backoffice.php`, `app/Filament/Resources/ConversacionResource.php`, `app/Filament/Resources/ConversacionResource/Pages/ViewConversacion.php`, `resources/views/filament/resources/conversacion-resource/pages/view-conversacion.blade.php`, `tests/Feature/Backoffice/ConversacionResourceTest.php`, `tests/Feature/Backoffice/BackofficeRolesAndPermissionsSeederTest.php`, `plan_dev/daily/2026-04-29.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agrego permiso de historial, acción `View` con icono de ojo, ruta/página de detalle read-only, render del hilo de mensajes y eventos ordenados, y sanitización de `metadata` del estado Livewire.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,14 +101,14 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, cambio documental
-- resultado: no aplica
+- tests corridos: `make test`
+- resultado: `152 passed`, `526 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- confirmar el nombre del permiso `conversaciones.historial.view` antes de implementar P3 si se prefiere otra nomenclatura.
-- revisar visualmente `/admin/conversaciones` con un usuario `admin`, `auditor` o `director` luego de implementar P3.
+- revisar visualmente `/admin/conversaciones` con un usuario `admin`, `auditor` o `director`.
+- abrir el icono de ojo de una conversación con mensajes/eventos de prueba.
 - no implementar `I4` ni descarga/visualización de archivos médicos.
 
 ---
@@ -128,7 +128,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `P3 - Agregar visualización de historial de conversación` del daily `plan_dev/daily/2026-04-29.md`.
+- abrir una nueva daily o extender la actual con el próximo corte: filtros/búsqueda de conversaciones o `AvisoResource` read-only.
 
 ---
 

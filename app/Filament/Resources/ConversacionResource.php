@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ConversacionResource\Pages;
 use App\Models\Conversacion;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -122,7 +123,13 @@ class ConversacionResource extends Resource
                     ->sortable()
                     ->toggleable(),
             ])
-            ->actions([])
+            ->actions([
+                ViewAction::make()
+                    ->label('Ver historial')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Conversacion $record): string => static::getUrl('view', ['record' => $record]))
+                    ->visible(fn (Conversacion $record): bool => static::canView($record)),
+            ])
             ->bulkActions([]);
     }
 
@@ -133,7 +140,12 @@ class ConversacionResource extends Resource
 
     public static function canView(Model $record): bool
     {
-        return static::canViewAny();
+        return static::canViewHistory();
+    }
+
+    public static function canViewHistory(): bool
+    {
+        return (bool) auth()->user()?->can('conversaciones.historial.view');
     }
 
     public static function canCreate(): bool
@@ -160,6 +172,7 @@ class ConversacionResource extends Resource
     {
         return [
             'index' => Pages\ListConversaciones::route('/'),
+            'view' => Pages\ViewConversacion::route('/{record}'),
         ];
     }
 }

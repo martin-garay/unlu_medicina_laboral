@@ -38,9 +38,12 @@ class BackofficeRolesAndPermissionsSeederTest extends TestCase
         $director = Role::findByName('director', 'web');
 
         $this->assertTrue($admin->hasPermissionTo('users.manage'));
+        $this->assertTrue($admin->hasPermissionTo('conversaciones.historial.view'));
         $this->assertTrue($auditor->hasPermissionTo('auditoria.view'));
+        $this->assertTrue($auditor->hasPermissionTo('conversaciones.historial.view'));
         $this->assertFalse($auditor->hasPermissionTo('users.manage'));
         $this->assertTrue($director->hasPermissionTo('reportes.view'));
+        $this->assertTrue($director->hasPermissionTo('conversaciones.historial.view'));
         $this->assertFalse($director->hasPermissionTo('auditoria.view'));
 
         $this->assertDatabaseHas('auditoria_administrativa', [
