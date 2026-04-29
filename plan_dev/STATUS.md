@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 01:36 -03
+2026-04-29 01:50 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P3 - Agregar visualización de historial de conversación`.
-- Milestone actual: cierre de daily 2026-04-29.
-- Próximo paso sugerido: abrir próximo milestone/daily para filtros de conversaciones o para iniciar `AvisoResource` read-only.
+- Último bloque completado: `P0 - Abrir daily de continuación read-only`.
+- Milestone actual: `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
+- Próximo paso sugerido: ejecutar P1 de la daily read-only.
 
 ---
 
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base, I3 base y especificación fina de módulos administrativos en `docs/backoffice/module-specs.md`.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base, I3 base y especificación fina de módulos administrativos en `docs/backoffice/module-specs.md`. Quedaron creadas dailies separadas para módulos read-only, usuarios/roles, dashboard/reportes y storage/configuración.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 01:36 -03
+- 2026-04-29 01:50 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-29.md`
+- `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`
 
 ### Milestone trabajado
-- `P3 - Agregar visualización de historial de conversación`
+- `P0 - Abrir daily de continuación read-only`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego el permiso `conversaciones.historial.view`, la acción de ojo en el listado y una pantalla read-only para ver el hilo usuario/chatbot con eventos de trazabilidad.
+- se crearon dailies separadas para continuar los frentes pendientes del backoffice y se dejó activa la daily de módulos read-only.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `config/backoffice.php`, `app/Filament/Resources/ConversacionResource.php`, `app/Filament/Resources/ConversacionResource/Pages/ViewConversacion.php`, `resources/views/filament/resources/conversacion-resource/pages/view-conversacion.blade.php`, `tests/Feature/Backoffice/ConversacionResourceTest.php`, `tests/Feature/Backoffice/BackofficeRolesAndPermissionsSeederTest.php`, `plan_dev/daily/2026-04-29.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agrego permiso de historial, acción `View` con icono de ojo, ruta/página de detalle read-only, render del hilo de mensajes y eventos ordenados, y sanitización de `metadata` del estado Livewire.
+- archivos tocados: `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`, `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`, `plan_dev/daily/2026-04-29-04-backoffice-dashboard-reportes.md`, `plan_dev/daily/2026-04-29-05-backoffice-storage-configuracion.md` y `plan_dev/STATUS.md`
+- resumen técnico: se separaron los pendientes en planes operativos independientes y se marcó como próximo corte `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource`.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,14 +101,14 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `152 passed`, `526 assertions`
+- tests corridos: no aplica, cambio documental/operativo
+- resultado: no aplica
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar visualmente `/admin/conversaciones` con un usuario `admin`, `auditor` o `director`.
-- abrir el icono de ojo de una conversación con mensajes/eventos de prueba.
+- revisar el orden de dailies creado.
+- confirmar si el próximo frente posterior a read-only debe ser usuarios/roles o dashboard/reportes.
 - no implementar `I4` ni descarga/visualización de archivos médicos.
 
 ---
@@ -128,7 +128,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- abrir una nueva daily o extender la actual con el próximo corte: filtros/búsqueda de conversaciones o `AvisoResource` read-only.
+- ejecutar `P1 - Agregar filtros y búsqueda avanzada a ConversacionResource` en `plan_dev/daily/2026-04-29-02-backoffice-readonly-modules.md`.
 
 ---
 
