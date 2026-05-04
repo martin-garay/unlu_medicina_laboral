@@ -215,6 +215,7 @@ class AuditoriaAdministrativaResourceTest extends TestCase
         $this->actingAs($user)
             ->get(AuditoriaAdministrativaResource::getUrl('view', ['record' => $evento]))
             ->assertOk()
+            ->assertSee('Volver')
             ->assertSee('Auditor Detalle')
             ->assertSee('auditor-detalle@example.test')
             ->assertSee('avisos.updated')

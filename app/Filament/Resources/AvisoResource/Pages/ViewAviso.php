@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AvisoResource\Pages;
 
 use App\Filament\Resources\AvisoResource;
 use App\Models\AnticipoCertificado;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -44,7 +45,13 @@ class ViewAviso extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('volver')
+                ->label(__('backoffice.actions.back'))
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(AvisoResource::getUrl('index')),
+        ];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array

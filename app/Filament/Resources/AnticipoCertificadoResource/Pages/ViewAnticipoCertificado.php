@@ -5,6 +5,7 @@ namespace App\Filament\Resources\AnticipoCertificadoResource\Pages;
 use App\Filament\Resources\AnticipoCertificadoResource;
 use App\Models\AnticipoCertificadoArchivo;
 use App\Models\Aviso;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -45,7 +46,13 @@ class ViewAnticipoCertificado extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('volver')
+                ->label(__('backoffice.actions.back'))
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(AnticipoCertificadoResource::getUrl('index')),
+        ];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AuditoriaAdministrativaResource\Pages;
 
 use App\Filament\Resources\AuditoriaAdministrativaResource;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewAuditoriaAdministrativa extends ViewRecord
@@ -18,6 +19,12 @@ class ViewAuditoriaAdministrativa extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('volver')
+                ->label(__('backoffice.actions.back'))
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(AuditoriaAdministrativaResource::getUrl('index')),
+        ];
     }
 }

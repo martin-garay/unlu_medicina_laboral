@@ -171,6 +171,7 @@ class UserResourceTest extends TestCase
         $this->actingAs($admin)
             ->get(UserResource::getUrl('view', ['record' => $user]))
             ->assertOk()
+            ->assertSee('Volver')
             ->assertSee('Usuario Detalle')
             ->assertSee('detalle@example.test')
             ->assertSee('auditor')

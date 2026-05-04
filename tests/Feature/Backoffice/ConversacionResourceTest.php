@@ -268,7 +268,8 @@ class ConversacionResourceTest extends TestCase
 
         $this->actingAs($user)
             ->get(ConversacionResource::getUrl('view', ['record' => $conversacion]))
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('Volver');
     }
 
     public function test_history_page_shows_ordered_message_thread_and_events_without_sensitive_payloads(): void
@@ -320,6 +321,7 @@ class ConversacionResourceTest extends TestCase
         $this->actingAs($user)
             ->get(ConversacionResource::getUrl('view', ['record' => $conversacion]))
             ->assertOk()
+            ->assertSee('Volver')
             ->assertSee('549113334444')
             ->assertSee('30999888')
             ->assertSee('en_progreso')

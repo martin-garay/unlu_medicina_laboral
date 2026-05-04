@@ -12,12 +12,12 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-04-29 10:30 -03
+2026-05-04 07:52 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P1 - Implementar UserResource read-only`.
-- Milestone actual: `P2 - Agregar gestión básica de usuarios` quedo `blocked` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
+- Último bloque completado: `P1 - Agregar acción Volver a detalles de backoffice`.
+- Milestone actual: `P2 - Agregar gestión básica de usuarios` sigue `blocked` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
 - Próximo paso sugerido: definir auditoría y flujo de reset de password antes de habilitar escritura en usuarios/roles.
 
 ---
@@ -26,7 +26,7 @@ No debe reemplazar:
 
 ### Documentación
 - estado: `in_progress`
-- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base, I3 base y especificación fina de módulos administrativos en `docs/backoffice/module-specs.md`. Quedaron creadas dailies separadas para módulos read-only, usuarios/roles, dashboard/reportes y storage/configuración.
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base, I3 base, especificación fina de módulos administrativos y convención de botón `Volver` en pantallas de detalle en `docs/backoffice/module-specs.md`. Quedaron creadas dailies separadas para módulos read-only, usuarios/roles, dashboard/reportes y storage/configuración.
 
 ### Motor de conversación
 - estado: `in_progress`
@@ -55,7 +55,7 @@ No debe reemplazar:
 
 ### Admin / roles / permisos
 - estado: `base_done`
-- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2/P3 se agrego `AvisoResource` con listado y detalle read-only. En P4/P5 se agrego `AnticipoCertificadoResource` con listado y detalle read-only, sin descarga, preview ni exposicion de `storage_path`. En P6 se agrego `AuditoriaAdministrativaResource` read-only. En la daily de usuarios P1 se agrego `UserResource` read-only.
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2/P3 se agrego `AvisoResource` con listado y detalle read-only. En P4/P5 se agrego `AnticipoCertificadoResource` con listado y detalle read-only, sin descarga, preview ni exposicion de `storage_path`. En P6 se agrego `AuditoriaAdministrativaResource` read-only. En la daily de usuarios P1 se agrego `UserResource` read-only. Desde 2026-05-04 todas las pantallas de detalle/historial abiertas desde listados tienen accion `Volver`.
 
 ### Auditoria administrativa
 - estado: `base_done`
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-04-29 10:30 -03
+- 2026-05-04 07:52 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`
+- `plan_dev/daily/2026-05-04.md`
 
 ### Milestone trabajado
-- `P2 - Agregar gestión básica de usuarios`
+- `P1 - Agregar acción Volver a detalles de backoffice`
 
 ### Resultado
-- `blocked`
+- `done`
 
 ### Resumen corto
-- se freno antes de implementar escritura de usuarios porque no esta definido si la auditoria critica vive en P2 o P5, ni el flujo de reset de password.
+- se agrego una accion `Volver` consistente en todas las pantallas de detalle/historial del backoffice abiertas desde listados.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md` y `plan_dev/STATUS.md`
-- resumen técnico: se marco P2 como bloqueado por ambigüedad funcional/arquitectonica antes de habilitar escritura sobre usuarios.
+- archivos tocados: `app/Filament/Resources/*/Pages/View*.php`, `lang/es/backoffice.php`, tests de Resources de backoffice, `docs/backoffice/module-specs.md`, `plan_dev/daily/2026-05-04.md` y `plan_dev/STATUS.md`
+- resumen técnico: se agregaron acciones de header `Volver` en `ViewConversacion`, `ViewAviso`, `ViewAnticipoCertificado`, `ViewAuditoriaAdministrativa` y `ViewUser`, usando traduccion y tests de render.
 - documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no aplica
 
@@ -101,12 +101,13 @@ No debe reemplazar:
 ## Validaciones
 
 ### Automáticas
-- tests corridos: no aplica, no hubo cambio de codigo en P2
-- resultado: no aplica
+- tests corridos: `make test`
+- resultado: `200 passed`, `839 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
+- revisar visualmente el botón `Volver` en detalles de conversaciones, avisos, certificados, auditoría y usuarios.
 - definir si la auditoria de creacion/edicion/roles/password debe implementarse antes o dentro de P2.
 - definir flujo de reset de password y salvaguardas exactas para self-access y ultimo admin.
 

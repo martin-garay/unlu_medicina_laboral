@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewUser extends ViewRecord
@@ -18,7 +19,13 @@ class ViewUser extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('volver')
+                ->label(__('backoffice.actions.back'))
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(UserResource::getUrl('index')),
+        ];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array

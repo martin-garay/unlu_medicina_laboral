@@ -248,7 +248,8 @@ class AnticipoCertificadoResourceTest extends TestCase
 
         $this->actingAs($user)
             ->get(AnticipoCertificadoResource::getUrl('view', ['record' => $anticipo]))
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('Volver');
     }
 
     public function test_certificado_detail_shows_safe_file_metadata_without_public_links(): void
@@ -286,6 +287,7 @@ class AnticipoCertificadoResourceTest extends TestCase
         $this->actingAs($user)
             ->get(AnticipoCertificadoResource::getUrl('view', ['record' => $anticipo]))
             ->assertOk()
+            ->assertSee('Volver')
             ->assertSee('ANT-DETALLE-1')
             ->assertSee('Ana Laboral')
             ->assertSee('LEG-DET-1')

@@ -220,7 +220,8 @@ class AvisoResourceTest extends TestCase
 
         $this->actingAs($user)
             ->get(AvisoResource::getUrl('view', ['record' => $aviso]))
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('Volver');
     }
 
     public function test_aviso_detail_shows_relations_without_sensitive_payloads(): void
@@ -268,6 +269,7 @@ class AvisoResourceTest extends TestCase
         $this->actingAs($user)
             ->get(AvisoResource::getUrl('view', ['record' => $aviso]))
             ->assertOk()
+            ->assertSee('Volver')
             ->assertSee('Ana Laboral')
             ->assertSee('30999888')
             ->assertSee('LEG-9988')

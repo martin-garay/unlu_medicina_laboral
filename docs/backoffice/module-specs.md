@@ -29,11 +29,10 @@ Base disponible:
 
 No disponible todavía:
 
-- Resources funcionales en `app/Filament/Resources`.
-- UI de usuarios, roles o permisos.
 - storage privado real de certificados.
 - descarga o visualización segura de archivos médicos.
 - acciones administrativas de cambio de estado.
+- gestión de escritura de usuarios, roles o permisos.
 - configuración de Dusk o Playwright.
 
 ## Arquitectura obligatoria
@@ -65,6 +64,13 @@ Reglas:
 - No implementar State Machine en estos módulos.
 - No implementar multi-tenancy ni separación por sedes.
 - No implementar permisos por campo o columna.
+
+## Convenciones de interfaz
+
+- Toda pantalla de detalle o historial accesible desde un listado debe incluir una acción visual `Volver` en el header.
+- La acción `Volver` debe usar icono de flecha a la izquierda y retornar al listado del Resource correspondiente.
+- Esta acción no reemplaza los permisos de acceso: solo debe mostrarse en páginas ya autorizadas.
+- El texto visible de la acción debe resolverse desde traducciones de backoffice.
 
 ## Estrategia de testing
 

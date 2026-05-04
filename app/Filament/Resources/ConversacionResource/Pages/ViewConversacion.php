@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ConversacionResource\Pages;
 use App\Filament\Resources\ConversacionResource;
 use App\Models\ConversacionEvento;
 use App\Models\ConversacionMensaje;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -45,7 +46,13 @@ class ViewConversacion extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('volver')
+                ->label(__('backoffice.actions.back'))
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(ConversacionResource::getUrl('index')),
+        ];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
