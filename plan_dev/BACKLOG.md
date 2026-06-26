@@ -125,3 +125,13 @@ Usar una categoría para agrupar mejor:
 - acción sugerida: confirmar si el campo queda como cache del primer aviso o si se depreca luego de migrar lecturas a la pivot.
 - dependencia: antes de remover o reinterpretar lecturas legacy.
 - notas: el backoffice nuevo debe leer asociaciones desde la relación N a N.
+
+### [CONV-001] Evaluar índice único parcial para mensajes entrantes
+- estado: `candidate`
+- prioridad: `medium`
+- categoría: `modelo_datos`
+- detectado en: `plan_dev/daily/2026-06-26.md`
+- contexto: M3 agregó guard de aplicación para ignorar mensajes entrantes duplicados por `provider_message_id`. La base todavía permite duplicados si hubiera concurrencia o escrituras fuera del servicio.
+- acción sugerida: evaluar migración con índice único parcial para `direccion = in` y `provider_message_id IS NOT NULL`, revisando primero datos existentes.
+- dependencia: ventana de migración y criterio para normalizar duplicados históricos si aparecieran.
+- notas: no fue necesario para corregir el bug operativo del daily; queda como refuerzo futuro.

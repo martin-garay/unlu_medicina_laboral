@@ -121,6 +121,65 @@ class ConversationInteractionServiceTest extends TestCase
         ]);
     }
 
+    public function test_duplicate_provider_message_id_is_ignored_without_advancing_conversation(): void
+    {
+        $service = app(ConversationInteractionService::class);
+
+        $service->handleInboundMessage(
+            new ConversationInboundMessage(
+                channel: Conversacion::CANAL_WHATSAPP,
+                participantId: '5493333333344',
+                text: 'hola',
+                providerMessageId: 'wamid-start-dup',
+                incomingMessageType: 'text',
+                rawPayload: ['text' => ['body' => 'hola']],
+                content: 'hola',
+            )
+        );
+
+        $firstSelection = $service->handleInboundMessage(
+            new ConversationInboundMessage(
+                channel: Conversacion::CANAL_WHATSAPP,
+                participantId: '5493333333344',
+                text: '2',
+                providerMessageId: 'wamid-selection-dup',
+                incomingMessageType: 'text',
+                rawPayload: ['text' => ['body' => '2']],
+                content: '2',
+            )
+        );
+
+        $duplicateSelection = $service->handleInboundMessage(
+            new ConversationInboundMessage(
+                channel: Conversacion::CANAL_WHATSAPP,
+                participantId: '5493333333344',
+                text: '2',
+                providerMessageId: 'wamid-selection-dup',
+                incomingMessageType: 'text',
+                rawPayload: ['text' => ['body' => '2']],
+                content: '2',
+            )
+        );
+
+        $conversation = $duplicateSelection->conversation->fresh();
+
+        $this->assertSame($firstSelection->conversation->id, $duplicateSelection->conversation->id);
+        $this->assertSame('identificacion_nombre', $conversation->currentStepKey());
+        $this->assertSame([], $duplicateSelection->outboundMessages);
+        $this->assertDatabaseCount('conversacion_mensajes', 2);
+        $this->assertDatabaseHas('conversacion_mensajes', [
+            'conversacion_id' => $conversation->id,
+            'provider_message_id' => 'wamid-selection-dup',
+            'step_key' => 'menu_principal',
+        ]);
+        $this->assertSame(
+            1,
+            \App\Models\ConversacionMensaje::query()
+                ->where('provider_message_id', 'wamid-selection-dup')
+                ->count()
+        );
+    }
+
     public function test_channel_is_used_when_creating_and_finding_conversation(): void
     {
         $first = app(ConversationInteractionService::class)->handleInboundMessage(

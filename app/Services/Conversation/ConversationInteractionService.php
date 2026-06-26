@@ -29,6 +29,26 @@ class ConversationInteractionService
 
     public function handleInboundMessage(ConversationInboundMessage $message): ConversationInteractionResult
     {
+        $duplicateMessage = $this->conversationMessageService->findIncomingByProviderMessageId($message->providerMessageId);
+
+        if ($duplicateMessage !== null) {
+            $conversation = $duplicateMessage->conversacion->refresh();
+
+            Log::info('Duplicate inbound message ignored', [
+                'conversation_id' => $conversation->id,
+                'channel' => $conversation->canal,
+                'participant_id' => $message->participantId,
+                'provider_message_id' => $message->providerMessageId,
+                'original_step' => $duplicateMessage->step_key,
+                'current_step' => $conversation->currentStepKey(),
+            ]);
+
+            return new ConversationInteractionResult(
+                conversation: $conversation,
+                outboundMessages: [],
+            );
+        }
+
         ['conversation' => $conversation, 'was_created' => $wasCreated] = $this->findOrCreateConversationFromInbound($message);
         $stepResult = $wasCreated
             ? $this->initialMenuStepResult()

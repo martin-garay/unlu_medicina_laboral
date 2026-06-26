@@ -42,6 +42,19 @@ class ConversationMessageService
         return $message;
     }
 
+    public function findIncomingByProviderMessageId(?string $providerMessageId): ?ConversacionMensaje
+    {
+        if ($providerMessageId === null || trim($providerMessageId) === '') {
+            return null;
+        }
+
+        return ConversacionMensaje::query()
+            ->with('conversacion')
+            ->where('direccion', ConversacionMensaje::DIRECCION_ENTRANTE)
+            ->where('provider_message_id', $providerMessageId)
+            ->first();
+    }
+
     public function registerOutgoingMessage(Conversacion $conversation, array $data): ConversacionMensaje
     {
         $message = ConversacionMensaje::create([

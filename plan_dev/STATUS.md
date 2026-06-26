@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-06-26 08:33 -03
+2026-06-26 08:36 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M2 - Convertir opciones numeradas a menus interactivos`.
-- Milestone actual: corresponde continuar con `M3 - Corregir avance fantasma por webhooks duplicados` en `plan_dev/daily/2026-06-26.md`.
-- Próximo paso sugerido: implementar guard de idempotencia por `provider_message_id` antes de ejecutar handlers de flujo.
+- Último bloque completado: `M3 - Corregir avance fantasma por webhooks duplicados`.
+- Milestone actual: corresponde cerrar `M4 - Cierre documental y operativo` en `plan_dev/daily/2026-06-26.md`.
+- Próximo paso sugerido: realizar cierre documental final del daily y commit de M3.
 
 ---
 
@@ -30,7 +30,7 @@ No debe reemplazar:
 
 ### Motor de conversación
 - estado: `in_progress`
-- notas: el motor ya tiene una capa común de interacción (`ConversationInteractionService`), lookup/alta por canal y una entrada interna de prueba sin depender de WhatsApp. Desde M2 del daily 2026-06-26, `StepResult` puede devolver `menuConfig` y el motor emite menus interactivos especificos de paso ademas del menu principal.
+- notas: el motor ya tiene una capa común de interacción (`ConversationInteractionService`), lookup/alta por canal y una entrada interna de prueba sin depender de WhatsApp. Desde M2 del daily 2026-06-26, `StepResult` puede devolver `menuConfig` y el motor emite menus interactivos especificos de paso ademas del menu principal. Desde M3, los mensajes entrantes duplicados con el mismo `provider_message_id` se ignoran antes de ejecutar handlers para evitar avances fantasma.
 
 ### Flujos
 - aviso: `in_progress`
@@ -74,26 +74,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-06-26 08:33 -03
+- 2026-06-26 08:36 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-06-26.md`
 
 ### Milestone trabajado
-- `M2 - Convertir opciones numeradas a menus interactivos`
+- `M3 - Corregir avance fantasma por webhooks duplicados`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego soporte reusable de menus por paso y se convirtieron las selecciones acotadas definidas para WhatsApp a menus interactivos, manteniendo fallback por texto/numero.
+- se agrego guard de idempotencia por `provider_message_id` para ignorar reintentos del mismo webhook sin transicionar ni responder de nuevo.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Flows/**`, `app/Services/Conversation/ConversationInteractionService.php`, `config/medicina_laboral.php`, `lang/es/whatsapp.php`, tests de flows/validators, `docs/05-motor-de-conversacion.md`, `docs/06-flujo-aviso-ausencia.md`, `docs/07-flujo-anticipo-certificado.md`, `plan_dev/daily/2026-06-26.md` y `plan_dev/STATUS.md`
-- resumen técnico: `StepResult` ahora transporta `menuConfig`, los handlers definidos emiten menus interactivos y los validadores aceptan `button_id` ademas de texto/numero.
-- documentación actualizada: sí, docs de motor/flujos, daily y estado consolidado
+- archivos tocados: `app/Services/ConversationMessageService.php`, `app/Services/Conversation/ConversationInteractionService.php`, `tests/Feature/Services/Conversation/ConversationInteractionServiceTest.php`, `tests/Feature/Http/WhatsappWebhookControllerTest.php`, `docs/05-motor-de-conversacion.md`, `plan_dev/daily/2026-06-26.md` y `plan_dev/STATUS.md`
+- resumen técnico: se consulta el historial de mensajes entrantes antes de ejecutar el flujo; si el `provider_message_id` ya existe, se devuelve respuesta sin salidas y se registra log operativo.
+- documentación actualizada: sí, doc de motor, daily y estado consolidado
 - diagramas actualizados: no; no cambio el grafo de estados/transiciones
 
 ---
@@ -102,18 +102,18 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `209 passed`, `869 assertions`
+- resultado: `211 passed`, `879 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- probar por WhatsApp real los menus de sede, jornada laboral, tipo de ausentismo, domicilio circunstancial, tipo de certificado y adjuntar otro archivo.
-- revisar en logs que los mensajes salientes de menu se registren como `interactive`.
+- reenviar desde ngrok o repetir manualmente un webhook con el mismo `wamid` y verificar que no haya segunda respuesta ni cambio de paso.
+- revisar en logs el evento operativo `Duplicate inbound message ignored`.
 
 ---
 
 ## Bloqueos actuales
-- no hay bloqueos para continuar con M3 del daily 2026-06-26.
+- no hay bloqueos para cerrar M4 del daily 2026-06-26.
 
 ---
 
@@ -126,7 +126,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- `M3 - Corregir avance fantasma por webhooks duplicados`.
+- `M4 - Cierre documental y operativo`.
 
 ---
 

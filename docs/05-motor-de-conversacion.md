@@ -276,6 +276,20 @@ Se usa menú interactivo para selecciones acotadas de hasta tres opciones:
 
 Los validadores conservan compatibilidad con texto y alias numéricos para poder operar como fallback cuando el canal no envía `button_id`.
 
+## Idempotencia de mensajes entrantes
+
+Antes de ejecutar el handler del paso, el motor verifica si ya existe un mensaje entrante con el mismo `provider_message_id`.
+
+Si el id ya fue registrado:
+
+- no vuelve a ejecutar validaciones del paso
+- no transiciona la conversación
+- no registra otro `conversacion_mensaje`
+- no genera mensajes salientes
+- deja un log operativo de duplicado ignorado
+
+La deduplicación aplica cuando el canal entrega un identificador de proveedor. Si el mensaje llega sin `provider_message_id`, se procesa normalmente.
+
 ## Esfuerzo estimado
 
 Para una primera consola local o canal interno mínimo:
