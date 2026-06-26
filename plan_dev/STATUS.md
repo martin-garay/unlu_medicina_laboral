@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-06-26 08:36 -03
+2026-06-26 08:37 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M3 - Corregir avance fantasma por webhooks duplicados`.
-- Milestone actual: corresponde cerrar `M4 - Cierre documental y operativo` en `plan_dev/daily/2026-06-26.md`.
-- Próximo paso sugerido: realizar cierre documental final del daily y commit de M3.
+- Último bloque completado: `M4 - Cierre documental y operativo`.
+- Milestone actual: daily 2026-06-26 cerrado.
+- Próximo paso sugerido: probar manualmente los menus por WhatsApp real y repetir un webhook con el mismo `wamid` para confirmar que no hay segunda respuesta.
 
 ---
 
@@ -74,26 +74,26 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-06-26 08:36 -03
+- 2026-06-26 08:37 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-06-26.md`
 
 ### Milestone trabajado
-- `M3 - Corregir avance fantasma por webhooks duplicados`
+- `M4 - Cierre documental y operativo`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego guard de idempotencia por `provider_message_id` para ignorar reintentos del mismo webhook sin transicionar ni responder de nuevo.
+- se cerro el daily con M2 y M3 implementados, validados y commiteados; queda pendiente solo validacion manual por WhatsApp real.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Services/ConversationMessageService.php`, `app/Services/Conversation/ConversationInteractionService.php`, `tests/Feature/Services/Conversation/ConversationInteractionServiceTest.php`, `tests/Feature/Http/WhatsappWebhookControllerTest.php`, `docs/05-motor-de-conversacion.md`, `plan_dev/daily/2026-06-26.md` y `plan_dev/STATUS.md`
-- resumen técnico: se consulta el historial de mensajes entrantes antes de ejecutar el flujo; si el `provider_message_id` ya existe, se devuelve respuesta sin salidas y se registra log operativo.
-- documentación actualizada: sí, doc de motor, daily y estado consolidado
+- archivos tocados: `plan_dev/daily/2026-06-26.md` y `plan_dev/STATUS.md`
+- resumen técnico: cierre operativo del daily; no hubo cambios runtime en M4.
+- documentación actualizada: sí, daily y estado consolidado
 - diagramas actualizados: no; no cambio el grafo de estados/transiciones
 
 ---
@@ -107,13 +107,14 @@ No debe reemplazar:
 - resultado: sin errores
 
 ### Manuales sugeridas
+- probar por WhatsApp real los menus de sede, jornada laboral, tipo de ausentismo, domicilio circunstancial, tipo de certificado y adjuntar otro archivo.
 - reenviar desde ngrok o repetir manualmente un webhook con el mismo `wamid` y verificar que no haya segunda respuesta ni cambio de paso.
 - revisar en logs el evento operativo `Duplicate inbound message ignored`.
 
 ---
 
 ## Bloqueos actuales
-- no hay bloqueos para cerrar M4 del daily 2026-06-26.
+- no hay bloqueos activos para este daily.
 
 ---
 
@@ -126,7 +127,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- `M4 - Cierre documental y operativo`.
+- validar manualmente en WhatsApp real y definir el próximo daily.
 
 ---
 
