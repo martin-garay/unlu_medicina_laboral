@@ -10,7 +10,7 @@ CHAT_URL ?= http://localhost:8000/internal/chat
 EXPECTED_APP_USER := $(UID):$(GID)
 
 
-.PHONY: help db ps up check-app-user down restart setup install key migrate logs sh artisan doctor chat test test-unit test-feature timeouts timeouts-now schedule-run diagrams diagrams-check diagrams-clean
+.PHONY: help db ps up check-app-user down restart setup install key migrate logs logs-app sh artisan doctor chat test test-unit test-feature timeouts timeouts-now schedule-run diagrams diagrams-check diagrams-clean
 
 help:
 	@printf "%s\n" \
@@ -22,7 +22,8 @@ help:
 	"make install       - instala dependencias PHP" \
 	"make key           - genera APP_KEY" \
 	"make migrate       - corre migraciones" \
-	"make logs          - sigue logs del contenedor app" \
+	"make logs          - sigue storage/logs/laravel.log" \
+	"make logs-app      - sigue stdout/stderr del contenedor app" \
 	"make sh            - shell dentro del contenedor app" \
 	"make artisan CMD='about' - ejecuta un comando artisan arbitrario" \
 	"make doctor        - chequeo operativo rápido del entorno" \
@@ -68,6 +69,9 @@ migrate:
 	UID=$(UID) GID=$(GID) $(DC) exec app php artisan migrate
 
 logs:
+	UID=$(UID) GID=$(GID) $(DC) exec app sh -lc 'touch storage/logs/laravel.log && tail -n 200 -f storage/logs/laravel.log'
+
+logs-app:
 	UID=$(UID) GID=$(GID) $(DC) logs -f app
 
 sh:

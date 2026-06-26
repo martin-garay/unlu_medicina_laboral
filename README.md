@@ -27,9 +27,9 @@ Proyecto Laravel + PostgreSQL dockerizado para un chatbot básico usando la What
    ```bash
    docker compose exec app php artisan migrate
    ```
-6. Ver logs de Laravel en vivo (con `LOG_CHANNEL=stderr` para enviarlos al stdout/stderr del contenedor):
+6. Ver logs de Laravel en vivo:
    ```bash
-   docker compose logs -f app
+   make logs
    ```
 7. Bajar todo cuando termines:
    ```bash
@@ -47,7 +47,8 @@ Proyecto Laravel + PostgreSQL dockerizado para un chatbot básico usando la What
 Usa `.env.docker.example` como plantilla. Valores claves:
 - `DB_HOST=db` y `DB_PORT=5432` para hablar con el contenedor de Postgres.
 - `WHATSAPP_VERIFY_TOKEN`: string elegido por nosotros (no el WABA ID). Úsalo en la verificación del webhook.
-- `LOG_CHANNEL=stderr`: envía todos los `Log::` de Laravel al `docker compose logs -f app`.
+- `LOG_CHANNEL=stack`: escribe los logs de Laravel en `storage/logs/laravel.log`, visible con `make logs`.
+- `LOG_CHANNEL=stderr`: envía los `Log::` de Laravel al stdout/stderr del contenedor, visible con `make logs-app`.
 
 ## Webhook de WhatsApp
 - Meta no valida `localhost` directamente. Para pruebas locales, expone Laravel con ngrok desde el host:
@@ -113,7 +114,8 @@ Si prefieres usar `make`:
 - `make timeouts` → `docker compose exec app php artisan conversations:process-timeouts`
 - `make timeouts-now NOW="2026-03-20 10:00:00"` → procesa timeouts con hora fija
 - `make chat` → abre `http://localhost:8000/internal/chat` en el navegador
-- `make logs` → `docker compose logs -f app`
+- `make logs` → sigue `storage/logs/laravel.log`
+- `make logs-app` → sigue stdout/stderr del contenedor `app`
 
 ## Testing
 - Base actual: `phpunit.xml`, `tests/` y ejecución vía Laravel test runner.

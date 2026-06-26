@@ -61,21 +61,21 @@ Este diagnóstico revisa:
 
 ## Logs
 
-Para Docker, el canal recomendado es:
+Por default local, `LOG_CHANNEL=stack` escribe los logs de Laravel en `storage/logs/laravel.log`.
 
-- `LOG_CHANNEL=stderr`
-
-Así los logs de Laravel se ven directamente con:
+Para seguir excepciones y logs de aplicación:
 
 ```bash
 make logs
 ```
 
-o:
+Para seguir stdout/stderr del contenedor, incluido el access log del servidor embebido:
 
 ```bash
-docker-compose logs -f app
+make logs-app
 ```
+
+Si se configura `LOG_CHANNEL=stderr`, los `Log::` de Laravel pasan a verse también por `make logs-app`.
 
 ## Testing
 
