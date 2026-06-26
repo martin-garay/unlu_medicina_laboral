@@ -7,9 +7,10 @@ UID := $(shell id -u)
 GID := $(shell id -g)
 DC := DOCKER_CONFIG=$(CURDIR)/.docker docker-compose
 CHAT_URL ?= http://localhost:8000/internal/chat
+EXPECTED_APP_USER := $(UID):$(GID)
 
 
-.PHONY: help db ps up down restart setup install key migrate logs sh artisan doctor chat test test-unit test-feature timeouts timeouts-now schedule-run diagrams diagrams-check diagrams-clean
+.PHONY: help db ps up check-app-user down restart setup install key migrate logs sh artisan doctor chat test test-unit test-feature timeouts timeouts-now schedule-run diagrams diagrams-check diagrams-clean
 
 help:
 	@printf "%s\n" \
@@ -39,6 +40,15 @@ ps:
 
 up:
 	UID=$(UID) GID=$(GID) $(DC) up -d --build
+	$(MAKE) check-app-user
+
+check-app-user:
+	@actual_user="$$(UID=$(UID) GID=$(GID) $(DC) exec -T app sh -lc 'printf "%s:%s\n" "$$(id -u)" "$$(id -g)"')"; \
+	if [ "$$actual_user" != "$(EXPECTED_APP_USER)" ]; then \
+		printf "ERROR: app corre como %s, esperado %s.\n" "$$actual_user" "$(EXPECTED_APP_USER)"; \
+		printf "%s\n" 'Solucion: UID=$$(id -u) GID=$$(id -g) docker-compose up -d --force-recreate app'; \
+		exit 1; \
+	fi
 
 down:
 	UID=$(UID) GID=$(GID) $(DC) down
