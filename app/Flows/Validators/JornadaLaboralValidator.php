@@ -6,7 +6,7 @@ use App\Flows\Common\Contracts\Validator;
 use App\Flows\Common\ValidationResult;
 use App\Models\Conversacion;
 
-class SedeValidator implements Validator
+class JornadaLaboralValidator implements Validator
 {
     public function validate(Conversacion $conversation, array $input = []): ValidationResult
     {
@@ -17,12 +17,12 @@ class SedeValidator implements Validator
             return ValidationResult::invalid('required');
         }
 
-        $sedes = config('medicina_laboral.catalogos.sedes', []);
-        $buttons = config('medicina_laboral.mensajes.menus.sedes.buttons', []);
-        $keys = array_keys($sedes);
+        $catalog = config('medicina_laboral.catalogos.jornadas_laborales', []);
+        $buttons = config('medicina_laboral.mensajes.menus.jornadas_laborales.buttons', []);
+        $keys = array_keys($catalog);
 
         foreach ($keys as $index => $key) {
-            $label = mb_strtolower((string) ($sedes[$key] ?? ''));
+            $label = mb_strtolower((string) ($catalog[$key] ?? ''));
             $numericAlias = (string) ($index + 1);
             $configuredButtonId = (string) ($buttons[$index]['id'] ?? '');
 
@@ -33,12 +33,12 @@ class SedeValidator implements Validator
                 || $raw === $numericAlias
             ) {
                 return ValidationResult::valid([
-                    'sede_key' => $key,
-                    'sede_label' => $sedes[$key],
+                    'jornada_laboral' => $key,
+                    'jornada_laboral_label' => $catalog[$key],
                 ]);
             }
         }
 
-        return ValidationResult::invalid('sede_invalida');
+        return ValidationResult::invalid('invalid_option');
     }
 }

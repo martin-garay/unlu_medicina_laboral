@@ -24,6 +24,16 @@ class AusentismoTypeValidatorTest extends TestCase
         $this->assertSame('atencion_familiar_enfermo', $result->normalized['tipo_ausentismo']);
     }
 
+    public function test_accepts_button_id(): void
+    {
+        $result = (new AusentismoTypeValidator())->validate(new Conversacion(), [
+            'button_id' => 'ausentismo_familiar_enfermo',
+        ]);
+
+        $this->assertTrue($result->isValid);
+        $this->assertSame('atencion_familiar_enfermo', $result->normalized['tipo_ausentismo']);
+    }
+
     public function test_rejects_unknown_option(): void
     {
         $result = (new AusentismoTypeValidator())->validate(new Conversacion(), ['text' => 'otra']);

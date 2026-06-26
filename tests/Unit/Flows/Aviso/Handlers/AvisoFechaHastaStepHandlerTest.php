@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class AvisoFechaHastaStepHandlerTest extends TestCase
 {
-    public function test_valid_date_moves_to_tipo_ausentismo_with_numbered_prompt(): void
+    public function test_valid_date_moves_to_tipo_ausentismo_with_menu(): void
     {
         $handler = new AvisoFechaHastaStepHandler(
             new AvisoFechaHastaValidator(),
@@ -30,8 +30,9 @@ class AvisoFechaHastaStepHandlerTest extends TestCase
 
         $this->assertTrue($result->isValid);
         $this->assertSame('aviso_tipo_ausentismo', $result->nextStep);
-        $this->assertStringContainsString('1. Por Enfermedad', $result->message);
-        $this->assertStringContainsString('2. Por Atención de Familiar Enfermo', $result->message);
+        $this->assertSame(__('whatsapp.aviso.prompts.tipo_ausentismo'), $result->menuConfig['body_text']);
+        $this->assertSame('ausentismo_por_enfermedad', $result->menuConfig['buttons'][0]['id']);
+        $this->assertSame('ausentismo_familiar_enfermo', $result->menuConfig['buttons'][1]['id']);
         $this->assertSame(
             '2026-03-21',
             $result->payload['conversation_updates']['metadata']['aviso']['fecha_hasta']

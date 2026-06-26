@@ -36,10 +36,8 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
         }
 
         return $this->invalid('invalid_option', null, [
-            'message' => implode("\n", [
-                __('whatsapp.errores.invalid_option'),
-                $this->buildAttachMorePrompt(),
-            ]),
+            'message_key' => 'whatsapp.errores.invalid_option',
+            'menu_config' => $this->configuredMenu('adjuntar_otro_archivo'),
             'increment_attempts' => 1,
         ]);
     }
@@ -115,6 +113,16 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
 
     private function matchesAttachMoreKeywords(array $input, string $configKey): bool
     {
+        $buttonId = (string) ($input['button_id'] ?? '');
+
+        if ($configKey === 'attach_more_yes_keywords' && $buttonId === 'adjuntar_otro_si') {
+            return true;
+        }
+
+        if ($configKey === 'attach_more_no_keywords' && $buttonId === 'adjuntar_otro_no') {
+            return true;
+        }
+
         $text = $this->normalizedText($input);
 
         if ($text === '') {

@@ -112,6 +112,10 @@ return [
             'campus' => 'Campus Luján',
             'delegacion' => 'Delegación San Fernando',
         ],
+        'jornadas_laborales' => [
+            'planta_permanente' => 'Planta permanente',
+            'parcial' => 'Parcial',
+        ],
         'tipos_ausentismo' => [
             'por_enfermedad' => 'Por Enfermedad',
             'atencion_familiar_enfermo' => 'Por Atención de Familiar Enfermo',
@@ -195,6 +199,51 @@ return [
             'consultas',
             'aviso_ausencia',
             'anticipo_certificado',
+        ],
+        'menus' => [
+            'sedes' => [
+                'body_key' => 'whatsapp.identificacion.sede',
+                'buttons' => [
+                    ['id' => 'sede_central', 'title' => 'Sede Central'],
+                    ['id' => 'sede_campus', 'title' => 'Campus Luján'],
+                    ['id' => 'sede_delegacion', 'title' => 'San Fernando'],
+                ],
+            ],
+            'jornadas_laborales' => [
+                'body_key' => 'whatsapp.identificacion.jornada_laboral',
+                'buttons' => [
+                    ['id' => 'jornada_planta_permanente', 'title' => 'Planta permanente'],
+                    ['id' => 'jornada_parcial', 'title' => 'Parcial'],
+                ],
+            ],
+            'tipos_ausentismo' => [
+                'body_key' => 'whatsapp.aviso.prompts.tipo_ausentismo',
+                'buttons' => [
+                    ['id' => 'ausentismo_por_enfermedad', 'title' => 'Por enfermedad'],
+                    ['id' => 'ausentismo_familiar_enfermo', 'title' => 'Familiar enfermo'],
+                ],
+            ],
+            'domicilio_circunstancial' => [
+                'body_key' => 'whatsapp.aviso.prompts.domicilio_circunstancial_pregunta',
+                'buttons' => [
+                    ['id' => 'domicilio_si', 'title' => 'Sí'],
+                    ['id' => 'domicilio_no', 'title' => 'No, continuar'],
+                ],
+            ],
+            'tipos_certificado' => [
+                'body_key' => 'whatsapp.certificado.tipo_certificado',
+                'buttons' => [
+                    ['id' => 'certificado_manuscrito', 'title' => 'Manuscrito'],
+                    ['id' => 'certificado_electronico', 'title' => 'Electrónico'],
+                ],
+            ],
+            'adjuntar_otro_archivo' => [
+                'body_key' => 'whatsapp.certificado.adjuntar_otro_archivo',
+                'buttons' => [
+                    ['id' => 'adjuntar_otro_si', 'title' => 'Sí'],
+                    ['id' => 'adjuntar_otro_no', 'title' => 'No, continuar'],
+                ],
+            ],
         ],
         'templates' => [
             'aviso_confirmacion_final' => 'messages.aviso.confirmacion_final',

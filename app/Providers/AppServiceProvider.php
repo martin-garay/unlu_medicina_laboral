@@ -32,6 +32,7 @@ use App\Flows\Validators\AusentismoTypeValidator;
 use App\Flows\Validators\DateInputValidator;
 use App\Flows\Validators\AvisoFechaHastaValidator;
 use App\Flows\Transitional\Handlers\FallbackStepHandler;
+use App\Flows\Validators\JornadaLaboralValidator;
 use App\Flows\Validators\LegajoValidator;
 use App\Flows\Validators\MenuSelectionValidator;
 use App\Flows\Validators\PositiveIntegerValidator;
@@ -168,7 +169,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(IdentificacionJornadaStepHandler::class, function ($app) {
             return new IdentificacionJornadaStepHandler(
-                $app->make(RequiredTextValidator::class),
+                $app->make(JornadaLaboralValidator::class),
                 $app->make(ConversationContextService::class),
             );
         });

@@ -37,8 +37,8 @@ class CertificadoNumeroAvisoStepHandler extends AbstractStepHandler
             );
         }
 
-        return $this->success('whatsapp.certificado.tipo_certificado', [
-            'message' => $this->buildTipoCertificadoPrompt(),
+        return $this->success(null, [
+            'menu_config' => $this->configuredMenu('tipos_certificado'),
             'next_step' => 'certificado_tipo',
             'next_state' => 'certificado_tipo',
             'payload' => [
@@ -65,14 +65,6 @@ class CertificadoNumeroAvisoStepHandler extends AbstractStepHandler
             'required' => 'whatsapp.errores.required',
             default => 'whatsapp.errores.aviso_inexistente',
         };
-    }
-
-    private function buildTipoCertificadoPrompt(): string
-    {
-        return $this->buildNumberedOptionsMessage(
-            'whatsapp.certificado.tipo_certificado',
-            config('medicina_laboral.catalogos.tipos_certificado', [])
-        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

@@ -163,6 +163,8 @@ Este valor no debe quedar hardcodeado.
 
 El sistema debe exigir la selección de un tipo de certificado válido entre opciones disponibles.
 
+En WhatsApp, la implementación actual presenta esta selección como menú interactivo. El flujo conserva compatibilidad con respuesta por número o texto para canales internos y fallback operativo.
+
 ## Implementación sugerida
 
 En la primera etapa existen dos opciones razonables:
@@ -229,7 +231,7 @@ El paso acepta un adjunto por vez y registra metadata mínima del mensaje `docum
 - `caption` si existe
 - `source_type`
 
-Se validan tipos MIME permitidos desde configuración. Después de cada adjunto, si todavía no se alcanzó el máximo configurado, el bot pregunta si se desea adjuntar otro archivo o continuar a confirmación. Al llegar al máximo, pasa directamente a confirmación final. Un cuarto adjunto se rechaza.
+Se validan tipos MIME permitidos desde configuración. Después de cada adjunto, si todavía no se alcanzó el máximo configurado, el bot pregunta mediante menú interactivo si se desea adjuntar otro archivo o continuar a confirmación. Al llegar al máximo, pasa directamente a confirmación final. Un cuarto adjunto se rechaza.
 
 No se realiza todavía descarga ni almacenamiento definitivo del binario.
 

@@ -20,6 +20,16 @@ class CertificadoAdjuntarOtroStepHandlerTest extends TestCase
         $this->assertSame('certificado_attach_more_selected', $result->payload['event_name']);
     }
 
+    public function test_yes_button_selection_returns_to_attachment_step(): void
+    {
+        $result = $this->handler()->handle($this->conversationWithAttachments(), [
+            'button_id' => 'adjuntar_otro_si',
+        ]);
+
+        $this->assertSame('certificado_adjunto', $result->nextStep);
+        $this->assertSame('certificado_attach_more_selected', $result->payload['event_name']);
+    }
+
     public function test_no_selection_moves_to_final_confirmation(): void
     {
         $result = $this->handler()->handle($this->conversationWithAttachments(), ['text' => '2']);
@@ -37,8 +47,8 @@ class CertificadoAdjuntarOtroStepHandlerTest extends TestCase
 
         $this->assertFalse($result->isValid);
         $this->assertSame('invalid_option', $result->errorCode);
-        $this->assertStringContainsString(__('whatsapp.errores.invalid_option'), $result->message);
-        $this->assertStringContainsString(__('whatsapp.certificado.adjuntar_otro_archivo'), $result->message);
+        $this->assertSame('whatsapp.errores.invalid_option', $result->messageKey);
+        $this->assertSame(__('whatsapp.certificado.adjuntar_otro_archivo'), $result->menuConfig['body_text']);
         $this->assertSame(1, $result->incrementAttempts);
     }
 

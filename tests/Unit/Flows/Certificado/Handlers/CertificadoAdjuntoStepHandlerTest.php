@@ -21,7 +21,9 @@ class CertificadoAdjuntoStepHandlerTest extends TestCase
         $this->assertSame('certificado_adjuntar_otro', $result->nextStep);
         $this->assertSame('certificado_adjuntar_otro', $result->nextState);
         $this->assertNull($result->template);
-        $this->assertStringContainsString(__('whatsapp.certificado.adjuntar_otro_archivo'), $result->message);
+        $this->assertSame(__('whatsapp.certificado.adjuntar_otro_archivo'), $result->menuConfig['body_text']);
+        $this->assertSame('adjuntar_otro_si', $result->menuConfig['buttons'][0]['id']);
+        $this->assertSame('adjuntar_otro_no', $result->menuConfig['buttons'][1]['id']);
         $this->assertSame(
             'metadata_only',
             $result->payload['conversation_updates']['metadata']['certificado']['adjuntos'][0]['storage_status']

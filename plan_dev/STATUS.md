@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-05-04 07:52 -03
+2026-06-26 08:33 -03
 
 ## Resumen ejecutivo
-- Estado general del proyecto: la base tecnica del backoffice con Filament, permisos y auditoria administrativa base quedo instalada y validada. La planificación fina de módulos read-only quedó documentada, el primer Resource read-only fue implementado y ya existe pantalla de historial de conversación.
-- Último bloque completado: `P1 - Agregar acción Volver a detalles de backoffice`.
-- Milestone actual: `P2 - Agregar gestión básica de usuarios` sigue `blocked` en `plan_dev/daily/2026-04-29-03-backoffice-users-roles.md`.
-- Próximo paso sugerido: definir auditoría y flujo de reset de password antes de habilitar escritura en usuarios/roles.
+- Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
+- Último bloque completado: `M2 - Convertir opciones numeradas a menus interactivos`.
+- Milestone actual: corresponde continuar con `M3 - Corregir avance fantasma por webhooks duplicados` en `plan_dev/daily/2026-06-26.md`.
+- Próximo paso sugerido: implementar guard de idempotencia por `provider_message_id` antes de ejecutar handlers de flujo.
 
 ---
 
@@ -30,12 +30,12 @@ No debe reemplazar:
 
 ### Motor de conversación
 - estado: `in_progress`
-- notas: el motor ya tiene una capa común de interacción (`ConversationInteractionService`), lookup/alta por canal y una entrada interna de prueba sin depender de WhatsApp. Desde M2, toda conversación nueva responde bienvenida + menú y no interpreta el primer mensaje como selección de flujo.
+- notas: el motor ya tiene una capa común de interacción (`ConversationInteractionService`), lookup/alta por canal y una entrada interna de prueba sin depender de WhatsApp. Desde M2 del daily 2026-06-26, `StepResult` puede devolver `menuConfig` y el motor emite menus interactivos especificos de paso ademas del menu principal.
 
 ### Flujos
 - aviso: `in_progress`
 - anticipo: `in_progress`
-- notas: la decisión vigente es tomar `AnticipoCertificado` como entidad actual de certificado y no crear una entidad nueva. RF-03.1 quedó cubierto en M5.2: el flujo permite adjuntar hasta `medicina_laboral.certificados.max_files` archivos/imágenes antes de confirmar.
+- notas: la decisión vigente es tomar `AnticipoCertificado` como entidad actual de certificado y no crear una entidad nueva. Los pasos de sede, jornada laboral, tipo de ausentismo, domicilio circunstancial, tipo de certificado y adjuntar otro archivo usan menus interactivos en WhatsApp y conservan compatibilidad por texto/numero.
 
 ### Modelo de datos
 - estado: `in_progress`
@@ -43,7 +43,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: A4 ejecuto `make test`: `141 passed`, `472 assertions`, incluyendo modelo, servicio e integracion del seeder con auditoria administrativa.
+- notas: última corrida completa `make test`: `209 passed`, `869 assertions`.
 
 ### Inactividad / scheduler
 - estado: `in_progress`
@@ -74,27 +74,27 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-05-04 07:52 -03
+- 2026-06-26 08:33 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-05-04.md`
+- `plan_dev/daily/2026-06-26.md`
 
 ### Milestone trabajado
-- `P1 - Agregar acción Volver a detalles de backoffice`
+- `M2 - Convertir opciones numeradas a menus interactivos`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se agrego una accion `Volver` consistente en todas las pantallas de detalle/historial del backoffice abiertas desde listados.
+- se agrego soporte reusable de menus por paso y se convirtieron las selecciones acotadas definidas para WhatsApp a menus interactivos, manteniendo fallback por texto/numero.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `app/Filament/Resources/*/Pages/View*.php`, `lang/es/backoffice.php`, tests de Resources de backoffice, `docs/backoffice/module-specs.md`, `plan_dev/daily/2026-05-04.md` y `plan_dev/STATUS.md`
-- resumen técnico: se agregaron acciones de header `Volver` en `ViewConversacion`, `ViewAviso`, `ViewAnticipoCertificado`, `ViewAuditoriaAdministrativa` y `ViewUser`, usando traduccion y tests de render.
-- documentación actualizada: sí, daily y estado consolidado
-- diagramas actualizados: no aplica
+- archivos tocados: `app/Flows/**`, `app/Services/Conversation/ConversationInteractionService.php`, `config/medicina_laboral.php`, `lang/es/whatsapp.php`, tests de flows/validators, `docs/05-motor-de-conversacion.md`, `docs/06-flujo-aviso-ausencia.md`, `docs/07-flujo-anticipo-certificado.md`, `plan_dev/daily/2026-06-26.md` y `plan_dev/STATUS.md`
+- resumen técnico: `StepResult` ahora transporta `menuConfig`, los handlers definidos emiten menus interactivos y los validadores aceptan `button_id` ademas de texto/numero.
+- documentación actualizada: sí, docs de motor/flujos, daily y estado consolidado
+- diagramas actualizados: no; no cambio el grafo de estados/transiciones
 
 ---
 
@@ -102,21 +102,18 @@ No debe reemplazar:
 
 ### Automáticas
 - tests corridos: `make test`
-- resultado: `200 passed`, `839 assertions`
+- resultado: `209 passed`, `869 assertions`
 - otros checks: `git diff --check`
 - resultado: sin errores
 
 ### Manuales sugeridas
-- revisar visualmente el botón `Volver` en detalles de conversaciones, avisos, certificados, auditoría y usuarios.
-- definir si la auditoria de creacion/edicion/roles/password debe implementarse antes o dentro de P2.
-- definir flujo de reset de password y salvaguardas exactas para self-access y ultimo admin.
+- probar por WhatsApp real los menus de sede, jornada laboral, tipo de ausentismo, domicilio circunstancial, tipo de certificado y adjuntar otro archivo.
+- revisar en logs que los mensajes salientes de menu se registren como `interactive`.
 
 ---
 
 ## Bloqueos actuales
-- `I4` depende de `BO-002`
-- `I7` depende de `BO-003`
-- `P2 users/roles` bloqueado hasta definir auditoria de cambios criticos y flujo de reset de password
+- no hay bloqueos para continuar con M3 del daily 2026-06-26.
 
 ---
 
@@ -129,7 +126,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- resolver definiciones de `P2 - Agregar gestión básica de usuarios` antes de continuar con dailies posteriores de escritura.
+- `M3 - Corregir avance fantasma por webhooks duplicados`.
 
 ---
 

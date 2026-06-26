@@ -160,6 +160,8 @@ Dato esperado:
 
 El sistema debe permitir seleccionar un tipo de ausentismo válido.
 
+En WhatsApp, la implementación actual presenta esta selección como menú interactivo. El flujo conserva compatibilidad con respuesta por número o texto para canales internos y fallback operativo.
+
 ## Implementación sugerida
 
 Inicialmente el catálogo de tipos puede vivir en:
@@ -202,6 +204,8 @@ En la primera etapa, se recomienda comenzar con:
 ## Subflujo 5: domicilio circunstancial
 
 El sistema debe solicitar o permitir informar domicilio circunstancial.
+
+En WhatsApp, la decisión `Sí` / `No, continuar` se presenta como menú interactivo. Si el canal no envía `button_id`, se siguen aceptando alias por texto y número configurados.
 
 ## Recomendación
 

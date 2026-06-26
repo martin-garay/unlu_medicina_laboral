@@ -48,6 +48,16 @@ abstract class AbstractStepHandler implements StepHandler
         return implode("\n", $lines);
     }
 
+    protected function configuredMenu(string $menuKey): array
+    {
+        $menu = config("medicina_laboral.mensajes.menus.{$menuKey}", []);
+
+        return [
+            'body_text' => __($menu['body_key'] ?? ''),
+            'buttons' => array_values($menu['buttons'] ?? []),
+        ];
+    }
+
     private function matchesConfiguredKeyword(array $input, string $configKey): bool
     {
         $text = $this->normalizedText($input);

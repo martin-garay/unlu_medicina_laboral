@@ -92,7 +92,7 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
     private function buildAttachMoreResult(Conversacion $conversation, array $attachments): array
     {
         return [
-            'message' => $this->buildAttachMorePrompt(),
+            'menu_config' => $this->configuredMenu('adjuntar_otro_archivo'),
             'next_step' => 'certificado_adjuntar_otro',
             'next_state' => 'certificado_adjuntar_otro',
             'payload' => [
@@ -105,15 +105,6 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
                 ],
             ],
         ];
-    }
-
-    private function buildAttachMorePrompt(): string
-    {
-        return implode("\n", [
-            __('whatsapp.certificado.adjuntar_otro_archivo'),
-            '1. ' . __('whatsapp.certificado.options.si'),
-            '2. ' . __('whatsapp.certificado.options.no_continuar'),
-        ]);
     }
 
     private function isSupportedAttachment(?string $incomingType, ?array $media): bool

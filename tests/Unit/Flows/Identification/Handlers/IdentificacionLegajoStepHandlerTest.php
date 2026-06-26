@@ -51,6 +51,8 @@ class IdentificacionLegajoStepHandlerTest extends TestCase
 
         $this->assertTrue($result->isValid);
         $this->assertSame('identificacion_sede', $result->nextStep);
+        $this->assertSame(__('whatsapp.identificacion.sede'), $result->menuConfig['body_text']);
+        $this->assertSame('sede_central', $result->menuConfig['buttons'][0]['id']);
         $this->assertSame('12345', $result->payload['conversation_updates']['metadata']['identificacion']['legajo']);
         $this->assertSame(
             'Laura Diaz',

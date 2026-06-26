@@ -261,6 +261,21 @@ Luego cada adapter decide cómo representarlo:
 - lista clickable en consola interna
 - texto numerado como fallback
 
+## Estado actual de menús interactivos
+
+El motor ya soporta respuestas salientes estructuradas por paso mediante `StepResult.menuConfig` y `ConversationOutboundMessage::menu`.
+
+Se usa menú interactivo para selecciones acotadas de hasta tres opciones:
+
+- sede
+- jornada laboral
+- tipo de ausentismo
+- decisión sobre domicilio circunstancial
+- tipo de certificado
+- decisión de adjuntar otro archivo
+
+Los validadores conservan compatibilidad con texto y alias numéricos para poder operar como fallback cuando el canal no envía `button_id`.
+
 ## Esfuerzo estimado
 
 Para una primera consola local o canal interno mínimo:

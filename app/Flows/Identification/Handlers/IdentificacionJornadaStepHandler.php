@@ -30,17 +30,26 @@ class IdentificacionJornadaStepHandler extends AbstractStepHandler
         $validation = $this->validator->validate($conversation, $input);
 
         if (!$validation->isValid) {
-            return $this->invalid($validation->errorCode ?? 'required', 'whatsapp.errores.required', [
+            $messageKey = $validation->errorCode === 'required'
+                ? 'whatsapp.errores.required'
+                : 'whatsapp.errores.invalid_option';
+
+            return $this->invalid($validation->errorCode ?? 'required', $messageKey, [
+                'menu_config' => $this->configuredMenu('jornadas_laborales'),
                 'increment_attempts' => 1,
             ]);
         }
 
         $conversationUpdates = $this->conversationContextService->withIdentificationData($conversation, [
-            'jornada_laboral' => $validation->normalized['text'] ?? null,
+            'jornada_laboral' => $validation->normalized['jornada_laboral_label'] ?? $validation->normalized['text'] ?? null,
+            'jornada_laboral_key' => $validation->normalized['jornada_laboral'] ?? null,
         ]);
 
         return match ($conversation->tipo_flujo) {
             'inasistencia' => $this->success('whatsapp.identificacion.continuacion_aviso', [
+                'message_params' => [
+                    'date_format' => config('medicina_laboral.avisos.input_date_display_format', 'dd/mm/YYYY'),
+                ],
                 'next_step' => 'aviso_fecha_desde',
                 'next_state' => 'aviso_fecha_desde',
                 'payload' => [

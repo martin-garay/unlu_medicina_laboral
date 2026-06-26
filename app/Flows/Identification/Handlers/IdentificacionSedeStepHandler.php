@@ -31,12 +31,13 @@ class IdentificacionSedeStepHandler extends AbstractStepHandler
 
         if (!$validation->isValid) {
             return $this->invalid($validation->errorCode ?? 'sede_invalida', 'whatsapp.errores.sede_invalida', [
-                'message' => $this->buildInvalidSedeMessage(),
+                'menu_config' => $this->configuredMenu('sedes'),
                 'increment_attempts' => 1,
             ]);
         }
 
-        return $this->success('whatsapp.identificacion.jornada_laboral', [
+        return $this->success(null, [
+            'menu_config' => $this->configuredMenu('jornadas_laborales'),
             'next_step' => 'identificacion_jornada',
             'next_state' => 'identificacion_jornada',
             'payload' => [
@@ -46,14 +47,6 @@ class IdentificacionSedeStepHandler extends AbstractStepHandler
                 ]),
             ],
         ]);
-    }
-
-    private function buildInvalidSedeMessage(): string
-    {
-        return $this->buildNumberedOptionsMessage(
-            'whatsapp.errores.sede_invalida',
-            config('medicina_laboral.catalogos.sedes', [])
-        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

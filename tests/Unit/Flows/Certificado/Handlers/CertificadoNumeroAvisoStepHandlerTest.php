@@ -47,8 +47,9 @@ class CertificadoNumeroAvisoStepHandlerTest extends TestCase
 
         $this->assertTrue($result->isValid);
         $this->assertSame('certificado_tipo', $result->nextStep);
-        $this->assertStringContainsString('1. Manuscrito', $result->message);
-        $this->assertStringContainsString('2. Electrónico', $result->message);
+        $this->assertSame(__('whatsapp.certificado.tipo_certificado'), $result->menuConfig['body_text']);
+        $this->assertSame('certificado_manuscrito', $result->menuConfig['buttons'][0]['id']);
+        $this->assertSame('certificado_electronico', $result->menuConfig['buttons'][1]['id']);
         $this->assertSame($aviso->id, $result->payload['conversation_updates']['metadata']['certificado']['aviso_id']);
     }
 

@@ -40,7 +40,7 @@ class AvisoFechaHastaStepHandler extends AbstractStepHandler
         }
 
         return StepResult::make(null, [
-            'message' => $this->buildTipoAusentismoPrompt(),
+            'menu_config' => $this->configuredMenu('tipos_ausentismo'),
             'next_step' => 'aviso_tipo_ausentismo',
             'next_state' => 'aviso_tipo_ausentismo',
             'payload' => [
@@ -49,14 +49,6 @@ class AvisoFechaHastaStepHandler extends AbstractStepHandler
                 ]),
             ],
         ]);
-    }
-
-    private function buildTipoAusentismoPrompt(): string
-    {
-        return $this->buildNumberedOptionsMessage(
-            'whatsapp.aviso.prompts.tipo_ausentismo',
-            config('medicina_laboral.catalogos.tipos_ausentismo', [])
-        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

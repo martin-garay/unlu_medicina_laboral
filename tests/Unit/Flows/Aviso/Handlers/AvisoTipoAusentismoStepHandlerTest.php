@@ -28,7 +28,25 @@ class AvisoTipoAusentismoStepHandlerTest extends TestCase
         $this->assertTrue($result->payload['conversation_updates']['metadata']['aviso']['requiere_datos_familiar']);
     }
 
-    public function test_invalid_option_returns_numbered_catalog_message(): void
+    public function test_accepts_button_id_selection(): void
+    {
+        $handler = new AvisoTipoAusentismoStepHandler(
+            new AusentismoTypeValidator(),
+            new ConversationContextService(),
+        );
+
+        $result = $handler->handle(new Conversacion(['tipo_flujo' => 'inasistencia']), [
+            'button_id' => 'ausentismo_familiar_enfermo',
+        ]);
+
+        $this->assertTrue($result->isValid);
+        $this->assertSame(
+            'atencion_familiar_enfermo',
+            $result->payload['conversation_updates']['metadata']['aviso']['tipo_ausentismo']
+        );
+    }
+
+    public function test_invalid_option_returns_catalog_menu(): void
     {
         $handler = new AvisoTipoAusentismoStepHandler(
             new AusentismoTypeValidator(),
@@ -39,8 +57,9 @@ class AvisoTipoAusentismoStepHandlerTest extends TestCase
 
         $this->assertFalse($result->isValid);
         $this->assertSame('invalid_option', $result->errorCode);
-        $this->assertStringContainsString('1. Por Enfermedad', $result->message);
-        $this->assertStringContainsString('2. Por Atención de Familiar Enfermo', $result->message);
+        $this->assertSame(__('whatsapp.aviso.prompts.tipo_ausentismo'), $result->menuConfig['body_text']);
+        $this->assertSame('ausentismo_por_enfermedad', $result->menuConfig['buttons'][0]['id']);
+        $this->assertSame('ausentismo_familiar_enfermo', $result->menuConfig['buttons'][1]['id']);
     }
 
     public function test_cancel_returns_to_main_menu(): void

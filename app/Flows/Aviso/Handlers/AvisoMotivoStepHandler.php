@@ -36,7 +36,7 @@ class AvisoMotivoStepHandler extends AbstractStepHandler
         }
 
         return StepResult::make(null, [
-            'message' => $this->buildDomicilioDecisionPrompt(),
+            'menu_config' => $this->configuredMenu('domicilio_circunstancial'),
             'next_step' => 'aviso_domicilio_circunstancial',
             'next_state' => 'aviso_domicilio_circunstancial',
             'payload' => [
@@ -44,15 +44,6 @@ class AvisoMotivoStepHandler extends AbstractStepHandler
                     'motivo' => $validation->normalized['text'] ?? null,
                 ]),
             ],
-        ]);
-    }
-
-    private function buildDomicilioDecisionPrompt(): string
-    {
-        return implode("\n", [
-            __('whatsapp.aviso.prompts.domicilio_circunstancial_pregunta'),
-            '1. ' . __('whatsapp.aviso.options.si'),
-            '2. ' . __('whatsapp.aviso.options.no_continuar'),
         ]);
     }
 

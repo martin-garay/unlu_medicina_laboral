@@ -31,7 +31,7 @@ class AvisoTipoAusentismoStepHandler extends AbstractStepHandler
 
         if (!$validation->isValid) {
             return $this->invalid($validation->errorCode ?? 'invalid_option', 'whatsapp.errores.invalid_option', [
-                'message' => $this->buildInvalidTipoAusentismoMessage(),
+                'menu_config' => $this->configuredMenu('tipos_ausentismo'),
                 'increment_attempts' => 1,
             ]);
         }
@@ -47,14 +47,6 @@ class AvisoTipoAusentismoStepHandler extends AbstractStepHandler
                 ]),
             ],
         ]);
-    }
-
-    private function buildInvalidTipoAusentismoMessage(): string
-    {
-        return $this->buildNumberedOptionsMessage(
-            'whatsapp.errores.invalid_option',
-            config('medicina_laboral.catalogos.tipos_ausentismo', [])
-        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

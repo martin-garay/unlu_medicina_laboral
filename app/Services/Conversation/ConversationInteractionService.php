@@ -338,6 +338,10 @@ class ConversationInteractionService
             $messages[] = ConversationOutboundMessage::text($responseText);
         }
 
+        if ($stepResult->menuConfig !== []) {
+            $messages[] = ConversationOutboundMessage::menu($stepResult->menuConfig);
+        }
+
         if ($stepResult->shouldShowMenu) {
             $messages[] = ConversationOutboundMessage::menu($this->mainMenuConfig());
         }

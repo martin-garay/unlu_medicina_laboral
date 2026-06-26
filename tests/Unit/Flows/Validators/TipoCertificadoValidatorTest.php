@@ -24,6 +24,16 @@ class TipoCertificadoValidatorTest extends TestCase
         $this->assertSame('manuscrito', $result->normalized['tipo_certificado']);
     }
 
+    public function test_accepts_button_id(): void
+    {
+        $result = (new TipoCertificadoValidator())->validate(new Conversacion(), [
+            'button_id' => 'certificado_electronico',
+        ]);
+
+        $this->assertTrue($result->isValid);
+        $this->assertSame('electronico', $result->normalized['tipo_certificado']);
+    }
+
     public function test_rejects_unknown_option(): void
     {
         $result = (new TipoCertificadoValidator())->validate(new Conversacion(), ['text' => 'otro']);

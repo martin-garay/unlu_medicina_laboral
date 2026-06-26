@@ -24,6 +24,16 @@ class SedeValidatorTest extends TestCase
         $this->assertSame('campus', $result->normalized['sede_key']);
     }
 
+    public function test_accepts_button_id(): void
+    {
+        $result = (new SedeValidator())->validate(new Conversacion(), [
+            'button_id' => 'sede_delegacion',
+        ]);
+
+        $this->assertTrue($result->isValid);
+        $this->assertSame('delegacion', $result->normalized['sede_key']);
+    }
+
     public function test_rejects_unknown_sede(): void
     {
         $result = (new SedeValidator())->validate(new Conversacion(), ['text' => 'desconocida']);

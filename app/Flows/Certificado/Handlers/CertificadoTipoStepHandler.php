@@ -31,7 +31,7 @@ class CertificadoTipoStepHandler extends AbstractStepHandler
 
         if (!$validation->isValid) {
             return $this->invalid($validation->errorCode ?? 'invalid_option', 'whatsapp.errores.invalid_option', [
-                'message' => $this->buildInvalidTipoCertificadoMessage(),
+                'menu_config' => $this->configuredMenu('tipos_certificado'),
                 'increment_attempts' => 1,
             ]);
         }
@@ -47,14 +47,6 @@ class CertificadoTipoStepHandler extends AbstractStepHandler
                 ]),
             ],
         ]);
-    }
-
-    private function buildInvalidTipoCertificadoMessage(): string
-    {
-        return $this->buildNumberedOptionsMessage(
-            'whatsapp.errores.invalid_option',
-            config('medicina_laboral.catalogos.tipos_certificado', [])
-        );
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

@@ -29,7 +29,7 @@ class AvisoDomicilioCircunstancialStepHandler extends AbstractStepHandler
 
         if ($decision === null) {
             return StepResult::invalid('invalid_option', 'whatsapp.errores.invalid_option', [
-                'message' => $this->buildPromptWithError(),
+                'menu_config' => $this->configuredMenu('domicilio_circunstancial'),
                 'increment_attempts' => 1,
             ]);
         }
@@ -60,6 +60,16 @@ class AvisoDomicilioCircunstancialStepHandler extends AbstractStepHandler
 
     private function normalizeDecision(array $input): ?bool
     {
+        $buttonId = (string) ($input['button_id'] ?? '');
+
+        if ($buttonId === 'domicilio_si') {
+            return true;
+        }
+
+        if ($buttonId === 'domicilio_no') {
+            return false;
+        }
+
         $text = $this->normalizedText($input);
         $yes = array_map('mb_strtolower', config('medicina_laboral.avisos.domicilio_yes_keywords', []));
         $no = array_map('mb_strtolower', config('medicina_laboral.avisos.domicilio_no_keywords', []));
@@ -73,15 +83,6 @@ class AvisoDomicilioCircunstancialStepHandler extends AbstractStepHandler
         }
 
         return null;
-    }
-
-    private function buildPromptWithError(): string
-    {
-        return implode("\n", [
-            __('whatsapp.errores.invalid_option'),
-            '1. ' . __('whatsapp.aviso.options.si'),
-            '2. ' . __('whatsapp.aviso.options.no_continuar'),
-        ]);
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

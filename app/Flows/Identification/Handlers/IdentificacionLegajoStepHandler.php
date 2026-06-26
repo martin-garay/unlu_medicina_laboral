@@ -51,7 +51,7 @@ class IdentificacionLegajoStepHandler extends AbstractStepHandler
         }
 
         return StepResult::make(null, [
-            'message' => $this->buildSedePrompt(),
+            'menu_config' => $this->configuredMenu('sedes'),
             'next_step' => 'identificacion_sede',
             'next_state' => 'identificacion_sede',
             'payload' => [
@@ -63,17 +63,6 @@ class IdentificacionLegajoStepHandler extends AbstractStepHandler
                 ]),
             ],
         ]);
-    }
-
-    private function buildSedePrompt(): string
-    {
-        $lines = [__('whatsapp.identificacion.sede')];
-
-        foreach (array_values(config('medicina_laboral.catalogos.sedes', [])) as $index => $label) {
-            $lines[] = ($index + 1) . '. ' . $label;
-        }
-
-        return implode("\n", $lines);
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

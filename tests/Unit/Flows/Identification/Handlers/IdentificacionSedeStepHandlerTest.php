@@ -21,6 +21,8 @@ class IdentificacionSedeStepHandlerTest extends TestCase
 
         $this->assertTrue($result->isValid);
         $this->assertSame('identificacion_jornada', $result->nextStep);
+        $this->assertSame(__('whatsapp.identificacion.jornada_laboral'), $result->menuConfig['body_text']);
+        $this->assertSame('jornada_planta_permanente', $result->menuConfig['buttons'][0]['id']);
         $this->assertSame(
             'Sede Central',
             $result->payload['conversation_updates']['metadata']['identificacion']['sede']
@@ -31,7 +33,7 @@ class IdentificacionSedeStepHandlerTest extends TestCase
         );
     }
 
-    public function test_invalid_sede_returns_numbered_options_message(): void
+    public function test_invalid_sede_returns_catalog_menu(): void
     {
         $handler = new IdentificacionSedeStepHandler(
             new SedeValidator(),
@@ -42,7 +44,8 @@ class IdentificacionSedeStepHandlerTest extends TestCase
 
         $this->assertFalse($result->isValid);
         $this->assertSame('sede_invalida', $result->errorCode);
-        $this->assertStringContainsString('1. Sede Central', $result->message);
-        $this->assertStringContainsString('2. Campus Luján', $result->message);
+        $this->assertSame(__('whatsapp.identificacion.sede'), $result->menuConfig['body_text']);
+        $this->assertSame('sede_central', $result->menuConfig['buttons'][0]['id']);
+        $this->assertSame('sede_campus', $result->menuConfig['buttons'][1]['id']);
     }
 }

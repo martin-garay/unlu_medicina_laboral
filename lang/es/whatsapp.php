@@ -30,7 +30,7 @@ return [
         'legajo' => 'Por favor, ingresá tu número de legajo.',
         'sede' => 'Indicá tu sede. Podés responder con el número o el nombre de la sede.',
         'jornada_laboral' => 'Indicá tu jornada laboral.',
-        'continuacion_aviso' => 'Identificación registrada. El siguiente paso del aviso será ingresar la fecha de inicio de la ausencia.',
+        'continuacion_aviso' => 'Identificación registrada. El siguiente paso del aviso será ingresar la fecha de inicio de la ausencia en formato :date_format.',
         'continuacion_certificado' => 'Identificación registrada. El siguiente paso del anticipo será ingresar el número de aviso asociado.',
         'confirmacion_previa' => 'Antes de continuar, confirmá si los datos de identificación son correctos.',
         'confirmar_si' => 'Sí',
