@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-04 06:13 -03
+2026-08-04 06:38 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M1 - Relevamiento y plan técnico de Ansible`.
+- Último bloque completado: `M2 - Resolución inicial de decisiones de despliegue`.
 - Milestone actual: daily 2026-08-04 cerrado.
-- Próximo paso sugerido: revisión humana de `deploy/docs/ansible-deployment-plan.md` y resolución de decisiones bloqueantes antes de promover la primera etapa de implementación.
+- Próximo paso sugerido: confirmar si se aprueba runtime host-based y, cuando se solicite implementación, crear un daily para `D1 - estructura base`.
 
 ---
 
@@ -67,32 +67,32 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `planned`
-- notas: relevamiento y arquitectura objetivo consolidados en `deploy/docs/ansible-deployment-plan.md`. No existen todavía roles, playbooks, inventarios ejecutables ni Vagrant. Debian es la plataforma principal propuesta, Ubuntu 24.04 queda como compatibilidad a probar y se recomienda Apache + PHP-FPM directo en host.
+- notas: el plan ya fija dos hosts lógicos con modo single-host, Debian 13, PHP 8.4, PostgreSQL 17, SSH, Vault, storage privado local, backups, releases Git y política inicial de logs/monitoreo. No existen todavía roles, playbooks, inventarios ejecutables ni Vagrant.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-04 06:13 -03
+- 2026-08-04 06:38 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-04.md`
 
 ### Milestone trabajado
-- `M1 - Relevamiento y plan técnico de Ansible`
+- `M2 - Resolución inicial de decisiones de despliegue`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se relevó la infraestructura y operación existente y se creó bajo `deploy/` el plan completo y no ejecutable todavía para implementar Ansible por etapas.
+- se incorporaron las definiciones del usuario y recomendaciones verificadas para cerrar versiones, topología, SSH/Vault, storage, backups, releases, logs y monitoreo.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/README.md`, `deploy/docs/ansible-deployment-plan.md`, `README.md`, `AGENTS.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/daily/2026-08-04.md` y `plan_dev/STATUS.md`.
-- resumen técnico: se definieron topologías, ejecución host-based con Apache/PHP-FPM, estructura Ansible, inventarios, secretos, PostgreSQL, TLS/webhook, releases, scheduler, persistencia, seguridad, backups, diagnóstico, rollback, pruebas, Vagrant y etapas futuras.
+- archivos tocados: `deploy/docs/ansible-deployment-plan.md`, `plan_dev/daily/2026-08-04.md` y `plan_dev/STATUS.md`.
+- resumen técnico: se precisaron decisiones y defaults recomendados para comenzar la estructura base sin depender todavía de dominio o servidores reales.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime modificado: no.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -104,11 +104,12 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks documentales: `git diff --check`, validación de rutas locales y comprobación de alcance.
-- resultado: sin errores; se verificaron las rutas citadas y que `deploy/` contiene únicamente documentación en esta etapa.
+- resultado: sin errores; rutas verificadas, sin secretos y sin artefactos Ansible/Vagrant ejecutables.
 
 ### Manuales sugeridas
-- revisar la tabla de decisiones con infraestructura, seguridad, DBA y responsables funcionales.
-- confirmar runtime host-based, topología, dominio/TLS, acceso SSH, secretos, storage privado y backups.
+- aprobar runtime host-based con Apache/PHP-FPM.
+- confirmar con negocio RPO 24 h, RTO 4 h y retención 7 diarios/4 semanales/6 mensuales.
+- definir más adelante dominio/TLS, IP/host SSH, destino externo de backup y canal de alertas.
 
 ---
 
@@ -120,10 +121,11 @@ No debe reemplazar:
 
 ## Decisiones humanas pendientes
 - aprobar instalación directa en host con Apache + PHP-FPM o informar una plataforma institucional de contenedores.
-- confirmar versión Debian, topología inicial, dominio/DNS, PKI/ACME, proxy/WAF y acceso SSH.
-- confirmar estrategia de Vault/gestor de secretos, storage privado, backups, retención, RPO/RTO y monitoreo.
-- confirmar versiones productivas de PHP/PostgreSQL y origen de releases.
-- definir política de logs sensibles y validación de firma de los POST del webhook antes de producción.
+- informar dominio/DNS, PKI/ACME y proxy/WAF cuando estén disponibles.
+- informar IP/hostname, usuario/clave SSH y bastion si aplica antes de operar servidores reales.
+- definir destino externo de backups y canal real de alertas.
+- confirmar con negocio retención, RPO/RTO y política inicial de logs sensibles.
+- implementar validación de firma de los POST del webhook antes de producción.
 - confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
 - confirmar si futuras asociaciones adicionales de avisos serán manuales, automáticas o mixtas
 - confirmar si `anticipos_certificado.aviso_id` quedará como cache del primer aviso o se eliminará luego de migrar lecturas a pivot
@@ -132,7 +134,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- revisar y aprobar el plan de despliegue; luego crear un daily para `D0` (decisiones bloqueantes) o `D1` (estructura base) según el resultado.
+- con aprobación del runtime host-based, crear un nuevo daily para `D1 - estructura base de Ansible`.
 
 ---
 

@@ -10,6 +10,22 @@ Este documento es la fuente de verdad técnica para planificar el despliegue de 
 
 Esta etapa no implementa Ansible, Vagrant ni configuración productiva. El entorno Docker local permanece sin cambios.
 
+## Decisiones acordadas el 2026-08-04
+
+- La topología objetivo inicial usa **dos servidores**, uno en `app_servers` y otro en `db_servers`.
+- La misma automatización debe admitir un servidor único asignando la misma IP/host a ambos grupos.
+- El sistema principal será **Debian 13 `trixie`**; Ubuntu 24.04 seguirá como compatibilidad secundaria probada.
+- Se usarán **PHP 8.4** y **PostgreSQL 17**, versiones incluidas por Debian 13, evitando inicialmente repositorios de paquetes externos.
+- Dominio, DNS y TLS serán variables por entorno; no se fija todavía un dominio real.
+- El acceso de Ansible será por SSH con clave. Se soportará conexión directa y bastion opcional mediante variables de inventory.
+- Los secretos se cifrarán con Ansible Vault. Inicialmente la contraseña de Vault estará fuera del repositorio, en `~/.config/medicina-laboral/ansible-vault-password`, con permisos `0600`.
+- El storage privado inicial recomendado será filesystem local fuera de `public/`, en `/var/lib/medicina-laboral/private`, enlazado/configurado como disco privado de Laravel cuando la aplicación implemente persistencia real.
+- Los backups se generarán inicialmente bajo `/var/backups/medicina-laboral`, con subdirectorios para PostgreSQL, archivos y manifiestos. Esa ruta local no reemplaza una copia externa.
+- El release se identificará por tag o commit de Git. En la primera etapa el código se obtendrá del remoto `origin` de GitHub mediante credencial SSH de solo lectura; una CI podrá producir artefactos inmutables más adelante.
+- Se adopta una política mínima de logs sin payloads completos ni secretos, con rotación local, y monitoreo inicial basado en checks de sistema más alertas configurables.
+
+Estas decisiones permiten comenzar la estructura base y las pruebas locales. Dominio/TLS, destino externo de backups y canal de alertas pueden permanecer variables hasta sus etapas específicas.
+
 ## 1. Estado actual
 
 ### Arquitectura y ejecución local
@@ -26,7 +42,7 @@ El Dockerfile instala `pdo_pgsql`, `pgsql`, `intl`, `mbstring`, `xml` y `zip`, a
 
 ### Laravel, dependencias y migraciones
 
-- [`composer.json`](../../composer.json) exige PHP `^8.2`, Laravel 11, Filament 5 y Spatie Permission 6.25. La implementación local fija PHP 8.3; esa es la versión inicial recomendada para producción, sujeta a disponibilidad en Debian.
+- [`composer.json`](../../composer.json) exige PHP `^8.2`, Laravel 11, Filament 5 y Spatie Permission 6.25. La implementación local fija PHP 8.3; producción se planifica sobre PHP 8.4 nativo de Debian 13 y requiere validar Composer/tests antes del despliegue.
 - Las extensiones comprobadas por el Dockerfile son la base de runtime. Antes de implementar el rol PHP se debe ejecutar `composer check-platform-reqs` sobre un release para confirmar requisitos transitivos y sumar, como mínimo operativo, `curl`, `ctype`, `fileinfo`, `filter`, `json`, `openssl`, `pdo`, `tokenizer` y las extensiones requeridas por Laravel/Filament disponibles en los paquetes base.
 - Las migraciones se ejecutan actualmente con `make migrate`, que invoca `php artisan migrate` dentro del contenedor. Producción deberá usar `php artisan migrate --force` una sola vez desde el host de aplicación designado.
 - El seeder [`database/seeders/BackofficeRolesAndPermissionsSeeder.php`](../../database/seeders/BackofficeRolesAndPermissionsSeeder.php) puede crear roles y un administrador local. No debe ejecutarse automáticamente en producción mientras pueda habilitar credenciales de desarrollo.
@@ -242,7 +258,19 @@ all:
           ansible_host: 192.0.2.30
 ```
 
-`vagrant` tendrá Debian estable como escenario principal y Ubuntu 24.04 como variante. `staging` y `production` compartirán estructura, nunca valores secretos. La pertenencia duplicada de un host no debe duplicar instalación porque cada play aplica roles por grupo y Ansible consolida hosts.
+`vagrant` tendrá Debian 13 como escenario principal y Ubuntu 24.04 como variante. `staging` y `production` compartirán estructura, nunca valores secretos. La pertenencia duplicada de un host no debe duplicar instalación porque cada play aplica roles por grupo y Ansible consolida hosts.
+
+El inventory contemplará acceso SSH directo como valor normal y bastion opcional, sin hardcodearlo:
+
+```yaml
+all:
+  vars:
+    ansible_user: deploy
+    deployment_ssh_bastion_enabled: false
+    deployment_ssh_bastion_host: null
+```
+
+Cuando se habilite bastion, `ansible_ssh_common_args` se derivará de variables validadas. Las claves privadas no se guardarán en el repositorio ni dentro de Vault salvo necesidad institucional explícita; se cargarán desde el agente SSH del operador.
 
 ## 7. Variables y secretos
 
@@ -270,11 +298,13 @@ all:
 
 ### Vault
 
-Recomendación: un archivo cifrado por entorno, por ejemplo `inventories/production/group_vars/all/vault.yml`, con nombres prefijados `vault_`; las variables no secretas los referencian. La contraseña de Vault nunca se versiona: se obtiene interactivamente o desde un gestor/CI autorizado. Usar `no_log: true` en tareas que rendericen o manipulen secretos, permisos `0600` para `.env` y un procedimiento de rekey/rotación. No generar secretos en esta etapa.
+Se usará un archivo cifrado por entorno, por ejemplo `inventories/production/group_vars/all/vault.yml`, con nombres prefijados `vault_`; las variables no secretas los referencian. Inicialmente el controlador leerá la contraseña desde `~/.config/medicina-laboral/ansible-vault-password`. Ese archivo debe crearse manualmente con permisos `0600`, quedar fuera del repositorio y no sincronizarse sin un canal seguro. `ansible.cfg` no contendrá una ruta absoluta ligada a una persona: un wrapper o variable `ANSIBLE_VAULT_PASSWORD_FILE` apuntará al archivo.
+
+Ansible Vault protege los datos versionados en reposo, pero los secretos quedan descifrados durante la ejecución. Por eso las tareas sensibles usarán `no_log: true`, `.env` tendrá permisos `0600` y se documentará rekey/rotación. A futuro la contraseña podrá migrarse a un keyring o gestor institucional sin cambiar los archivos cifrados.
 
 ## 8. PostgreSQL
 
-- Versión inicial recomendada: **16**, alineada con Docker y con soporte disponible; confirmar paquetes oficiales de cada Debian/Ubuntu antes de fijarla.
+- Versión productiva acordada: **PostgreSQL 17**, incluida en Debian 13 y soportada oficialmente por PostgreSQL hasta noviembre de 2029. El desarrollo local seguirá temporalmente en PostgreSQL 16; antes de desplegar se ejecutará la suite contra 17 para validar compatibilidad.
 - Crear cluster con UTF-8 y locale institucional confirmado; base y rol dedicados sin privilegios de superusuario.
 - En host único: `listen_addresses = 'localhost'`, conexión por `127.0.0.1` o socket si Laravel lo valida.
 - En hosts separados: escuchar solo en IP privada de DB. Generar entradas `pg_hba.conf` para la base/usuario y las IP/CIDR derivadas explícitamente de `app_servers`; usar `scram-sha-256`. Nunca `0.0.0.0/0` ni publicación a Internet.
@@ -287,7 +317,7 @@ Recomendación: un archivo cifrado por entorno, por ejemplo `inventories/product
 
 - VirtualHost con `DocumentRoot` en `/var/www/medicina-laboral/current/public`, `AllowOverride None` y reglas Laravel equivalentes a `public/.htaccess` mediante configuración explícita o `mod_rewrite` controlado.
 - Apache sirve estáticos y envía PHP a PHP-FPM; no usar `mod_php`.
-- Instalar PHP 8.3 y módulos comprobados (`cli`, `fpm`, `pgsql`, `intl`, `mbstring`, `xml`, `zip`, `curl`, `opcache`) más requisitos confirmados por Composer. Debian puede requerir repositorio externo: decisión pendiente de supply chain.
+- Instalar **PHP 8.4** desde los repositorios de Debian 13 y módulos comprobados (`cli`, `fpm`, `pgsql`, `intl`, `mbstring`, `xml`, `zip`, `curl`, `opcache`) más requisitos confirmados por Composer. Laravel 11 exige PHP 8.2 o superior y PHP 8.4 conserva soporte de seguridad hasta diciembre de 2028. Antes de cerrar el rol se ejecutarán Composer y la suite completa sobre 8.4.
 - Ajustar `upload_max_filesize`, `post_max_size`, `memory_limit`, `max_execution_time` y timeouts de Apache coherentes con el máximo actual de certificados (5 MiB por archivo, hasta 3), dejando margen para payload.
 - Usuario web sin shell; el deploy user administra releases. Escritura solo en `shared/storage` y `shared/bootstrap-cache` enlazados, no en el código.
 - Logs separados de acceso/error con logrotate. Aplicar minimización de URLs/identificadores cuando corresponda.
@@ -296,7 +326,7 @@ Recomendación: un archivo cifrado por entorno, por ejemplo `inventories/product
 
 ## 10. HTTPS y webhook de WhatsApp
 
-La URL objetivo será `https://<dominio>/api/whatsapp/webhook`. Se requiere:
+La URL objetivo será `https://{{ deployment_domain }}/api/whatsapp/webhook`. `deployment_domain`, aliases, email ACME, modo TLS y presencia de proxy serán variables por entorno. El playbook de TLS/webhook fallará temprano si se intenta habilitar un webhook público sin dominio. Se requiere:
 
 1. dominio y DNS públicos apuntando al app/proxy;
 2. entrada 443 (y 80 solo para redirect/ACME) en firewall institucional y local;
@@ -325,7 +355,7 @@ Se recomienda estructura de releases desde el comienzo porque reduce estados par
 
 Flujo propuesto:
 
-1. validar variables, conectividad, espacio y ref (tag/commit inmutable);
+1. validar variables, conectividad, espacio y `deployment_release_ref` (tag o commit inmutable);
 2. obtener código mediante artefacto o checkout limpio en un release nuevo;
 3. verificar identidad del commit y ejecutar `composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction`;
 4. enlazar `.env`, storage y cache compartidos; fijar ownership/permisos;
@@ -335,6 +365,8 @@ Flujo propuesto:
 8. cambiar `current` de forma atómica;
 9. recargar PHP-FPM, verificar `/up`, doctor y rutas críticas no mutantes;
 10. conservar un número configurable de releases y limpiar solo después del éxito.
+
+El **origen del release** es el lugar y la versión exacta desde donde Ansible obtiene el código que instala. Inicialmente será `git@github.com:martin-garay/unlu_medicina_laboral.git`, usando una deploy key SSH de solo lectura y un tag o SHA explícito; nunca se desplegará una rama mutable como `main` sin resolverla previamente a un commit. Cuando exista CI, la opción preferida será descargar un artefacto versionado y con checksum, evitando instalar desde Git en producción.
 
 No usar `php artisan key:generate` en cada deploy: `APP_KEY` es un secreto estable. No ejecutar seeders automáticamente. El orden exacto de migración/activación exige que cada cambio de esquema sea backward-compatible o que se declare ventana de mantenimiento.
 
@@ -356,7 +388,7 @@ No instalar Supervisor ni workers: la cola actual es `sync` y no hay jobs operat
 |---|---|---|
 | `shared/.env` | sí | Vault → template `0600`; backup cifrado o recuperación desde secretos fuente |
 | `shared/storage/app` | sí | filesystem privado; backup según RPO |
-| adjuntos/certificados | futuro, sí | no activar hasta definir driver; cifrado, acceso auditado y backup |
+| adjuntos/certificados | futuro, sí | `/var/lib/medicina-laboral/private`; no activar hasta implementar driver real, acceso autorizado y auditoría |
 | logs Laravel | según canal | rotación/retención; no restaurar normalmente |
 | `storage/framework` | no como dato | directorios compartidos por permisos; caches/sesiones requieren decisión |
 | `bootstrap/cache` | regenerable | shared writable o por release según estrategia probada |
@@ -365,6 +397,8 @@ No instalar Supervisor ni workers: la cola actual es `sync` y no hay jobs operat
 | certificados TLS | sí | administrados por ACME/PKI fuera del release |
 
 Si sesiones/cache permanecen en archivos, un host único es compatible. Escalado horizontal requerirá backend compartido y no forma parte de la primera implementación.
+
+**Storage privado** significa que los certificados y adjuntos no quedan dentro de `public/` ni pueden descargarse conociendo una URL. Para el MVP se recomienda un directorio local `/var/lib/medicina-laboral/private`, propiedad del usuario de aplicación, modo base `0750` y archivos `0640`. Laravel accederá mediante un disco `local` privado y cualquier descarga futura pasará por un controller que verifique permisos y registre auditoría. Hoy el código guarda solo metadata, por lo que esta ruta se preparará pero no se considerará operativa hasta implementar el driver real.
 
 ## 14. Seguridad básica
 
@@ -383,18 +417,21 @@ Si sesiones/cache permanecen en archivos, un host único es compatible. Escalado
 
 ## 15. Backups y recuperación
 
-Definir RPO/RTO antes de implementar. Base propuesta sujeta a aprobación:
+Base inicial adoptada para poder implementar y ajustar después:
 
 - dump PostgreSQL diario en formato custom, más backup previo a migraciones de riesgo;
 - backup diario de storage privado cuando exista contenido real;
 - retención sugerida 7 diarios, 4 semanales y 6 mensuales, ajustada a política institucional y sensibilidad;
-- destino fuera del servidor principal; cifrado en tránsito y reposo;
+- staging local en `/var/backups/medicina-laboral/{postgresql,files,manifests}` sobre el host DB para dumps y el host app para archivos;
+- copia externa posterior obligatoria hacia storage/host institucional todavía pendiente; mantener solo la copia local no protege ante pérdida del servidor;
 - cuenta y directorio exclusivos, `0700/0600`, sin exposición web;
 - checks de tamaño, antigüedad, checksum y éxito; alerta por backup vencido;
 - restore documentado y ensayado periódicamente en entorno aislado;
 - registrar versión PostgreSQL, commit y fecha para correlacionar restore.
 
-Copiar archivos no equivale a tener recuperación. El criterio de aceptación será restaurar DB y storage en una VM limpia y completar health/doctor. La ubicación, herramienta, retención y responsable siguen pendientes.
+Se adopta provisionalmente **RPO de 24 horas** —podrían perderse hasta 24 horas de datos— y **RTO de 4 horas** —objetivo para restaurar el servicio—, con retención de 7 backups diarios, 4 semanales y 6 mensuales. Deben ser confirmados por negocio antes de producción.
+
+Copiar archivos no equivale a tener recuperación. El criterio de aceptación será restaurar DB y storage en una VM limpia y completar health/doctor. La herramienta/destino externo y el responsable operativo siguen pendientes.
 
 ## 16. Observabilidad y diagnóstico
 
@@ -410,6 +447,28 @@ Post-deploy deberá verificar:
 8. espacio/inodos, expiración TLS y antigüedad/validez de backups.
 
 `/up` es un liveness básico. No debe convertirse en un endpoint público con detalles de DB o secretos. Un readiness autenticado/local puede añadirse posteriormente si se define contrato.
+
+### Política inicial de logs y monitoreo
+
+Para producción se recomienda `LOG_CHANNEL=daily`, `LOG_LEVEL=info` y retención local de 14 días para Laravel, coordinada con `logrotate` para Apache, PHP-FPM y scheduler. La aplicación no deberá registrar:
+
+- tokens, contraseñas, cookies, `.env` ni headers de autorización;
+- payloads crudos completos de WhatsApp;
+- cuerpos de certificados o adjuntos;
+- números telefónicos completos ni datos médicos en mensajes de operación.
+
+Cuando haga falta correlación se usarán `conversation_id`, `provider_message_id` truncado/hasheado, tipo de evento, resultado y duración. Los errores conservarán stack trace y código técnico, pero sus contextos se sanearán. El acceso a logs quedará restringido a operación/auditoría y la ampliación de retención necesitará aprobación por sensibilidad de los datos.
+
+El monitoreo inicial no requiere una plataforma compleja. El rol `monitoring` expondrá checks ejecutables y retornos para:
+
+- HTTPS `/up`, Apache, PHP-FPM y PostgreSQL;
+- ejecución reciente del scheduler;
+- antigüedad y validación del último backup;
+- disco e inodos (warning 75 %, critical 90 %);
+- certificado TLS (warning a 30 días, critical a 14 días);
+- errores HTTP 5xx y fallos de envío a WhatsApp por encima de umbrales configurables.
+
+Hasta elegir un sistema institucional, los fallos quedarán en syslog/journal y podrán notificar a un email configurable (`deployment_alert_email`). Ansible preparará la integración, pero no inventará un destinatario ni credenciales SMTP.
 
 ## 17. Rollback
 
@@ -478,28 +537,28 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 | Decisión | Opciones | Recomendación | Impacto | Responsable sugerido | Estado |
 |---|---|---|---|---|---|
 | Runtime | host / contenedores | host + Apache/PHP-FPM | arquitectura completa | equipo técnico/operación | recomendada, pendiente aprobar |
-| SO/versiones | Debian estable / Ubuntu 24.04 | Debian principal, Ubuntu compatible | paquetes y tests | operación | contexto dado, versión Debian pendiente |
-| Topología inicial | uno / dos servidores | dos si hay red/operación; uno para MVP acotado | HA, seguridad, costo | infraestructura | pendiente |
-| Dominio y DNS | institucional / nuevo | subdominio institucional | webhook/TLS | infraestructura/comunicaciones | pendiente |
+| SO/versiones | Debian 13 / Ubuntu 24.04 | Debian 13 principal, Ubuntu compatible | paquetes y tests | operación | acordada |
+| Topología inicial | uno / dos servidores | app y DB separados; misma IP válida para modo single-host | HA, seguridad, costo | infraestructura | acordada |
+| Dominio y DNS | institucional / nuevo | variable `deployment_domain`; subdominio institucional cuando exista | webhook/TLS | infraestructura/comunicaciones | parametrizada, valor pendiente |
 | Autoridad TLS | ACME / PKI institucional / proxy | usar estándar institucional; ACME si no existe | renovación y red | seguridad/infraestructura | pendiente |
 | Proxy/WAF/NAT | directo / institucional | integrar estándar existente | vhost, firma, IPs | infraestructura | pendiente |
-| SSH | bastion/directo, usuario, claves | clave + usuario deploy + bastion si existe | acceso Ansible | infraestructura/seguridad | pendiente |
-| Secretos | Vault / gestor institucional | Vault inicialmente; integrar gestor si existe | operación y CI | seguridad/operación | pendiente |
-| PostgreSQL | 16 / versión institucional | 16 por alineación local | paquetes, backup, soporte | DBA/operación | pendiente confirmar |
-| PHP | 8.3 / versión disponible compatible | 8.3 | repositorio y soporte | operación/desarrollo | pendiente confirmar |
+| SSH | bastion/directo, usuario, claves | clave + usuario `deploy`; directo por defecto, bastion configurable | acceso Ansible | infraestructura/seguridad | estrategia acordada; hosts/claves pendientes |
+| Secretos | Vault / gestor institucional | Vault; password file en home fuera de Git | operación y CI | seguridad/operación | acordada para etapa inicial |
+| PostgreSQL | 17 / otra versión institucional | 17 nativo de Debian 13 | paquetes, backup, soporte | DBA/operación | acordada, sujeta a tests |
+| PHP | 8.4 / otra versión compatible | 8.4 nativo de Debian 13 | paquetes y soporte | operación/desarrollo | acordada, sujeta a tests |
 | TLS PostgreSQL | requerido / red privada sin TLS | seguir política institucional; TLS en redes no confiables | certificados y config | DBA/seguridad | pendiente |
 | Releases | symlink / in-place | symlink de releases | rollback y disco | desarrollo/operación | recomendada |
-| Origen de release | git en host / artefacto CI | artefacto verificable a futuro; git por tag en fase inicial | supply chain | desarrollo/operación | pendiente |
+| Origen de release | git en host / artefacto CI | GitHub con deploy key read-only y tag/SHA; artefacto verificable a futuro | supply chain | desarrollo/operación | acordada para etapa inicial |
 | Migraciones | deploy online / ventana | expand-contract; ventana para destructivas | disponibilidad/rollback | desarrollo/DBA | pendiente proceso |
-| Storage privado | disco local / object storage / institucional | storage privado institucional si existe | adjuntos y backup | seguridad/negocio | bloquea archivos reales |
-| Logs sensibles | filesystem / journal/colector | colector institucional o daily con política PII | cumplimiento/diagnóstico | seguridad/negocio | bloqueada por LOG-001 |
-| Backup destino | segundo host / object storage / plataforma | fuera del servidor y cifrado | recuperación | operación/seguridad | pendiente |
-| Retención/RPO/RTO | política institucional | definir antes de rol backup | costo y recuperación | negocio/operación | pendiente |
+| Storage privado | disco local / object storage / institucional | `/var/lib/medicina-laboral/private` para MVP, nunca público | adjuntos y backup | seguridad/negocio | estrategia inicial definida; driver real pendiente |
+| Logs sensibles | filesystem / journal/colector | Laravel daily 14 días, nivel info, sin payload/PII; colector futuro | cumplimiento/diagnóstico | seguridad/negocio | política inicial definida; requiere cambio funcional LOG-001 |
+| Backup destino | ruta local + copia externa | `/var/backups/medicina-laboral` como staging; destino externo obligatorio | recuperación | operación/seguridad | ruta local acordada; externo pendiente |
+| Retención/RPO/RTO | política institucional | 7 diarios/4 semanales/6 mensuales; RPO 24 h, RTO 4 h | costo y recuperación | negocio/operación | propuesta adoptada, confirmar con negocio |
 | Admin inicial | seeder local / alta segura | procedimiento manual/auditable, local admin off | acceso backoffice | seguridad/administración | pendiente diseñar |
 | Firma webhook | implementar / aceptar token GET | implementar validación de firma antes de producción | seguridad de entrada | desarrollo/seguridad | pendiente funcional fuera de Ansible |
 | Rollback | código automático / DB manual | código automático, DB con runbook | riesgo de datos | desarrollo/DBA | recomendada |
 | CI/CD | manual / GitHub Actions / plataforma institucional | diferir hasta D13; elegir plataforma institucional | automatización/secretos | DevOps | pendiente |
-| Monitoreo | checks locales / plataforma institucional | checks locales + integración existente | alertas | operación | pendiente |
+| Monitoreo | checks locales / plataforma institucional | checks locales, syslog y email configurable; integrar plataforma futura | alertas | operación | estrategia inicial definida; canal pendiente |
 
 ## Riesgos prioritarios
 
@@ -514,4 +573,13 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 
 ## Criterio de aprobación de esta planificación
 
-El plan está listo para revisión cuando el equipo confirma la ubicación `deploy/`, la recomendación host-based y la tabla de decisiones. La implementación no debe comenzar por roles de aplicación hasta resolver al menos topología inicial, acceso SSH, dominio/TLS, versiones, secretos y estrategia de storage/backup aplicable al alcance.
+El plan ya permite comenzar `D1` (estructura base) y pruebas locales sin dominio real. La implementación sobre servidores reales no debe comenzar hasta disponer de IP/hostname y clave SSH; TLS/webhook requiere además dominio, DNS y autoridad de certificados. El storage de archivos médicos no se considerará productivo hasta implementar y auditar un driver real.
+
+## Fuentes externas verificadas
+
+- [Debian Releases](https://www.debian.org/releases/): Debian 13 `trixie` es la distribución estable vigente y Debian la recomienda para producción.
+- [Anuncio oficial de Debian 13](https://www.debian.org/News/2025/20250809): Debian 13 incluye PHP 8.4, PostgreSQL 17 y Apache 2.4.
+- [Versiones soportadas de PHP](https://www.php.net/supported-versions.php): PHP 8.4 tiene soporte de seguridad hasta el 31 de diciembre de 2028.
+- [Deployment de Laravel 11](https://laravel.com/docs/11.x/deployment): Laravel 11 requiere PHP 8.2 o superior y escritura en `storage` y `bootstrap/cache`.
+- [Política de versiones de PostgreSQL](https://www.postgresql.org/support/versioning/): PostgreSQL 17 recibe soporte hasta noviembre de 2029.
+- [Documentación de Ansible Vault](https://docs.ansible.com/projects/ansible/latest/vault_guide/vault.html): Vault cifra datos en reposo y admite password file externo al repositorio.
