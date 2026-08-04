@@ -52,9 +52,11 @@ php_version: "8.4"
 postgresql_version: "17"
 ```
 
-Con PostgreSQL 18 ya soportado, migrar la selección será cambiar únicamente `postgresql_version: "18"` y seguir el runbook de upgrade de datos. Si todavía no existe soporte, se amplía `technologies/database/postgresql/` y sus tests, sin modificar las carpetas Debian, Apache o PHP.
+Con PostgreSQL 18 ya soportado, migrar la selección será cambiar únicamente `postgresql_version: "18"` y seguir el runbook de upgrade de datos. Si todavía no existe soporte, se amplía `deploy/provisioning/roles/postgresql/` y sus tests, sin modificar los roles `common`, `apache` o `php`.
 
-Como referencia local se revisó `/home/mgaray/desarrollo/elecciones/msa/deploy/provisioning/`: allí `group_vars/all.yml` expone `pg_version`, lo cual es el patrón de selección deseado, pero `roles/pgdb/tasks/pg_install.yml` conserva paquetes `postgresql-10` hardcodeados. En este proyecto la variable y los nombres de paquetes/configuración deberán resolverse desde el mismo archivo de versión de PostgreSQL para que cambiar el inventory tenga efecto real y verificable.
+Como referencia local se revisó `/home/mgaray/desarrollo/elecciones/msa/deploy/provisioning/`: se reutilizarán su estructura reconocible de `ansible.cfg`, `group_vars`, inventories, playbooks por grupo, roles estándar, `Vagrantfile` y una interfaz `bin/deploy`. Allí `group_vars/all.yml` expone `pg_version`, lo cual es el patrón de selección deseado, pero `roles/pgdb/tasks/pg_install.yml` conserva paquetes `postgresql-10` hardcodeados. En este proyecto la variable y los nombres de paquetes/configuración deberán resolverse desde el mismo archivo de versión de PostgreSQL para que cambiar el inventory tenga efecto real y verificable.
+
+No se copiarán del antecedente las contraseñas SSH en `ansible.cfg`, `host_key_checking=false`, paquetes en estado `latest`, claves dentro de roles, repositorios obsoletos, symlinks de escenarios ni scripts operativos extensos. La familiaridad se conserva en la organización y comandos, no en prácticas que hoy dificultarían seguridad e idempotencia.
 
 ## 1. Estado actual
 
@@ -205,69 +207,82 @@ deploy/
 ├── docs/
 │   ├── ansible-deployment-plan.md
 │   └── runbooks/                    # futuro
-├── ansible.cfg
-├── requirements.yml
-├── inventories/
-│   ├── vagrant/
-│   │   ├── hosts.yml
-│   │   ├── group_vars/
-│   │   └── host_vars/
-│   ├── staging/
-│   └── production/
-├── playbooks/
-│   ├── site.yml
-│   ├── app.yml
-│   ├── database.yml
-│   ├── deploy.yml
-│   ├── backup.yml
-│   └── rollback.yml
-├── orchestration/
-│   ├── README.md
-│   └── roles/
-│       ├── selection_validator/
-│       ├── application_release/
-│       └── health_check/
-├── technologies/
-│   ├── operating_system/
-│   │   ├── debian/
-│   │   │   ├── README.md
-│   │   │   ├── roles/base/
-│   │   │   ├── vars/versions/13.yml
-│   │   │   ├── tasks/versions/
-│   │   │   └── tests/
-│   │   └── ubuntu/                   # proveedor futuro independiente
-│   ├── web_server/apache/
-│   │   ├── README.md
-│   │   ├── roles/web_server/
-│   │   ├── vars/versions/2.4.yml
-│   │   └── tests/
-│   ├── php_runtime/php/
-│   │   ├── README.md
-│   │   ├── roles/php_runtime/
-│   │   ├── vars/versions/8.4.yml
-│   │   └── tests/
-│   ├── database/postgresql/
-│   │   ├── README.md
-│   │   ├── roles/database/
-│   │   ├── vars/versions/17.yml
-│   │   ├── tasks/versions/           # solo si una versión necesita lógica distinta
-│   │   ├── templates/versions/       # solo si el formato cambia por versión
-│   │   └── tests/
-│   ├── firewall/nftables/
-│   ├── tls/acme/
-│   ├── scheduler/cron/
-│   ├── backup/pgdump-filesystem/
-│   └── monitoring/local-checks/
-└── vagrant/
-    ├── scenarios/
-    │   ├── single-host/
-    │   └── split-host/
-    └── README.md
+└── provisioning/
+    ├── README.md
+    ├── ansible.cfg
+    ├── requirements.yml
+    ├── site.yml
+    ├── app.yml
+    ├── database.yml
+    ├── deploy.yml
+    ├── backup.yml
+    ├── rollback.yml
+    ├── inventories/
+    │   ├── vagrant/hosts.yml
+    │   ├── staging/hosts.yml
+    │   └── production/hosts.yml
+    ├── group_vars/
+    │   ├── all.yml
+    │   ├── app_servers.yml
+    │   ├── db_servers.yml
+    │   └── vault.yml                # cifrado
+    ├── host_vars/                   # solo excepciones reales
+    ├── roles/
+    │   ├── common/
+    │   │   ├── README.md
+    │   │   └── vars/platforms/debian-13.yml
+    │   ├── firewall/
+    │   ├── apache/
+    │   │   └── vars/versions/2.4.yml
+    │   ├── php/
+    │   │   └── vars/versions/8.4.yml
+    │   ├── postgresql/
+    │   │   ├── README.md
+    │   │   ├── defaults/main.yml
+    │   │   ├── tasks/main.yml
+    │   │   ├── vars/versions/17.yml
+    │   │   ├── templates/
+    │   │   ├── handlers/main.yml
+    │   │   └── tests/
+    │   ├── laravel/
+    │   ├── scheduler/
+    │   ├── tls/
+    │   ├── backup/
+    │   └── monitoring/
+    ├── bin/
+    │   └── deploy                   # wrapper pequeño, futuro
+    └── Vagrantfile
 ```
 
-Apache, PHP y PostgreSQL quedan separados porque tienen versiones y ciclos de vida distintos. Composer será parte de `application_release` mientras no requiera una implementación alternativa propia.
+Esta estructura prioriza que alguien familiarizado con elecciones pueda ubicarse inmediatamente. Apache, PHP y PostgreSQL siguen separados porque tienen versiones y ciclos de vida distintos. Composer queda dentro de `laravel` mientras no requiera un rol propio.
 
-Las carpetas mostradas son el diseño futuro, no artefactos creados en esta etapa. Durante `D1` se hará un spike para validar carga dinámica segura de variables/tareas por versión. La selección debe usar una lista explícita de versiones soportadas y `include_vars`/`include_tasks` con valores previamente validados, nunca paths arbitrarios provistos por el usuario.
+Las carpetas mostradas son el diseño futuro, no artefactos creados en esta etapa. Durante `D1` se validará carga dinámica segura de variables/tareas por versión. La selección debe usar una lista explícita de versiones soportadas y `include_vars`/`include_tasks` con valores previamente validados, nunca paths arbitrarios provistos por el usuario.
+
+### Alcance simple de la primera versión
+
+La primera entrega funcional priorizará un recorrido entendible de punta a punta:
+
+1. `common`: usuario, paquetes base, timezone y directorios;
+2. `postgresql`: instalación 17, base/usuario y acceso app→DB;
+3. `php` y `apache`: runtime y VirtualHost HTTP de prueba;
+4. `laravel`: checkout por tag/SHA, Composer, `.env`, permisos, migraciones y `/up`;
+5. `scheduler`: cron de Laravel;
+6. `firewall`: puertos mínimos;
+7. `backup`: dump local verificable;
+8. `tls`: se activa cuando exista dominio.
+
+Para mantenerla simple:
+
+- `site.yml` importará `database.yml` y `app.yml`, como los playbooks compuestos del repo elecciones;
+- `group_vars/all.yml` concentrará defaults y versiones; `app_servers.yml`/`db_servers.yml` solo tendrán variables de grupo;
+- `ansible.cfg` apuntará al inventory elegido y a `roles/`, pero no guardará passwords;
+- `bin/deploy` será, si se agrega, un wrapper corto para elegir inventory/ref y ejecutar `ansible-playbook`; la lógica seguirá en Ansible;
+- Vagrant modelará una o dos VMs y llamará al mismo `site.yml`;
+- los roles usarán módulos estándar y handlers; no se creará una colección, plugin propio, framework de perfiles ni repositorio externo de roles en esta etapa;
+- el monitoreo inicial será `/up`, `medicina:doctor` y checks de servicios; no se instalará una plataforma de observabilidad;
+- Molecule, CI/CD, bastion activo, copia externa de backups y soporte de versiones alternativas quedan para milestones posteriores.
+
+La primera versión debe ser fácil de ejecutar manualmente y fácil de leer. La extensibilidad se concentra en variables y archivos por versión dentro de cada rol, sin construir abstracciones antes de necesitarlas.
 
 ### Selección independiente y soporte
 
@@ -289,7 +304,7 @@ deployment_stack:
     version: "17"
 ```
 
-`selection_validator` comprobará que cada proveedor y versión exista. Cada tecnología publicará su lista, por ejemplo `postgresql_supported_versions: ["17"]`. Agregar `"18"` y sus archivos/tests habilitará esa versión sin tocar selecciones de PHP, Apache o sistema operativo.
+Los `pre_tasks` de `site.yml` y cada rol comprobarán que el proveedor y la versión existan. No habrá un framework de validación separado. Cada tecnología publicará su lista, por ejemplo `postgresql_supported_versions: ["17"]`. Agregar `"18"` y sus archivos/tests habilitará esa versión sin tocar selecciones de PHP, Apache o sistema operativo.
 
 No habrá una matriz cartesiana obligatoria de toda la pila. Se mantendrá un registro breve de combinaciones probadas como evidencia, pero no bloqueará un cambio independiente salvo que exista una restricción declarada. Ejemplos:
 
@@ -303,15 +318,15 @@ No habrá una matriz cartesiana obligatoria de toda la pila. Se mantendrá un re
 | Capacidad | Responsabilidad | Variables neutrales | Implementación inicial | Validaciones contractuales |
 |---|---|---|---|---|
 | `operating_system` | base, locale, timezone, usuarios y repositorios | provider, version, timezone, locale, usuarios, update policy | Debian / 13 | familia/release exactos, usuario, reloj, idempotencia |
-| `firewall` | puertos mínimos por grupo | puertos/cidrs autorizados | nftables profile 1 | reglas efectivas y acceso SSH preservado |
+| `firewall` | puertos mínimos por grupo | puertos/cidrs autorizados | nftables | reglas efectivas y acceso SSH preservado |
 | `web_server` | VirtualHost y proxy PHP | provider, version, dominio, docroot, límites, log paths | Apache / 2.4 | configtest, headers, estáticos y forwarding PHP |
 | `php_runtime` | FPM, CLI y extensiones | provider, version, límites, extensiones, pool | PHP / 8.4 | versión, módulos, socket y FPM activo |
 | `database` | cluster, base, rol y acceso | provider, version, DB, usuario, locale, redes, SSL | PostgreSQL / 17 | versión, conexión, `pg_hba`, ausencia de acceso público |
-| `application_release` | releases, Composer, `.env`, migración y activación | repo/ref, paths, env, retención | estrategia release v1 neutral | Composer, Artisan, permisos, `/up`, rollback de symlink |
-| `scheduler` | ejecución periódica Laravel | usuario, comando, frecuencia, log | cron profile 1 | entrada única y ejecución comprobada |
-| `tls` | certificado, renovación y redirect | dominio, email, modo/cert paths | ACME profile 1 | cadena, expiración, redirect y renovación |
-| `backup` | DB y archivos persistentes | origen, destino, horario, retención | pg_dump + filesystem profile 1 | backup reciente, checksum y restore probado |
-| `monitoring` | checks básicos | endpoints, umbrales, alert target | local checks profile 1 | servicios, `/up`, scheduler, backup, disco y TLS |
+| `laravel` | releases, Composer, `.env`, migración y activación | repo/ref, paths, env, retención | releases por symlink | Composer, Artisan, permisos, `/up`, rollback de symlink |
+| `scheduler` | ejecución periódica Laravel | usuario, comando, frecuencia, log | cron | entrada única y ejecución comprobada |
+| `tls` | certificado, renovación y redirect | dominio, email, modo/cert paths | ACME | cadena, expiración, redirect y renovación |
+| `backup` | DB y archivos persistentes | origen, destino, horario, retención | pg_dump + filesystem | backup reciente, checksum y restore probado |
+| `monitoring` | checks básicos | endpoints, umbrales, alert target | scripts locales | servicios, `/up`, scheduler, backup, disco y TLS |
 
 Cada tecnología debe incluir README, defaults, tasks, handlers solo cuando hagan falta, templates con `validate`, tests, versiones soportadas y changelog. Las variables obligatorias fallan temprano con `assert`. Ningún componente puede leer variables internas de otro: la integración usa outputs/contratos documentados, como `php_fpm_socket`.
 
@@ -405,7 +420,7 @@ Cuando se habilite bastion, `ansible_ssh_common_args` se derivará de variables 
 
 ### Vault
 
-Se usará un archivo cifrado por entorno, por ejemplo `inventories/production/group_vars/all/vault.yml`, con nombres prefijados `vault_`; las variables no secretas los referencian. Inicialmente el controlador leerá la contraseña desde `~/.config/medicina-laboral/ansible-vault-password`. Ese archivo debe crearse manualmente con permisos `0600`, quedar fuera del repositorio y no sincronizarse sin un canal seguro. `ansible.cfg` no contendrá una ruta absoluta ligada a una persona: un wrapper o variable `ANSIBLE_VAULT_PASSWORD_FILE` apuntará al archivo.
+La primera versión usará `deploy/provisioning/group_vars/vault.yml`, cifrado y con secretos nombrados por entorno cuando corresponda. Las variables no secretas los referencian con prefijo `vault_`. Inicialmente el controlador leerá la contraseña desde `~/.config/medicina-laboral/ansible-vault-password`. Ese archivo debe crearse manualmente con permisos `0600`, quedar fuera del repositorio y no sincronizarse sin un canal seguro. `ansible.cfg` no contendrá una ruta absoluta ligada a una persona: un wrapper o variable `ANSIBLE_VAULT_PASSWORD_FILE` apuntará al archivo. Si luego la cantidad de entornos vuelve incómodo un único vault, se separará sin cambiar los roles.
 
 Ansible Vault protege los datos versionados en reposo, pero los secretos quedan descifrados durante la ejecución. Por eso las tareas sensibles usarán `no_log: true`, `.env` tendrá permisos `0600` y se documentará rekey/rotación. A futuro la contraseña podrá migrarse a un keyring o gestor institucional sin cambiar los archivos cifrados.
 
@@ -624,12 +639,12 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 | Etapa | Objetivo y archivos esperados | Dependencias | Aceptación y pruebas | Riesgos/stop |
 |---|---|---|---|---|
 | D0 | aprobar decisiones bloqueantes; actualizar este documento | responsables institucionales | tabla de decisiones revisada | detener si no hay topología/acceso/dominio |
-| D1 | base neutral: `ansible.cfg`, inventories, selection validator y spike de carga por versión | D0 parcial | lint, syntax-check y rechazo de proveedor/versión inexistentes | no continuar si la selección permite paths arbitrarios o acoplamiento cruzado |
+| D1 | estructura familiar: `provisioning/`, `ansible.cfg`, inventory Vagrant, `group_vars/all.yml`, `site.yml` y roles vacíos/documentados | D0 parcial | lint, syntax-check, `ansible-inventory --graph` y rechazo de versión inexistente | no introducir wrappers complejos ni paths arbitrarios |
 | D2 | Vagrant Debian 13 single/split con versiones elegidas en inventory | D1 | VM accesible y mismas selecciones en ambas topologías | provider no disponible → blocked |
-| D3 | tecnología `operating_system/debian` con soporte inicial 13 | D1-D2 | convergencia e idempotencia en Debian 13 | Ubuntu vive en su propia carpeta de proveedor |
-| D4 | tecnología `database/postgresql` con soporte inicial 17, single/split | D3, secretos de prueba | conexión autorizada; rechazo externo; idempotencia | versiones nuevas agregan vars/tasks/tests solo aquí |
-| D5 | tecnologías separadas `web_server/apache` y `php_runtime/php`, versiones desde inventory | D3 | configtest, FPM, contrato socket y página temporal | solo validar compatibilidad Apache/PHP realmente necesaria |
-| D6 | rol `application`, releases y `.env` de prueba | D4-D5 | deploy repetible, Composer, permisos, `/up`, doctor | origen del artefacto/ref y storage |
+| D3 | rol `common` con Debian 13 inicial | D1-D2 | convergencia e idempotencia en Debian 13 | soporte Ubuntu se agrega dentro de `common` sin mezclar tareas |
+| D4 | rol `postgresql` con versión 17 inicial, single/split | D3, secretos de prueba | conexión autorizada; rechazo externo; idempotencia | versiones nuevas agregan vars/tasks/tests solo aquí |
+| D5 | roles separados `apache` y `php`, versiones desde inventory | D3 | configtest, FPM, contrato socket y página temporal | solo validar compatibilidad Apache/PHP realmente necesaria |
+| D6 | rol `laravel`, releases y `.env` de prueba | D4-D5 | deploy repetible, Composer, permisos, `/up`, doctor | origen del artefacto/ref y storage |
 | D7 | scheduler | D6 | cron único, `schedule:list`, ejecución observada | múltiples app hosts sin líder |
 | D8 | TLS y webhook en staging | dominio/DNS, D6 | HTTPS, redirect, renovación dry-run, verificación Meta | proxy/NAT/ACME institucional |
 | D9 | backup y restore DB/storage | destino/RPO/RTO, D4/D6 | restore completo en VM limpia | storage definitivo pendiente |
@@ -638,7 +653,7 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 | D12 | rollback de release | D6, migraciones compatibles | fallo inducido revierte symlink y health | rollback DB no automático |
 | D13 | matriz final single/split de los defaults iniciales y runbooks | todas | lint, syntax, idempotencia, deploy y restore | no declarar producción sin prueba real |
 | D14 | CI/CD opcional | decisión CI | validaciones automáticas sin secretos expuestos | runners/accesos sin definir |
-| D15 | soporte Ubuntu 24.04, si se necesita | D1 y carpeta `operating_system/ubuntu` más adaptaciones locales necesarias | suite completa seleccionando Ubuntu desde inventory | no declarar compatibilidad por similitud; probar cada tecnología afectada |
+| D15 | soporte Ubuntu 24.04, si se necesita | D1 y archivos de plataforma dentro de cada rol afectado | suite completa seleccionando Ubuntu desde inventory | no declarar compatibilidad por similitud; probar cada rol afectado |
 
 ## 21. Decisiones pendientes
 

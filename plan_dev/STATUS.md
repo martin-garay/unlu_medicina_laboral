@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-04 07:26 -03
+2026-08-04 09:21 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M4 - Selección independiente de versiones desde inventory`.
+- Último bloque completado: `M5 - Simplificación y alineación con provisioning de elecciones`.
 - Milestone actual: daily 2026-08-04 cerrado.
-- Próximo paso sugerido: confirmar si se aprueba runtime host-based y, cuando se solicite implementación, ejecutar `D1` con un spike de selección segura por proveedor/versión.
+- Próximo paso sugerido: confirmar si se aprueba runtime host-based y, cuando se solicite implementación, crear `deploy/provisioning/` con la estructura mínima de D1.
 
 ---
 
@@ -67,32 +67,32 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `planned`
-- notas: cada tecnología/proveedor tendrá carpeta propia y soporte interno por versión. El inventory selecciona independientemente SO, Apache, PHP y PostgreSQL; cambiar una versión soportada no modifica las demás. Se eliminó el perfil monolítico. No existen todavía roles, playbooks, inventories ejecutables ni Vagrant.
+- notas: la primera versión usará una estructura estándar y familiar bajo `deploy/provisioning/`, inspirada en elecciones: playbooks, `group_vars`, inventories, roles y Vagrantfile. Las versiones siguen siendo independientes y se resuelven dentro de cada rol. No existen todavía artefactos ejecutables.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-04 07:26 -03
+- 2026-08-04 09:21 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-04.md`
 
 ### Milestone trabajado
-- `M4 - Selección independiente de versiones desde inventory`
+- `M5 - Simplificación y alineación con provisioning de elecciones`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se corrigió el acoplamiento del perfil combinado: cada versión se elige desde inventory y una ampliación afecta solo a su tecnología, salvo dependencias cruzadas reales.
+- se simplificó la arquitectura a un provisioning Ansible convencional y familiar, preservando la selección independiente y efectiva de versiones.
 
 ---
 
 ## Cambios realizados
 - archivos tocados: `AGENTS.md`, `deploy/README.md`, `deploy/docs/ansible-deployment-plan.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/daily/2026-08-04.md` y `plan_dev/STATUS.md`.
-- resumen técnico: se establecieron roles por tecnología/proveedor, variables independientes, archivos versionados internos, allowlists y validación local de soporte.
+- resumen técnico: se reemplazó el árbol profundo por `deploy/provisioning/roles/<tecnologia>`, playbooks directos, group vars e inventories; se definió el alcance mínimo de la primera entrega.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime modificado: no.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -104,11 +104,11 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks documentales: `git diff --check`, validación de rutas locales y comprobación de alcance.
-- resultado: sin errores; rutas válidas, sin perfil combinado ni paths obsoletos, y sin artefactos ejecutables agregados.
+- resultado: sin errores; estructura simple consistente, sin referencias al árbol descartado y sin artefactos ejecutables agregados.
 
 ### Manuales sugeridas
 - aprobar runtime host-based con Apache/PHP-FPM.
-- aprobar selección independiente por inventory como regla estable de implementación.
+- confirmar que la estructura familiar `deploy/provisioning/` es adecuada.
 - confirmar con negocio RPO 24 h, RTO 4 h y retención 7 diarios/4 semanales/6 mensuales.
 - definir más adelante dominio/TLS, IP/host SSH, destino externo de backup y canal de alertas.
 
@@ -135,7 +135,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- con aprobación del runtime host-based, crear un nuevo daily para `D1`; su primer corte debe validar `include_vars`/`include_tasks` por versión con allowlist antes de implementar provisioning.
+- con aprobación del runtime host-based, crear un nuevo daily para `D1` e implementar solo la estructura mínima, inventory Vagrant y validación de versiones.
 
 ---
 
