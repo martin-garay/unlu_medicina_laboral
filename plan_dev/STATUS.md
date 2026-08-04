@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-04 06:38 -03
+2026-08-04 06:47 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M2 - Resolución inicial de decisiones de despliegue`.
+- Último bloque completado: `M3 - Arquitectura desacoplada por tecnología y versión`.
 - Milestone actual: daily 2026-08-04 cerrado.
-- Próximo paso sugerido: confirmar si se aprueba runtime host-based y, cuando se solicite implementación, crear un daily para `D1 - estructura base`.
+- Próximo paso sugerido: confirmar si se aprueba runtime host-based y, cuando se solicite implementación, ejecutar `D1` con un spike que valide perfiles y resolución de roles versionados.
 
 ---
 
@@ -67,32 +67,32 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `planned`
-- notas: el plan ya fija dos hosts lógicos con modo single-host, Debian 13, PHP 8.4, PostgreSQL 17, SSH, Vault, storage privado local, backups, releases Git y política inicial de logs/monitoreo. No existen todavía roles, playbooks, inventarios ejecutables ni Vagrant.
+- notas: el plan usa componentes aislados por tecnología/versión y perfiles de compatibilidad. Debian 13 + Apache 2.4 + PHP 8.4 + PostgreSQL 17 es el primer perfil, no una dependencia global; otra versión exige carpeta, tests y perfil nuevos sin modificar la implementación validada. No existen todavía roles, playbooks, inventories ejecutables ni Vagrant.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-04 06:38 -03
+- 2026-08-04 06:47 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-04.md`
 
 ### Milestone trabajado
-- `M2 - Resolución inicial de decisiones de despliegue`
+- `M3 - Arquitectura desacoplada por tecnología y versión`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se incorporaron las definiciones del usuario y recomendaciones verificadas para cerrar versiones, topología, SSH/Vault, storage, backups, releases, logs y monitoreo.
+- se reemplazó el diseño de roles genéricos con ramas condicionales por componentes versionados, perfiles declarativos y una matriz explícita de compatibilidad.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/docs/ansible-deployment-plan.md`, `plan_dev/daily/2026-08-04.md` y `plan_dev/STATUS.md`.
-- resumen técnico: se precisaron decisiones y defaults recomendados para comenzar la estructura base sin depender todavía de dominio o servidores reales.
+- archivos tocados: `AGENTS.md`, `deploy/README.md`, `deploy/docs/ansible-deployment-plan.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/daily/2026-08-04.md` y `plan_dev/STATUS.md`.
+- resumen técnico: se establecieron límites por tecnología/versión, contratos neutrales, perfil inicial, reglas de extensión y etapas de implementación sin acoplamiento global.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime modificado: no.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -104,10 +104,11 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks documentales: `git diff --check`, validación de rutas locales y comprobación de alcance.
-- resultado: sin errores; rutas verificadas, sin secretos y sin artefactos Ansible/Vagrant ejecutables.
+- resultado: sin errores; estructura, contratos, inventories conceptuales y etapas consistentes, sin artefactos ejecutables agregados.
 
 ### Manuales sugeridas
 - aprobar runtime host-based con Apache/PHP-FPM.
+- aprobar componentes versionados + perfiles como regla estable de implementación.
 - confirmar con negocio RPO 24 h, RTO 4 h y retención 7 diarios/4 semanales/6 mensuales.
 - definir más adelante dominio/TLS, IP/host SSH, destino externo de backup y canal de alertas.
 
@@ -134,7 +135,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- con aprobación del runtime host-based, crear un nuevo daily para `D1 - estructura base de Ansible`.
+- con aprobación del runtime host-based, crear un nuevo daily para `D1`; su primer corte debe validar técnicamente la resolución de componentes versionados antes de implementar provisioning.
 
 ---
 

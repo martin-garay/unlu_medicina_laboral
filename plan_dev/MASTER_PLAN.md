@@ -114,8 +114,9 @@ Despliegue y operación productiva con Ansible
 
 - La fuente de verdad técnica vive en `deploy/`.
 - La implementación se ejecuta por etapas promovidas a planes diarios.
-- Debian es el sistema principal y Ubuntu 24.04 una compatibilidad que debe validarse.
+- El primer perfil validado usa Debian 13; Ubuntu 24.04 u otros sistemas requieren perfiles y componentes independientes.
 - El despliegue debe soportar aplicación y PostgreSQL en hosts separados o en un mismo host.
+- Las implementaciones se aíslan por tecnología y versión; los inventories eligen perfiles compatibles sin alterar componentes ya validados.
 
 ---
 

@@ -51,6 +51,8 @@ Cuando existan, también leer:
 - Los diagramas versionables viven en `docs/diagrams/`.
 - Toda documentación, inventario, playbook, rol, template, prueba o código específico de despliegue vive en `deploy/`.
 - `deploy/README.md` y `deploy/docs/` concentran la documentación canónica de despliegue; `plan_dev/` solo conserva planificación operativa y estado.
+- En despliegue, cada tecnología y versión soportada debe tener una implementación aislada bajo su propia carpeta. No modificar una implementación validada para adaptar otra versión: crear un componente versionado nuevo y un perfil de compatibilidad nuevo.
+- Los playbooks generales deben orquestar capacidades y perfiles; no deben contener nombres de paquetes, rutas de servicio ni lógica específica de Debian, Ubuntu, Apache, PHP o PostgreSQL.
 - Si cambian flujos o estructura relevante, actualizar los diagramas afectados.
 
 ## Criterios de modelado
