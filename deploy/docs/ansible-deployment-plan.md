@@ -515,4 +515,3 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 ## Criterio de aprobación de esta planificación
 
 El plan está listo para revisión cuando el equipo confirma la ubicación `deploy/`, la recomendación host-based y la tabla de decisiones. La implementación no debe comenzar por roles de aplicación hasta resolver al menos topología inicial, acceso SSH, dominio/TLS, versiones, secretos y estrategia de storage/backup aplicable al alcance.
-

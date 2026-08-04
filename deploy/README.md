@@ -27,4 +27,3 @@ deploy/
 ```
 
 No deben guardarse secretos sin cifrar. Los inventarios reales, playbooks, plantillas, pruebas de infraestructura y documentación operativa específica del despliegue deberán permanecer bajo `deploy/`.
-
