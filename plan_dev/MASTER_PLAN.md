@@ -109,6 +109,14 @@ Mensajes finales y templates
 ### Etapa 12
 Integraciones futuras y endurecimiento
 
+### Etapa 13
+Despliegue y operación productiva con Ansible
+
+- La fuente de verdad técnica vive en `deploy/`.
+- La implementación se ejecuta por etapas promovidas a planes diarios.
+- Debian es el sistema principal y Ubuntu 24.04 una compatibilidad que debe validarse.
+- El despliegue debe soportar aplicación y PostgreSQL en hosts separados o en un mismo host.
+
 ---
 
 ## Estado esperado al finalizar el roadmap base

@@ -49,6 +49,8 @@ Cuando existan, también leer:
 - Los automatismos de inactividad deben resolverse con Laravel Scheduler.
 - Los mensajes largos deben vivir en templates Blade.
 - Los diagramas versionables viven en `docs/diagrams/`.
+- Toda documentación, inventario, playbook, rol, template, prueba o código específico de despliegue vive en `deploy/`.
+- `deploy/README.md` y `deploy/docs/` concentran la documentación canónica de despliegue; `plan_dev/` solo conserva planificación operativa y estado.
 - Si cambian flujos o estructura relevante, actualizar los diagramas afectados.
 
 ## Criterios de modelado

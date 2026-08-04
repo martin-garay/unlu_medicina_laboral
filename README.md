@@ -144,6 +144,12 @@ Si prefieres usar `make`:
   make artisan CMD="about"
   ```
 
+## Despliegue
+
+- La documentación y el futuro código de despliegue viven exclusivamente en `deploy/`.
+- El plan vigente de Ansible está en `deploy/docs/ansible-deployment-plan.md`.
+- El entorno Docker Compose actual sigue destinado a desarrollo local y no representa la configuración productiva.
+
 ## Diagramas como código
 - La documentación visual vive en `docs/diagrams/`.
 - Mermaid se usa para flujos conversacionales.
@@ -159,3 +165,4 @@ Si prefieres usar `make`:
 - `Makefile`: atajos para comandos frecuentes dentro de Docker.
 - `docs/diagrams/`: documentación visual versionable del proyecto.
 - `scripts/render_diagrams.sh`: generación de SVGs para Mermaid y PlantUML.
+- `deploy/`: documentación y futuro código de despliegue con Ansible.

@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-06-26 08:37 -03
+2026-08-04 06:13 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M4 - Cierre documental y operativo`.
-- Milestone actual: daily 2026-06-26 cerrado.
-- Próximo paso sugerido: probar manualmente los menus por WhatsApp real y repetir un webhook con el mismo `wamid` para confirmar que no hay segunda respuesta.
+- Último bloque completado: `M1 - Relevamiento y plan técnico de Ansible`.
+- Milestone actual: daily 2026-08-04 cerrado.
+- Próximo paso sugerido: revisión humana de `deploy/docs/ansible-deployment-plan.md` y resolución de decisiones bloqueantes antes de promover la primera etapa de implementación.
 
 ---
 
@@ -66,59 +66,64 @@ No debe reemplazar:
 - notas: siguen planteadas como desacopladas y futuras.
 
 ### Deploy / Ansible
-- estado: `pending`
-- notas: no existe todavía base Ansible/Vagrant; el daily 2026-04-24 lo trata como frente separado.
+- estado: `planned`
+- notas: relevamiento y arquitectura objetivo consolidados en `deploy/docs/ansible-deployment-plan.md`. No existen todavía roles, playbooks, inventarios ejecutables ni Vagrant. Debian es la plataforma principal propuesta, Ubuntu 24.04 queda como compatibilidad a probar y se recomienda Apache + PHP-FPM directo en host.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-06-26 08:37 -03
+- 2026-08-04 06:13 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-06-26.md`
+- `plan_dev/daily/2026-08-04.md`
 
 ### Milestone trabajado
-- `M4 - Cierre documental y operativo`
+- `M1 - Relevamiento y plan técnico de Ansible`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se cerro el daily con M2 y M3 implementados, validados y commiteados; queda pendiente solo validacion manual por WhatsApp real.
+- se relevó la infraestructura y operación existente y se creó bajo `deploy/` el plan completo y no ejecutable todavía para implementar Ansible por etapas.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `plan_dev/daily/2026-06-26.md` y `plan_dev/STATUS.md`
-- resumen técnico: cierre operativo del daily; no hubo cambios runtime en M4.
-- documentación actualizada: sí, daily y estado consolidado
-- diagramas actualizados: no; no cambio el grafo de estados/transiciones
+- archivos tocados: `deploy/README.md`, `deploy/docs/ansible-deployment-plan.md`, `README.md`, `AGENTS.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/daily/2026-08-04.md` y `plan_dev/STATUS.md`.
+- resumen técnico: se definieron topologías, ejecución host-based con Apache/PHP-FPM, estructura Ansible, inventarios, secretos, PostgreSQL, TLS/webhook, releases, scheduler, persistencia, seguridad, backups, diagnóstico, rollback, pruebas, Vagrant y etapas futuras.
+- documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
+- runtime modificado: no.
+- diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
 
 ---
 
 ## Validaciones
 
 ### Automáticas
-- tests corridos: `make test`
-- resultado: `211 passed`, `879 assertions`
-- otros checks: `git diff --check`
-- resultado: sin errores
+- tests de Laravel: no corresponden; no hubo cambios funcionales.
+- checks documentales: `git diff --check`, validación de rutas locales y comprobación de alcance.
+- resultado: sin errores; se verificaron las rutas citadas y que `deploy/` contiene únicamente documentación en esta etapa.
 
 ### Manuales sugeridas
-- probar por WhatsApp real los menus de sede, jornada laboral, tipo de ausentismo, domicilio circunstancial, tipo de certificado y adjuntar otro archivo.
-- reenviar desde ngrok o repetir manualmente un webhook con el mismo `wamid` y verificar que no haya segunda respuesta ni cambio de paso.
-- revisar en logs el evento operativo `Duplicate inbound message ignored`.
+- revisar la tabla de decisiones con infraestructura, seguridad, DBA y responsables funcionales.
+- confirmar runtime host-based, topología, dominio/TLS, acceso SSH, secretos, storage privado y backups.
 
 ---
 
 ## Bloqueos actuales
-- no hay bloqueos activos para este daily.
+- ninguno para cerrar la planificación.
+- la implementación de Ansible no debe comenzar hasta promover una nueva etapa y resolver las decisiones bloqueantes indicadas en el plan.
 
 ---
 
 ## Decisiones humanas pendientes
+- aprobar instalación directa en host con Apache + PHP-FPM o informar una plataforma institucional de contenedores.
+- confirmar versión Debian, topología inicial, dominio/DNS, PKI/ACME, proxy/WAF y acceso SSH.
+- confirmar estrategia de Vault/gestor de secretos, storage privado, backups, retención, RPO/RTO y monitoreo.
+- confirmar versiones productivas de PHP/PostgreSQL y origen de releases.
+- definir política de logs sensibles y validación de firma de los POST del webhook antes de producción.
 - confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
 - confirmar si futuras asociaciones adicionales de avisos serán manuales, automáticas o mixtas
 - confirmar si `anticipos_certificado.aviso_id` quedará como cache del primer aviso o se eliminará luego de migrar lecturas a pivot
@@ -127,7 +132,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- validar manualmente en WhatsApp real y definir el próximo daily.
+- revisar y aprobar el plan de despliegue; luego crear un daily para `D0` (decisiones bloqueantes) o `D1` (estructura base) según el resultado.
 
 ---
 
