@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-04 06:47 -03
+2026-08-04 07:26 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M3 - Arquitectura desacoplada por tecnología y versión`.
+- Último bloque completado: `M4 - Selección independiente de versiones desde inventory`.
 - Milestone actual: daily 2026-08-04 cerrado.
-- Próximo paso sugerido: confirmar si se aprueba runtime host-based y, cuando se solicite implementación, ejecutar `D1` con un spike que valide perfiles y resolución de roles versionados.
+- Próximo paso sugerido: confirmar si se aprueba runtime host-based y, cuando se solicite implementación, ejecutar `D1` con un spike de selección segura por proveedor/versión.
 
 ---
 
@@ -67,32 +67,32 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `planned`
-- notas: el plan usa componentes aislados por tecnología/versión y perfiles de compatibilidad. Debian 13 + Apache 2.4 + PHP 8.4 + PostgreSQL 17 es el primer perfil, no una dependencia global; otra versión exige carpeta, tests y perfil nuevos sin modificar la implementación validada. No existen todavía roles, playbooks, inventories ejecutables ni Vagrant.
+- notas: cada tecnología/proveedor tendrá carpeta propia y soporte interno por versión. El inventory selecciona independientemente SO, Apache, PHP y PostgreSQL; cambiar una versión soportada no modifica las demás. Se eliminó el perfil monolítico. No existen todavía roles, playbooks, inventories ejecutables ni Vagrant.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-04 06:47 -03
+- 2026-08-04 07:26 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-04.md`
 
 ### Milestone trabajado
-- `M3 - Arquitectura desacoplada por tecnología y versión`
+- `M4 - Selección independiente de versiones desde inventory`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se reemplazó el diseño de roles genéricos con ramas condicionales por componentes versionados, perfiles declarativos y una matriz explícita de compatibilidad.
+- se corrigió el acoplamiento del perfil combinado: cada versión se elige desde inventory y una ampliación afecta solo a su tecnología, salvo dependencias cruzadas reales.
 
 ---
 
 ## Cambios realizados
 - archivos tocados: `AGENTS.md`, `deploy/README.md`, `deploy/docs/ansible-deployment-plan.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/daily/2026-08-04.md` y `plan_dev/STATUS.md`.
-- resumen técnico: se establecieron límites por tecnología/versión, contratos neutrales, perfil inicial, reglas de extensión y etapas de implementación sin acoplamiento global.
+- resumen técnico: se establecieron roles por tecnología/proveedor, variables independientes, archivos versionados internos, allowlists y validación local de soporte.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime modificado: no.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -104,11 +104,11 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks documentales: `git diff --check`, validación de rutas locales y comprobación de alcance.
-- resultado: sin errores; estructura, contratos, inventories conceptuales y etapas consistentes, sin artefactos ejecutables agregados.
+- resultado: sin errores; rutas válidas, sin perfil combinado ni paths obsoletos, y sin artefactos ejecutables agregados.
 
 ### Manuales sugeridas
 - aprobar runtime host-based con Apache/PHP-FPM.
-- aprobar componentes versionados + perfiles como regla estable de implementación.
+- aprobar selección independiente por inventory como regla estable de implementación.
 - confirmar con negocio RPO 24 h, RTO 4 h y retención 7 diarios/4 semanales/6 mensuales.
 - definir más adelante dominio/TLS, IP/host SSH, destino externo de backup y canal de alertas.
 
@@ -135,7 +135,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- con aprobación del runtime host-based, crear un nuevo daily para `D1`; su primer corte debe validar técnicamente la resolución de componentes versionados antes de implementar provisioning.
+- con aprobación del runtime host-based, crear un nuevo daily para `D1`; su primer corte debe validar `include_vars`/`include_tasks` por versión con allowlist antes de implementar provisioning.
 
 ---
 

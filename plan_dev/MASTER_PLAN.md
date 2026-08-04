@@ -114,9 +114,9 @@ Despliegue y operación productiva con Ansible
 
 - La fuente de verdad técnica vive en `deploy/`.
 - La implementación se ejecuta por etapas promovidas a planes diarios.
-- El primer perfil validado usa Debian 13; Ubuntu 24.04 u otros sistemas requieren perfiles y componentes independientes.
+- Los defaults iniciales usan Debian 13; Ubuntu 24.04 u otros sistemas se incorporan como soporte dentro de la tecnología correspondiente y se seleccionan desde inventory.
 - El despliegue debe soportar aplicación y PostgreSQL en hosts separados o en un mismo host.
-- Las implementaciones se aíslan por tecnología y versión; los inventories eligen perfiles compatibles sin alterar componentes ya validados.
+- Las implementaciones se aíslan por tecnología; los inventories eligen proveedor/versión de cada capacidad de forma independiente. Solo se validan restricciones cruzadas cuando existe una dependencia técnica real.
 
 ---
 

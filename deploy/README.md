@@ -22,12 +22,13 @@ deploy/
 ├── requirements.yml
 ├── inventories/
 ├── playbooks/
-├── profiles/
 ├── orchestration/
 ├── technologies/
 └── vagrant/
 ```
 
-Cada implementación concreta se guardará bajo `technologies/<capacidad>/<tecnología>/<versión>/`, junto con su documentación y pruebas. Los perfiles solo seleccionarán combinaciones validadas. Incorporar otra versión significa agregar otra carpeta y otro perfil; no editar la implementación estable existente.
+Cada implementación concreta se guardará bajo `technologies/<capacidad>/<tecnología>/`, junto con su documentación, rol y pruebas. Las diferencias por versión vivirán dentro de `vars/versions/`, `tasks/versions/` o `templates/versions/` únicamente cuando sean necesarias.
+
+El inventory seleccionará cada tecnología de forma independiente, por ejemplo `postgresql_version: "17"` o `php_version: "8.4"`. Cambiar una versión soportada solo modifica inventory. Agregar una versión todavía no soportada amplía exclusivamente la carpeta de esa tecnología y sus tests; no obliga a tocar las demás.
 
 No deben guardarse secretos sin cifrar. Los inventarios reales, playbooks, plantillas, pruebas de infraestructura y documentación operativa específica del despliegue deberán permanecer bajo `deploy/`.

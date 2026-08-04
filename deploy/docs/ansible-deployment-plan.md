@@ -14,8 +14,8 @@ Esta etapa no implementa Ansible, Vagrant ni configuración productiva. El entor
 
 - La topología objetivo inicial usa **dos servidores**, uno en `app_servers` y otro en `db_servers`.
 - La misma automatización debe admitir un servidor único asignando la misma IP/host a ambos grupos.
-- El primer perfil soportado usará **Debian 13 `trixie`**. Ubuntu 24.04 será otro perfil, no una rama condicional dentro del componente Debian.
-- El primer perfil combinará **PHP 8.4** y **PostgreSQL 17**, versiones incluidas por Debian 13, evitando inicialmente repositorios de paquetes externos.
+- Los defaults iniciales usarán **Debian 13 `trixie`**. Ubuntu 24.04 se incorporará como otro proveedor/versión seleccionable, sin mezclar sus tareas con Debian.
+- Los defaults iniciales serán **PHP 8.4** y **PostgreSQL 17**, versiones incluidas por Debian 13, evitando inicialmente repositorios de paquetes externos.
 - Dominio, DNS y TLS serán variables por entorno; no se fija todavía un dominio real.
 - El acceso de Ansible será por SSH con clave. Se soportará conexión directa y bastion opcional mediante variables de inventory.
 - Los secretos se cifrarán con Ansible Vault. Inicialmente la contraseña de Vault estará fuera del repositorio, en `~/.config/medicina-laboral/ansible-vault-password`, con permisos `0600`.
@@ -26,19 +26,35 @@ Esta etapa no implementa Ansible, Vagrant ni configuración productiva. El entor
 
 Estas decisiones permiten comenzar la estructura base y las pruebas locales. Dominio/TLS, destino externo de backups y canal de alertas pueden permanecer variables hasta sus etapas específicas.
 
-## Principio de aislamiento tecnológico y versionado
+## Principio de aislamiento tecnológico y selección por inventory
 
-Las versiones elegidas representan una **combinación soportada**, no una dependencia global e irreversible del proyecto. La automatización se organizará con estas reglas:
+Las versiones elegidas son defaults iniciales independientes, no un perfil monolítico. La automatización se organizará con estas reglas:
 
-1. cada tecnología y versión vive en una carpeta propia con código, defaults, templates, handlers, documentación y tests;
-2. una implementación validada no se modifica para hacer funcionar una versión diferente;
-3. una nueva versión crea un componente nuevo y se valida de manera independiente;
-4. los perfiles declaran combinaciones compatibles; no contienen tareas de instalación;
-5. los inventories seleccionan un perfil y aportan datos del entorno, no nombres de paquetes;
-6. los playbooks generales orquestan capacidades (`operating_system`, `web_server`, `php_runtime`, `database`) sin conocer detalles de cada proveedor/versión;
-7. corregir un bug real de un componente existente sí permite modificarlo, conservando tests de regresión y changelog; agregar compatibilidad no.
+1. cada tecnología vive en su propia carpeta con rol, defaults, templates, handlers, documentación y tests;
+2. el inventory selecciona proveedor y versión de cada capacidad por separado;
+3. una versión soportada se cambia solo en inventory;
+4. una versión nueva se incorpora únicamente dentro de la carpeta de esa tecnología, agregando variables/tareas/templates específicos solo si hacen falta;
+5. una implementación validada no se reescribe para simular compatibilidad con otra versión;
+6. los playbooks generales orquestan capacidades (`operating_system`, `web_server`, `php_runtime`, `database`) sin conocer paquetes, servicios ni paths específicos;
+7. cada rol valida localmente sus proveedores/versiones soportados y falla antes de cambiar el host;
+8. solo se agregan validaciones cruzadas cuando hay una dependencia técnica comprobable, por ejemplo Apache con el socket expuesto por PHP-FPM; PostgreSQL no queda acoplado a PHP o Apache;
+9. corregir un bug de una versión existente conserva tests de regresión y changelog; agregar compatibilidad crea archivos/casos nuevos dentro de esa tecnología.
 
-El perfil inicial se llamará conceptualmente `debian-13-apache-2.4-php-8.4-postgresql-17`. Ubuntu 24.04 u otra versión de PostgreSQL requerirán componentes y perfiles propios. No se permitirán combinaciones arbitrarias hasta que estén declaradas y probadas en la matriz de compatibilidad.
+Defaults iniciales recomendados:
+
+```yaml
+operating_system_family: debian
+operating_system_version: "13"
+web_server_provider: apache
+web_server_version: "2.4"
+php_provider: php
+php_version: "8.4"
+postgresql_version: "17"
+```
+
+Con PostgreSQL 18 ya soportado, migrar la selección será cambiar únicamente `postgresql_version: "18"` y seguir el runbook de upgrade de datos. Si todavía no existe soporte, se amplía `technologies/database/postgresql/` y sus tests, sin modificar las carpetas Debian, Apache o PHP.
+
+Como referencia local se revisó `/home/mgaray/desarrollo/elecciones/msa/deploy/provisioning/`: allí `group_vars/all.yml` expone `pg_version`, lo cual es el patrón de selección deseado, pero `roles/pgdb/tasks/pg_install.yml` conserva paquetes `postgresql-10` hardcodeados. En este proyecto la variable y los nombres de paquetes/configuración deberán resolverse desde el mismo archivo de versión de PostgreSQL para que cambiar el inventory tenga efecto real y verificable.
 
 ## 1. Estado actual
 
@@ -205,100 +221,117 @@ deploy/
 │   ├── deploy.yml
 │   ├── backup.yml
 │   └── rollback.yml
-├── profiles/
-│   ├── README.md
-│   └── debian-13-apache-2.4-php-8.4-postgresql-17.yml
 ├── orchestration/
 │   ├── README.md
 │   └── roles/
-│       ├── profile_validator/
+│       ├── selection_validator/
 │       ├── application_release/
 │       └── health_check/
 ├── technologies/
 │   ├── operating_system/
-│   │   ├── debian/13/
+│   │   ├── debian/
 │   │   │   ├── README.md
-│   │   │   ├── CHANGELOG.md
 │   │   │   ├── roles/base/
+│   │   │   ├── vars/versions/13.yml
+│   │   │   ├── tasks/versions/
 │   │   │   └── tests/
-│   │   └── ubuntu/24.04/             # se crea al implementar esa compatibilidad
-│   ├── web_server/apache/2.4/
+│   │   └── ubuntu/                   # proveedor futuro independiente
+│   ├── web_server/apache/
 │   │   ├── README.md
 │   │   ├── roles/web_server/
+│   │   ├── vars/versions/2.4.yml
 │   │   └── tests/
-│   ├── php_runtime/php/8.4/
+│   ├── php_runtime/php/
 │   │   ├── README.md
 │   │   ├── roles/php_runtime/
+│   │   ├── vars/versions/8.4.yml
 │   │   └── tests/
-│   ├── database/postgresql/17/
+│   ├── database/postgresql/
 │   │   ├── README.md
 │   │   ├── roles/database/
+│   │   ├── vars/versions/17.yml
+│   │   ├── tasks/versions/           # solo si una versión necesita lógica distinta
+│   │   ├── templates/versions/       # solo si el formato cambia por versión
 │   │   └── tests/
-│   ├── firewall/nftables/1/
-│   ├── tls/acme/1/
-│   ├── scheduler/cron/1/
-│   ├── backup/pgdump-filesystem/1/
-│   └── monitoring/local-checks/1/
+│   ├── firewall/nftables/
+│   ├── tls/acme/
+│   ├── scheduler/cron/
+│   ├── backup/pgdump-filesystem/
+│   └── monitoring/local-checks/
 └── vagrant/
-    ├── profiles/
+    ├── scenarios/
     │   ├── single-host/
     │   └── split-host/
     └── README.md
 ```
 
-Apache y PHP quedan separados porque tienen versiones y ciclos de vida distintos. Su compatibilidad —incluido socket PHP-FPM y módulos necesarios— se declara en el perfil y se prueba como conjunto. Composer será parte de `application_release` mientras no requiera una implementación alternativa propia.
+Apache, PHP y PostgreSQL quedan separados porque tienen versiones y ciclos de vida distintos. Composer será parte de `application_release` mientras no requiera una implementación alternativa propia.
 
-Las carpetas mostradas son el diseño futuro, no artefactos creados en esta etapa. Durante `D1` se hará un spike de resolución de roles para validar el mecanismo más simple soportado por Ansible. La opción preferida es que el perfil mapee cada capacidad a un identificador de rol único y que `ansible.cfg` registre las raíces conocidas en `roles_path`. Agregar una versión podrá ampliar ese registro y la matriz, pero nunca editará tareas/templates del componente anterior.
+Las carpetas mostradas son el diseño futuro, no artefactos creados en esta etapa. Durante `D1` se hará un spike para validar carga dinámica segura de variables/tareas por versión. La selección debe usar una lista explícita de versiones soportadas y `include_vars`/`include_tasks` con valores previamente validados, nunca paths arbitrarios provistos por el usuario.
 
-### Perfil de compatibilidad
+### Selección independiente y soporte
 
-Ejemplo conceptual, no ejecutable todavía:
+Ejemplo conceptual del inventory, no ejecutable todavía:
 
 ```yaml
-deployment_profile_id: debian-13-apache-2.4-php-8.4-postgresql-17
-deployment_components:
-  operating_system: os_debian_13
-  web_server: web_apache_2_4
-  php_runtime: php_8_4
-  database: db_postgresql_17
-  firewall: firewall_nftables_1
-  tls: tls_acme_1
-  scheduler: scheduler_cron_1
-  backup: backup_pgdump_filesystem_1
-  monitoring: monitoring_local_checks_1
+deployment_stack:
+  operating_system:
+    provider: debian
+    version: "13"
+  web_server:
+    provider: apache
+    version: "2.4"
+  php_runtime:
+    provider: php
+    version: "8.4"
+  database:
+    provider: postgresql
+    version: "17"
 ```
 
-`profile_validator` rechazará un identificador inexistente, un componente faltante o una combinación no aprobada antes de tocar hosts.
+`selection_validator` comprobará que cada proveedor y versión exista. Cada tecnología publicará su lista, por ejemplo `postgresql_supported_versions: ["17"]`. Agregar `"18"` y sus archivos/tests habilitará esa versión sin tocar selecciones de PHP, Apache o sistema operativo.
+
+No habrá una matriz cartesiana obligatoria de toda la pila. Se mantendrá un registro breve de combinaciones probadas como evidencia, pero no bloqueará un cambio independiente salvo que exista una restricción declarada. Ejemplos:
+
+- PostgreSQL 17→18: independiente de Apache/PHP; requiere validar driver `pdo_pgsql`, migración de datos y backup/restore.
+- PHP 8.4→8.5: independiente de PostgreSQL server; requiere Composer, extensiones y suite Laravel.
+- Apache: depende del contrato de socket/puerto de PHP-FPM, no de PostgreSQL.
+- Debian 13→otro SO: puede cambiar nombres de paquetes/servicios de varias tecnologías; cada rol debe aportar archivos de plataforma compatibles o fallar explícitamente.
 
 ### Contrato de capacidades
 
 | Capacidad | Responsabilidad | Variables neutrales | Implementación inicial | Validaciones contractuales |
 |---|---|---|---|---|
-| `operating_system` | base, locale, timezone, usuarios y repositorios | timezone, locale, usuarios, update policy | Debian 13 | familia/release exactos, usuario, reloj, idempotencia |
+| `operating_system` | base, locale, timezone, usuarios y repositorios | provider, version, timezone, locale, usuarios, update policy | Debian / 13 | familia/release exactos, usuario, reloj, idempotencia |
 | `firewall` | puertos mínimos por grupo | puertos/cidrs autorizados | nftables profile 1 | reglas efectivas y acceso SSH preservado |
-| `web_server` | VirtualHost y proxy PHP | dominio, docroot, límites, log paths | Apache 2.4 | configtest, headers, estáticos y forwarding PHP |
-| `php_runtime` | FPM, CLI y extensiones | límites, extensiones requeridas, pool | PHP 8.4 | versión, módulos, socket y FPM activo |
-| `database` | cluster, base, rol y acceso | DB, usuario, locale, redes, SSL | PostgreSQL 17 | versión, conexión, `pg_hba`, ausencia de acceso público |
+| `web_server` | VirtualHost y proxy PHP | provider, version, dominio, docroot, límites, log paths | Apache / 2.4 | configtest, headers, estáticos y forwarding PHP |
+| `php_runtime` | FPM, CLI y extensiones | provider, version, límites, extensiones, pool | PHP / 8.4 | versión, módulos, socket y FPM activo |
+| `database` | cluster, base, rol y acceso | provider, version, DB, usuario, locale, redes, SSL | PostgreSQL / 17 | versión, conexión, `pg_hba`, ausencia de acceso público |
 | `application_release` | releases, Composer, `.env`, migración y activación | repo/ref, paths, env, retención | estrategia release v1 neutral | Composer, Artisan, permisos, `/up`, rollback de symlink |
 | `scheduler` | ejecución periódica Laravel | usuario, comando, frecuencia, log | cron profile 1 | entrada única y ejecución comprobada |
 | `tls` | certificado, renovación y redirect | dominio, email, modo/cert paths | ACME profile 1 | cadena, expiración, redirect y renovación |
 | `backup` | DB y archivos persistentes | origen, destino, horario, retención | pg_dump + filesystem profile 1 | backup reciente, checksum y restore probado |
 | `monitoring` | checks básicos | endpoints, umbrales, alert target | local checks profile 1 | servicios, `/up`, scheduler, backup, disco y TLS |
 
-Cada componente versionado debe incluir README, defaults, tasks, handlers solo cuando hagan falta, templates con `validate`, tests, versiones soportadas y changelog. Las variables obligatorias fallan temprano con `assert`. Ningún componente puede leer directamente variables internas de otro: la integración pasa por el contrato del perfil.
+Cada tecnología debe incluir README, defaults, tasks, handlers solo cuando hagan falta, templates con `validate`, tests, versiones soportadas y changelog. Las variables obligatorias fallan temprano con `assert`. Ningún componente puede leer variables internas de otro: la integración usa outputs/contratos documentados, como `php_fpm_socket`.
 
 ## 6. Inventarios
 
 Los inventarios versionados contendrán nombres y ejemplos seguros; direcciones sensibles y secretos se inyectarán por mecanismo acordado.
 
-Cada inventory seleccionará exactamente un `deployment_profile_id` soportado. No declarará `apt` packages, sockets, nombres de servicio ni paths específicos de una distribución. Si el host detectado no coincide con el sistema/versiones del perfil, el preflight se detendrá antes de realizar cambios.
+Cada inventory seleccionará proveedor y versión por capacidad. No declarará paquetes `apt`, sockets, nombres de servicio ni paths específicos de una distribución. Si una selección no está soportada o el sistema operativo detectado no coincide, el preflight se detendrá antes de realizar cambios.
 
 ### Hosts separados
 
 ```yaml
 all:
   vars:
-    deployment_profile_id: debian-13-apache-2.4-php-8.4-postgresql-17
+    operating_system_family: debian
+    operating_system_version: "13"
+    web_server_provider: apache
+    web_server_version: "2.4"
+    php_version: "8.4"
+    postgresql_version: "17"
   children:
     app_servers:
       hosts:
@@ -315,7 +348,12 @@ all:
 ```yaml
 all:
   vars:
-    deployment_profile_id: debian-13-apache-2.4-php-8.4-postgresql-17
+    operating_system_family: debian
+    operating_system_version: "13"
+    web_server_provider: apache
+    web_server_version: "2.4"
+    php_version: "8.4"
+    postgresql_version: "17"
   children:
     app_servers:
       hosts:
@@ -562,7 +600,7 @@ Pipeline local mínimo por etapa:
 - segunda ejecución sin cambios inesperados (idempotencia);
 - `apachectl configtest`, PHP modules, conexión DB, `/up`, doctor y scheduler;
 - escenarios de una VM y dos VM;
-- cada perfil en sus topologías declaradas; el perfil inicial cubre Debian 13 single/split y Ubuntu tendrá una matriz separada cuando se implemente.
+- cada selección tecnológica en los escenarios declarados; los defaults iniciales cubren Debian 13 single/split y Ubuntu se prueba separadamente cuando se implemente.
 
 Molecule puede incorporarse por roles complejos después de estabilizar la base. Vagrant aporta más valor inicial para validar systemd, Apache, PostgreSQL, firewall y topologías completas.
 
@@ -586,11 +624,11 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 | Etapa | Objetivo y archivos esperados | Dependencias | Aceptación y pruebas | Riesgos/stop |
 |---|---|---|---|---|
 | D0 | aprobar decisiones bloqueantes; actualizar este documento | responsables institucionales | tabla de decisiones revisada | detener si no hay topología/acceso/dominio |
-| D1 | base neutral: `ansible.cfg`, profiles, inventories, profile validator y spike de `roles_path` | D0 parcial | lint, syntax-check y rechazo de perfil/host incompatibles | no continuar si el aislamiento exige duplicación o paths frágiles |
-| D2 | Vagrant para perfil Debian 13 single/split | D1 | VM accesible y mismo perfil en ambas topologías | provider no disponible → blocked |
-| D3 | componente `operating_system/debian/13` | D1-D2 | convergencia e idempotencia solo en Debian 13 | no agregar lógica Ubuntu en esta carpeta |
-| D4 | componente `database/postgresql/17`, escenario single y split | D3, secretos de prueba | conexión autorizada; rechazo externo; idempotencia | no agregar ramas de otras versiones |
-| D5 | componentes separados `web_server/apache/2.4` y `php_runtime/php/8.4` | D3 | configtest, FPM, contrato socket y página temporal | fallo de compatibilidad crea/revisa perfil, no mezcla componentes |
+| D1 | base neutral: `ansible.cfg`, inventories, selection validator y spike de carga por versión | D0 parcial | lint, syntax-check y rechazo de proveedor/versión inexistentes | no continuar si la selección permite paths arbitrarios o acoplamiento cruzado |
+| D2 | Vagrant Debian 13 single/split con versiones elegidas en inventory | D1 | VM accesible y mismas selecciones en ambas topologías | provider no disponible → blocked |
+| D3 | tecnología `operating_system/debian` con soporte inicial 13 | D1-D2 | convergencia e idempotencia en Debian 13 | Ubuntu vive en su propia carpeta de proveedor |
+| D4 | tecnología `database/postgresql` con soporte inicial 17, single/split | D3, secretos de prueba | conexión autorizada; rechazo externo; idempotencia | versiones nuevas agregan vars/tasks/tests solo aquí |
+| D5 | tecnologías separadas `web_server/apache` y `php_runtime/php`, versiones desde inventory | D3 | configtest, FPM, contrato socket y página temporal | solo validar compatibilidad Apache/PHP realmente necesaria |
 | D6 | rol `application`, releases y `.env` de prueba | D4-D5 | deploy repetible, Composer, permisos, `/up`, doctor | origen del artefacto/ref y storage |
 | D7 | scheduler | D6 | cron único, `schedule:list`, ejecución observada | múltiples app hosts sin líder |
 | D8 | TLS y webhook en staging | dominio/DNS, D6 | HTTPS, redirect, renovación dry-run, verificación Meta | proxy/NAT/ACME institucional |
@@ -598,24 +636,24 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 | D10 | firewall y hardening integrado | D4-D8, acceso recuperación | puertos mínimos y acceso preservado | lockout SSH; política institucional |
 | D11 | monitoring/diagnóstico | D6-D9 | checks de servicios, TLS, disco, backups | plataforma de alertas sin definir |
 | D12 | rollback de release | D6, migraciones compatibles | fallo inducido revierte symlink y health | rollback DB no automático |
-| D13 | matriz final single/split del perfil inicial y runbooks | todas | lint, syntax, idempotencia, deploy y restore | no declarar producción sin prueba real |
+| D13 | matriz final single/split de los defaults iniciales y runbooks | todas | lint, syntax, idempotencia, deploy y restore | no declarar producción sin prueba real |
 | D14 | CI/CD opcional | decisión CI | validaciones automáticas sin secretos expuestos | runners/accesos sin definir |
-| D15 | nuevo perfil Ubuntu 24.04, si se necesita | D1 y componentes compatibles nuevos | suite completa sin modificar componentes del perfil Debian 13 | no declarar compatibilidad por similitud; probarla |
+| D15 | soporte Ubuntu 24.04, si se necesita | D1 y carpeta `operating_system/ubuntu` más adaptaciones locales necesarias | suite completa seleccionando Ubuntu desde inventory | no declarar compatibilidad por similitud; probar cada tecnología afectada |
 
 ## 21. Decisiones pendientes
 
 | Decisión | Opciones | Recomendación | Impacto | Responsable sugerido | Estado |
 |---|---|---|---|---|---|
 | Runtime | host / contenedores | host + Apache/PHP-FPM | arquitectura completa | equipo técnico/operación | recomendada, pendiente aprobar |
-| SO/versiones | perfiles independientes | Debian 13 en perfil inicial; Ubuntu 24.04 solo mediante perfil propio futuro | paquetes y tests | operación | arquitectura acordada |
+| SO/versiones | variables independientes | Debian 13 default; Ubuntu 24.04 seleccionable cuando su proveedor esté implementado | paquetes y tests | operación | arquitectura acordada |
 | Topología inicial | uno / dos servidores | app y DB separados; misma IP válida para modo single-host | HA, seguridad, costo | infraestructura | acordada |
 | Dominio y DNS | institucional / nuevo | variable `deployment_domain`; subdominio institucional cuando exista | webhook/TLS | infraestructura/comunicaciones | parametrizada, valor pendiente |
 | Autoridad TLS | ACME / PKI institucional / proxy | usar estándar institucional; ACME si no existe | renovación y red | seguridad/infraestructura | pendiente |
 | Proxy/WAF/NAT | directo / institucional | integrar estándar existente | vhost, firma, IPs | infraestructura | pendiente |
 | SSH | bastion/directo, usuario, claves | clave + usuario `deploy`; directo por defecto, bastion configurable | acceso Ansible | infraestructura/seguridad | estrategia acordada; hosts/claves pendientes |
 | Secretos | Vault / gestor institucional | Vault; password file en home fuera de Git | operación y CI | seguridad/operación | acordada para etapa inicial |
-| PostgreSQL | componentes por versión | 17 en el perfil inicial; otra versión crea carpeta/perfil nuevos | paquetes, backup, soporte | DBA/operación | arquitectura acordada, perfil inicial sujeto a tests |
-| PHP | componentes por versión | 8.4 en el perfil inicial; otra versión crea carpeta/perfil nuevos | paquetes y soporte | operación/desarrollo | arquitectura acordada, perfil inicial sujeto a tests |
+| PostgreSQL | variable `postgresql_version` | 17 default; nueva versión amplía solo PostgreSQL y luego se selecciona en inventory | paquetes, backup, soporte | DBA/operación | arquitectura acordada, default sujeto a tests |
+| PHP | variable `php_version` | 8.4 default; nueva versión amplía solo PHP y luego se selecciona en inventory | paquetes y soporte | operación/desarrollo | arquitectura acordada, default sujeto a tests |
 | TLS PostgreSQL | requerido / red privada sin TLS | seguir política institucional; TLS en redes no confiables | certificados y config | DBA/seguridad | pendiente |
 | Releases | symlink / in-place | symlink de releases | rollback y disco | desarrollo/operación | recomendada |
 | Origen de release | git en host / artefacto CI | GitHub con deploy key read-only y tag/SHA; artefacto verificable a futuro | supply chain | desarrollo/operación | acordada para etapa inicial |
