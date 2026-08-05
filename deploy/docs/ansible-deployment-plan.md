@@ -23,8 +23,30 @@ Esta etapa no implementa Ansible, Vagrant ni configuración productiva. El entor
 - Los backups se generarán inicialmente bajo `/var/backups/medicina-laboral`, con subdirectorios para PostgreSQL, archivos y manifiestos. Esa ruta local no reemplaza una copia externa.
 - El release se identificará por tag o commit de Git. En la primera etapa el código se obtendrá del remoto `origin` de GitHub mediante credencial SSH de solo lectura; una CI podrá producir artefactos inmutables más adelante.
 - Se adopta una política mínima de logs sin payloads completos ni secretos, con rotación local, y monitoreo inicial basado en checks de sistema más alertas configurables.
+- Para Vagrant se usará `medicina-laboral.test` como hostname local configurable, HTTPS con una CA local y ngrok como URL pública temporal del webhook.
+- Vagrant ingresará inicialmente con su usuario de bootstrap y Ansible creará `deploy`, con clave SSH y sudo acotado; las ejecuciones normales posteriores usarán `deploy`.
+- Bastion queda deshabilitado: no es necesario para Vagrant ni para una conexión SSH directa.
+- Las credenciales actuales de Meta se conservarán y se cargarán en el Vault cifrado, sin copiarlas en inventarios planos ni documentación.
+- La contraseña de Vault fue creada el 2026-08-05 en `/home/mgaray/.config/medicina-laboral/ansible-vault-password` con permisos `0600`; su contenido no se versiona.
 
 Estas decisiones permiten comenzar la estructura base y las pruebas locales. Dominio/TLS, destino externo de backups y canal de alertas pueden permanecer variables hasta sus etapas específicas.
+
+### URLs diferenciadas
+
+No debe existir una única variable ambigua para todas las URLs:
+
+```yaml
+application_hostname: medicina-laboral.test
+application_url: https://medicina-laboral.test
+whatsapp_webhook_public_url: https://subdominio-temporal.ngrok.app/api/whatsapp/webhook
+production_domain: null
+```
+
+- `application_url` identifica cómo se accede a Laravel dentro del entorno desplegado.
+- `whatsapp_webhook_public_url` es la URL pública configurada en Meta. En Vagrant será la URL temporal de ngrok y podrá cambiar sin reprovisionar toda la aplicación.
+- `production_domain` estará vacío hasta conocer el dominio real; en producción alimentará `application_hostname`, `APP_URL`, Apache y TLS.
+
+Ngrok no reemplaza el TLS local: termina HTTPS público para Meta y reenvía al Apache de Vagrant. El túnel deberá configurar correctamente el host upstream y aceptar/confiar la CA local durante desarrollo.
 
 ## Principio de aislamiento tecnológico y selección por inventory
 
@@ -394,6 +416,17 @@ all:
 
 Cuando se habilite bastion, `ansible_ssh_common_args` se derivará de variables validadas. Las claves privadas no se guardarán en el repositorio ni dentro de Vault salvo necesidad institucional explícita; se cargarán desde el agente SSH del operador.
 
+Un **bastion** es un servidor intermedio al que Ansible entra primero para alcanzar máquinas que no aceptan SSH directo. No se usará en Vagrant. `deployment_ssh_bastion_enabled` quedará `false` y solo se implementará si la infraestructura real lo exige.
+
+Para Vagrant se aplicará un bootstrap simple:
+
+1. primera conexión con el usuario estándar `vagrant` y su clave administrada por Vagrant;
+2. `bootstrap.yml` crea el usuario `deploy`, instala la clave pública autorizada y concede únicamente el sudo requerido por provisioning;
+3. `site.yml` y despliegues posteriores conectan como `deploy`;
+4. se valida `ansible all -m ping` y `sudo -n true` antes de continuar.
+
+En servidores reales se pedirá un usuario inicial equivalente o que infraestructura entregue `deploy` ya creado. No se habilitará SSH por contraseña como camino normal.
+
 ## 7. Variables y secretos
 
 ### Clasificación
@@ -422,6 +455,8 @@ Cuando se habilite bastion, `ansible_ssh_common_args` se derivará de variables 
 
 La primera versión usará `deploy/provisioning/group_vars/vault.yml`, cifrado y con secretos nombrados por entorno cuando corresponda. Las variables no secretas los referencian con prefijo `vault_`. Inicialmente el controlador leerá la contraseña desde `~/.config/medicina-laboral/ansible-vault-password`. Ese archivo debe crearse manualmente con permisos `0600`, quedar fuera del repositorio y no sincronizarse sin un canal seguro. `ansible.cfg` no contendrá una ruta absoluta ligada a una persona: un wrapper o variable `ANSIBLE_VAULT_PASSWORD_FILE` apuntará al archivo. Si luego la cantidad de entornos vuelve incómodo un único vault, se separará sin cambiar los roles.
 
+El password file ya fue creado el 2026-08-05. En D1 se creará `group_vars/vault.yml` con `ansible-vault create` o `encrypt`, inicialmente con valores de desarrollo existentes para WhatsApp, APP_KEY y base de datos. Ningún comando de validación deberá imprimirlos.
+
 Ansible Vault protege los datos versionados en reposo, pero los secretos quedan descifrados durante la ejecución. Por eso las tareas sensibles usarán `no_log: true`, `.env` tendrá permisos `0600` y se documentará rekey/rotación. A futuro la contraseña podrá migrarse a un keyring o gestor institucional sin cambiar los archivos cifrados.
 
 ## 8. PostgreSQL
@@ -448,7 +483,7 @@ Ansible Vault protege los datos versionados en reposo, pero los secretos quedan 
 
 ## 10. HTTPS y webhook de WhatsApp
 
-La URL objetivo será `https://{{ deployment_domain }}/api/whatsapp/webhook`. `deployment_domain`, aliases, email ACME, modo TLS y presencia de proxy serán variables por entorno. El playbook de TLS/webhook fallará temprano si se intenta habilitar un webhook público sin dominio. Se requiere:
+En producción la URL objetivo será `https://{{ production_domain }}/api/whatsapp/webhook`. En Vagrant, Meta utilizará `whatsapp_webhook_public_url` (ngrok), mientras que el acceso local será `application_url`. Dominio, aliases, email ACME, modo TLS y presencia de proxy serán variables por entorno. El playbook de TLS/webhook fallará temprano si se intenta habilitar un webhook productivo sin dominio. Se requiere:
 
 1. dominio y DNS públicos apuntando al app/proxy;
 2. entrada 443 (y 80 solo para redirect/ACME) en firewall institucional y local;
@@ -460,6 +495,20 @@ La URL objetivo será `https://{{ deployment_domain }}/api/whatsapp/webhook`. `d
 8. logs y alertas que no guarden payloads completos.
 
 Debe verificarse si existe proxy/WAF institucional, terminación TLS previa, NAT o restricción de ACME. Ngrok queda excluido de producción. Restringir por IP a Meta no se recomienda como único control sin una fuente mantenible de rangos; el token de verificación protege el alta, pero la autenticidad de POST necesita una decisión específica sobre validación de firma de Meta, actualmente no implementada.
+
+### TLS equivalente para Vagrant
+
+Vagrant no puede obtener normalmente un certificado público para un dominio `.test`, pero sí puede reproducir la misma arquitectura:
+
+- Apache escucha en 443 y redirige 80→443;
+- `application_hostname=medicina-laboral.test` se resuelve hacia la IP de la VM app mediante `/etc/hosts` o mecanismo equivalente;
+- una CA local de desarrollo emite el certificado del hostname;
+- la clave privada de la CA queda fuera del repositorio, con permisos restrictivos;
+- el certificado de la CA se instala como confiable en la máquina del desarrollador cuando se desee evitar advertencias del navegador;
+- el mismo rol `tls` selecciona `tls_provider=local_ca` en Vagrant y `tls_provider=acme` o `provided` en producción;
+- ngrok publica temporalmente el endpoint de Meta y reenvía a Apache HTTPS usando el host correcto.
+
+Esto prueba VirtualHost, PHP-FPM, redirects, headers, permisos y webhook sobre HTTPS sin fingir que el certificado local es productivo.
 
 ## 11. Despliegue repetible de Laravel
 
@@ -522,6 +571,16 @@ Si sesiones/cache permanecen en archivos, un host único es compatible. Escalado
 
 **Storage privado** significa que los certificados y adjuntos no quedan dentro de `public/` ni pueden descargarse conociendo una URL. Para el MVP se recomienda un directorio local `/var/lib/medicina-laboral/private`, propiedad del usuario de aplicación, modo base `0750` y archivos `0640`. Laravel accederá mediante un disco `local` privado y cualquier descarga futura pasará por un controller que verifique permisos y registre auditoría. Hoy el código guarda solo metadata, por lo que esta ruta se preparará pero no se considerará operativa hasta implementar el driver real.
 
+Para la primera versión se recomienda este storage local privado, no object storage, porque es más sencillo de operar y probar. En Vagrant se montará en un disco/directorio persistente separado del release; en producción será un filesystem dedicado o volumen del host app. Requisitos antes de guardar certificados reales:
+
+- implementar el driver Laravel que descargue/persista el archivo, porque hoy solo existe metadata;
+- checksum, nombre generado y validación MIME/tamaño;
+- descarga exclusivamente mediante autorización del backoffice y auditoría;
+- inclusión en backup cifrado y prueba de restore;
+- no compartirlo mediante Apache ni `public/storage`.
+
+Si en el futuro se necesita alta disponibilidad o múltiples app servers, se agregará un driver S3-compatible privado sin cambiar el contrato de aplicación.
+
 ## 14. Seguridad básica
 
 - SSH por clave; usuario de deploy sin root permanente y `become` acotado.
@@ -554,6 +613,14 @@ Base inicial adoptada para poder implementar y ajustar después:
 Se adopta provisionalmente **RPO de 24 horas** —podrían perderse hasta 24 horas de datos— y **RTO de 4 horas** —objetivo para restaurar el servicio—, con retención de 7 backups diarios, 4 semanales y 6 mensuales. Deben ser confirmados por negocio antes de producción.
 
 Copiar archivos no equivale a tener recuperación. El criterio de aceptación será restaurar DB y storage en una VM limpia y completar health/doctor. La herramienta/destino externo y el responsable operativo siguen pendientes.
+
+### Destino externo recomendado
+
+La recomendación productiva es **restic sobre un storage S3-compatible institucional**, con bucket privado, credenciales exclusivas, cifrado propio de restic y política de retención. Es más resistente que copiar backups a otro directorio del mismo servidor y permite cambiar de proveedor sin cambiar el formato de backup.
+
+Si no existe object storage institucional, la segunda opción es un servidor de backups separado accesible por SFTP/SSH con usuario restringido. No se recomienda NFS público ni una carpeta del mismo host como única copia.
+
+Para Vagrant se simulará el destino externo con una carpeta del host fuera del disco de la VM, por ejemplo `deploy/.local/backups/`, ignorada por Git. Destruir y recrear la VM no debe borrar esa copia. Esto permite probar generación, retención y restore antes de disponer del destino productivo.
 
 ## 16. Observabilidad y diagnóstico
 
@@ -621,7 +688,7 @@ Molecule puede incorporarse por roles complejos después de estabilizar la base.
 
 ## 19. Vagrant
 
-Vagrant vivirá en `deploy/vagrant/` y solo modelará máquinas/redes. El provisioning invocará los mismos inventarios, roles y playbooks usados fuera de Vagrant.
+El `Vagrantfile` vivirá en `deploy/provisioning/` y solo modelará máquinas/redes. El provisioning invocará los mismos inventarios, roles y playbooks usados fuera de Vagrant.
 
 Escenarios:
 
@@ -659,23 +726,23 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 
 | Decisión | Opciones | Recomendación | Impacto | Responsable sugerido | Estado |
 |---|---|---|---|---|---|
-| Runtime | host / contenedores | host + Apache/PHP-FPM | arquitectura completa | equipo técnico/operación | recomendada, pendiente aprobar |
+| Runtime | host / contenedores | host + Apache/PHP-FPM | arquitectura completa | equipo técnico/operación | acordada para primera versión |
 | SO/versiones | variables independientes | Debian 13 default; Ubuntu 24.04 seleccionable cuando su proveedor esté implementado | paquetes y tests | operación | arquitectura acordada |
 | Topología inicial | uno / dos servidores | app y DB separados; misma IP válida para modo single-host | HA, seguridad, costo | infraestructura | acordada |
-| Dominio y DNS | institucional / nuevo | variable `deployment_domain`; subdominio institucional cuando exista | webhook/TLS | infraestructura/comunicaciones | parametrizada, valor pendiente |
-| Autoridad TLS | ACME / PKI institucional / proxy | usar estándar institucional; ACME si no existe | renovación y red | seguridad/infraestructura | pendiente |
+| Dominio y DNS | local/ngrok/productivo | variables separadas; `.test` local, ngrok para Meta, dominio real futuro | webhook/TLS | infraestructura/comunicaciones | desarrollo acordado; producción pendiente |
+| Autoridad TLS | CA local / ACME / PKI institucional | CA local en Vagrant; estándar institucional o ACME en producción | renovación y red | seguridad/infraestructura | Vagrant acordado; producción pendiente |
 | Proxy/WAF/NAT | directo / institucional | integrar estándar existente | vhost, firma, IPs | infraestructura | pendiente |
-| SSH | bastion/directo, usuario, claves | clave + usuario `deploy`; directo por defecto, bastion configurable | acceso Ansible | infraestructura/seguridad | estrategia acordada; hosts/claves pendientes |
-| Secretos | Vault / gestor institucional | Vault; password file en home fuera de Git | operación y CI | seguridad/operación | acordada para etapa inicial |
+| SSH | bootstrap Vagrant/directo/bastion | Vagrant crea `deploy`; SSH directo, bastion deshabilitado | acceso Ansible | infraestructura/seguridad | Vagrant acordado; servidores reales pendientes |
+| Secretos | Vault / gestor institucional | Vault; password file en home fuera de Git | operación y CI | seguridad/operación | password file creado; vault cifrado pendiente D1 |
 | PostgreSQL | variable `postgresql_version` | 17 default; nueva versión amplía solo PostgreSQL y luego se selecciona en inventory | paquetes, backup, soporte | DBA/operación | arquitectura acordada, default sujeto a tests |
 | PHP | variable `php_version` | 8.4 default; nueva versión amplía solo PHP y luego se selecciona en inventory | paquetes y soporte | operación/desarrollo | arquitectura acordada, default sujeto a tests |
 | TLS PostgreSQL | requerido / red privada sin TLS | seguir política institucional; TLS en redes no confiables | certificados y config | DBA/seguridad | pendiente |
 | Releases | symlink / in-place | symlink de releases | rollback y disco | desarrollo/operación | recomendada |
 | Origen de release | git en host / artefacto CI | GitHub con deploy key read-only y tag/SHA; artefacto verificable a futuro | supply chain | desarrollo/operación | acordada para etapa inicial |
 | Migraciones | deploy online / ventana | expand-contract; ventana para destructivas | disponibilidad/rollback | desarrollo/DBA | pendiente proceso |
-| Storage privado | disco local / object storage / institucional | `/var/lib/medicina-laboral/private` para MVP, nunca público | adjuntos y backup | seguridad/negocio | estrategia inicial definida; driver real pendiente |
+| Storage privado | disco local / object storage / institucional | filesystem privado local para MVP; S3-compatible al escalar | adjuntos y backup | seguridad/negocio | infraestructura inicial acordada; driver real pendiente |
 | Logs sensibles | filesystem / journal/colector | Laravel daily 14 días, nivel info, sin payload/PII; colector futuro | cumplimiento/diagnóstico | seguridad/negocio | política inicial definida; requiere cambio funcional LOG-001 |
-| Backup destino | ruta local + copia externa | `/var/backups/medicina-laboral` como staging; destino externo obligatorio | recuperación | operación/seguridad | ruta local acordada; externo pendiente |
+| Backup destino | local + S3/SFTP | staging local; restic + S3-compatible recomendado, SFTP como alternativa | recuperación | operación/seguridad | simulación Vagrant definida; proveedor real pendiente |
 | Retención/RPO/RTO | política institucional | 7 diarios/4 semanales/6 mensuales; RPO 24 h, RTO 4 h | costo y recuperación | negocio/operación | propuesta adoptada, confirmar con negocio |
 | Admin inicial | seeder local / alta segura | procedimiento manual/auditable, local admin off | acceso backoffice | seguridad/administración | pendiente diseñar |
 | Firma webhook | implementar / aceptar token GET | implementar validación de firma antes de producción | seguridad de entrada | desarrollo/seguridad | pendiente funcional fuera de Ansible |
