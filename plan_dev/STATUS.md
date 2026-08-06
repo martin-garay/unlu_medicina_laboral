@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 09:32 -03
+2026-08-06 09:48 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `D2 - Vagrant single/split`.
-- Milestone actual: `M2 - rol common para Debian 13` pendiente.
-- Próximo paso sugerido: implementar y validar idempotencia del rol `common` sobre las VM split.
+- Último bloque completado: `M2 - rol common para Debian 13`.
+- Milestone actual: `M3 - PostgreSQL 17` pendiente.
+- Próximo paso sugerido: implementar PostgreSQL 17 y validar acceso restringido single/split.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-06 09:32 -03
+- 2026-08-06 09:48 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M1 - Reparar provider y completar D2`
+- `M2 - Rol common para Debian 13`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se actualizaron VirtualBox y los inventories; las topologías single/split pasaron arranque, SSH, Debian, red y apagado.
+- se creó el baseline Debian 13, usuario `deploy`, clave SSH externa y sudo Vagrant; la segunda ejecución produjo cero cambios.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: inventories Vagrant single/split, daily actual y este status.
-- resumen técnico: los inventories usan las claves privadas generadas por Vagrant y opciones SSH limitadas al entorno local.
+- archivos tocados: rol/playbook common, site, inventories Vagrant, daily actual y este status.
+- resumen técnico: tareas y variables Debian 13 están aisladas dentro del rol; producción no hereda automáticamente sudo sin contraseña.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: Vagrant up single/split, Debian 13.1, IP/hostname, sudo, Ansible ping y halt single.
-- resultado: D2 correcto. `ansible-lint` y `yamllint` siguen sin instalar.
+- checks: syntax/check mode, convergencia split, SSH como `deploy`, `sudo -n` y segunda ejecución.
+- resultado: common idempotente con `changed=0`. `ansible-lint` y `yamllint` siguen sin instalar.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar el rol `common`.
+- ninguno para comenzar PostgreSQL.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar `common` para Debian 13 y validar una segunda ejecución sin cambios.
+- implementar el rol PostgreSQL 17 en `db_servers` y validar conexión desde `app_servers`.
 
 ---
 

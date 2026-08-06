@@ -1,0 +1,69 @@
+---
+- name: Validate selected operating system against host facts
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.distribution | lower == operating_system_family
+      - ansible_facts.distribution_major_version == operating_system_version
+    fail_msg: >-
+      Inventory selected {{ operating_system_family }} {{ operating_system_version }},
+      but host reports {{ ansible_facts.distribution }}
+      {{ ansible_facts.distribution_major_version }}.
+
+- name: Load operating system variables
+  ansible.builtin.include_vars:
+    file: "versions/{{ operating_system_family }}-{{ operating_system_version }}.yml"
+
+- name: Run operating system tasks
+  ansible.builtin.include_tasks:
+    file: "versions/{{ operating_system_family }}-{{ operating_system_version }}.yml"
+
+- name: Create deployment group
+  ansible.builtin.group:
+    name: "{{ deploy_user_group }}"
+    system: true
+    state: present
+
+- name: Create deployment user
+  ansible.builtin.user:
+    name: "{{ deploy_user_name }}"
+    group: "{{ deploy_user_group }}"
+    groups: sudo
+    append: true
+    shell: "{{ deploy_user_shell }}"
+    create_home: true
+    password_lock: true
+    state: present
+
+- name: Create deployment SSH directory
+  ansible.builtin.file:
+    path: "/home/{{ deploy_user_name }}/.ssh"
+    state: directory
+    owner: "{{ deploy_user_name }}"
+    group: "{{ deploy_user_group }}"
+    mode: "0700"
+
+- name: Install deployment authorized keys
+  ansible.builtin.copy:
+    content: "{{ deploy_user_public_keys | unique | join('\n') }}\n"
+    dest: "/home/{{ deploy_user_name }}/.ssh/authorized_keys"
+    owner: "{{ deploy_user_name }}"
+    group: "{{ deploy_user_group }}"
+    mode: "0600"
+  when: deploy_user_public_keys | length > 0
+
+- name: Configure Vagrant passwordless sudo for deployment user
+  ansible.builtin.copy:
+    content: "{{ deploy_user_name }} ALL=(ALL:ALL) NOPASSWD: ALL\n"
+    dest: "/etc/sudoers.d/{{ deploy_user_name }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
+  when: deploy_user_passwordless_sudo
+
+- name: Remove managed passwordless sudo when disabled
+  ansible.builtin.file:
+    path: "/etc/sudoers.d/{{ deploy_user_name }}"
+    state: absent
+  when: not deploy_user_passwordless_sudo
+

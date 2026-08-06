@@ -1,0 +1,14 @@
+---
+common_base_packages:
+  - acl
+  - ca-certificates
+  - cron
+  - curl
+  - git
+  - gnupg
+  - jq
+  - logrotate
+  - rsync
+  - sudo
+  - unzip
+
