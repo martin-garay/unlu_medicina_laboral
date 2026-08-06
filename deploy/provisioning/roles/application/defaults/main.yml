@@ -1,0 +1,11 @@
+---
+application_source_strategy: local
+application_source_path: "{{ playbook_dir }}/../../.."
+application_release_path: "{{ application_root }}/releases/{{ application_release_id }}"
+application_shared_path: "{{ application_root }}/shared"
+application_current_path: "{{ application_root }}/current"
+
+application_db_host: 127.0.0.1
+application_db_port: 5432
+application_log_level: info
+

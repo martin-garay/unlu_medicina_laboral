@@ -13,8 +13,12 @@ supported_php_versions:
 supported_postgresql_versions:
   - "17"
 
+php_fpm_socket: "/run/php/php{{ php_version }}-fpm.sock"
+
 application_name: medicina-laboral
 application_root: /var/www/medicina-laboral
+application_release_id: workspace
+application_document_root: "{{ application_root }}/current/public"
 private_storage_path: /var/lib/medicina-laboral/private
 backup_root: /var/backups/medicina-laboral
 

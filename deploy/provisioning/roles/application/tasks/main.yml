@@ -1,0 +1,161 @@
+---
+- name: Validate application source strategy
+  ansible.builtin.assert:
+    that:
+      - application_source_strategy in ['local']
+    fail_msg: "Unsupported application source strategy: {{ application_source_strategy }}"
+
+- name: Install Composer
+  ansible.builtin.apt:
+    name: composer
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create application release directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    mode: "0755"
+  loop:
+    - "{{ application_root }}"
+    - "{{ application_root }}/releases"
+    - "{{ application_release_path }}"
+    - "{{ application_shared_path }}"
+
+- name: Create shared writable directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    mode: "2775"
+  loop:
+    - "{{ application_shared_path }}/storage/app"
+    - "{{ application_shared_path }}/storage/framework/cache/data"
+    - "{{ application_shared_path }}/storage/framework/sessions"
+    - "{{ application_shared_path }}/storage/framework/views"
+    - "{{ application_shared_path }}/storage/logs"
+    - "{{ private_storage_path }}"
+
+- name: Synchronize local workspace into release
+  ansible.posix.synchronize:
+    src: "{{ application_source_path }}/"
+    dest: "{{ application_release_path }}/"
+    delete: false
+    rsync_path: sudo rsync
+    rsync_opts:
+      - --no-owner
+      - --no-group
+      - --no-perms
+      - --omit-dir-times
+      - "--chown={{ deploy_user_name }}:www-data"
+      - --exclude=.git/
+      - --exclude=.agents/
+      - --exclude=.codex/
+      - --exclude=.docker/
+      - --exclude=.env
+      - --exclude=deploy/
+      - --exclude=docs/
+      - --exclude=node_modules/
+      - --exclude=plan_dev/
+      - --exclude=storage
+      - --exclude=bootstrap/cache
+      - --exclude=tests/
+      - --exclude=vendor/
+      - --exclude=phpunit.xml
+      - --exclude=.phpunit.result.cache
+  when: application_source_strategy == 'local'
+
+- name: Set release ownership
+  ansible.builtin.file:
+    path: "{{ application_release_path }}"
+    state: directory
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    mode: "0755"
+
+- name: Link shared storage
+  ansible.builtin.file:
+    src: "{{ application_shared_path }}/storage"
+    dest: "{{ application_release_path }}/storage"
+    state: link
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    force: true
+
+- name: Ensure bootstrap cache permissions
+  ansible.builtin.file:
+    path: "{{ application_release_path }}/bootstrap/cache"
+    state: directory
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    mode: "2775"
+
+- name: Render shared Laravel environment
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ application_shared_path }}/.env"
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    mode: "0640"
+  no_log: true
+
+- name: Link shared Laravel environment
+  ansible.builtin.file:
+    src: "{{ application_shared_path }}/.env"
+    dest: "{{ application_release_path }}/.env"
+    state: link
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    force: true
+
+- name: Install production Composer dependencies
+  community.general.composer:
+    command: install
+    working_dir: "{{ application_release_path }}"
+    no_dev: true
+    optimize_autoloader: true
+    prefer_dist: true
+  become: true
+  become_user: "{{ deploy_user_name }}"
+  when: not ansible_check_mode
+
+- name: Run Laravel migrations
+  ansible.builtin.command:
+    argv:
+      - php
+      - artisan
+      - migrate
+      - --force
+    chdir: "{{ application_release_path }}"
+  become: true
+  become_user: "{{ deploy_user_name }}"
+  register: application_migrations
+  changed_when: "'Nothing to migrate' not in application_migrations.stdout"
+  run_once: true
+  when: not ansible_check_mode
+
+- name: Optimize Laravel caches
+  ansible.builtin.command:
+    argv:
+      - php
+      - artisan
+      - optimize
+    chdir: "{{ application_release_path }}"
+  become: true
+  become_user: "{{ deploy_user_name }}"
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Activate application release
+  ansible.builtin.file:
+    src: "{{ application_release_path }}"
+    dest: "{{ application_current_path }}"
+    state: link
+    force: true
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+  when: not ansible_check_mode

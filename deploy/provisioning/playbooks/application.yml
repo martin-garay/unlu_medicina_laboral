@@ -1,0 +1,37 @@
+---
+- name: Deploy Laravel application
+  hosts: app_servers
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+    - ../group_vars/vault.yml
+  vars:
+    application_database_inventory_host: "{{ groups['db_servers'] | first }}"
+    application_db_host: "{{ hostvars[application_database_inventory_host].ansible_host }}"
+  roles:
+    - role: application
+
+- name: Point Apache to the active Laravel release
+  hosts: app_servers
+  gather_facts: false
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: apache
+      apache_document_root: "{{ application_document_root }}"
+      apache_install_runtime_probe: false
+
+- name: Validate deployed Laravel health endpoint
+  hosts: app_servers
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Request Laravel health endpoint
+      ansible.builtin.uri:
+        url: http://127.0.0.1/up
+        headers:
+          Host: "{{ application_hostname }}"
+        status_code: 200
+      when: not ansible_check_mode

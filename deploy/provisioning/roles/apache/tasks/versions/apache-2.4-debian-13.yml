@@ -29,6 +29,7 @@
     owner: "{{ deploy_user_name }}"
     group: www-data
     mode: "0755"
+  when: apache_install_runtime_probe
 
 - name: Install temporary PHP-FPM probe
   ansible.builtin.copy:
@@ -37,6 +38,7 @@
     owner: "{{ deploy_user_name }}"
     group: www-data
     mode: "0644"
+  when: apache_install_runtime_probe
 
 - name: Configure Medicina Laboral VirtualHost
   ansible.builtin.template:
@@ -70,4 +72,3 @@
     enabled: true
     state: started
   when: not ansible_check_mode
-

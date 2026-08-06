@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 16:31 -03
+2026-08-06 20:14 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M4 - Apache 2.4 y PHP 8.4`.
-- Milestone actual: `M5 - despliegue Laravel` pendiente.
-- Próximo paso sugerido: implementar releases y configuración Laravel.
+- Último bloque completado: `M5 - despliegue Laravel`.
+- Milestone actual: `M6 - scheduler Laravel` pendiente.
+- Próximo paso sugerido: instalar y validar el cron de `schedule:run`.
 
 ---
 
@@ -67,32 +67,32 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Ansible conecta por claves generadas fuera de Git a las IP privadas de cada VM. La VM single quedó apagada y las dos VM split activas para continuar roles.
+- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-06 16:31 -03
+- 2026-08-06 20:14 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M4 - Apache 2.4 y PHP 8.4`
+- `M5 - despliegue Laravel`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se instalaron Apache/PHP-FPM con FastCGI, VirtualHost temporal y respuesta HTTP validada en split/single.
+- se desplegó Laravel con Composer, `.env` cifrado, almacenamiento compartido, migraciones, caches y health check en split/single.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: roles/playbook Apache y PHP, variables comunes, site, daily y status.
-- resumen técnico: cada tecnología resuelve paquetes/configuración por versión dentro de su propio rol.
+- archivos tocados: rol/playbook application, Vault, Apache, variables comunes, site, daily y status.
+- resumen técnico: el código local se sincroniza a una release, mientras `.env` y `storage` permanecen bajo `shared/`; Apache apunta a `current/public`.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: syntax/check mode, PHP-FPM, `apachectl configtest`, HTTP FastCGI y pasadas idempotentes single/split.
-- resultado: runtime idempotente con `changed=0`. `ansible-lint` y `yamllint` siguen sin instalar.
+- checks: syntax/check mode, Composer, migraciones, optimize, Apache y `/up` HTTP 200 en split/single.
+- resultado: configuración idempotente; la tarea de sincronización del artefacto informa un cambio esperado por despliegue. `ansible-lint` y `yamllint` siguen sin instalar.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar Laravel.
+- ninguno para comenzar el scheduler.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar releases Laravel, `.env`, Composer, migraciones y `/up`.
+- implementar cron seguro para `php artisan schedule:run` y validar `schedule:list`.
 
 ---
 

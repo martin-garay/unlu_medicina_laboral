@@ -7,6 +7,7 @@
         AllowOverride None
         Require all granted
         DirectoryIndex index.php
+        FallbackResource /index.php
     </Directory>
 
     <FilesMatch "\.php$">
@@ -24,4 +25,3 @@
     ErrorLog {{ apache_error_log }}
     CustomLog {{ apache_access_log }} combined
 </VirtualHost>
-
