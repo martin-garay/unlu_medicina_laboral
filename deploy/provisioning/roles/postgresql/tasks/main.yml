@@ -1,0 +1,16 @@
+---
+- name: Load PostgreSQL platform variables
+  ansible.builtin.include_vars:
+    file: "versions/postgresql-{{ postgresql_version }}-{{ operating_system_family }}-{{ operating_system_version }}.yml"
+
+- name: Install PostgreSQL client
+  ansible.builtin.apt:
+    name: "{{ postgresql_client_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Configure PostgreSQL server
+  ansible.builtin.include_tasks:
+    file: "versions/postgresql-{{ postgresql_version }}-{{ operating_system_family }}-{{ operating_system_version }}.yml"
+  when: postgresql_server_enabled

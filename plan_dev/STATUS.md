@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 09:48 -03
+2026-08-06 15:44 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M2 - rol common para Debian 13`.
-- Milestone actual: `M3 - PostgreSQL 17` pendiente.
-- Próximo paso sugerido: implementar PostgreSQL 17 y validar acceso restringido single/split.
+- Último bloque completado: `M3 - PostgreSQL 17`.
+- Milestone actual: `M4 - Apache 2.4 y PHP 8.4` pendiente.
+- Próximo paso sugerido: implementar Apache/PHP-FPM en `app_servers`.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-06 09:48 -03
+- 2026-08-06 15:44 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M2 - Rol common para Debian 13`
+- `M3 - PostgreSQL 17`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se creó el baseline Debian 13, usuario `deploy`, clave SSH externa y sudo Vagrant; la segunda ejecución produjo cero cambios.
+- se instaló PostgreSQL 17 con Vault, acceso restringido y consulta validada en topologías split/single.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: rol/playbook common, site, inventories Vagrant, daily actual y este status.
-- resumen técnico: tareas y variables Debian 13 están aisladas dentro del rol; producción no hereda automáticamente sudo sin contraseña.
+- archivos tocados: rol/playbook PostgreSQL, Vault cifrado, requirements, inventories, site, daily y status.
+- resumen técnico: cliente/servidor se separan por grupo; versión y plataforma viven dentro del rol PostgreSQL.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: syntax/check mode, convergencia split, SSH como `deploy`, `sudo -n` y segunda ejecución.
-- resultado: common idempotente con `changed=0`. `ansible-lint` y `yamllint` siguen sin instalar.
+- checks: syntax/check mode, conexión SQL split/single, listeners privados y pasadas idempotentes.
+- resultado: PostgreSQL idempotente con `changed=0`. `ansible-lint` y `yamllint` siguen sin instalar.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar PostgreSQL.
+- ninguno para comenzar Apache/PHP.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar el rol PostgreSQL 17 en `db_servers` y validar conexión desde `app_servers`.
+- implementar roles Apache 2.4 y PHP 8.4 en `app_servers`.
 
 ---
 

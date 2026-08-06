@@ -1,0 +1,67 @@
+---
+- name: Install PostgreSQL server packages
+  ansible.builtin.apt:
+    name: "{{ postgresql_server_packages }}"
+    state: present
+
+- name: Configure managed PostgreSQL settings
+  ansible.builtin.template:
+    src: versions/postgresql-17/postgresql.conf.j2
+    dest: "{{ postgresql_conf_dir }}/conf.d/99-medicina-laboral.conf"
+    owner: postgres
+    group: postgres
+    mode: "0644"
+  notify: Restart PostgreSQL
+
+- name: Configure PostgreSQL client authentication
+  ansible.builtin.template:
+    src: versions/postgresql-17/pg_hba.conf.j2
+    dest: "{{ postgresql_conf_dir }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: "0640"
+  notify: Restart PostgreSQL
+
+- name: Ensure PostgreSQL is enabled and running
+  ansible.builtin.service:
+    name: postgresql
+    enabled: true
+    state: started
+  when: not ansible_check_mode
+
+- name: Apply PostgreSQL configuration before database operations
+  ansible.builtin.meta: flush_handlers
+
+- name: Create PostgreSQL Ansible temporary directory
+  ansible.builtin.file:
+    path: /var/lib/postgresql/.ansible/tmp
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0700"
+  when: not ansible_check_mode
+
+- name: Create Laravel PostgreSQL role
+  community.postgresql.postgresql_user:
+    name: "{{ postgresql_application_user }}"
+    password: "{{ postgresql_application_password }}"
+    no_password_changes: "{{ postgresql_no_password_changes }}"
+    role_attr_flags: NOSUPERUSER,NOCREATEDB,NOCREATEROLE,INHERIT,LOGIN
+    state: present
+  become: true
+  become_user: postgres
+  no_log: true
+  when: not ansible_check_mode
+
+- name: Create Laravel PostgreSQL database
+  community.postgresql.postgresql_db:
+    name: "{{ postgresql_database_name }}"
+    owner: "{{ postgresql_application_user }}"
+    encoding: "{{ postgresql_database_encoding }}"
+    lc_collate: "{{ postgresql_database_locale }}"
+    lc_ctype: "{{ postgresql_database_locale }}"
+    template: template0
+    state: present
+  become: true
+  become_user: postgres
+  when: not ansible_check_mode

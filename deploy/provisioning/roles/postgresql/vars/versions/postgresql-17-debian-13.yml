@@ -1,0 +1,10 @@
+---
+postgresql_client_packages:
+  - postgresql-client-17
+
+postgresql_server_packages:
+  - postgresql-17
+  - python3-psycopg
+
+postgresql_conf_dir: /etc/postgresql/17/main
+

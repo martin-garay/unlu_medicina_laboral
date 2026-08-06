@@ -1,0 +1,4 @@
+# Managed by Ansible. Project-specific PostgreSQL 17 settings.
+listen_addresses = '{{ postgresql_listen_addresses | join(",") }}'
+password_encryption = 'scram-sha-256'
+ssl = {{ postgresql_ssl_enabled | ternary('on', 'off') }}

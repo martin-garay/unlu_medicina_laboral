@@ -1,0 +1,11 @@
+---
+postgresql_server_enabled: false
+postgresql_listen_addresses:
+  - 127.0.0.1
+postgresql_allowed_networks: []
+postgresql_ssl_enabled: false
+
+postgresql_application_password: "{{ vault_postgresql_password }}"
+postgresql_no_password_changes: true
+postgresql_database_encoding: UTF8
+postgresql_database_locale: C.UTF-8

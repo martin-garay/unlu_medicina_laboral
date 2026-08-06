@@ -1,0 +1,13 @@
+# Managed by Ansible. Local administrative access.
+local   all   postgres                                  peer
+local   all   all                                       peer
+
+# Local TCP access.
+host    all   all             127.0.0.1/32              scram-sha-256
+host    all   all             ::1/128                   scram-sha-256
+
+# Laravel access generated from inventory networks.
+{% for network in postgresql_allowed_networks %}
+host    {{ postgresql_database_name }}   {{ postgresql_application_user }}   {{ network }}   scram-sha-256
+{% endfor %}
+

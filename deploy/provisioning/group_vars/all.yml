@@ -18,4 +18,7 @@ application_root: /var/www/medicina-laboral
 private_storage_path: /var/lib/medicina-laboral/private
 backup_root: /var/backups/medicina-laboral
 
+postgresql_database_name: medicina_laboral
+postgresql_application_user: medicina_laboral
+
 ssh_bastion_enabled: false

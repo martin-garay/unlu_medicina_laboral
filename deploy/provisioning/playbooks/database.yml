@@ -1,0 +1,38 @@
+---
+- name: Install PostgreSQL client and server capabilities
+  hosts: all
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+    - ../group_vars/vault.yml
+  roles:
+    - role: postgresql
+      postgresql_server_enabled: "{{ inventory_hostname in groups['db_servers'] }}"
+
+- name: Validate Laravel database connection from application hosts
+  hosts: app_servers
+  gather_facts: false
+  become: false
+  vars_files:
+    - ../group_vars/all.yml
+    - ../group_vars/vault.yml
+  vars:
+    database_inventory_host: "{{ groups['db_servers'] | first }}"
+    database_address: "{{ hostvars[database_inventory_host].ansible_host }}"
+    postgresql_application_password: "{{ vault_postgresql_password }}"
+  tasks:
+    - name: Query PostgreSQL through the application credentials
+      ansible.builtin.command:
+        argv:
+          - psql
+          - --host={{ database_address }}
+          - --username={{ postgresql_application_user }}
+          - --dbname={{ postgresql_database_name }}
+          - --tuples-only
+          - --command=SELECT 1
+      environment:
+        PGPASSWORD: "{{ postgresql_application_password }}"
+      changed_when: false
+      no_log: true
+      when: not ansible_check_mode
