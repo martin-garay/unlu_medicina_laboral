@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-05 23:39 -03
+2026-08-06 05:45 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `Deploy D1/M1 - documentación y estructura mínima de Ansible`.
 - Milestone actual: `M2 - Vagrant single/split`, bloqueado por el provider del host.
-- Próximo paso sugerido: reparar/habilitar el provider VirtualBox y reanudar el arranque de las VM.
+- Próximo paso sugerido: un administrador ejecuta `/sbin/vboxconfig`; luego se reanuda el arranque de las VM.
 
 ---
 
@@ -74,10 +74,10 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-05 23:39 -03
+- 2026-08-06 05:45 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-08-05-02-deploy-d1.md`
+- `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
 - `M2 - Vagrant single/split`
@@ -86,7 +86,7 @@ No debe reemplazar:
 - `blocked`
 
 ### Resumen corto
-- se implementaron y validaron estáticamente las topologías Vagrant single/split, pero el provider local no puede iniciar VM.
+- se reconfirmó el bloqueo del provider y el intento no interactivo de ejecutar `/sbin/vboxconfig` falló porque `sudo` requiere contraseña.
 
 ---
 
