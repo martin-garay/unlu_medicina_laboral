@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 05:45 -03
+2026-08-06 05:55 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `Deploy D1/M1 - documentación y estructura mínima de Ansible`.
 - Milestone actual: `M2 - Vagrant single/split`, bloqueado por el provider del host.
-- Próximo paso sugerido: un administrador ejecuta `/sbin/vboxconfig`; luego se reanuda el arranque de las VM.
+- Próximo paso sugerido: instalar el paquete oficial VirtualBox 7.2.14 ya descargado y verificado; luego reanudar las VM.
 
 ---
 
@@ -67,7 +67,7 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: existen guías, configuración base, inventories, validación de versiones y Vagrantfile single/split. Vagrant 2.4.9 quedó disponible localmente y fuera de Git. VirtualBox no puede arrancar VM porque falta `vboxdrv` para el kernel activo y KVM está cargado; todavía no hay roles que modifiquen servidores.
+- notas: existen guías, configuración base, inventories, validación de versiones y Vagrantfile single/split. El log confirmó incompatibilidad de VirtualBox 7.2.6 con el kernel 7.0 activo; el paquete oficial 7.2.14 quedó descargado y verificado fuera de Git, pendiente de instalación administrativa.
 
 ---
 
@@ -113,8 +113,8 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- D2 bloqueado: VirtualBox 7.2.6 no tiene `vboxdrv` cargado/disponible para `7.0.0-28-generic`; KVM está cargado y el usuario no tiene `sudo` no interactivo.
-- se requiere reparar el módulo/provider con privilegios administrativos y posiblemente reiniciar el host.
+- D2 bloqueado: VirtualBox 7.2.6 falla al compilar `vboxdrv` para `7.0.0-28-generic`; los headers existen y Secure Boot está desactivado.
+- se requiere instalar VirtualBox 7.2.14 con privilegios administrativos y volver a validar el módulo/provider.
 
 ---
 
