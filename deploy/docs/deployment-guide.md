@@ -64,6 +64,16 @@ Una versión nueva se incorpora dentro del rol de la tecnología afectada y lueg
 
 La topología se selecciona cambiando el inventory, no los roles.
 
+El wrapper `bin/vagrant` usa la instalación local no versionada si está disponible y conserva el estado de Vagrant bajo `deploy/.local/`. Comandos previstos:
+
+```bash
+cd deploy/provisioning
+MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant up
+MEDICINA_VAGRANT_TOPOLOGY=split bin/vagrant up
+```
+
+La box inicial es `bento/debian-13` versión `202510.26.0`, con provider VirtualBox. El nombre y la versión pertenecen exclusivamente a la capa Vagrant/SO y podrán ampliarse sin modificar PostgreSQL, PHP o Apache.
+
 ## Validaciones iniciales
 
 Desde `deploy/provisioning/`:
@@ -89,4 +99,3 @@ El playbook `validate.yml` comprueba que cada tecnología y versión haya sido d
 8. repetir el playbook para comprobar idempotencia.
 
 Los pasos 2 a 8 se incorporarán progresivamente. La presencia de esta guía no implica todavía que estén implementados.
-

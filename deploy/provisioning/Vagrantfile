@@ -1,0 +1,54 @@
+# frozen_string_literal: true
+
+Vagrant.require_version ">= 2.4.0", "< 3.0.0"
+
+topology = ENV.fetch("MEDICINA_VAGRANT_TOPOLOGY", "split")
+supported_topologies = %w[single split].freeze
+
+unless supported_topologies.include?(topology)
+  raise "Unsupported topology '#{topology}'. Use: #{supported_topologies.join(', ')}"
+end
+
+machines = if topology == "single"
+             {
+               "medicina-single" => {
+                 ip: "192.168.56.10",
+                 memory: 3072,
+                 cpus: 2
+               }
+             }
+           else
+             {
+               "medicina-app" => {
+                 ip: "192.168.56.11",
+                 memory: 2048,
+                 cpus: 2
+               },
+               "medicina-db" => {
+                 ip: "192.168.56.12",
+                 memory: 2048,
+                 cpus: 2
+               }
+             }
+           end
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/debian-13"
+  config.vm.box_version = "202510.26.0"
+  config.ssh.insert_key = true
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  machines.each do |name, machine|
+    config.vm.define name do |node|
+      node.vm.hostname = name
+      node.vm.network "private_network", ip: machine.fetch(:ip)
+
+      node.vm.provider "virtualbox" do |virtualbox|
+        virtualbox.name = "medicina-laboral-#{name}"
+        virtualbox.memory = machine.fetch(:memory)
+        virtualbox.cpus = machine.fetch(:cpus)
+      end
+    end
+  end
+end
+

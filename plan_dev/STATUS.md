@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-05 21:53 -03
+2026-08-05 23:39 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `Deploy D1/M1 - documentación y estructura mínima de Ansible`.
-- Milestone actual: M1 del daily de Deploy D1 cerrado.
-- Próximo paso sugerido: preparar herramientas y ejecutar `M2 - Vagrant single/split`.
+- Milestone actual: `M2 - Vagrant single/split`, bloqueado por el provider del host.
+- Próximo paso sugerido: reparar/habilitar el provider VirtualBox y reanudar el arranque de las VM.
 
 ---
 
@@ -67,32 +67,32 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: existen guías general/productiva, configuración base de Ansible, inventories Vagrant single/split, variables tecnológicas independientes y un playbook ejecutable que rechaza selecciones no soportadas. Todavía no hay Vagrantfile ni roles que modifiquen servidores.
+- notas: existen guías, configuración base, inventories, validación de versiones y Vagrantfile single/split. Vagrant 2.4.9 quedó disponible localmente y fuera de Git. VirtualBox no puede arrancar VM porque falta `vboxdrv` para el kernel activo y KVM está cargado; todavía no hay roles que modifiquen servidores.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-05 21:53 -03
+- 2026-08-05 23:39 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-05-02-deploy-d1.md`
 
 ### Milestone trabajado
-- `M1 - Documentación y estructura mínima`
+- `M2 - Vagrant single/split`
 
 ### Resultado
-- `done`
+- `blocked`
 
 ### Resumen corto
-- se inició la implementación con documentación operativa, inventories single/split y validación independiente de SO, Apache, PHP y PostgreSQL.
+- se implementaron y validaron estáticamente las topologías Vagrant single/split, pero el provider local no puede iniciar VM.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/README.md`, dos guías en `deploy/docs/`, estructura mínima bajo `deploy/provisioning/`, daily D1 y este status.
-- resumen técnico: Ansible puede parsear las dos topologías y valida las selecciones tecnológicas antes de cualquier aprovisionamiento.
+- archivos tocados: `.gitignore`, `deploy/provisioning/Vagrantfile`, wrapper `bin/vagrant`, guía general, daily D1 y este status.
+- resumen técnico: Vagrant usa Debian 13 con IP/recursos coherentes con los inventories; soporta selección `single` o `split` mediante variable de entorno.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: inventory graph single/split, syntax-check, ejecución positiva single/split, rechazo de PostgreSQL 18 y `git diff --check`.
-- resultado: todos los checks disponibles pasaron. `ansible-lint`, `yamllint` y Vagrant no están instalados y no se ejecutaron.
+- checks: checksum del Vagrant oficial, versión, `validate --ignore-provider` single/split y rechazo de topología inválida.
+- resultado: validación estática correcta; convergencia, SSH e idempotencia bloqueadas por `vboxdrv`. `ansible-lint` y `yamllint` siguen sin instalar.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,8 +113,8 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para cerrar D1/M1.
-- para D2 deben instalarse Vagrant, un provider y las herramientas de lint.
+- D2 bloqueado: VirtualBox 7.2.6 no tiene `vboxdrv` cargado/disponible para `7.0.0-28-generic`; KVM está cargado y el usuario no tiene `sudo` no interactivo.
+- se requiere reparar el módulo/provider con privilegios administrativos y posiblemente reiniciar el host.
 
 ---
 
@@ -132,7 +132,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M2 - Vagrant single/split` después de instalar Vagrant/provider; no implementar roles de servicios antes de validar las VM.
+- reanudar `M2`, ejecutar `vagrant up`, validar SSH en ambas topologías y recién entonces comenzar el rol `common`.
 
 ---
 

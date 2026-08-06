@@ -16,3 +16,6 @@ yarn-error.log
 bootstrap/*
 storage/*
 .docker
+/deploy/.tools/
+/deploy/.local/
+/deploy/provisioning/.vagrant/

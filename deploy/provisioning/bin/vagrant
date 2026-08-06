@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+provisioning_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+deploy_dir="$(cd "${provisioning_dir}/.." && pwd)"
+local_vagrant="${deploy_dir}/.tools/vagrant-2.4.9/vagrant"
+
+export VAGRANT_HOME="${deploy_dir}/.local/vagrant-home"
+mkdir -p "${VAGRANT_HOME}"
+
+if [[ -x "${local_vagrant}" ]]; then
+    export APPIMAGE_EXTRACT_AND_RUN=1
+    exec "${local_vagrant}" "$@"
+fi
+
+exec vagrant "$@"
