@@ -153,6 +153,11 @@ En el estado actual del repo, el scheduler corre:
 - cada minuto
 - con `withoutOverlapping(10)` para evitar solapamientos accidentales
 
+El calendario se registra en `routes/console.php`, que es el punto de carga activo
+de Laravel 11. En servidores, Ansible instala `/etc/cron.d/medicina-laboral-scheduler`
+para invocar `php artisan schedule:run` cada minuto como usuario `deploy`; además usa
+`flock` y escribe en `shared/storage/logs/scheduler.log`.
+
 ## Campos sugeridos en conversación
 
 Para soportar esta lógica, la conversación debería poder registrar al menos:

@@ -1,0 +1,57 @@
+---
+- name: Install scheduler runtime packages
+  ansible.builtin.apt:
+    name:
+      - cron
+      - util-linux
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure scheduler log exists
+  ansible.builtin.file:
+    path: "{{ laravel_scheduler_log }}"
+    state: touch
+    owner: "{{ laravel_scheduler_user }}"
+    group: www-data
+    mode: "0664"
+    modification_time: preserve
+    access_time: preserve
+
+- name: Install Laravel scheduler cron
+  ansible.builtin.cron:
+    name: medicina-laboral-scheduler
+    user: "{{ laravel_scheduler_user }}"
+    minute: "*"
+    job: >-
+      /usr/bin/flock -n {{ laravel_scheduler_lock }}
+      /bin/sh -c 'cd {{ laravel_scheduler_working_directory }} &&
+      {{ laravel_scheduler_php_binary }} artisan schedule:run
+      >> {{ laravel_scheduler_log }} 2>&1'
+    cron_file: medicina-laboral-scheduler
+
+- name: Ensure cron is enabled and running
+  ansible.builtin.service:
+    name: cron
+    enabled: true
+    state: started
+
+- name: Validate Laravel scheduled tasks
+  ansible.builtin.command:
+    argv:
+      - "{{ laravel_scheduler_php_binary }}"
+      - artisan
+      - schedule:list
+    chdir: "{{ laravel_scheduler_working_directory }}"
+  become: true
+  become_user: "{{ laravel_scheduler_user }}"
+  register: laravel_scheduler_list
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Assert timeout processing is scheduled
+  ansible.builtin.assert:
+    that:
+      - "'conversations:process-timeouts' in laravel_scheduler_list.stdout"
+    fail_msg: Laravel did not register conversations:process-timeouts.
+  when: not ansible_check_mode

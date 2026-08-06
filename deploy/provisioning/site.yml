@@ -4,3 +4,4 @@
 - import_playbook: playbooks/database.yml
 - import_playbook: playbooks/runtime.yml
 - import_playbook: playbooks/application.yml
+- import_playbook: playbooks/scheduler.yml

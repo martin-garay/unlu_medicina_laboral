@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 20:14 -03
+2026-08-06 20:30 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M5 - despliegue Laravel`.
-- Milestone actual: `M6 - scheduler Laravel` pendiente.
-- Próximo paso sugerido: instalar y validar el cron de `schedule:run`.
+- Último bloque completado: `M6 - scheduler Laravel`.
+- Milestone actual: `M7 - TLS local y HTTPS` pendiente.
+- Próximo paso sugerido: implementar CA local para Vagrant y una interfaz de certificado configurable para producción.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-06 20:14 -03
+- 2026-08-06 20:30 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M5 - despliegue Laravel`
+- `M6 - scheduler Laravel`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se desplegó Laravel con Composer, `.env` cifrado, almacenamiento compartido, migraciones, caches y health check en split/single.
+- se instaló el cron Laravel idempotente y se corrigió el registro del calendario para Laravel 11.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: rol/playbook application, Vault, Apache, variables comunes, site, daily y status.
-- resumen técnico: el código local se sincroniza a una release, mientras `.env` y `storage` permanecen bajo `shared/`; Apache apunta a `current/public`.
+- archivos tocados: rol/playbook scheduler, `routes/console.php`, Kernel, prueba, documentación, site, daily y status.
+- resumen técnico: cron por minuto como `deploy`, protegido con `flock`, más `withoutOverlapping(10)` dentro de Laravel.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: syntax/check mode, Composer, migraciones, optimize, Apache y `/up` HTTP 200 en split/single.
-- resultado: configuración idempotente; la tarea de sincronización del artefacto informa un cambio esperado por despliegue. `ansible-lint` y `yamllint` siguen sin instalar.
+- checks: syntax/check mode, `schedule:list`, ejecución manual y segunda pasada `changed=0` en split/single.
+- resultado: tarea registrada y cron idempotente. El test PHP local no pudo correr porque el host no tiene PHP y Docker estaba detenido; la aserción funcional se ejecutó dentro de ambas VM.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar el scheduler.
+- ninguno para comenzar TLS local.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar cron seguro para `php artisan schedule:run` y validar `schedule:list`.
+- implementar HTTPS Vagrant con CA local y preparar proveedores de certificados productivos.
 
 ---
 

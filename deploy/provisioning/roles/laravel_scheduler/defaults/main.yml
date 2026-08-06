@@ -1,0 +1,6 @@
+---
+laravel_scheduler_user: "{{ deploy_user_name }}"
+laravel_scheduler_working_directory: "{{ application_root }}/current"
+laravel_scheduler_log: "{{ application_root }}/shared/storage/logs/scheduler.log"
+laravel_scheduler_lock: /run/lock/medicina-laboral-scheduler.lock
+laravel_scheduler_php_binary: /usr/bin/php
