@@ -20,7 +20,7 @@ Esta etapa no implementa Ansible, Vagrant ni configuración productiva. El entor
 - El acceso de Ansible será por SSH con clave. Se soportará conexión directa y bastion opcional mediante variables de inventory.
 - Los secretos se cifrarán con Ansible Vault. Inicialmente la contraseña de Vault estará fuera del repositorio, en `~/.config/medicina-laboral/ansible-vault-password`, con permisos `0600`.
 - El storage privado inicial recomendado será filesystem local fuera de `public/`, en `/var/lib/medicina-laboral/private`, enlazado/configurado como disco privado de Laravel cuando la aplicación implemente persistencia real.
-- Los backups se generarán inicialmente bajo `/var/backups/medicina-laboral`, con subdirectorios para PostgreSQL, archivos y manifiestos. Esa ruta local no reemplaza una copia externa.
+- Los backups se generarán bajo `/var/backups/medicina-laboral` en el servidor correspondiente, con subdirectorios para PostgreSQL, archivos y manifiestos. La primera versión no administrará copias externas.
 - El release se identificará por tag o commit de Git. En la primera etapa el código se obtendrá del remoto `origin` de GitHub mediante credencial SSH de solo lectura; una CI podrá producir artefactos inmutables más adelante.
 - Se adopta una política mínima de logs sin payloads completos ni secretos, con rotación local, y monitoreo inicial basado en checks de sistema más alertas configurables.
 - Para Vagrant se usará `medicina-laboral.test` como hostname local configurable, HTTPS con una CA local y ngrok como URL pública temporal del webhook.
@@ -29,7 +29,7 @@ Esta etapa no implementa Ansible, Vagrant ni configuración productiva. El entor
 - Las credenciales actuales de Meta se conservarán y se cargarán en el Vault cifrado, sin copiarlas en inventarios planos ni documentación.
 - La contraseña de Vault fue creada el 2026-08-05 en `/home/mgaray/.config/medicina-laboral/ansible-vault-password` con permisos `0600`; su contenido no se versiona.
 
-Estas decisiones permiten comenzar la estructura base y las pruebas locales. Dominio/TLS, destino externo de backups y canal de alertas pueden permanecer variables hasta sus etapas específicas.
+Estas decisiones permiten comenzar la estructura base y las pruebas locales. Dominio/TLS y canal de alertas pueden permanecer variables hasta sus etapas específicas.
 
 ### URLs diferenciadas
 
@@ -302,7 +302,7 @@ Para mantenerla simple:
 - Vagrant modelará una o dos VMs y llamará al mismo `site.yml`;
 - los roles usarán módulos estándar y handlers; no se creará una colección, plugin propio, framework de perfiles ni repositorio externo de roles en esta etapa;
 - el monitoreo inicial será `/up`, `medicina:doctor` y checks de servicios; no se instalará una plataforma de observabilidad;
-- Molecule, CI/CD, bastion activo, copia externa de backups y soporte de versiones alternativas quedan para milestones posteriores.
+- Molecule, CI/CD, bastion activo y soporte de versiones alternativas quedan para milestones posteriores. La copia externa de backups queda fuera del alcance actual.
 
 La primera versión debe ser fácil de ejecutar manualmente y fácil de leer. La extensibilidad se concentra en variables y archivos por versión dentro de cada rol, sin construir abstracciones antes de necesitarlas.
 
@@ -564,7 +564,7 @@ No instalar Supervisor ni workers: la cola actual es `sync` y no hay jobs operat
 | `storage/framework` | no como dato | directorios compartidos por permisos; caches/sesiones requieren decisión |
 | `bootstrap/cache` | regenerable | shared writable o por release según estrategia probada |
 | `public/storage` | solo si se usa | symlink controlado; nunca para certificados sensibles |
-| backups | sí, fuera del árbol web | permisos restrictivos, cifrado y copia externa |
+| backups | sí, fuera del árbol web | permisos restrictivos y retención local |
 | certificados TLS | sí | administrados por ACME/PKI fuera del release |
 
 Si sesiones/cache permanecen en archivos, un host único es compatible. Escalado horizontal requerirá backend compartido y no forma parte de la primera implementación.
@@ -603,8 +603,8 @@ Base inicial adoptada para poder implementar y ajustar después:
 - dump PostgreSQL diario en formato custom, más backup previo a migraciones de riesgo;
 - backup diario de storage privado cuando exista contenido real;
 - retención sugerida 7 diarios, 4 semanales y 6 mensuales, ajustada a política institucional y sensibilidad;
-- staging local en `/var/backups/medicina-laboral/{postgresql,files,manifests}` sobre el host DB para dumps y el host app para archivos;
-- copia externa posterior obligatoria hacia storage/host institucional todavía pendiente; mantener solo la copia local no protege ante pérdida del servidor;
+- almacenamiento local en `/var/backups/medicina-laboral/{postgresql,files,manifests}` sobre el host DB para dumps y el host app para archivos;
+- sin restic, S3, SFTP ni copia externa automatizada en la primera versión;
 - cuenta y directorio exclusivos, `0700/0600`, sin exposición web;
 - checks de tamaño, antigüedad, checksum y éxito; alerta por backup vencido;
 - restore documentado y ensayado periódicamente en entorno aislado;
@@ -612,15 +612,13 @@ Base inicial adoptada para poder implementar y ajustar después:
 
 Se adopta provisionalmente **RPO de 24 horas** —podrían perderse hasta 24 horas de datos— y **RTO de 4 horas** —objetivo para restaurar el servicio—, con retención de 7 backups diarios, 4 semanales y 6 mensuales. Deben ser confirmados por negocio antes de producción.
 
-Copiar archivos no equivale a tener recuperación. El criterio de aceptación será restaurar DB y storage en una VM limpia y completar health/doctor. La herramienta/destino externo y el responsable operativo siguen pendientes.
+Generar archivos no equivale a tener recuperación. El criterio de aceptación será restaurar DB y storage en una VM limpia y completar health/doctor. El responsable operativo sigue pendiente.
 
-### Destino externo recomendado
+### Destino adoptado para la primera versión
 
-La recomendación productiva es **restic sobre un storage S3-compatible institucional**, con bucket privado, credenciales exclusivas, cifrado propio de restic y política de retención. Es más resistente que copiar backups a otro directorio del mismo servidor y permite cambiar de proveedor sin cambiar el formato de backup.
+La primera versión conservará los backups únicamente en el servidor universitario, en la ruta indicada. Vagrant aplicará la misma estructura dentro de la VM. La automatización cubrirá generación, permisos, retención, verificación y restore, pero no transferencia a otro servidor.
 
-Si no existe object storage institucional, la segunda opción es un servidor de backups separado accesible por SFTP/SSH con usuario restringido. No se recomienda NFS público ni una carpeta del mismo host como única copia.
-
-Para Vagrant se simulará el destino externo con una carpeta del host fuera del disco de la VM, por ejemplo `deploy/.local/backups/`, ignorada por Git. Destruir y recrear la VM no debe borrar esa copia. Esto permite probar generación, retención y restore antes de disponer del destino productivo.
+Esta decisión acepta explícitamente que la pérdida total del servidor también puede destruir sus backups. Una segunda copia en otro servidor institucional podrá diseñarse más adelante como una capacidad independiente, sin incorporarla ni dejarla como requisito para iniciar esta versión.
 
 ## 16. Observabilidad y diagnóstico
 
@@ -742,7 +740,7 @@ Cada etapa será un milestone independiente, con actualización de `plan_dev/STA
 | Migraciones | deploy online / ventana | expand-contract; ventana para destructivas | disponibilidad/rollback | desarrollo/DBA | pendiente proceso |
 | Storage privado | disco local / object storage / institucional | filesystem privado local para MVP; S3-compatible al escalar | adjuntos y backup | seguridad/negocio | infraestructura inicial acordada; driver real pendiente |
 | Logs sensibles | filesystem / journal/colector | Laravel daily 14 días, nivel info, sin payload/PII; colector futuro | cumplimiento/diagnóstico | seguridad/negocio | política inicial definida; requiere cambio funcional LOG-001 |
-| Backup destino | local + S3/SFTP | staging local; restic + S3-compatible recomendado, SFTP como alternativa | recuperación | operación/seguridad | simulación Vagrant definida; proveedor real pendiente |
+| Backup destino | directorio local del servidor | `/var/backups/medicina-laboral`; sin copia externa en esta versión | recuperación | operación/seguridad | acordado para primera versión |
 | Retención/RPO/RTO | política institucional | 7 diarios/4 semanales/6 mensuales; RPO 24 h, RTO 4 h | costo y recuperación | negocio/operación | propuesta adoptada, confirmar con negocio |
 | Admin inicial | seeder local / alta segura | procedimiento manual/auditable, local admin off | acceso backoffice | seguridad/administración | pendiente diseñar |
 | Firma webhook | implementar / aceptar token GET | implementar validación de firma antes de producción | seguridad de entrada | desarrollo/seguridad | pendiente funcional fuera de Ansible |

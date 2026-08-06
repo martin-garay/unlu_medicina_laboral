@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-05 20:32 -03
+2026-08-05 20:52 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -74,7 +74,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-05 20:32 -03
+- 2026-08-05 20:52 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-05.md`
@@ -92,7 +92,7 @@ No debe reemplazar:
 
 ## Cambios realizados
 - archivos tocados: `deploy/docs/ansible-deployment-plan.md`, `plan_dev/daily/2026-08-05.md` y `plan_dev/STATUS.md`.
-- resumen técnico: se definieron URLs separadas, CA local, bootstrap SSH, Vault, backups externos y storage privado para el entorno inicial.
+- resumen técnico: se definieron URLs separadas, CA local, bootstrap SSH, Vault, backups locales y storage privado para el entorno inicial.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime modificado: no.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -108,7 +108,7 @@ No debe reemplazar:
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
-- definir más adelante dominio/TLS productivo, IP/host SSH real, proveedor S3/SFTP y canal de alertas.
+- definir más adelante dominio/TLS productivo, IP/host SSH real y canal de alertas.
 
 ---
 
@@ -121,7 +121,7 @@ No debe reemplazar:
 ## Decisiones humanas pendientes
 - informar dominio/DNS, PKI/ACME y proxy/WAF cuando estén disponibles.
 - informar IP/hostname, usuario/clave SSH y bastion si aplica antes de operar servidores reales.
-- elegir proveedor S3-compatible o SFTP y canal real de alertas.
+- elegir canal real de alertas; una segunda copia de backups en otro servidor institucional queda fuera del alcance actual.
 - confirmar con negocio retención, RPO/RTO y política inicial de logs sensibles.
 - implementar validación de firma de los POST del webhook antes de producción.
 - confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
