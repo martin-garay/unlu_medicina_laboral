@@ -4,11 +4,13 @@ Esta carpeta es la fuente de verdad para toda la documentación y el futuro cód
 
 ## Estado actual
 
-La etapa vigente es únicamente de relevamiento y planificación. Todavía no existen roles, playbooks, inventarios ejecutables ni configuración productiva.
+La implementación comenzó con la estructura mínima de Ansible y sus inventories de validación. Todavía no existen roles que aprovisionen servicios ni una configuración productiva ejecutable.
 
 ## Documentación
 
 - [`docs/ansible-deployment-plan.md`](docs/ansible-deployment-plan.md): relevamiento del repositorio, arquitectura objetivo y plan completo de implementación con Ansible.
+- [`docs/deployment-guide.md`](docs/deployment-guide.md): entrada operativa y flujo general de despliegue.
+- [`docs/production-deployment.md`](docs/production-deployment.md): controles y procedimiento previsto para producción.
 
 ## Estructura futura
 

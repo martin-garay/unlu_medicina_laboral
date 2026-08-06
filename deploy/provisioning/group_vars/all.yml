@@ -1,0 +1,21 @@
+---
+supported_operating_systems:
+  debian:
+    - "13"
+
+supported_web_servers:
+  apache:
+    - "2.4"
+
+supported_php_versions:
+  - "8.4"
+
+supported_postgresql_versions:
+  - "17"
+
+application_name: medicina-laboral
+application_root: /var/www/medicina-laboral
+private_storage_path: /var/lib/medicina-laboral/private
+backup_root: /var/backups/medicina-laboral
+
+ssh_bastion_enabled: false

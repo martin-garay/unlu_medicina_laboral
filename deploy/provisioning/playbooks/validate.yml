@@ -1,0 +1,39 @@
+---
+- name: Validate deployment selections
+  hosts: all
+  gather_facts: false
+  connection: local
+  run_once: true
+  become: false
+  vars_files:
+    - ../group_vars/all.yml
+  tasks:
+    - name: Validate operating system selection
+      ansible.builtin.assert:
+        that:
+          - operating_system_family in supported_operating_systems
+          - operating_system_version in supported_operating_systems[operating_system_family]
+        fail_msg: >-
+          Unsupported operating system selection:
+          {{ operating_system_family }} {{ operating_system_version }}.
+
+    - name: Validate web server selection
+      ansible.builtin.assert:
+        that:
+          - web_server in supported_web_servers
+          - web_server_version in supported_web_servers[web_server]
+        fail_msg: >-
+          Unsupported web server selection:
+          {{ web_server }} {{ web_server_version }}.
+
+    - name: Validate PHP selection
+      ansible.builtin.assert:
+        that:
+          - php_version in supported_php_versions
+        fail_msg: "Unsupported PHP version: {{ php_version }}."
+
+    - name: Validate PostgreSQL selection
+      ansible.builtin.assert:
+        that:
+          - postgresql_version in supported_postgresql_versions
+        fail_msg: "Unsupported PostgreSQL version: {{ postgresql_version }}."
