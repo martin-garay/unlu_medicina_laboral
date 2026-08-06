@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 05:55 -03
+2026-08-06 09:32 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `Deploy D1/M1 - documentación y estructura mínima de Ansible`.
-- Milestone actual: `M2 - Vagrant single/split`, bloqueado por el provider del host.
-- Próximo paso sugerido: instalar el paquete oficial VirtualBox 7.2.14 ya descargado y verificado; luego reanudar las VM.
+- Último bloque completado: `D2 - Vagrant single/split`.
+- Milestone actual: `M2 - rol common para Debian 13` pendiente.
+- Próximo paso sugerido: implementar y validar idempotencia del rol `common` sobre las VM split.
 
 ---
 
@@ -67,32 +67,32 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: existen guías, configuración base, inventories, validación de versiones y Vagrantfile single/split. El log confirmó incompatibilidad de VirtualBox 7.2.6 con el kernel 7.0 activo; el paquete oficial 7.2.14 quedó descargado y verificado fuera de Git, pendiente de instalación administrativa.
+- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Ansible conecta por claves generadas fuera de Git a las IP privadas de cada VM. La VM single quedó apagada y las dos VM split activas para continuar roles.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-06 05:45 -03
+- 2026-08-06 09:32 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M2 - Vagrant single/split`
+- `M1 - Reparar provider y completar D2`
 
 ### Resultado
-- `blocked`
+- `done`
 
 ### Resumen corto
-- se reconfirmó el bloqueo del provider y el intento no interactivo de ejecutar `/sbin/vboxconfig` falló porque `sudo` requiere contraseña.
+- se actualizaron VirtualBox y los inventories; las topologías single/split pasaron arranque, SSH, Debian, red y apagado.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `.gitignore`, `deploy/provisioning/Vagrantfile`, wrapper `bin/vagrant`, guía general, daily D1 y este status.
-- resumen técnico: Vagrant usa Debian 13 con IP/recursos coherentes con los inventories; soporta selección `single` o `split` mediante variable de entorno.
+- archivos tocados: inventories Vagrant single/split, daily actual y este status.
+- resumen técnico: los inventories usan las claves privadas generadas por Vagrant y opciones SSH limitadas al entorno local.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: checksum del Vagrant oficial, versión, `validate --ignore-provider` single/split y rechazo de topología inválida.
-- resultado: validación estática correcta; convergencia, SSH e idempotencia bloqueadas por `vboxdrv`. `ansible-lint` y `yamllint` siguen sin instalar.
+- checks: Vagrant up single/split, Debian 13.1, IP/hostname, sudo, Ansible ping y halt single.
+- resultado: D2 correcto. `ansible-lint` y `yamllint` siguen sin instalar.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,8 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- D2 bloqueado: VirtualBox 7.2.6 falla al compilar `vboxdrv` para `7.0.0-28-generic`; los headers existen y Secure Boot está desactivado.
-- se requiere instalar VirtualBox 7.2.14 con privilegios administrativos y volver a validar el módulo/provider.
+- ninguno para comenzar el rol `common`.
 
 ---
 
@@ -132,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- reanudar `M2`, ejecutar `vagrant up`, validar SSH en ambas topologías y recién entonces comenzar el rol `common`.
+- implementar `common` para Debian 13 y validar una segunda ejecución sin cambios.
 
 ---
 
