@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 15:44 -03
+2026-08-06 16:31 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M3 - PostgreSQL 17`.
-- Milestone actual: `M4 - Apache 2.4 y PHP 8.4` pendiente.
-- Próximo paso sugerido: implementar Apache/PHP-FPM en `app_servers`.
+- Último bloque completado: `M4 - Apache 2.4 y PHP 8.4`.
+- Milestone actual: `M5 - despliegue Laravel` pendiente.
+- Próximo paso sugerido: implementar releases y configuración Laravel.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-06 15:44 -03
+- 2026-08-06 16:31 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M3 - PostgreSQL 17`
+- `M4 - Apache 2.4 y PHP 8.4`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se instaló PostgreSQL 17 con Vault, acceso restringido y consulta validada en topologías split/single.
+- se instalaron Apache/PHP-FPM con FastCGI, VirtualHost temporal y respuesta HTTP validada en split/single.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: rol/playbook PostgreSQL, Vault cifrado, requirements, inventories, site, daily y status.
-- resumen técnico: cliente/servidor se separan por grupo; versión y plataforma viven dentro del rol PostgreSQL.
+- archivos tocados: roles/playbook Apache y PHP, variables comunes, site, daily y status.
+- resumen técnico: cada tecnología resuelve paquetes/configuración por versión dentro de su propio rol.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: syntax/check mode, conexión SQL split/single, listeners privados y pasadas idempotentes.
-- resultado: PostgreSQL idempotente con `changed=0`. `ansible-lint` y `yamllint` siguen sin instalar.
+- checks: syntax/check mode, PHP-FPM, `apachectl configtest`, HTTP FastCGI y pasadas idempotentes single/split.
+- resultado: runtime idempotente con `changed=0`. `ansible-lint` y `yamllint` siguen sin instalar.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar Apache/PHP.
+- ninguno para comenzar Laravel.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar roles Apache 2.4 y PHP 8.4 en `app_servers`.
+- implementar releases Laravel, `.env`, Composer, migraciones y `/up`.
 
 ---
 

@@ -1,0 +1,7 @@
+---
+php_memory_limit: 256M
+php_upload_max_filesize: 20M
+php_post_max_size: 24M
+php_max_execution_time: 60
+php_opcache_validate_timestamps: 0
+

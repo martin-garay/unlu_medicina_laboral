@@ -1,0 +1,27 @@
+---
+- name: Install PHP-FPM and Apache runtime
+  hosts: app_servers
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: php
+    - role: apache
+
+- name: Validate HTTP through Apache and PHP-FPM
+  hosts: app_servers
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Request temporary runtime probe
+      ansible.builtin.uri:
+        url: http://127.0.0.1/
+        headers:
+          Host: "{{ application_hostname }}"
+        return_content: true
+        status_code: 200
+      register: runtime_probe
+      failed_when: "'medicina-laboral-runtime-ok' not in runtime_probe.content"
+      when: not ansible_check_mode
+

@@ -1,0 +1,9 @@
+---
+- name: Load PHP platform variables
+  ansible.builtin.include_vars:
+    file: "versions/php-{{ php_version }}-{{ operating_system_family }}-{{ operating_system_version }}.yml"
+
+- name: Run PHP platform tasks
+  ansible.builtin.include_tasks:
+    file: "versions/php-{{ php_version }}-{{ operating_system_family }}-{{ operating_system_version }}.yml"
+

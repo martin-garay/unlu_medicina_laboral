@@ -1,0 +1,73 @@
+---
+- name: Install Apache packages
+  ansible.builtin.apt:
+    name: "{{ apache_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Disable prefork MPM
+  ansible.builtin.command: a2dismod mpm_prefork
+  register: apache_disable_prefork
+  changed_when: "'Module mpm_prefork disabled' in apache_disable_prefork.stdout"
+  failed_when:
+    - apache_disable_prefork.rc != 0
+    - "'Module mpm_prefork already disabled' not in apache_disable_prefork.stdout"
+  notify: Reload Apache
+
+- name: Enable Apache runtime modules
+  ansible.builtin.command: "a2enmod {{ item }}"
+  loop: "{{ apache_modules }}"
+  register: apache_enable_modules
+  changed_when: "'Enabling module' in apache_enable_modules.stdout"
+  notify: Reload Apache
+
+- name: Create temporary runtime document root
+  ansible.builtin.file:
+    path: "{{ apache_document_root }}"
+    state: directory
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    mode: "0755"
+
+- name: Install temporary PHP-FPM probe
+  ansible.builtin.copy:
+    content: "<?php echo \"medicina-laboral-runtime-ok\\n\";\n"
+    dest: "{{ apache_document_root }}/index.php"
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+    mode: "0644"
+
+- name: Configure Medicina Laboral VirtualHost
+  ansible.builtin.template:
+    src: versions/apache-2.4/medicina-laboral.conf.j2
+    dest: /etc/apache2/sites-available/medicina-laboral.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Apache
+
+- name: Disable default Apache site
+  ansible.builtin.command: a2dissite 000-default
+  register: apache_disable_default
+  changed_when: "'Site 000-default disabled' in apache_disable_default.stdout"
+  notify: Reload Apache
+
+- name: Enable Medicina Laboral site
+  ansible.builtin.command: a2ensite medicina-laboral
+  register: apache_enable_site
+  changed_when: "'Enabling site medicina-laboral' in apache_enable_site.stdout"
+  notify: Reload Apache
+
+- name: Validate Apache configuration
+  ansible.builtin.command: apachectl configtest
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Ensure Apache is enabled and running
+  ansible.builtin.service:
+    name: apache2
+    enabled: true
+    state: started
+  when: not ansible_check_mode
+

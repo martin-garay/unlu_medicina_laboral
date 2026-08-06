@@ -1,0 +1,27 @@
+<VirtualHost *:80>
+    ServerName {{ apache_server_name }}
+    DocumentRoot {{ apache_document_root }}
+
+    <Directory {{ apache_document_root }}>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+        DirectoryIndex index.php
+    </Directory>
+
+    <FilesMatch "\.php$">
+        SetHandler "proxy:unix:{{ apache_fpm_socket }}|fcgi://localhost/"
+    </FilesMatch>
+
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    ErrorLog {{ apache_error_log }}
+    CustomLog {{ apache_access_log }} combined
+</VirtualHost>
+

@@ -1,0 +1,9 @@
+---
+- name: Load Apache platform variables
+  ansible.builtin.include_vars:
+    file: "versions/apache-{{ web_server_version }}-{{ operating_system_family }}-{{ operating_system_version }}.yml"
+
+- name: Run Apache platform tasks
+  ansible.builtin.include_tasks:
+    file: "versions/apache-{{ web_server_version }}-{{ operating_system_family }}-{{ operating_system_version }}.yml"
+

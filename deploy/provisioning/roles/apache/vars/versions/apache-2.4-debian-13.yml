@@ -1,0 +1,12 @@
+---
+apache_packages:
+  - apache2
+
+apache_modules:
+  - mpm_event
+  - proxy
+  - proxy_fcgi
+  - setenvif
+  - rewrite
+  - headers
+

@@ -1,0 +1,7 @@
+---
+apache_server_name: "{{ application_hostname }}"
+apache_document_root: "{{ application_root }}/placeholder/public"
+apache_fpm_socket: "{{ php_fpm_socket }}"
+apache_access_log: /var/log/apache2/medicina-laboral-access.log
+apache_error_log: /var/log/apache2/medicina-laboral-error.log
+
