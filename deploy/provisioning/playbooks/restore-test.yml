@@ -1,0 +1,113 @@
+---
+- name: Verify PostgreSQL backup restoration
+  hosts: db_servers
+  gather_facts: false
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  vars:
+    restore_test_database: "{{ postgresql_database_name }}_restore_test"
+  tasks:
+    - name: Find PostgreSQL backup artifacts
+      ansible.builtin.find:
+        paths: "{{ backup_root }}/postgresql/daily"
+        patterns: "*.dump"
+        file_type: file
+      register: restore_database_backups
+
+    - name: Require a PostgreSQL backup
+      ansible.builtin.assert:
+        that: restore_database_backups.matched | int > 0
+
+    - name: Select latest PostgreSQL backup
+      ansible.builtin.set_fact:
+        restore_database_backup: "{{ (restore_database_backups.files | sort(attribute='mtime') | last).path }}"
+
+    - name: Verify PostgreSQL backup checksum
+      ansible.builtin.command:
+        argv: [sha256sum, --check, "{{ restore_database_backup }}.sha256"]
+        chdir: "{{ backup_root }}/postgresql/daily"
+      changed_when: false
+
+    - name: Recreate temporary restore database
+      community.postgresql.postgresql_db:
+        name: "{{ restore_test_database }}"
+        owner: "{{ postgresql_application_user }}"
+        state: absent
+        force: true
+      become_user: postgres
+
+    - name: Create temporary restore database
+      community.postgresql.postgresql_db:
+        name: "{{ restore_test_database }}"
+        owner: "{{ postgresql_application_user }}"
+        state: present
+      become_user: postgres
+
+    - name: Stage PostgreSQL backup for restore
+      ansible.builtin.copy:
+        src: "{{ restore_database_backup }}"
+        dest: /var/lib/postgresql/medicina-laboral-restore-test.dump
+        remote_src: true
+        owner: postgres
+        group: postgres
+        mode: "0600"
+
+    - name: Restore PostgreSQL backup into temporary database
+      ansible.builtin.command:
+        argv: [pg_restore, --exit-on-error, --no-owner, --dbname, "{{ restore_test_database }}", /var/lib/postgresql/medicina-laboral-restore-test.dump]
+      become_user: postgres
+      changed_when: true
+
+    - name: Verify restored migrations table
+      ansible.builtin.command:
+        argv: [psql, --dbname, "{{ restore_test_database }}", --tuples-only, --command, "SELECT count(*) FROM migrations"]
+      become_user: postgres
+      register: restore_migrations_count
+      changed_when: false
+      failed_when: restore_migrations_count.stdout | trim | int < 1
+
+    - name: Remove temporary restore database
+      community.postgresql.postgresql_db:
+        name: "{{ restore_test_database }}"
+        state: absent
+        force: true
+      become_user: postgres
+
+    - name: Remove staged PostgreSQL backup
+      ansible.builtin.file:
+        path: /var/lib/postgresql/medicina-laboral-restore-test.dump
+        state: absent
+
+- name: Verify persistent files backup
+  hosts: app_servers
+  gather_facts: false
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  tasks:
+    - name: Find persistent files backup artifacts
+      ansible.builtin.find:
+        paths: "{{ backup_root }}/files/daily"
+        patterns: "*.tar.gz"
+        file_type: file
+      register: restore_files_backups
+
+    - name: Require a persistent files backup
+      ansible.builtin.assert:
+        that: restore_files_backups.matched | int > 0
+
+    - name: Select latest persistent files backup
+      ansible.builtin.set_fact:
+        restore_files_backup: "{{ (restore_files_backups.files | sort(attribute='mtime') | last).path }}"
+
+    - name: Verify persistent files backup checksum
+      ansible.builtin.command:
+        argv: [sha256sum, --check, "{{ restore_files_backup }}.sha256"]
+        chdir: "{{ backup_root }}/files/daily"
+      changed_when: false
+
+    - name: Verify persistent files archive can be read
+      ansible.builtin.command:
+        argv: [tar, -tzf, "{{ restore_files_backup }}"]
+      changed_when: false

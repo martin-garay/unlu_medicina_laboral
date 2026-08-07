@@ -81,12 +81,16 @@ La primera versión almacenará los backups únicamente en el servidor universit
 
 ```text
 /var/backups/medicina-laboral/
-├── postgresql/
-├── files/
-└── manifests/
+├── postgresql/{daily,weekly,monthly}/
+└── files/{daily,weekly,monthly}/
 ```
 
 Se aplicarán permisos restrictivos, retención, checksums y pruebas de restore. No se implementarán restic, S3, SFTP ni transferencias a otro servidor en esta etapa. Esto implica que una pérdida total del servidor puede incluir sus backups.
+
+La retención inicial implementada es de 7 días diarios, 31 días semanales y 186
+días mensuales. Antes de producción debe ejecutarse `playbooks/restore-test.yml`;
+una restauración real se hará en ventana de mantenimiento y nunca directamente
+sobre la base activa sin preservar primero el estado existente.
 
 ## TLS y webhook
 

@@ -1,0 +1,22 @@
+---
+- name: Configure PostgreSQL backups
+  hosts: db_servers
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: backup
+      backup_postgresql_enabled: true
+      backup_files_enabled: false
+
+- name: Configure persistent file backups
+  hosts: app_servers
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: backup
+      backup_postgresql_enabled: false
+      backup_files_enabled: true

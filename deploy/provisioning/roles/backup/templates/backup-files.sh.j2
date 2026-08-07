@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+umask 077
+stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+root={{ backup_root | quote }}/files
+daily="$root/daily/storage-$stamp.tar.gz"
+tar -czf "$daily" -C / {{ backup_shared_storage_path | regex_replace('^/', '') | quote }} {{ backup_private_storage_path | regex_replace('^/', '') | quote }}
+sha256sum "$daily" > "$daily.sha256"
+if [ "$(date -u +%u)" = 7 ]; then cp -p "$daily" "$root/weekly/"; cp -p "$daily.sha256" "$root/weekly/"; fi
+if [ "$(date -u +%d)" = 01 ]; then cp -p "$daily" "$root/monthly/"; cp -p "$daily.sha256" "$root/monthly/"; fi
+find "$root/daily" -type f -mtime +{{ backup_daily_retention_days }} -delete
+find "$root/weekly" -type f -mtime +{{ backup_weekly_retention_days }} -delete
+find "$root/monthly" -type f -mtime +{{ backup_monthly_retention_days }} -delete

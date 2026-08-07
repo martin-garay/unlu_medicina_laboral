@@ -1,0 +1,9 @@
+---
+backup_postgresql_enabled: false
+backup_files_enabled: false
+backup_run_now: false
+backup_scripts_directory: /usr/local/sbin
+backup_postgresql_script: "{{ backup_scripts_directory }}/medicina-laboral-backup-postgresql"
+backup_files_script: "{{ backup_scripts_directory }}/medicina-laboral-backup-files"
+backup_shared_storage_path: "{{ application_root }}/shared/storage"
+backup_private_storage_path: "{{ private_storage_path }}"

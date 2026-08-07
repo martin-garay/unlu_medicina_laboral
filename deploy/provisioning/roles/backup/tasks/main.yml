@@ -1,0 +1,59 @@
+---
+- name: Create restricted backup directories
+  ansible.builtin.file:
+    path: "{{ backup_root }}/{{ item.0 }}/{{ item.1 }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop: "{{ (['postgresql'] if backup_postgresql_enabled else ['files']) | product(['daily', 'weekly', 'monthly']) | list }}"
+
+- name: Install PostgreSQL backup script
+  ansible.builtin.template:
+    src: backup-postgresql.sh.j2
+    dest: "{{ backup_postgresql_script }}"
+    owner: root
+    group: root
+    mode: "0700"
+  when: backup_postgresql_enabled
+
+- name: Install persistent files backup script
+  ansible.builtin.template:
+    src: backup-files.sh.j2
+    dest: "{{ backup_files_script }}"
+    owner: root
+    group: root
+    mode: "0700"
+  when: backup_files_enabled
+
+- name: Schedule PostgreSQL backup
+  ansible.builtin.cron:
+    name: medicina-laboral-postgresql-backup
+    user: root
+    hour: "{{ backup_schedule_hour }}"
+    minute: "{{ backup_schedule_minute }}"
+    job: "{{ backup_postgresql_script }}"
+    cron_file: medicina-laboral-backup-postgresql
+  when: backup_postgresql_enabled
+
+- name: Schedule persistent files backup
+  ansible.builtin.cron:
+    name: medicina-laboral-files-backup
+    user: root
+    hour: "{{ backup_schedule_hour }}"
+    minute: "{{ (backup_schedule_minute | int + 15) % 60 }}"
+    job: "{{ backup_files_script }}"
+    cron_file: medicina-laboral-backup-files
+  when: backup_files_enabled
+
+- name: Run PostgreSQL backup now
+  ansible.builtin.command: "{{ backup_postgresql_script }}"
+  when:
+    - backup_postgresql_enabled
+    - backup_run_now | bool
+
+- name: Run persistent files backup now
+  ansible.builtin.command: "{{ backup_files_script }}"
+  when:
+    - backup_files_enabled
+    - backup_run_now | bool

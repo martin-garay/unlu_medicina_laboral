@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 20:48 -03
+2026-08-07 07:15 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M7 - TLS local y HTTPS`.
-- Milestone actual: `M8 - backups y restore` pendiente.
-- Próximo paso sugerido: implementar dumps PostgreSQL y archivos persistentes con retención local y prueba de restauración.
+- Último bloque completado: `M8 - backups y restore`.
+- Milestone actual: `M9 - firewall y hardening` pendiente.
+- Próximo paso sugerido: restringir puertos por grupo sin perder acceso SSH.
 
 ---
 
@@ -80,13 +80,13 @@ No debe reemplazar:
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M7 - TLS local y HTTPS`
+- `M8 - backups y restore`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se implementó HTTPS confiable con CA local, redirect y proveedor de certificados institucionales.
+- se implementaron backups locales con retención y una restauración comprobada en base temporal.
 
 ---
 
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar backups locales.
+- ninguno para comenzar firewall y hardening.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar backup y restore verificable de PostgreSQL y archivos persistentes.
+- implementar firewall por grupos, logrotate y verificaciones de seguridad.
 
 ---
 

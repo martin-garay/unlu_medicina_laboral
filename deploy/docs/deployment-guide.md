@@ -98,4 +98,20 @@ El playbook `validate.yml` comprueba que cada tecnología y versión haya sido d
 7. configurar scheduler, TLS, backups y verificaciones;
 8. repetir el playbook para comprobar idempotencia.
 
-Los pasos 2 a 8 se incorporarán progresivamente. La presencia de esta guía no implica todavía que estén implementados.
+Los pasos 2 a 8 ya están implementados para Vagrant. Para converger todo el entorno:
+
+```bash
+ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml
+ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml
+```
+
+Para generar backups inmediatos y ensayar una restauración no destructiva:
+
+```bash
+ansible-playbook -i inventories/vagrant/split/hosts.yml playbooks/backup.yml -e backup_run_now=true
+ansible-playbook -i inventories/vagrant/split/hosts.yml playbooks/restore-test.yml
+```
+
+`restore-test.yml` restaura PostgreSQL en `medicina_laboral_restore_test`, verifica
+la tabla de migraciones y elimina esa base temporal. Para archivos comprueba el
+checksum y que el archivo tar pueda leerse; no sobrescribe storage activo.
