@@ -22,6 +22,13 @@
   changed_when: "'Enabling module' in apache_enable_modules.stdout"
   notify: Reload Apache
 
+- name: Enable Apache TLS module
+  ansible.builtin.command: a2enmod ssl
+  register: apache_enable_ssl
+  changed_when: "'Enabling module ssl' in apache_enable_ssl.stdout"
+  notify: Reload Apache
+  when: apache_tls_enabled
+
 - name: Create temporary runtime document root
   ansible.builtin.file:
     path: "{{ apache_document_root }}"

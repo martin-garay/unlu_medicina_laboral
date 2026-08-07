@@ -5,3 +5,6 @@ apache_fpm_socket: "{{ php_fpm_socket }}"
 apache_install_runtime_probe: true
 apache_access_log: /var/log/apache2/medicina-laboral-access.log
 apache_error_log: /var/log/apache2/medicina-laboral-error.log
+apache_tls_enabled: "{{ tls_enabled | default(false) }}"
+apache_tls_certificate_path: "{{ tls_certificate_path }}"
+apache_tls_private_key_path: "{{ tls_private_key_path }}"

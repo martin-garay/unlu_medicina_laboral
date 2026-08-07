@@ -1,0 +1,36 @@
+---
+- name: Configure TLS and validate HTTPS
+  hosts: app_servers
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: tls
+      when: tls_enabled
+    - role: apache
+      apache_document_root: "{{ application_document_root }}"
+      apache_install_runtime_probe: false
+  post_tasks:
+    - name: Validate HTTP to HTTPS redirect
+      ansible.builtin.uri:
+        url: "http://127.0.0.1/up"
+        headers:
+          Host: "{{ application_hostname }}"
+        status_code: 301
+        follow_redirects: none
+        use_proxy: false
+      when:
+        - tls_enabled
+        - not ansible_check_mode
+
+    - name: Validate trusted Laravel HTTPS endpoint
+      ansible.builtin.uri:
+        url: "https://{{ application_hostname }}/up"
+        status_code: 200
+        validate_certs: true
+        use_proxy: false
+        ca_path: "{{ tls_ca_certificate_path if tls_provider == 'local_ca' else omit }}"
+      when:
+        - tls_enabled
+        - not ansible_check_mode

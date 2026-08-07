@@ -1,5 +1,15 @@
 <VirtualHost *:80>
     ServerName {{ apache_server_name }}
+{% if apache_tls_enabled %}
+    Redirect permanent / https://{{ apache_server_name }}/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName {{ apache_server_name }}
+    SSLEngine on
+    SSLCertificateFile {{ apache_tls_certificate_path }}
+    SSLCertificateKeyFile {{ apache_tls_private_key_path }}
+{% endif %}
     DocumentRoot {{ apache_document_root }}
 
     <Directory {{ apache_document_root }}>
@@ -21,6 +31,9 @@
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
+{% if apache_tls_enabled %}
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+{% endif %}
 
     ErrorLog {{ apache_error_log }}
     CustomLog {{ apache_access_log }} combined

@@ -2,7 +2,7 @@
 
 ## Estado
 
-Este documento define el procedimiento y los controles requeridos para producción. Todavía no autoriza un despliegue productivo: los roles deben implementarse y probarse primero con Vagrant en topología de una y dos máquinas.
+Este documento define el procedimiento y los controles requeridos para producción. La base ya se prueba con Vagrant en topologías de una y dos máquinas; la autorización productiva sigue condicionada a los controles finales y datos institucionales enumerados aquí.
 
 ## Datos que deberá proporcionar la Universidad
 
@@ -111,4 +111,3 @@ Ngrok sirve únicamente para desarrollo/Vagrant. Antes de producción se deben v
 - riesgos de storage privado, logs sensibles y firma del webhook resueltos.
 
 Si alguno de estos controles falla, el despliegue productivo debe detenerse.
-

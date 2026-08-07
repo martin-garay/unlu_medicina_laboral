@@ -1,0 +1,109 @@
+---
+- name: Validate TLS provider
+  ansible.builtin.assert:
+    that:
+      - tls_provider in ['local_ca', 'provided']
+
+- name: Create local TLS material directory
+  ansible.builtin.file:
+    path: "{{ tls_local_directory }}"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: tls_provider == 'local_ca'
+
+- name: Generate local CA private key
+  ansible.builtin.command:
+    argv: [openssl, genrsa, -out, "{{ tls_local_ca_key }}", "4096"]
+    creates: "{{ tls_local_ca_key }}"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: tls_provider == 'local_ca'
+
+- name: Generate local CA certificate
+  ansible.builtin.command:
+    argv: [openssl, req, -x509, -new, -key, "{{ tls_local_ca_key }}", -sha256, -days, "3650", -subj, /CN=Medicina-Laboral-Vagrant-CA-v2, -addext, "basicConstraints=critical,CA:TRUE", -addext, "keyUsage=critical,keyCertSign,cRLSign", -addext, "subjectKeyIdentifier=hash", -out, "{{ tls_local_ca_certificate }}"]
+    creates: "{{ tls_local_ca_certificate }}"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: tls_provider == 'local_ca'
+
+- name: Generate server private key
+  ansible.builtin.command:
+    argv: [openssl, genrsa, -out, "{{ tls_local_server_key }}", "2048"]
+    creates: "{{ tls_local_server_key }}"
+  delegate_to: localhost
+  become: false
+  when: tls_provider == 'local_ca'
+
+- name: Generate server CSR
+  ansible.builtin.command:
+    argv: [openssl, req, -new, -key, "{{ tls_local_server_key }}", -subj, "/CN={{ application_hostname }}", -addext, "subjectAltName=DNS:{{ application_hostname }}", -addext, "basicConstraints=critical,CA:FALSE", -addext, "keyUsage=critical,digitalSignature,keyEncipherment", -addext, "extendedKeyUsage=serverAuth", -out, "{{ tls_local_server_csr }}"]
+    creates: "{{ tls_local_server_csr }}"
+  delegate_to: localhost
+  become: false
+  when: tls_provider == 'local_ca'
+
+- name: Sign server certificate with local CA
+  ansible.builtin.command:
+    argv: [openssl, x509, -req, -in, "{{ tls_local_server_csr }}", -CA, "{{ tls_local_ca_certificate }}", -CAkey, "{{ tls_local_ca_key }}", -CAcreateserial, -days, "825", -sha256, -copy_extensions, copy, -out, "{{ tls_local_server_certificate }}"]
+    creates: "{{ tls_local_server_certificate }}"
+  delegate_to: localhost
+  become: false
+  when: tls_provider == 'local_ca'
+
+- name: Install TLS private key
+  ansible.builtin.copy:
+    src: "{{ tls_local_server_key }}"
+    dest: "{{ tls_private_key_path }}"
+    owner: root
+    group: root
+    mode: "0600"
+  when: tls_provider == 'local_ca'
+  no_log: true
+  notify: Reload Apache after TLS change
+
+- name: Install TLS certificate
+  ansible.builtin.copy:
+    src: "{{ tls_local_server_certificate }}"
+    dest: "{{ tls_certificate_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  when: tls_provider == 'local_ca'
+  notify: Reload Apache after TLS change
+
+- name: Install local CA trust
+  ansible.builtin.copy:
+    src: "{{ tls_local_ca_certificate }}"
+    dest: "{{ tls_ca_certificate_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Update CA certificates
+  when: tls_provider == 'local_ca'
+
+- name: Resolve local TLS hostname inside Vagrant host
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^127\\.0\\.0\\.1\\s+{{ application_hostname | regex_escape }}$"
+    line: "127.0.0.1 {{ application_hostname }}"
+    state: present
+  when: tls_provider == 'local_ca'
+
+- name: Apply local CA trust before HTTPS checks
+  ansible.builtin.meta: flush_handlers
+
+- name: Validate provided certificate files
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ tls_certificate_path }}"
+    - "{{ tls_private_key_path }}"
+  register: tls_provided_files
+  failed_when: not tls_provided_files.stat.exists
+  when: tls_provider == 'provided'

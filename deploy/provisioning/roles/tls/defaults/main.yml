@@ -1,0 +1,9 @@
+---
+tls_enabled: false
+tls_provider: provided
+tls_local_directory: "{{ playbook_dir }}/../.local/tls"
+tls_local_ca_key: "{{ tls_local_directory }}/ca-v2.key"
+tls_local_ca_certificate: "{{ tls_local_directory }}/ca-v2.crt"
+tls_local_server_key: "{{ tls_local_directory }}/{{ application_hostname }}-v2.key"
+tls_local_server_csr: "{{ tls_local_directory }}/{{ application_hostname }}-v2.csr"
+tls_local_server_certificate: "{{ tls_local_directory }}/{{ application_hostname }}-v2.crt"

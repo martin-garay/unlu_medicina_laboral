@@ -22,6 +22,10 @@ application_document_root: "{{ application_root }}/current/public"
 private_storage_path: /var/lib/medicina-laboral/private
 backup_root: /var/backups/medicina-laboral
 
+tls_certificate_path: /etc/ssl/certs/medicina-laboral.crt
+tls_private_key_path: /etc/ssl/private/medicina-laboral.key
+tls_ca_certificate_path: /usr/local/share/ca-certificates/medicina-laboral-local-ca.crt
+
 deploy_user_name: deploy
 deploy_user_group: deploy
 

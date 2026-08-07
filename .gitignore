@@ -18,4 +18,5 @@ storage/*
 .docker
 /deploy/.tools/
 /deploy/.local/
+/deploy/provisioning/.local/
 /deploy/provisioning/.vagrant/

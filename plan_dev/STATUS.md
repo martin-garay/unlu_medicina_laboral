@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-06 20:30 -03
+2026-08-06 20:48 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M6 - scheduler Laravel`.
-- Milestone actual: `M7 - TLS local y HTTPS` pendiente.
-- Próximo paso sugerido: implementar CA local para Vagrant y una interfaz de certificado configurable para producción.
+- Último bloque completado: `M7 - TLS local y HTTPS`.
+- Milestone actual: `M8 - backups y restore` pendiente.
+- Próximo paso sugerido: implementar dumps PostgreSQL y archivos persistentes con retención local y prueba de restauración.
 
 ---
 
@@ -80,13 +80,13 @@ No debe reemplazar:
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M6 - scheduler Laravel`
+- `M7 - TLS local y HTTPS`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se instaló el cron Laravel idempotente y se corrigió el registro del calendario para Laravel 11.
+- se implementó HTTPS confiable con CA local, redirect y proveedor de certificados institucionales.
 
 ---
 
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar TLS local.
+- ninguno para comenzar backups locales.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar HTTPS Vagrant con CA local y preparar proveedores de certificados productivos.
+- implementar backup y restore verificable de PostgreSQL y archivos persistentes.
 
 ---
 

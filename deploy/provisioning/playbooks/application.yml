@@ -33,5 +33,5 @@
         url: http://127.0.0.1/up
         headers:
           Host: "{{ application_hostname }}"
-        status_code: 200
+        status_code: "{{ [200, 301] if (tls_enabled | default(false)) else 200 }}"
       when: not ansible_check_mode
