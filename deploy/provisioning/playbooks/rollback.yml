@@ -1,0 +1,100 @@
+---
+- name: Roll back Laravel code to an existing release
+  hosts: app_servers
+  serial: 1
+  gather_facts: false
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  vars:
+    rollback_target_path: "{{ application_root }}/releases/{{ rollback_release_id | mandatory }}"
+  pre_tasks:
+    - name: Inspect rollback target
+      ansible.builtin.stat:
+        path: "{{ rollback_target_path }}"
+      register: rollback_target
+
+    - name: Require an existing rollback release
+      ansible.builtin.assert:
+        that:
+          - rollback_target.stat.isdir | default(false)
+        fail_msg: "Release {{ rollback_release_id }} does not exist on {{ inventory_hostname }}."
+
+    - name: Read active release
+      ansible.builtin.command:
+        argv: [readlink, -f, "{{ application_root }}/current"]
+      register: rollback_previous_release
+      changed_when: false
+
+    - name: Require a different active release
+      ansible.builtin.assert:
+        that:
+          - rollback_previous_release.stdout != rollback_target_path
+        fail_msg: "Release {{ rollback_release_id }} is already active."
+
+  tasks:
+    - name: Activate and validate rollback target
+      block:
+        - name: Switch current symlink to rollback target
+          ansible.builtin.file:
+            src: "{{ rollback_target_path }}"
+            dest: "{{ application_root }}/current"
+            state: link
+            force: true
+            owner: "{{ deploy_user_name }}"
+            group: www-data
+
+        - name: Rebuild Laravel caches after rollback
+          ansible.builtin.command:
+            argv: [php, artisan, optimize]
+            chdir: "{{ application_root }}/current"
+          become_user: "{{ deploy_user_name }}"
+          changed_when: false
+
+        - name: Reload PHP-FPM after rollback
+          ansible.builtin.service:
+            name: "php{{ php_version }}-fpm"
+            state: reloaded
+
+        - name: Validate rollback health endpoint
+          ansible.builtin.uri:
+            url: "{{ application_url }}/up"
+            status_code: 200
+            validate_certs: "{{ tls_enabled | default(false) }}"
+            ca_path: "{{ tls_ca_certificate_path if (tls_provider | default('provided')) == 'local_ca' else omit }}"
+            use_proxy: false
+
+      rescue:
+        - name: Restore previous release symlink
+          ansible.builtin.file:
+            src: "{{ rollback_previous_release.stdout }}"
+            dest: "{{ application_root }}/current"
+            state: link
+            force: true
+            owner: "{{ deploy_user_name }}"
+            group: www-data
+
+        - name: Reload PHP-FPM after failed rollback
+          ansible.builtin.service:
+            name: "php{{ php_version }}-fpm"
+            state: reloaded
+
+        - name: Verify service recovered on previous release
+          ansible.builtin.uri:
+            url: "{{ application_url }}/up"
+            status_code: 200
+            validate_certs: "{{ tls_enabled | default(false) }}"
+            ca_path: "{{ tls_ca_certificate_path if (tls_provider | default('provided')) == 'local_ca' else omit }}"
+            use_proxy: false
+
+        - name: Report failed rollback
+          ansible.builtin.fail:
+            msg: "Rollback target failed health checks; previous release was restored. Database was not changed."
+
+  post_tasks:
+    - name: Confirm active rollback release
+      ansible.builtin.command:
+        argv: [readlink, -f, "{{ application_root }}/current"]
+      register: rollback_active_release
+      changed_when: false
+      failed_when: rollback_active_release.stdout != rollback_target_path

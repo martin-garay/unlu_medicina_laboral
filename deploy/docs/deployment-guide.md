@@ -119,3 +119,15 @@ checksum y que el archivo tar pueda leerse; no sobrescribe storage activo.
 
 `monitoring.yml` falla si falta un servicio, la política nftables, capacidad de
 disco, configuración Laravel/WhatsApp, scheduler, vigencia TLS o un backup reciente.
+
+Para volver a una release ya instalada:
+
+```bash
+ansible-playbook -i inventories/production/hosts.yml playbooks/rollback.yml \
+  -e rollback_release_id=<release-anterior>
+```
+
+El playbook exige que la release exista y sea distinta de `current`, cambia el
+symlink, reconstruye caches, recarga PHP-FPM y valida HTTPS. Si cualquier paso
+falla, restaura el symlink anterior y verifica la recuperación. No revierte ni
+modifica migraciones de base de datos.

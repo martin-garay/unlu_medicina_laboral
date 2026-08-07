@@ -73,6 +73,17 @@ Los nombres son ilustrativos. Hasta disponer de hosts reales, la validación se 
 12. validar HTTPS, `/up`, conexión DB, scheduler y logs;
 13. conservar el release anterior para rollback.
 
+El rollback se ejecuta indicando un identificador existente:
+
+```bash
+ansible-playbook -i inventories/production/hosts.yml playbooks/rollback.yml \
+  -e rollback_release_id=<release-anterior>
+```
+
+Sólo revierte código/configuración compartida compatible. Nunca ejecuta
+`migrate:rollback`. Si hubo una migración destructiva, detenerse y seguir el
+runbook específico preparado para esa migración y su backup previo.
+
 Los comandos ejecutables se agregarán cuando existan los playbooks respectivos.
 
 ## Backups
