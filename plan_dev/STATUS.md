@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-07 07:30 -03
+2026-08-07 08:05 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M9 - firewall y hardening`.
-- Milestone actual: `M10 - observabilidad y diagnóstico` pendiente.
-- Próximo paso sugerido: consolidar checks de servicios, disco, TLS, scheduler y backups.
+- Último bloque completado: `M10 - observabilidad y diagnóstico`.
+- Milestone actual: `M11 - rollback de releases` pendiente.
+- Próximo paso sugerido: implementar rollback de código con health check y límites explícitos para migraciones.
 
 ---
 
@@ -80,13 +80,13 @@ No debe reemplazar:
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M9 - firewall y hardening`
+- `M10 - observabilidad y diagnóstico`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se activó nftables y hardening SSH preservando conectividad, base y HTTPS.
+- se consolidaron checks operativos y se corrigió configuración WhatsApp bajo cache de Laravel.
 
 ---
 
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar observabilidad.
+- ninguno para comenzar rollback.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar checks consolidados de servicios, disco, TLS, scheduler y backups.
+- implementar rollback de symlink y health check sin rollback automático de base.
 
 ---
 

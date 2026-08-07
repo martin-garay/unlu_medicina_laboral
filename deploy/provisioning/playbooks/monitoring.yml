@@ -1,0 +1,9 @@
+---
+- name: Validate operational health
+  hosts: all
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: monitoring

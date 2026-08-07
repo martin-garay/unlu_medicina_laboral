@@ -110,8 +110,12 @@ Para generar backups inmediatos y ensayar una restauración no destructiva:
 ```bash
 ansible-playbook -i inventories/vagrant/split/hosts.yml playbooks/backup.yml -e backup_run_now=true
 ansible-playbook -i inventories/vagrant/split/hosts.yml playbooks/restore-test.yml
+ansible-playbook -i inventories/vagrant/split/hosts.yml playbooks/monitoring.yml
 ```
 
 `restore-test.yml` restaura PostgreSQL en `medicina_laboral_restore_test`, verifica
 la tabla de migraciones y elimina esa base temporal. Para archivos comprueba el
 checksum y que el archivo tar pueda leerse; no sobrescribe storage activo.
+
+`monitoring.yml` falla si falta un servicio, la política nftables, capacidad de
+disco, configuración Laravel/WhatsApp, scheduler, vigencia TLS o un backup reciente.

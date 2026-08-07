@@ -1,0 +1,88 @@
+---
+- name: Collect service state
+  ansible.builtin.service_facts:
+
+- name: Require base operational services
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.services['cron.service'].state == 'running'
+      - ansible_facts.services['nftables.service'].status == 'enabled'
+
+- name: Verify effective firewall policy
+  ansible.builtin.command: nft list ruleset
+  register: monitoring_firewall
+  changed_when: false
+  failed_when: "'policy drop' not in monitoring_firewall.stdout"
+
+- name: Require application services
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.services['apache2.service'].state == 'running'
+      - ansible_facts.services['php' ~ php_version ~ '-fpm.service'].state == 'running'
+  when: inventory_hostname in groups['app_servers']
+
+- name: Require PostgreSQL readiness
+  ansible.builtin.command: pg_isready --dbname "{{ postgresql_database_name }}"
+  changed_when: false
+  when: inventory_hostname in groups['db_servers']
+
+- name: Read root filesystem usage
+  ansible.builtin.command: df --output=pcent /
+  register: monitoring_disk_usage
+  changed_when: false
+
+- name: Require available disk capacity
+  ansible.builtin.assert:
+    that: "monitoring_disk_usage.stdout_lines[-1] | regex_replace('[^0-9]', '') | int < monitoring_disk_warning_percent"
+
+- name: Verify Laravel operational doctor
+  ansible.builtin.command:
+    argv: [php, artisan, medicina:doctor]
+    chdir: "{{ application_root }}/current"
+  become_user: "{{ deploy_user_name }}"
+  changed_when: false
+  when: inventory_hostname in groups['app_servers']
+
+- name: Verify Laravel scheduler registration
+  ansible.builtin.command:
+    argv: [php, artisan, schedule:list]
+    chdir: "{{ application_root }}/current"
+  become_user: "{{ deploy_user_name }}"
+  register: monitoring_schedule
+  changed_when: false
+  failed_when: "'conversations:process-timeouts' not in monitoring_schedule.stdout"
+  when: inventory_hostname in groups['app_servers']
+
+- name: Verify TLS certificate validity window
+  ansible.builtin.command:
+    argv: [openssl, x509, -checkend, "{{ monitoring_tls_warning_seconds }}", -noout, -in, "{{ tls_certificate_path }}"]
+  changed_when: false
+  when:
+    - inventory_hostname in groups['app_servers']
+    - tls_enabled | default(false)
+
+- name: Find recent PostgreSQL backup
+  ansible.builtin.find:
+    paths: "{{ backup_root }}/postgresql/daily"
+    patterns: "*.dump"
+    age: "-{{ monitoring_backup_max_age_seconds }}s"
+  register: monitoring_database_backups
+  when: inventory_hostname in groups['db_servers']
+
+- name: Require recent PostgreSQL backup
+  ansible.builtin.assert:
+    that: monitoring_database_backups.matched | int > 0
+  when: inventory_hostname in groups['db_servers']
+
+- name: Find recent persistent files backup
+  ansible.builtin.find:
+    paths: "{{ backup_root }}/files/daily"
+    patterns: "*.tar.gz"
+    age: "-{{ monitoring_backup_max_age_seconds }}s"
+  register: monitoring_files_backups
+  when: inventory_hostname in groups['app_servers']
+
+- name: Require recent persistent files backup
+  ansible.builtin.assert:
+    that: monitoring_files_backups.matched | int > 0
+  when: inventory_hostname in groups['app_servers']

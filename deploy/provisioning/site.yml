@@ -8,3 +8,4 @@
 - import_playbook: playbooks/tls.yml
 - import_playbook: playbooks/backup.yml
 - import_playbook: playbooks/security.yml
+- import_playbook: playbooks/monitoring.yml
