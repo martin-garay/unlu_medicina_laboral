@@ -83,9 +83,9 @@ class OperationalDoctor extends Command
 
     private function checkWhatsAppConfig(): array
     {
-        $verifyToken = (string) env('WHATSAPP_VERIFY_TOKEN', '');
-        $token = (string) env('WHATSAPP_TOKEN', '');
-        $phoneId = (string) env('WHATSAPP_PHONE_ID', '');
+        $verifyToken = (string) config('medicina_laboral.whatsapp.verify_token', '');
+        $token = (string) config('medicina_laboral.whatsapp.token', '');
+        $phoneId = (string) config('medicina_laboral.whatsapp.phone_id', '');
 
         if ($verifyToken === '') {
             return $this->errorCheck('whatsapp', 'WHATSAPP_VERIFY_TOKEN no está configurado.');

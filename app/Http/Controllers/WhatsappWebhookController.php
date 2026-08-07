@@ -31,7 +31,7 @@ class WhatsappWebhookController extends Controller
         $verifyToken = $request->query('hub_verify_token');
         $challenge = $request->query('hub_challenge');
 
-        if ($mode && $verifyToken && $mode === 'subscribe' && $verifyToken === env('WHATSAPP_VERIFY_TOKEN')) {
+        if ($mode && $verifyToken && $mode === 'subscribe' && $verifyToken === config('medicina_laboral.whatsapp.verify_token')) {
             return response($challenge, 200);
         }
 

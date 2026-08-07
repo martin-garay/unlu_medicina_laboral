@@ -53,8 +53,8 @@ class WhatsAppSender
 
     private function dispatch(array $payload, string $toRaw, string $context): void
     {
-        $token = $this->token ?? env('WHATSAPP_TOKEN');
-        $phoneId = $this->phoneId ?? env('WHATSAPP_PHONE_ID');
+        $token = $this->token ?? config('medicina_laboral.whatsapp.token');
+        $phoneId = $this->phoneId ?? config('medicina_laboral.whatsapp.phone_id');
 
         if (!$token || !$phoneId) {
             Log::warning('Faltan credenciales de WhatsApp Cloud API.');

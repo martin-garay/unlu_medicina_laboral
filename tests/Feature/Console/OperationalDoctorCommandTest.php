@@ -8,16 +8,9 @@ class OperationalDoctorCommandTest extends TestCase
 {
     protected function setWhatsAppEnv(string $verifyToken, string $token, string $phoneId): void
     {
-        putenv("WHATSAPP_VERIFY_TOKEN={$verifyToken}");
-        putenv("WHATSAPP_TOKEN={$token}");
-        putenv("WHATSAPP_PHONE_ID={$phoneId}");
-
-        $_ENV['WHATSAPP_VERIFY_TOKEN'] = $verifyToken;
-        $_ENV['WHATSAPP_TOKEN'] = $token;
-        $_ENV['WHATSAPP_PHONE_ID'] = $phoneId;
-        $_SERVER['WHATSAPP_VERIFY_TOKEN'] = $verifyToken;
-        $_SERVER['WHATSAPP_TOKEN'] = $token;
-        $_SERVER['WHATSAPP_PHONE_ID'] = $phoneId;
+        config()->set('medicina_laboral.whatsapp.verify_token', $verifyToken);
+        config()->set('medicina_laboral.whatsapp.token', $token);
+        config()->set('medicina_laboral.whatsapp.phone_id', $phoneId);
     }
 
     public function test_doctor_reports_ok_with_warnings_when_optional_whatsapp_credentials_are_missing(): void

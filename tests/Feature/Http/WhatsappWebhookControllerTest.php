@@ -43,4 +43,13 @@ class WhatsappWebhookControllerTest extends TestCase
         $this->assertDatabaseCount('conversaciones', 0);
         $this->assertDatabaseCount('conversacion_mensajes', 0);
     }
+
+    public function test_webhook_verification_uses_cached_configuration(): void
+    {
+        config()->set('medicina_laboral.whatsapp.verify_token', 'verify-from-config');
+
+        $this->get('/api/whatsapp/webhook?hub_mode=subscribe&hub_verify_token=verify-from-config&hub_challenge=12345')
+            ->assertOk()
+            ->assertSeeText('12345');
+    }
 }
