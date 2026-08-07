@@ -102,6 +102,16 @@ https://<dominio>/api/whatsapp/webhook
 
 Ngrok sirve únicamente para desarrollo/Vagrant. Antes de producción se deben validar certificado, renovación, redirección HTTP a HTTPS, firewall, firma de los POST de Meta y ausencia de secretos o payloads sensibles en logs.
 
+## Firewall y acceso SSH
+
+Antes de ejecutar `playbooks/security.yml` deben declararse explícitamente
+`ssh_allowed_networks`, `web_allowed_networks` y `postgresql_allowed_networks`.
+nftables aplica política de entrada `drop`: SSH sólo desde administración,
+HTTP/HTTPS sólo desde redes públicas o proxy institucional y PostgreSQL sólo desde
+los hosts de aplicación. El rol rechaza inventarios sin una red SSH para evitar
+bloqueos accidentales. Se deshabilitan root, contraseñas y forwarding SSH; el
+acceso operativo es por clave y `become`.
+
 ## Criterios para autorizar producción
 
 - aprovisionamiento exitoso e idempotente en Debian 13;

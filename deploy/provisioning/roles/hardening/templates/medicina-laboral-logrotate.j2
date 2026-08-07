@@ -1,0 +1,10 @@
+{{ application_root }}/shared/storage/logs/*.log {
+  daily
+  rotate {{ hardening_laravel_log_retention_days }}
+  missingok
+  notifempty
+  compress
+  delaycompress
+  copytruncate
+  su {{ deploy_user_name }} www-data
+}

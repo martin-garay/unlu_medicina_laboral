@@ -1,0 +1,27 @@
+#!/usr/sbin/nft -f
+flush ruleset
+table inet medicina_laboral {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    iifname "lo" accept
+    ct state established,related accept
+    ct state invalid drop
+    ip protocol icmp accept
+    ip6 nexthdr ipv6-icmp accept
+{% for network in ssh_allowed_networks %}
+    ip saddr {{ network }} tcp dport {{ firewall_ssh_port }} accept
+{% endfor %}
+{% if inventory_hostname in groups['app_servers'] %}
+{% for network in web_allowed_networks %}
+    ip saddr {{ network }} tcp dport { 80, 443 } accept
+{% endfor %}
+{% endif %}
+{% if inventory_hostname in groups['db_servers'] %}
+{% for network in postgresql_allowed_networks %}
+    ip saddr {{ network }} tcp dport {{ firewall_postgresql_port }} accept
+{% endfor %}
+{% endif %}
+  }
+  chain forward { type filter hook forward priority 0; policy drop; }
+  chain output { type filter hook output priority 0; policy accept; }
+}

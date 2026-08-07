@@ -1,0 +1,44 @@
+---
+- name: Require explicit SSH networks before enabling firewall
+  ansible.builtin.assert:
+    that: ssh_allowed_networks | length > 0
+    fail_msg: ssh_allowed_networks must preserve at least one management network.
+
+- name: Require explicit web networks on application hosts
+  ansible.builtin.assert:
+    that: web_allowed_networks | length > 0
+  when: inventory_hostname in groups['app_servers']
+
+- name: Install nftables
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install managed nftables policy
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: nft -c -f %s
+  notify: Reload nftables
+
+- name: Ensure nftables is enabled and running
+  ansible.builtin.service:
+    name: nftables
+    enabled: true
+    state: started
+  when: not ansible_check_mode
+
+- name: Apply firewall before connectivity validation
+  ansible.builtin.meta: flush_handlers
+
+- name: Validate effective nftables ruleset
+  ansible.builtin.command: nft list ruleset
+  register: firewall_ruleset
+  changed_when: false
+  failed_when: "'chain input' not in firewall_ruleset.stdout"
+  when: not ansible_check_mode

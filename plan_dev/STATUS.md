@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-07 07:15 -03
+2026-08-07 07:30 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M8 - backups y restore`.
-- Milestone actual: `M9 - firewall y hardening` pendiente.
-- Próximo paso sugerido: restringir puertos por grupo sin perder acceso SSH.
+- Último bloque completado: `M9 - firewall y hardening`.
+- Milestone actual: `M10 - observabilidad y diagnóstico` pendiente.
+- Próximo paso sugerido: consolidar checks de servicios, disco, TLS, scheduler y backups.
 
 ---
 
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-06 20:30 -03
+- 2026-08-07 07:30 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M8 - backups y restore`
+- `M9 - firewall y hardening`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se implementaron backups locales con retención y una restauración comprobada en base temporal.
+- se activó nftables y hardening SSH preservando conectividad, base y HTTPS.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: rol/playbook scheduler, `routes/console.php`, Kernel, prueba, documentación, site, daily y status.
-- resumen técnico: cron por minuto como `deploy`, protegido con `flock`, más `withoutOverlapping(10)` dentro de Laravel.
+- archivos tocados: roles firewall/hardening, inventories, playbook security, documentación, site, daily y status.
+- resumen técnico: entrada nftables `drop`, redes explícitas por servicio, SSH por clave, unattended upgrades y logrotate.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; la estructura Ansible solo ejecuta assertions locales.
 - diagramas actualizados: no; no cambió arquitectura runtime, flujos ni modelo de datos.
@@ -103,8 +103,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: syntax/check mode, `schedule:list`, ejecución manual y segunda pasada `changed=0` en split/single.
-- resultado: tarea registrada y cron idempotente. El test PHP local no pudo correr porque el host no tiene PHP y Docker estaba detenido; la aserción funcional se ejecutó dentro de ambas VM.
+- checks: syntax/check mode, `sshd -t`, `nft list ruleset`, SSH ping, conexión DB y HTTPS; segunda pasada `changed=0` en split/single.
+- resultado: accesos necesarios preservados y puertos restringidos por inventory.
 
 ### Manuales sugeridas
 - confirmar hostname local `medicina-laboral.test`.
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar firewall y hardening.
+- ninguno para comenzar observabilidad.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- implementar firewall por grupos, logrotate y verificaciones de seguridad.
+- implementar checks consolidados de servicios, disco, TLS, scheduler y backups.
 
 ---
 

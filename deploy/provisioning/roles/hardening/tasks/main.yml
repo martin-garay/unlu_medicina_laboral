@@ -1,0 +1,49 @@
+---
+- name: Install hardening packages
+  ansible.builtin.apt:
+    name:
+      - unattended-upgrades
+      - logrotate
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Harden OpenSSH daemon
+  ansible.builtin.copy:
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      X11Forwarding no
+      AllowAgentForwarding no
+    dest: /etc/ssh/sshd_config.d/60-medicina-laboral.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload SSH
+
+- name: Validate effective OpenSSH configuration
+  ansible.builtin.command: /usr/sbin/sshd -t
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Enable unattended security updates
+  ansible.builtin.copy:
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+  when: hardening_unattended_upgrades_enabled
+
+- name: Configure application log rotation
+  ansible.builtin.template:
+    src: medicina-laboral-logrotate.j2
+    dest: /etc/logrotate.d/medicina-laboral
+    owner: root
+    group: root
+    mode: "0644"
+    validate: logrotate --debug %s
+  when: inventory_hostname in groups['app_servers']
