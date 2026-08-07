@@ -34,12 +34,14 @@
 - name: Require available disk capacity
   ansible.builtin.assert:
     that: "monitoring_disk_usage.stdout_lines[-1] | regex_replace('[^0-9]', '') | int < monitoring_disk_warning_percent"
+  when: not ansible_check_mode
 
 - name: Verify Laravel operational doctor
   ansible.builtin.command:
     argv: [php, artisan, medicina:doctor]
     chdir: "{{ application_root }}/current"
   become_user: "{{ deploy_user_name }}"
+  become: true
   changed_when: false
   when: inventory_hostname in groups['app_servers']
 
@@ -48,6 +50,7 @@
     argv: [php, artisan, schedule:list]
     chdir: "{{ application_root }}/current"
   become_user: "{{ deploy_user_name }}"
+  become: true
   register: monitoring_schedule
   changed_when: false
   failed_when: "'conversations:process-timeouts' not in monitoring_schedule.stdout"

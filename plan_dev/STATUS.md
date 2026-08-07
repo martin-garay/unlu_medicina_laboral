@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-07 08:15 -03
+2026-08-07 09:15 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M11 - rollback de releases`.
-- Milestone actual: `M12 - pruebas de infraestructura y matriz final` pendiente.
-- Próximo paso sugerido: instalar lint, ejecutar syntax/check/idempotencia y cerrar runbooks productivos.
+- Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
+- Milestone actual: implementación base de despliegue completa; auditoría final pendiente.
+- Próximo paso sugerido: auditar requisitos y confirmar que no queden faltantes implementables sin infraestructura real.
 
 ---
 
@@ -80,13 +80,13 @@ No debe reemplazar:
 - `plan_dev/daily/2026-08-06.md`
 
 ### Milestone trabajado
-- `M11 - rollback de releases`
+- `M12 - pruebas de infraestructura y matriz final`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- se implementó y ensayó rollback exitoso y recuperación automática ante fallo.
+- se aprobó lint, syntax/check, convergencia single/split y despliegue desde VM limpia.
 
 ---
 
@@ -113,7 +113,7 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- ninguno para comenzar la matriz final.
+- ninguno para la auditoría final; producción real requiere datos institucionales ya documentados.
 
 ---
 
@@ -131,7 +131,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar lint, syntax/check, matriz single/split y auditoría documental final.
+- realizar auditoría requisito por requisito y cerrar la implementación base si la evidencia es suficiente.
 
 ---
 

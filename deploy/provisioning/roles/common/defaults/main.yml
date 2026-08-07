@@ -2,9 +2,8 @@
 common_timezone: America/Argentina/Buenos_Aires
 common_base_packages: []
 
-deploy_user_name: deploy
-deploy_user_group: deploy
-deploy_user_shell: /bin/bash
-deploy_user_public_keys: []
-deploy_user_passwordless_sudo: false
-
+deploy_user_name: deploy  # noqa var-naming[no-role-prefix]
+deploy_user_group: deploy  # noqa var-naming[no-role-prefix]
+deploy_user_shell: /bin/bash  # noqa var-naming[no-role-prefix]
+deploy_user_public_keys: []  # noqa var-naming[no-role-prefix]
+deploy_user_passwordless_sudo: false  # noqa var-naming[no-role-prefix]

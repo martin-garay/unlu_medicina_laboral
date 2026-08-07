@@ -55,7 +55,10 @@ all:
         db01.unlu.example:
 ```
 
-Los nombres son ilustrativos. Hasta disponer de hosts reales, la validación se realiza con los inventories Vagrant.
+Los nombres son ilustrativos. La plantilla ejecutable está en
+`provisioning/inventories/production/hosts.example.yml`; debe copiarse como
+`hosts.yml`, reemplazar todas las redes/hosts de documentación y mantenerse sin
+secretos. Hasta disponer de hosts reales, la validación se realiza con Vagrant.
 
 ## Secuencia productiva prevista
 
@@ -84,7 +87,17 @@ Sólo revierte código/configuración compartida compatible. Nunca ejecuta
 `migrate:rollback`. Si hubo una migración destructiva, detenerse y seguir el
 runbook específico preparado para esa migración y su backup previo.
 
-Los comandos ejecutables se agregarán cuando existan los playbooks respectivos.
+Todos los playbooks de esta secuencia existen. El primer despliegue recomendado es:
+
+```bash
+ansible-inventory -i inventories/production/hosts.yml --graph
+ansible-playbook -i inventories/production/hosts.yml site.yml --syntax-check
+ansible-playbook -i inventories/production/hosts.yml site.yml --check --diff
+ansible-playbook -i inventories/production/hosts.yml site.yml
+ansible-playbook -i inventories/production/hosts.yml playbooks/monitoring.yml
+```
+
+El modo `--check` es complementario y no sustituye la convergencia ni el restore.
 
 ## Backups
 

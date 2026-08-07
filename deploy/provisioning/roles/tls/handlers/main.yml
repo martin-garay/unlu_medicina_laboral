@@ -7,3 +7,4 @@
   ansible.builtin.service:
     name: apache2
     state: reloaded
+  when: ansible_facts.services['apache2.service'] is defined

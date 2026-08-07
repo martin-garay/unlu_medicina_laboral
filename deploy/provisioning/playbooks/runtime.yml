@@ -8,6 +8,11 @@
   roles:
     - role: php
     - role: apache
+      apache_install_runtime_probe: "{{ runtime_probe_enabled | default(true) }}"
+      apache_document_root: >-
+        {{ application_root ~ '/placeholder/public'
+           if (runtime_probe_enabled | default(true))
+           else application_document_root }}
 
 - name: Validate HTTP through Apache and PHP-FPM
   hosts: app_servers
@@ -23,5 +28,6 @@
         status_code: 200
       register: runtime_probe
       failed_when: "'medicina-laboral-runtime-ok' not in runtime_probe.content"
-      when: not ansible_check_mode
-
+      when:
+        - runtime_probe_enabled | default(true)
+        - not ansible_check_mode

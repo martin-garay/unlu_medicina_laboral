@@ -1,0 +1,40 @@
+---
+all:
+  vars:
+    ansible_user: deploy
+    operating_system_family: debian
+    operating_system_version: "13"
+    web_server: apache
+    web_server_version: "2.4"
+    php_version: "8.4"
+    postgresql_version: "17"
+
+    application_hostname: medicina-laboral.example.unlu.edu.ar
+    application_url: "https://{{ application_hostname }}"
+    application_release_id: "REEMPLAZAR_POR_TAG_O_SHA"
+    application_source_strategy: local
+    application_source_path: "{{ playbook_dir }}/../../.."
+
+    tls_enabled: true
+    tls_provider: provided
+
+    deploy_user_passwordless_sudo: false
+    deploy_user_public_keys:
+      - "REEMPLAZAR_POR_CLAVE_PUBLICA_SSH"
+
+    ssh_allowed_networks:
+      - 192.0.2.0/24
+    web_allowed_networks:
+      - 0.0.0.0/0
+    postgresql_allowed_networks:
+      - 192.0.2.10/32
+
+  children:
+    app_servers:
+      hosts:
+        app01:
+          ansible_host: 192.0.2.10
+    db_servers:
+      hosts:
+        db01:
+          ansible_host: 192.0.2.20

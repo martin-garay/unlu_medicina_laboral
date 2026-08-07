@@ -1,4 +1,7 @@
 ---
+- name: Collect service state before TLS changes
+  ansible.builtin.service_facts:
+
 - name: Validate TLS provider
   ansible.builtin.assert:
     that:

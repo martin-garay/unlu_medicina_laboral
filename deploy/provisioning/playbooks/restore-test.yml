@@ -36,6 +36,7 @@
         state: absent
         force: true
       become_user: postgres
+      become: true
 
     - name: Create temporary restore database
       community.postgresql.postgresql_db:
@@ -43,6 +44,7 @@
         owner: "{{ postgresql_application_user }}"
         state: present
       become_user: postgres
+      become: true
 
     - name: Stage PostgreSQL backup for restore
       ansible.builtin.copy:
@@ -57,12 +59,14 @@
       ansible.builtin.command:
         argv: [pg_restore, --exit-on-error, --no-owner, --dbname, "{{ restore_test_database }}", /var/lib/postgresql/medicina-laboral-restore-test.dump]
       become_user: postgres
+      become: true
       changed_when: true
 
     - name: Verify restored migrations table
       ansible.builtin.command:
         argv: [psql, --dbname, "{{ restore_test_database }}", --tuples-only, --command, "SELECT count(*) FROM migrations"]
       become_user: postgres
+      become: true
       register: restore_migrations_count
       changed_when: false
       failed_when: restore_migrations_count.stdout | trim | int < 1
@@ -73,6 +77,7 @@
         state: absent
         force: true
       become_user: postgres
+      become: true
 
     - name: Remove staged PostgreSQL backup
       ansible.builtin.file:

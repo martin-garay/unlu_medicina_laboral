@@ -1,11 +1,25 @@
 ---
-- import_playbook: playbooks/validate.yml
-- import_playbook: playbooks/common.yml
-- import_playbook: playbooks/database.yml
-- import_playbook: playbooks/runtime.yml
-- import_playbook: playbooks/application.yml
-- import_playbook: playbooks/scheduler.yml
-- import_playbook: playbooks/tls.yml
-- import_playbook: playbooks/backup.yml
-- import_playbook: playbooks/security.yml
-- import_playbook: playbooks/monitoring.yml
+- name: Validate selected platform
+  ansible.builtin.import_playbook: playbooks/validate.yml
+- name: Configure base operating system
+  ansible.builtin.import_playbook: playbooks/common.yml
+- name: Configure database
+  ansible.builtin.import_playbook: playbooks/database.yml
+- name: Install TLS material before Apache
+  ansible.builtin.import_playbook: playbooks/tls-material.yml
+- name: Configure web runtime
+  ansible.builtin.import_playbook: playbooks/runtime.yml
+  vars:
+    runtime_probe_enabled: false
+- name: Deploy application
+  ansible.builtin.import_playbook: playbooks/application.yml
+- name: Configure scheduler
+  ansible.builtin.import_playbook: playbooks/scheduler.yml
+- name: Configure TLS
+  ansible.builtin.import_playbook: playbooks/tls.yml
+- name: Configure backups
+  ansible.builtin.import_playbook: playbooks/backup.yml
+- name: Apply security controls
+  ansible.builtin.import_playbook: playbooks/security.yml
+- name: Validate operational health
+  ansible.builtin.import_playbook: playbooks/monitoring.yml

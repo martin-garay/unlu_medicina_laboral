@@ -49,6 +49,7 @@
             argv: [php, artisan, optimize]
             chdir: "{{ application_root }}/current"
           become_user: "{{ deploy_user_name }}"
+          become: true
           changed_when: false
 
         - name: Reload PHP-FPM after rollback

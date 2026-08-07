@@ -46,14 +46,36 @@
     cron_file: medicina-laboral-backup-files
   when: backup_files_enabled
 
-- name: Run PostgreSQL backup now
-  ansible.builtin.command: "{{ backup_postgresql_script }}"
+- name: Inspect existing PostgreSQL backups
+  ansible.builtin.find:
+    paths: "{{ backup_root }}/postgresql/daily"
+    patterns: "*.dump"
+  register: backup_existing_postgresql
   when:
     - backup_postgresql_enabled
-    - backup_run_now | bool
+    - not ansible_check_mode
+
+- name: Inspect existing persistent files backups
+  ansible.builtin.find:
+    paths: "{{ backup_root }}/files/daily"
+    patterns: "*.tar.gz"
+  register: backup_existing_files
+  when:
+    - backup_files_enabled
+    - not ansible_check_mode
+
+- name: Run PostgreSQL backup now
+  ansible.builtin.command: "{{ backup_postgresql_script }}"
+  changed_when: true
+  when:
+    - backup_postgresql_enabled
+    - not ansible_check_mode
+    - backup_run_now | bool or backup_existing_postgresql.matched | int == 0
 
 - name: Run persistent files backup now
   ansible.builtin.command: "{{ backup_files_script }}"
+  changed_when: true
   when:
     - backup_files_enabled
-    - backup_run_now | bool
+    - not ansible_check_mode
+    - backup_run_now | bool or backup_existing_files.matched | int == 0
