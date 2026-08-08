@@ -60,6 +60,13 @@ Los nombres son ilustrativos. La plantilla ejecutable está en
 `hosts.yml`, reemplazar todas las redes/hosts de documentación y mantenerse sin
 secretos. Hasta disponer de hosts reales, la validación se realiza con Vagrant.
 
+En el primer aprovisionamiento, `ansible_user` identifica al usuario SSH inicial
+entregado por infraestructura y debe poder usar `become`. El rol `common` crea
+`deploy` e instala las claves declaradas en `deploy_user_public_keys`. Después de
+comprobar en una segunda sesión que `deploy` puede conectarse y elevar privilegios,
+el inventory debe cambiar a `ansible_user: deploy`. No se debe deshabilitar el
+acceso inicial antes de completar esa comprobación.
+
 ## Secuencia productiva prevista
 
 1. ejecutar lint, syntax-check y validación de inventory;
@@ -72,9 +79,11 @@ secretos. Hasta disponer de hosts reales, la validación se realiza con Vagrant.
 8. enlazar directorios persistentes y aplicar permisos;
 9. ejecutar migraciones una sola vez;
 10. activar el release mediante symlink;
-11. recargar PHP-FPM y Apache solo si cambió su configuración;
-12. validar HTTPS, `/up`, conexión DB, scheduler y logs;
-13. conservar el release anterior para rollback.
+11. recargar PHP-FPM, validar `/up` y restaurar automáticamente el symlink
+    anterior si falla la nueva release;
+12. recargar Apache solo si cambió su configuración;
+13. validar HTTPS, conexión DB, scheduler y logs;
+14. conservar el release anterior para rollback.
 
 El rollback se ejecuta indicando un identificador existente:
 
@@ -86,6 +95,12 @@ ansible-playbook -i inventories/production/hosts.yml playbooks/rollback.yml \
 Sólo revierte código/configuración compartida compatible. Nunca ejecuta
 `migrate:rollback`. Si hubo una migración destructiva, detenerse y seguir el
 runbook específico preparado para esa migración y su backup previo.
+
+El despliegue también protege la activación normal: si `/up` falla después de
+cambiar `current`, restaura el release anterior (o retira `current` si era el
+primer despliegue) y termina con error. Composer, optimización y migraciones se
+ejecutan antes de activar el symlink. Las migraciones aplicadas no se revierten,
+por lo que deben diseñarse con compatibilidad hacia atrás.
 
 Todos los playbooks de esta secuencia existen. El primer despliegue recomendado es:
 

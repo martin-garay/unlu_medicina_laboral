@@ -150,12 +150,63 @@
   changed_when: false
   when: not ansible_check_mode
 
-- name: Activate application release
-  ansible.builtin.file:
-    src: "{{ application_release_path }}"
-    dest: "{{ application_current_path }}"
-    state: link
-    force: true
-    owner: "{{ deploy_user_name }}"
-    group: www-data
+- name: Read previously active application release
+  ansible.builtin.command:
+    argv: [readlink, -f, "{{ application_current_path }}"]
+  register: application_previous_release
+  changed_when: false
+  failed_when: false
   when: not ansible_check_mode
+
+- name: Activate and validate application release
+  when: not ansible_check_mode
+  block:
+    - name: Activate application release
+      ansible.builtin.file:
+        src: "{{ application_release_path }}"
+        dest: "{{ application_current_path }}"
+        state: link
+        force: true
+        owner: "{{ deploy_user_name }}"
+        group: www-data
+
+    - name: Reload PHP-FPM after release activation
+      ansible.builtin.service:
+        name: "php{{ php_version }}-fpm"
+        state: reloaded
+
+    - name: Validate activated release health endpoint
+      ansible.builtin.uri:
+        url: "{{ application_url }}/up"
+        status_code: 200
+        validate_certs: "{{ tls_enabled | default(false) }}"
+        ca_path: "{{ tls_ca_certificate_path if (tls_provider | default('provided')) == 'local_ca' else omit }}"
+        use_proxy: false
+
+  rescue:
+    - name: Restore previously active release
+      ansible.builtin.file:
+        src: "{{ application_previous_release.stdout }}"
+        dest: "{{ application_current_path }}"
+        state: link
+        force: true
+        owner: "{{ deploy_user_name }}"
+        group: www-data
+      when: application_previous_release.rc == 0
+
+    - name: Remove failed first activation
+      ansible.builtin.file:
+        path: "{{ application_current_path }}"
+        state: absent
+      when: application_previous_release.rc != 0
+
+    - name: Reload PHP-FPM after failed activation
+      ansible.builtin.service:
+        name: "php{{ php_version }}-fpm"
+        state: reloaded
+
+    - name: Report failed release activation
+      ansible.builtin.fail:
+        msg: >-
+          The new release failed its health check and was deactivated.
+          Database migrations are not rolled back automatically.

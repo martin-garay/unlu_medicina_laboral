@@ -131,3 +131,8 @@ El playbook exige que la release exista y sea distinta de `current`, cambia el
 symlink, reconstruye caches, recarga PHP-FPM y valida HTTPS. Si cualquier paso
 falla, restaura el symlink anterior y verifica la recuperación. No revierte ni
 modifica migraciones de base de datos.
+
+La activación de una release nueva aplica la misma protección: valida `/up`
+inmediatamente después de cambiar `current` y recupera el symlink anterior si el
+health check falla. Las migraciones ya ejecutadas nunca se revierten de forma
+automática.

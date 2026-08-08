@@ -6,3 +6,6 @@ En Vagrant sincroniza el workspace local a un release estable para permitir iter
 
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
 
+La activación es transaccional a nivel de código: conserva el destino previo de
+`current`, recarga PHP-FPM y valida `/up`. Ante un fallo restaura el symlink
+anterior y finaliza con error. Las migraciones no se revierten automáticamente.
