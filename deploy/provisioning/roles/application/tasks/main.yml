@@ -2,7 +2,7 @@
 - name: Validate application source strategy
   ansible.builtin.assert:
     that:
-      - application_source_strategy in ['local']
+      - application_source_strategy in ['local', 'git']
     fail_msg: "Unsupported application source strategy: {{ application_source_strategy }}"
 
 - name: Install Composer
@@ -40,9 +40,37 @@
     - "{{ application_shared_path }}/storage/logs"
     - "{{ private_storage_path }}"
 
-- name: Synchronize local workspace into release
+- name: Create Git checkout root on control node
+  ansible.builtin.file:
+    path: "{{ application_git_checkout_root }}"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: application_source_strategy == 'git'
+
+- name: Checkout application release on control node
+  ansible.builtin.git:
+    repo: "{{ application_git_repo }}"
+    dest: "{{ application_git_checkout_path }}"
+    version: "{{ application_git_ref }}"
+    key_file: "{{ application_git_key_file | default(omit, true) }}"
+    accept_hostkey: "{{ application_git_accept_hostkey }}"
+    force: true
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: application_source_strategy == 'git'
+
+- name: Select application source path
+  ansible.builtin.set_fact:
+    application_effective_source_path: >-
+      {{ application_git_checkout_path if application_source_strategy == 'git' else application_source_path }}
+
+- name: Synchronize application source into release
   ansible.posix.synchronize:
-    src: "{{ application_source_path }}/"
+    src: "{{ application_effective_source_path }}/"
     dest: "{{ application_release_path }}/"
     delete: false
     rsync_path: sudo rsync
@@ -67,7 +95,6 @@
       - --exclude=vendor/
       - --exclude=phpunit.xml
       - --exclude=.phpunit.result.cache
-  when: application_source_strategy == 'local'
 
 - name: Set release ownership
   ansible.builtin.file:

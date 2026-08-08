@@ -1,6 +1,17 @@
 ---
+# Supported values:
+# - local: sync the current workspace; intended for Vagrant/dev.
+# - git: checkout an immutable tag/SHA on the control node and sync it.
+# Future option:
+# - artifact: CI-built package with checksum; not implemented yet.
 application_source_strategy: local
 application_source_path: "{{ playbook_dir }}/../../.."
+application_git_repo: git@github.com:martin-garay/unlu_medicina_laboral.git
+application_git_ref: "{{ application_release_id }}"
+application_git_checkout_root: "{{ playbook_dir }}/../.local/releases"
+application_git_checkout_path: "{{ application_git_checkout_root }}/{{ application_release_id }}"
+application_git_key_file: ""
+application_git_accept_hostkey: false
 application_release_path: "{{ application_root }}/releases/{{ application_release_id }}"
 application_shared_path: "{{ application_root }}/shared"
 application_current_path: "{{ application_root }}/current"
