@@ -35,7 +35,7 @@ machines = if topology == "single"
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/debian-13"
   config.vm.box_version = "202510.26.0"
-  config.vm.boot_timeout = 600
+  config.vm.boot_timeout = 1200
   config.ssh.insert_key = true
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
