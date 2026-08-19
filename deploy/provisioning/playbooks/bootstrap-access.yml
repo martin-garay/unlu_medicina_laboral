@@ -1,0 +1,84 @@
+---
+- name: Bootstrap operational SSH access
+  hosts: all
+  gather_facts: false
+  become: "{{ bootstrap_access_use_become }}"
+  vars:
+    bootstrap_access_enabled: false
+    bootstrap_access_use_become: false
+    bootstrap_access_user_name: deploy
+    bootstrap_access_user_group: "{{ bootstrap_access_user_name }}"
+    bootstrap_access_user_shell: /bin/bash
+    bootstrap_access_public_keys: []
+    bootstrap_access_passwordless_sudo: true
+  tasks:
+    - name: Require explicit bootstrap opt-in
+      ansible.builtin.assert:
+        that:
+          - bootstrap_access_enabled | bool
+        fail_msg: >-
+          bootstrap_access_enabled must be true. This playbook intentionally
+          changes SSH and sudo access and should only be used during bootstrap.
+
+    - name: Require at least one authorized key
+      ansible.builtin.assert:
+        that:
+          - bootstrap_access_public_keys | length > 0
+        fail_msg: bootstrap_access_public_keys must include at least one SSH public key.
+
+    - name: Ensure sudo is installed for operational access
+      ansible.builtin.raw: |
+        if ! command -v sudo >/dev/null 2>&1; then
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y sudo
+        fi
+      changed_when: false
+
+    - name: Create operational group
+      ansible.builtin.group:
+        name: "{{ bootstrap_access_user_group }}"
+        system: true
+        state: present
+
+    - name: Create operational user
+      ansible.builtin.user:
+        name: "{{ bootstrap_access_user_name }}"
+        group: "{{ bootstrap_access_user_group }}"
+        groups: sudo
+        append: true
+        shell: "{{ bootstrap_access_user_shell }}"
+        create_home: true
+        password_lock: true
+        state: present
+
+    - name: Create operational SSH directory
+      ansible.builtin.file:
+        path: "/home/{{ bootstrap_access_user_name }}/.ssh"
+        state: directory
+        owner: "{{ bootstrap_access_user_name }}"
+        group: "{{ bootstrap_access_user_group }}"
+        mode: "0700"
+
+    - name: Install operational authorized keys
+      ansible.builtin.copy:
+        content: "{{ bootstrap_access_public_keys | unique | join('\n') }}\n"
+        dest: "/home/{{ bootstrap_access_user_name }}/.ssh/authorized_keys"
+        owner: "{{ bootstrap_access_user_name }}"
+        group: "{{ bootstrap_access_user_group }}"
+        mode: "0600"
+
+    - name: Configure operational passwordless sudo
+      ansible.builtin.copy:
+        content: "{{ bootstrap_access_user_name }} ALL=(ALL:ALL) NOPASSWD: ALL\n"
+        dest: "/etc/sudoers.d/{{ bootstrap_access_user_name }}"
+        owner: root
+        group: root
+        mode: "0440"
+        validate: /usr/sbin/visudo -cf %s
+      when: bootstrap_access_passwordless_sudo | bool
+
+    - name: Remove managed passwordless sudo when disabled
+      ansible.builtin.file:
+        path: "/etc/sudoers.d/{{ bootstrap_access_user_name }}"
+        state: absent
+      when: not bootstrap_access_passwordless_sudo | bool

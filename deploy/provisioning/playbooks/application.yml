@@ -8,7 +8,9 @@
     - ../group_vars/vault.yml
   vars:
     application_database_inventory_host: "{{ groups['db_servers'] | first }}"
-    application_db_host: "{{ hostvars[application_database_inventory_host].ansible_host }}"
+    application_db_host: >-
+      {{ '127.0.0.1' if application_database_inventory_host == inventory_hostname
+      else hostvars[application_database_inventory_host].ansible_host }}
   roles:
     - role: application
 

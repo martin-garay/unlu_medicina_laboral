@@ -74,6 +74,30 @@ MEDICINA_VAGRANT_TOPOLOGY=split bin/vagrant up
 
 La box inicial es `bento/debian-13` versión `202510.26.0`, con provider VirtualBox. El nombre y la versión pertenecen exclusivamente a la capa Vagrant/SO y podrán ampliarse sin modificar PostgreSQL, PHP o Apache.
 
+Para la puesta en marcha de testing se valida primero la topología `single`, que
+modela un servidor único con aplicación y base en el mismo host. En esa topología
+Laravel conecta PostgreSQL por `127.0.0.1`, PostgreSQL no escucha en la IP de red
+privada y el firewall no abre `5432` hacia redes externas.
+
+Si una VM single queda lenta durante el primer arranque, el `Vagrantfile` define
+un `boot_timeout` amplio. Antes de destruirla, inspeccionar el estado con:
+
+```bash
+MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant status
+MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant ssh medicina-single
+```
+
+Cuando la VM esté limpia y accesible, guardar un snapshot base:
+
+```bash
+MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant snapshot save medicina-single pristine-debian13
+```
+
+El acceso operativo normal usa el usuario `deploy`. Para servidores reales donde
+ese usuario todavía no exista, `playbooks/bootstrap-access.yml` lo crea en una
+ejecución inicial explícita usando un usuario privilegiado temporal. El usuario
+temporal no debe quedar guardado en el inventory permanente.
+
 ## Validaciones iniciales
 
 Desde `deploy/provisioning/`:
