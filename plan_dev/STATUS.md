@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-19 08:38 -03
+2026-08-19 08:40 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -74,7 +74,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-19 08:38 -03
+- 2026-08-19 08:40 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-19.md`
@@ -86,7 +86,7 @@ No debe reemplazar:
 - `blocked`
 
 ### Resumen corto
-- Vagrant single no puede validarse desde Codex por sandbox; fuera de Codex la VM existe pero está `poweroff`, por lo que falta arrancarla y validar SSH.
+- Vagrant single no puede arrancar fuera de Codex porque VirtualBox no puede crear la interfaz host-only sin `/dev/vboxnetctl`.
 
 ---
 
@@ -104,17 +104,17 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks: `bin/vagrant status`, `bin/vagrant ssh-config medicina-single`, `VBoxManage --version`, `bin/vagrant --version`, `bin/vagrant global-status --prune`, `ls -l /dev/vboxdrv /dev/vboxnetctl`, `lsmod`.
-- resultado: Vagrant falla dentro del sandbox por provider VirtualBox no usable; fuera de Codex `VBoxManage` informa `7.2.14r174565`, `/dev/vboxdrv` existe, `/dev/vboxnetctl` falta y `medicina-single` está `poweroff`.
+- resultado: Vagrant falla dentro del sandbox por provider VirtualBox no usable; fuera de Codex `VBoxManage` informa `7.2.14r174565`, `/dev/vboxdrv` existe, `/dev/vboxnetctl` falta y `MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant up` falla en `VBoxManage hostonlyif create`.
 
 ### Manuales sugeridas
-- ejecutar `MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant up` fuera de Codex y pegar la salida.
-- si falla fuera del sandbox, revisar `/dev/vboxnetctl`, VirtualBox host-only networking y COM server.
+- revisar `lsmod | grep '^vbox'`, cargar `vboxnetadp`/`vboxnetflt` y verificar `/dev/vboxnetctl`.
+- si no se crea `/dev/vboxnetctl`, reparar o reinstalar VirtualBox 7.2.14 y volver a ejecutar `/sbin/vboxconfig`.
 
 ---
 
 ## Bloqueos actuales
 - M2 bloqueado para ejecución desde Codex porque el sandbox no expone los devices de VirtualBox.
-- M2 pendiente de arranque manual de `medicina-single` fuera del sandbox.
+- M2 bloqueado fuera de Codex por ausencia de `/dev/vboxnetctl`; VirtualBox no puede crear host-only adapter.
 - no avanzar a testing real hasta cerrar Vagrant single con convergencia, monitoreo, backup y restore-test.
 
 ---
@@ -133,7 +133,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant up` fuera del sandbox y reanudar con la salida.
+- reparar `/dev/vboxnetctl`/host-only networking de VirtualBox y reintentar `MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant up`.
 
 ---
 
