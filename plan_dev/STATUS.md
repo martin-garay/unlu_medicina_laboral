@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-19 08:24 -03
+2026-08-19 08:28 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -74,25 +74,25 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-19 08:24 -03
+- 2026-08-19 08:28 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-19.md`
 
 ### Milestone trabajado
-- `M1 - Preparar bootstrap y single-host`
+- `M2 - Diagnosticar y estabilizar Vagrant single`
 
 ### Resultado
-- `done`
+- `blocked`
 
 ### Resumen corto
-- se preparó el plan diario de testing single-host, se agregó bootstrap explícito para `deploy`, se ajustó Vagrant/testing a servidor único y se documentó el flujo operativo.
+- Vagrant single no pudo inspeccionarse porque el provider VirtualBox no queda usable; `VBoxManage` informa ausencia de `/dev/vboxdrv`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: daily, status, Vagrantfile, inventories single/testing, playbook application, bootstrap-access y documentación de deploy.
-- resumen técnico: `deploy` queda como usuario operativo; testing ya no usa `ProxyCommand`; single-host conecta DB por `127.0.0.1` y no abre PostgreSQL a redes externas.
+- archivos tocados: daily y status para registrar el bloqueo operativo de M2.
+- resumen técnico: no hubo cambios runtime ni provisioning en M2; el bloqueo ocurre antes de acceder a la VM.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
@@ -103,17 +103,17 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: syntax-check de bootstrap y site contra Vagrant single; parseo de inventory testing.
-- resultado: aprobados desde `deploy/provisioning`.
-- linters adicionales: no ejecutados; `yamllint` y `ansible-lint` no están instalados en esta sesión.
+- checks: `bin/vagrant status`, `bin/vagrant ssh-config medicina-single`, `VBoxManage --version`, `bin/vagrant --version`, `bin/vagrant global-status --prune`.
+- resultado: Vagrant falla por provider VirtualBox no usable; `VBoxManage` informa `7.2.14r174565` pero falta `/dev/vboxdrv`.
 
 ### Manuales sugeridas
-- confirmar estado de `medicina-single` tras el timeout SSH informado.
-- reemplazar clave pública y CIDR de administración antes de cualquier ejecución contra testing.
+- ejecutar `sudo /sbin/vboxconfig` o reparar/reinstalar VirtualBox 7.2.14.
+- verificar `ls -l /dev/vboxdrv` antes de reintentar M2.
 
 ---
 
 ## Bloqueos actuales
+- M2 bloqueado por provider VirtualBox no usable en la estación de control; falta `/dev/vboxdrv`.
 - no avanzar a testing real hasta cerrar Vagrant single con convergencia, monitoreo, backup y restore-test.
 
 ---
@@ -132,7 +132,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M2 - Diagnosticar y estabilizar Vagrant single`.
+- reparar VirtualBox en el host y reanudar `M2 - Diagnosticar y estabilizar Vagrant single`.
 
 ---
 
