@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-19 21:17 -03
+2026-08-19 22:12 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
-- Milestone actual: implementación base de despliegue completa; auditoría final pendiente.
-- Próximo paso sugerido: auditar requisitos y confirmar que no queden faltantes implementables sin infraestructura real.
+- Milestone actual: M4 local queda listo para revisión; tag local y flujo de release inmutable en Vagrant validados. Testing real queda diferido.
+- Próximo paso sugerido: definir red administrativa y acceso SSH antes de tocar `170.210.96.164`.
 
 ---
 
@@ -74,27 +74,32 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-19 21:17 -03
+- 2026-08-19 22:12 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-19.md`
 
 ### Milestone trabajado
-- `M3 - Convergencia completa en Vagrant single`
+- `M4 - Preparar tag y pase controlado a testing`
 
 ### Resultado
-- `done`
+- `needs_review`
 
 ### Resumen corto
-- Vagrant single convergió completo con `site.yml`, segunda corrida, monitoreo,
-  backup forzado y restore-test.
+- El tag local ya apunta a `5a2a802`, el inventory testing quedó sin placeholders
+  críticos y las validaciones estáticas pasaron. No se continúa contra testing
+  real hasta cerrar local y confirmar red/acceso.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/provisioning/ansible.cfg`, `deploy/provisioning/playbooks/database.yml`, daily y status.
-- resumen técnico: se ajustó la validación de base de datos para single-host por `127.0.0.1` y se movió el temporal remoto de Ansible a `/tmp` para evitar fallos de permisos con tareas delegadas y `become_user`.
-- documentación actualizada: sí; daily y status registran el cierre de M3.
+- archivos tocados: `deploy/provisioning/inventories/testing/hosts.yml`, `deploy/provisioning/inventories/README.md`, daily y status.
+- resumen técnico: se registró que el push remoto del tag queda diferido, se
+  validó el flujo de release inmutable en Vagrant usando `application_source_strategy=git`
+  con `application_git_ref=5a2a802`, se configuró testing con la clave local
+  `deploy/.local/ssh/deploy_ed25519`, `ssh_allowed_networks: []` hasta confirmar
+  la red administrativa real y `application_release_id` efectivo en host.
+- documentación actualizada: sí; daily y status registran el avance y bloqueo de M4.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -104,18 +109,22 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: `ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml`, segunda corrida de `site.yml`, `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/monitoring.yml`, `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/backup.yml -e backup_run_now=true`, `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/restore-test.yml`.
-- resultado: todos los playbooks finalizaron con `failed=0` y `unreachable=0`; `restore-test.yml` verificó restauración temporal de PostgreSQL y lectura de archive de archivos persistentes.
+- checks: `git show --no-patch --oneline testing-2026-08-19-01`, `ansible-inventory -i inventories/testing/hosts.yml --graph`, `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`, `ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`.
+- resultado: tag local apunta a `5a2a802`; inventory y syntax-check pasan; Vagrant ya validó release inmutable desde fuente `git` local.
 
 ### Manuales sugeridas
-- `/up` por HTTPS local respondió `200` usando `curl --resolve`.
-- `php artisan schedule:list` muestra `conversations:process-timeouts`.
+- confirmar red administrativa real antes de completar `ssh_allowed_networks`.
+- verificar acceso SSH por root o `deploy` desde la red correcta antes de ejecutar
+  cualquier playbook contra testing.
+- mantener diferido el push remoto del tag hasta cerrar el corte.
 
 ---
 
 ## Bloqueos actuales
-- no avanzar a testing real hasta recrear el tag, completar placeholders reales
-  del inventory y aprobar explícitamente la ejecución contra el servidor.
+- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta confirmar red
+  administrativa, completar bootstrap si falta el usuario `deploy` y aprobar
+  explícitamente la ejecución contra el servidor.
+- no pushear tag remoto hasta que el corte de testing quede cerrado.
 
 ---
 
@@ -133,7 +142,8 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M4 - Preparar tag y pase controlado a testing`.
+- preparar una nueva ejecución específica para bootstrap/testing real con acceso
+  SSH confirmado.
 
 ---
 

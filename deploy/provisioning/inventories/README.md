@@ -7,6 +7,8 @@
 - dominio: `avisos-pruebas.unlu.edu.ar`
 - servidor: `170.210.96.164`
 - usuario SSH operativo: `deploy`
+- clave SSH operativa local: `deploy/.local/ssh/deploy_ed25519`
+- red administrativa inicial: pendiente de confirmar antes de ejecutar contra testing
 - bastion: no requerido para el servidor dedicado de testing
 
 `ProxyCommand` era la instrucción SSH usada para llegar al servidor a través de
@@ -21,7 +23,7 @@ guardado en `inventories/testing/hosts.yml`:
 ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml \
   -u root \
   -e bootstrap_access_enabled=true \
-  -e bootstrap_access_public_keys="['$(cat ~/.ssh/id_ed25519.pub)']"
+  -e bootstrap_access_public_keys="['$(cat ../.local/ssh/deploy_ed25519.pub)']"
 ```
 
 Luego validar la operación normal:
@@ -37,12 +39,16 @@ usa `IdentitiesOnly=yes` para evitar que SSH ofrezca claves no deseadas desde
 `ansible_ssh_private_key_file` en el host o usar un alias en `~/.ssh/config` con
 `IdentityFile`.
 
-Antes de ejecutar `site.yml`, reemplazar:
+Antes de ejecutar `site.yml`, confirmar:
 
-- `application_release_id` por un tag o SHA inmutable si no se usa el tag de testing previsto;
-- `deploy_user_public_keys` por la clave pública autorizada para el usuario `deploy`;
-- `ssh_allowed_networks` por el CIDR real desde donde se administrará el servidor;
+- `application_release_id` apunta al tag local previsto;
+- `deploy_user_public_keys` contiene la clave pública autorizada para el usuario `deploy`;
+- `ssh_allowed_networks` contiene el CIDR real desde donde se administrará el servidor;
 - rutas de certificado si `tls_provider: provided` no usa los defaults de `group_vars/all.yml`.
+
+Si `ansible ping` falla por timeout a `170.210.96.164:22`, no ejecutar
+`site.yml` todavía. Primero validar firewall externo, VPN/ruta institucional o
+estado del servicio SSH desde una red autorizada.
 
 Mientras no existan certificados institucionales, testing puede usar
 `tls_provider: local_ca` para validar convergencia técnica. Esa CA local no sirve
