@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-19 08:54 -03
+2026-08-19 21:07 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -74,7 +74,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-19 08:54 -03
+- 2026-08-19 21:07 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-19.md`
@@ -83,16 +83,16 @@ No debe reemplazar:
 - `M2 - Diagnosticar y estabilizar Vagrant single`
 
 ### Resultado
-- `blocked`
+- `done`
 
 ### Resumen corto
-- Tras reparar parcialmente VirtualBox, Vagrant single avanza y la VM permite login manual, pero `vagrant up` expira esperando SSH.
+- Vagrant single quedó accesible por SSH/Ansible y se guardó el snapshot base `pristine-debian13`.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: daily y status para registrar el bloqueo operativo de M2.
-- resumen técnico: no hubo cambios runtime ni provisioning en M2; el bloqueo ocurre antes de acceder a la VM.
+- archivos tocados: `ansible.cfg`, daily y status.
+- resumen técnico: se movió el directorio de control SSH de Ansible a `/tmp/medicina-laboral-ansible-cp`; la VM `medicina-single` quedó accesible y con snapshot base.
 - documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
@@ -104,17 +104,14 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks: `bin/vagrant status`, `bin/vagrant ssh-config medicina-single`, `VBoxManage --version`, `bin/vagrant --version`, `bin/vagrant global-status --prune`, `ls -l /dev/vboxdrv /dev/vboxnetctl`, `lsmod`.
-- resultado: Vagrant falla dentro del sandbox por provider VirtualBox no usable; fuera de Codex se reparó el bloqueo inicial de host-only, `vagrant up` avanza, la VM permite login manual, pero Vagrant expira esperando SSH.
+- resultado: `ansible ping` respondió `pong`; snapshot `pristine-debian13` creado fuera de Codex.
 
 ### Manuales sugeridas
-- reintentar `MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant up` con `boot_timeout` aumentado a 1200.
-- si vuelve a expirar, validar `bin/vagrant ssh medicina-single -c 'hostname; whoami; sudo -n true'` y `ansible ping`.
+- continuar con M3 ejecutando `site.yml` sobre `inventories/vagrant/single/hosts.yml`.
 
 ---
 
 ## Bloqueos actuales
-- M2 bloqueado para ejecución desde Codex porque el sandbox no expone los devices de VirtualBox.
-- M2 pendiente de reintento de `vagrant up` fuera de Codex con timeout ampliado y validación SSH/Ansible.
 - no avanzar a testing real hasta cerrar Vagrant single con convergencia, monitoreo, backup y restore-test.
 
 ---
@@ -133,7 +130,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- reintentar `MEDICINA_VAGRANT_TOPOLOGY=single bin/vagrant up` fuera del sandbox y validar SSH/Ansible.
+- ejecutar `M3 - Convergencia completa en Vagrant single`.
 
 ---
 
