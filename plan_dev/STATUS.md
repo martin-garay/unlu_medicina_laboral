@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-19 21:07 -03
+2026-08-19 21:17 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -67,33 +67,34 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`.
+- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-19 21:07 -03
+- 2026-08-19 21:17 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-19.md`
 
 ### Milestone trabajado
-- `M2 - Diagnosticar y estabilizar Vagrant single`
+- `M3 - Convergencia completa en Vagrant single`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- Vagrant single quedó accesible por SSH/Ansible y se guardó el snapshot base `pristine-debian13`.
+- Vagrant single convergió completo con `site.yml`, segunda corrida, monitoreo,
+  backup forzado y restore-test.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `ansible.cfg`, daily y status.
-- resumen técnico: se movió el directorio de control SSH de Ansible a `/tmp/medicina-laboral-ansible-cp`; la VM `medicina-single` quedó accesible y con snapshot base.
-- documentación actualizada: sí; la fuente de verdad específica quedó bajo `deploy/`.
+- archivos tocados: `deploy/provisioning/ansible.cfg`, `deploy/provisioning/playbooks/database.yml`, daily y status.
+- resumen técnico: se ajustó la validación de base de datos para single-host por `127.0.0.1` y se movió el temporal remoto de Ansible a `/tmp` para evitar fallos de permisos con tareas delegadas y `become_user`.
+- documentación actualizada: sí; daily y status registran el cierre de M3.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -103,16 +104,18 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: `bin/vagrant status`, `bin/vagrant ssh-config medicina-single`, `VBoxManage --version`, `bin/vagrant --version`, `bin/vagrant global-status --prune`, `ls -l /dev/vboxdrv /dev/vboxnetctl`, `lsmod`.
-- resultado: `ansible ping` respondió `pong`; snapshot `pristine-debian13` creado fuera de Codex.
+- checks: `ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml`, segunda corrida de `site.yml`, `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/monitoring.yml`, `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/backup.yml -e backup_run_now=true`, `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/restore-test.yml`.
+- resultado: todos los playbooks finalizaron con `failed=0` y `unreachable=0`; `restore-test.yml` verificó restauración temporal de PostgreSQL y lectura de archive de archivos persistentes.
 
 ### Manuales sugeridas
-- continuar con M3 ejecutando `site.yml` sobre `inventories/vagrant/single/hosts.yml`.
+- `/up` por HTTPS local respondió `200` usando `curl --resolve`.
+- `php artisan schedule:list` muestra `conversations:process-timeouts`.
 
 ---
 
 ## Bloqueos actuales
-- no avanzar a testing real hasta cerrar Vagrant single con convergencia, monitoreo, backup y restore-test.
+- no avanzar a testing real hasta recrear el tag, completar placeholders reales
+  del inventory y aprobar explícitamente la ejecución contra el servidor.
 
 ---
 
@@ -130,7 +133,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- ejecutar `M3 - Convergencia completa en Vagrant single`.
+- ejecutar `M4 - Preparar tag y pase controlado a testing`.
 
 ---
 

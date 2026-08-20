@@ -19,7 +19,9 @@
     - ../group_vars/vault.yml
   vars:
     database_inventory_host: "{{ groups['db_servers'] | first }}"
-    database_address: "{{ hostvars[database_inventory_host].ansible_host }}"
+    database_address: >-
+      {{ '127.0.0.1' if database_inventory_host == inventory_hostname
+      else hostvars[database_inventory_host].ansible_host }}
     postgresql_application_password: "{{ vault_postgresql_password }}"
   tasks:
     - name: Query PostgreSQL through the application credentials
