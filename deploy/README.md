@@ -21,10 +21,14 @@ misma composición, copiando y completando el inventory de ejemplo con datos rea
 ```text
 deploy/
 ├── README.md
+├── .local/
+├── .tools/
 ├── docs/
 └── provisioning/
     ├── ansible.cfg
     ├── requirements.yml
+    ├── site.yml
+    ├── playbooks/
     ├── inventories/
     ├── group_vars/
     ├── roles/
@@ -32,7 +36,38 @@ deploy/
     └── Vagrantfile
 ```
 
-La primera versión seguirá la forma familiar del provisioning de elecciones: playbooks en `deploy/provisioning/`, variables en `group_vars/`, inventarios por entorno y roles estándar en `roles/`.
+### Responsabilidades
+
+- `deploy/README.md`: entrada rápida y mapa general del despliegue.
+- `deploy/docs/`: documentación operativa canónica. Incluye guías de despliegue,
+  producción, matriz de validación y plan Ansible.
+- `deploy/provisioning/`: raíz técnica para ejecutar Ansible y Vagrant.
+- `deploy/provisioning/site.yml`: orquestador principal del despliegue completo.
+- `deploy/provisioning/playbooks/`: playbooks por capacidad o tarea operacional:
+  bootstrap de acceso, common, runtime, aplicación, base de datos, TLS,
+  scheduler, backups, restore-test, monitoring, security y rollback.
+- `deploy/provisioning/inventories/`: inventarios por entorno:
+  - `vagrant/`: laboratorio local con topologías `single` y `split`;
+  - `testing/`: servidor dedicado de pruebas, preparado sin ejecutar contra el
+    host real hasta confirmar red y acceso SSH;
+  - `production/`: plantilla ejemplo para producción.
+- `deploy/provisioning/group_vars/`: variables globales compartidas, defaults de
+  versiones, rutas, backup, TLS, usuario operativo y base de datos. Los secretos
+  deben ir cifrados con Vault.
+- `deploy/provisioning/roles/`: roles Ansible reutilizables por tecnología o
+  responsabilidad.
+- `deploy/provisioning/bin/`: wrappers auxiliares versionables, como `bin/vagrant`.
+- `deploy/provisioning/Vagrantfile`: definición del laboratorio local.
+- `deploy/.local/`: material local no versionado, como claves SSH, descargas,
+  Vagrant home local y archivos temporales.
+- `deploy/.tools/`: herramientas locales no versionadas usadas para operar o
+  validar el despliegue.
+- `deploy/provisioning/.local/` y `deploy/provisioning/.vagrant/`: estado local
+  generado por validaciones, TLS local, releases temporales y Vagrant.
+
+La implementación mantiene la forma familiar del provisioning de elecciones:
+playbooks en `deploy/provisioning/playbooks/`, variables en `group_vars/`,
+inventarios por entorno y roles estándar en `roles/`.
 
 Cada tecnología tendrá un rol propio, por ejemplo `roles/postgresql/` o `roles/php/`. Las diferencias por versión vivirán dentro de `vars/versions/`, `tasks/versions/` o `templates/versions/` únicamente cuando sean necesarias.
 

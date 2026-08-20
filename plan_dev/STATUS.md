@@ -12,12 +12,12 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-19 22:12 -03
+2026-08-20 03:41 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
-- Milestone actual: M4 local queda listo para revisión; tag local y flujo de release inmutable en Vagrant validados. Testing real queda diferido.
+- Milestone actual: documentación de despliegue actualizada con mapa de carpetas y responsabilidades.
 - Próximo paso sugerido: definir red administrativa y acceso SSH antes de tocar `170.210.96.164`.
 
 ---
@@ -74,32 +74,29 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-19 22:12 -03
+- 2026-08-20 03:41 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-08-19.md`
+- no existe `plan_dev/daily/2026-08-20.md`; se atendió una actualización documental puntual.
 
 ### Milestone trabajado
-- `M4 - Preparar tag y pase controlado a testing`
+- Documentación puntual de deploy
 
 ### Resultado
-- `needs_review`
+- `done`
 
 ### Resumen corto
-- El tag local ya apunta a `5a2a802`, el inventory testing quedó sin placeholders
-  críticos y las validaciones estáticas pasaron. No se continúa contra testing
-  real hasta cerrar local y confirmar red/acceso.
+- `deploy/README.md` ahora resume cada carpeta principal de despliegue y su
+  responsabilidad operativa.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/provisioning/inventories/testing/hosts.yml`, `deploy/provisioning/inventories/README.md`, daily y status.
-- resumen técnico: se registró que el push remoto del tag queda diferido, se
-  validó el flujo de release inmutable en Vagrant usando `application_source_strategy=git`
-  con `application_git_ref=5a2a802`, se configuró testing con la clave local
-  `deploy/.local/ssh/deploy_ed25519`, `ssh_allowed_networks: []` hasta confirmar
-  la red administrativa real y `application_release_id` efectivo en host.
-- documentación actualizada: sí; daily y status registran el avance y bloqueo de M4.
+- archivos tocados: `deploy/README.md` y status.
+- resumen técnico: se agregó un mapa de responsabilidades para `deploy/docs/`,
+  `deploy/provisioning/`, `playbooks/`, `inventories/`, `group_vars/`, `roles/`,
+  carpetas locales y archivos principales.
+- documentación actualizada: sí; `deploy/README.md`.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -109,8 +106,8 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: `git show --no-patch --oneline testing-2026-08-19-01`, `ansible-inventory -i inventories/testing/hosts.yml --graph`, `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`, `ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`.
-- resultado: tag local apunta a `5a2a802`; inventory y syntax-check pasan; Vagrant ya validó release inmutable desde fuente `git` local.
+- checks: `git diff --check`.
+- resultado: sin errores.
 
 ### Manuales sugeridas
 - confirmar red administrativa real antes de completar `ssh_allowed_networks`.
