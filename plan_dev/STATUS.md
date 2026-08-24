@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 07:12 -03
+2026-08-24 07:21 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -23,6 +23,9 @@ No debe reemplazar:
 - Próximo paso sugerido: cargar `vault_testing_bootstrap_become_password` en
   Vault y ejecutar `ansible-playbook -i inventories/testing/hosts.yml
   playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
+- Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
+  convertido a formato Ansible Vault; si los valores previos ya eran secretos
+  reales, conviene rotarlos porque existian en commits anteriores.
 
 ---
 
@@ -78,7 +81,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 07:12 -03
+- 2026-08-24 07:21 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -97,6 +100,9 @@ No debe reemplazar:
 - El inventory de testing guarda las variables de acceso inicial; el playbook
   crea dinamicamente `bootstrap_targets` para entrar como `mgaray`, elevar con
   `su` y crear el usuario operativo `deploy`.
+- Se convirtio `group_vars/vault.yml` a formato Ansible Vault porque existia
+  como YAML plano y `ansible-vault edit` fallaba con `Input is not vault
+  encrypted data`.
 - No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
 
 ---
@@ -105,7 +111,9 @@ No debe reemplazar:
 - archivos tocados: `deploy/provisioning/playbooks/bootstrap-access.yml`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
   `deploy/provisioning/inventories/README.md`,
-  `deploy/docs/deployment-guide.md`, `plan_dev/daily/2026-08-24.md` y status.
+  `deploy/docs/deployment-guide.md`,
+  `deploy/provisioning/group_vars/vault.yml`,
+  `plan_dev/daily/2026-08-24.md` y status.
 - resumen tecnico: `bootstrap-access.yml` ahora registra un host bootstrap
   dinamico desde variables de inventory/Vault, luego apunta a `bootstrap_targets`,
   valida opt-in, clave publica y password de `su` cuando corresponde, y toma
@@ -129,6 +137,7 @@ No debe reemplazar:
   - `ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
   - `ansible-inventory -i inventories/testing/hosts.yml --graph`
   - `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
+  - `ansible-vault view group_vars/vault.yml`
   - `ansible-lint playbooks/bootstrap-access.yml`
   - `git diff --check`
 - resultado: sin errores.
