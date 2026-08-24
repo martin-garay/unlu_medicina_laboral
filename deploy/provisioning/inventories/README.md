@@ -65,8 +65,9 @@ Esto confirma que el servidor ve la administración desde `170.210.103.133`.
 Si el servidor todavía no tiene el usuario `deploy`, ejecutar una única vez el
 bootstrap. El inventory define las variables de acceso inicial para conectar
 como `mgaray` vía el alias local `unlu-medicina-testing`, con elevación `su` a
-root. El playbook crea en memoria el host `avisos-testing-bootstrap`, por lo que
-ese alias no queda dentro del grupo `all` usado por `site.yml`.
+root. Ese alias de SSH es la fuente de verdad del salto por bastion, identidad y
+puerto. El playbook crea en memoria el host `avisos-testing-bootstrap`, por lo
+que ese alias no queda dentro del grupo `all` usado por `site.yml`.
 
 La contraseña de `su` no debe pasarse por línea de comandos. Cargarla en Vault
 con el nombre `vault_testing_bootstrap_become_password`:
