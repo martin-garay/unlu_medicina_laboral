@@ -63,51 +63,37 @@ El valor observado de `SSH_CONNECTION` en testing fue:
 Esto confirma que el servidor ve la administración desde `170.210.103.133`.
 
 Si el servidor todavía no tiene el usuario `deploy`, ejecutar una única vez el
-bootstrap. Si ya existe acceso SSH root no interactivo, puede usarse el playbook:
+bootstrap. El inventory define las variables de acceso inicial para conectar
+como `mgaray` vía el alias local `unlu-medicina-testing`, con elevación `su` a
+root. El playbook crea en memoria el host `avisos-testing-bootstrap`, por lo que
+ese alias no queda dentro del grupo `all` usado por `site.yml`.
+
+La contraseña de `su` no debe pasarse por línea de comandos. Cargarla en Vault
+con el nombre `vault_testing_bootstrap_become_password`:
 
 ```bash
-ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml \
-  -u root \
-  -e bootstrap_access_enabled=true \
-  -e bootstrap_access_public_keys="['$(cat ../.local/ssh/deploy_ed25519.pub)']"
+cd deploy/provisioning
+ansible-vault edit group_vars/vault.yml
 ```
 
-Si el acceso privilegiado disponible es manual con `su -`, hacer el bootstrap
-como root dentro del servidor:
+Agregar dentro del Vault:
+
+```yaml
+vault_testing_bootstrap_become_password: "<password-root-su-testing>"
+```
+
+Luego el bootstrap se ejecuta sin parámetros extra:
 
 ```bash
-DEPLOY_PUBKEY='<contenido de deploy/.local/ssh/deploy_ed25519.pub>'
-
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y sudo python3
-
-groupadd --system deploy 2>/dev/null || true
-id -u deploy >/dev/null 2>&1 || useradd \
-  --gid deploy \
-  --groups sudo \
-  --shell /bin/bash \
-  --create-home \
-  deploy
-
-passwd -l deploy
-
-install -d -o deploy -g deploy -m 0700 /home/deploy/.ssh
-printf '%s\n' "$DEPLOY_PUBKEY" > /home/deploy/.ssh/authorized_keys
-chown deploy:deploy /home/deploy/.ssh/authorized_keys
-chmod 0600 /home/deploy/.ssh/authorized_keys
-
-printf 'deploy ALL=(ALL:ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/deploy
-chown root:root /etc/sudoers.d/deploy
-chmod 0440 /etc/sudoers.d/deploy
-visudo -cf /etc/sudoers.d/deploy
+ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml
 ```
 
 Luego validar la operación normal:
 
 ```bash
 ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'
-ansible all -i inventories/testing/hosts.yml -m ping
-ansible all -i inventories/testing/hosts.yml -m command -a 'sudo -n true' --become=false
+ansible app_servers -i inventories/testing/hosts.yml -m ping
+ansible app_servers -i inventories/testing/hosts.yml -m command -a 'sudo -n true' --become=false
 ```
 
 Para operación no interactiva, configurar una clave SSH explícita. El inventory

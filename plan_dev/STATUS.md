@@ -12,15 +12,17 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 06:26 -03
+2026-08-24 07:12 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
-- Milestone actual: instalación local de `yamllint`/`ansible-lint` y ajuste de
-  formato YAML para validar el corte de testing.
-- Próximo paso sugerido: validar manualmente `ssh unlu-medicina-testing-deploy`
-  y continuar con bootstrap remoto de `deploy`.
+- Último bloque completado: preparacion del bootstrap de acceso operativo de
+  testing con parametros movidos a inventory/Vault.
+- Milestone actual: `M3 - Bootstrap y validacion remota de deploy` del daily
+  2026-08-24 queda pendiente de ejecucion real contra testing.
+- Próximo paso sugerido: cargar `vault_testing_bootstrap_become_password` en
+  Vault y ejecutar `ansible-playbook -i inventories/testing/hosts.yml
+  playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
 
 ---
 
@@ -76,35 +78,43 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 06:26 -03
+- 2026-08-24 07:12 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
 
 ### Milestone trabajado
-- Validación local de lint Ansible/YAML
+- `M3 - Bootstrap y validacion remota de deploy`
 
 ### Resultado
-- `done`
+- `needs_review`
 
 ### Resumen corto
-- Se instalaron `yamllint` y `ansible-lint` en
-  `deploy/.tools/ansible-lint-venv`.
-- Se instalaron las colecciones de `requirements.yml` en
-  `deploy/.tools/ansible-collections`.
-- Se ajustó formato YAML para cumplir `yamllint`.
+- Se dejo `bootstrap-access.yml` parametrizado desde inventory/Vault para que
+  testing pueda ejecutarse con el comando corto:
+  `ansible-playbook -i inventories/testing/hosts.yml
+  playbooks/bootstrap-access.yml`.
+- El inventory de testing guarda las variables de acceso inicial; el playbook
+  crea dinamicamente `bootstrap_targets` para entrar como `mgaray`, elevar con
+  `su` y crear el usuario operativo `deploy`.
+- No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/provisioning/group_vars/all.yml`,
+- archivos tocados: `deploy/provisioning/playbooks/bootstrap-access.yml`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
-  `deploy/provisioning/playbooks/common.yml`,
-  `deploy/provisioning/roles/monitoring/tasks/main.yml` y status.
-- resumen técnico: se pasaron valores largos a escalares plegados y listas
-  multilínea para cumplir `yamllint` sin cambiar semántica. También se quitó
-  una línea final extra en `playbooks/common.yml` reportada por `ansible-lint`.
-- documentación actualizada: no; sólo estado operativo.
+  `deploy/provisioning/inventories/README.md`,
+  `deploy/docs/deployment-guide.md`, `plan_dev/daily/2026-08-24.md` y status.
+- resumen tecnico: `bootstrap-access.yml` ahora registra un host bootstrap
+  dinamico desde variables de inventory/Vault, luego apunta a `bootstrap_targets`,
+  valida opt-in, clave publica y password de `su` cuando corresponde, y toma
+  usuario/grupo/sudo desde variables. Testing define el acceso inicial con
+  `bootstrap_access_initial_user: mgaray`,
+  `bootstrap_access_initial_become_method: su` y password desde
+  `vault_testing_bootstrap_become_password`.
+- documentación actualizada: si; inventario y guia de deploy documentan el flujo
+  con Vault y el comando corto.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -115,28 +125,32 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
-  - `yamllint` sobre YAML de deploy modificado.
-  - `ansible-lint site.yml`.
+  - `yamllint deploy/provisioning/inventories/testing/hosts.yml deploy/provisioning/playbooks/bootstrap-access.yml`
+  - `ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
+  - `ansible-inventory -i inventories/testing/hosts.yml --graph`
   - `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
-  - `ansible-inventory -i inventories/vagrant/single/hosts.yml --host medicina-single`
-  - `ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
-  - `ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check`
+  - `ansible-lint playbooks/bootstrap-access.yml`
   - `git diff --check`
 - resultado: sin errores.
 - observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
   local, sin violaciones.
 
 ### Manuales sugeridas
+- cargar `vault_testing_bootstrap_become_password` en
+  `deploy/provisioning/group_vars/vault.yml` con `ansible-vault edit`.
+- ejecutar `ansible-playbook -i inventories/testing/hosts.yml
+  playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
-- ejecutar `ansible -i inventories/testing/hosts.yml all -m ping` antes de
+- ejecutar `ansible -i inventories/testing/hosts.yml app_servers -m ping` antes de
   cualquier playbook remoto.
 - revisar `site.yml --check --diff` antes de aplicar `site.yml`.
 
 ---
 
 ## Bloqueos actuales
-- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta completar
-  bootstrap si falta el usuario `deploy` y validar SSH/sudo como `deploy`.
+- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta cargar
+  `vault_testing_bootstrap_become_password`, completar bootstrap y validar
+  SSH/sudo como `deploy`.
 - mantener `security_enabled: false` y `firewall_enabled: false` en testing hasta
   decidir cómo preservar los accesos y servicios institucionales existentes.
 

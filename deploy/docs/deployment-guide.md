@@ -101,8 +101,15 @@ temporal no debe quedar guardado en el inventory permanente.
 En el servidor de testing institucional, el acceso inicial confirmado requiere
 saltar por `martin@170.210.103.133:46659`, entrar como `mgaray` a
 `170.210.96.164` y elevar con `su -`. Como ese paso depende de credenciales
-humanas, el bootstrap manual de `deploy` y la configuración local de SSH quedan
-documentados en `deploy/provisioning/inventories/README.md`.
+humanas, la configuración local de SSH y la carga del password de `su` en Vault
+quedan documentadas en `deploy/provisioning/inventories/README.md`. Una vez
+cargado `vault_testing_bootstrap_become_password`, el usuario `deploy` se crea
+con:
+
+```bash
+cd deploy/provisioning
+ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml
+```
 
 Mientras no se defina la política completa de seguridad institucional, testing
 usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar

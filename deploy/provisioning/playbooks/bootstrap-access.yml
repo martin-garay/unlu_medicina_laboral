@@ -1,21 +1,75 @@
 ---
-- name: Bootstrap operational SSH access
-  hosts: all
+- name: Register bootstrap target from inventory variables
+  hosts: app_servers
   gather_facts: false
-  become: "{{ bootstrap_access_use_become }}"
+  connection: local
+  become: false
+  vars_files:
+    - ../group_vars/all.yml
+    - ../group_vars/vault.yml
+  tasks:
+    - name: Register runtime bootstrap host
+      ansible.builtin.add_host:
+        name: >-
+          {{ bootstrap_access_inventory_name | default('bootstrap-target') }}
+        groups:
+          - bootstrap_targets
+        ansible_host: "{{ bootstrap_access_initial_host }}"
+        ansible_user: "{{ bootstrap_access_initial_user }}"
+        ansible_ssh_common_args: >-
+          {{
+            bootstrap_access_initial_ssh_common_args
+            | default(ansible_ssh_common_args | default(''))
+          }}
+        ansible_ssh_private_key_file: >-
+          {{ bootstrap_access_initial_ssh_private_key_file | default('') }}
+        ansible_become_method: >-
+          {{ bootstrap_access_initial_become_method | default('sudo') }}
+        ansible_become_user: >-
+          {{ bootstrap_access_initial_become_user | default('root') }}
+        ansible_become_password: >-
+          {{ bootstrap_access_initial_become_password | default('') }}
+        bootstrap_access_enabled: >-
+          {{ bootstrap_access_enabled | default(false) }}
+        bootstrap_access_use_become: >-
+          {{ bootstrap_access_use_become | default(false) }}
+        bootstrap_access_public_keys: >-
+          {{ bootstrap_access_public_keys | default([]) }}
+        bootstrap_access_user_name: >-
+          {{ bootstrap_access_user_name | default(deploy_user_name) }}
+        bootstrap_access_user_group: >-
+          {{ bootstrap_access_user_group | default(deploy_user_group) }}
+        bootstrap_access_passwordless_sudo: >-
+          {{
+            bootstrap_access_passwordless_sudo
+            | default(deploy_user_passwordless_sudo)
+          }}
+
+- name: Bootstrap operational SSH access
+  hosts: bootstrap_targets
+  gather_facts: false
+  become: "{{ bootstrap_access_use_become | default(false) }}"
+  vars_files:
+    - ../group_vars/all.yml
+    - ../group_vars/vault.yml
   vars:
-    bootstrap_access_enabled: false
-    bootstrap_access_use_become: false
-    bootstrap_access_user_name: deploy
-    bootstrap_access_user_group: "{{ bootstrap_access_user_name }}"
-    bootstrap_access_user_shell: /bin/bash
-    bootstrap_access_public_keys: []
-    bootstrap_access_passwordless_sudo: true
+    bootstrap_access_target_user_name: >-
+      {{ bootstrap_access_user_name | default('deploy') }}
+    bootstrap_access_target_user_group: >-
+      {{ bootstrap_access_user_group | default(
+        bootstrap_access_target_user_name
+      ) }}
+    bootstrap_access_target_user_shell: >-
+      {{ bootstrap_access_user_shell | default('/bin/bash') }}
+    bootstrap_access_target_public_keys: >-
+      {{ bootstrap_access_public_keys | default([]) }}
+    bootstrap_access_target_passwordless_sudo: >-
+      {{ bootstrap_access_passwordless_sudo | default(true) }}
   tasks:
     - name: Require explicit bootstrap opt-in
       ansible.builtin.assert:
         that:
-          - bootstrap_access_enabled | bool
+          - bootstrap_access_enabled | default(false) | bool
         fail_msg: >-
           bootstrap_access_enabled must be true. This playbook intentionally
           changes SSH and sudo access and should only be used during bootstrap.
@@ -23,8 +77,22 @@
     - name: Require at least one authorized key
       ansible.builtin.assert:
         that:
-          - bootstrap_access_public_keys | length > 0
-        fail_msg: bootstrap_access_public_keys must include at least one SSH public key.
+          - bootstrap_access_target_public_keys | length > 0
+        fail_msg: >-
+          bootstrap_access_public_keys must include at least one SSH public key.
+
+    - name: Require become password when bootstrapping through su
+      ansible.builtin.assert:
+        that:
+          - ansible_become_password is defined
+          - ansible_become_password | length > 0
+        fail_msg: >-
+          ansible_become_password must be provided, usually through an encrypted
+          Vault variable, when bootstrap uses become_method=su.
+      no_log: true
+      when:
+        - bootstrap_access_use_become | default(false) | bool
+        - ansible_become_method | default('sudo') == 'su'
 
     - name: Ensure sudo is installed for operational access
       ansible.builtin.raw: |
@@ -36,49 +104,52 @@
 
     - name: Create operational group
       ansible.builtin.group:
-        name: "{{ bootstrap_access_user_group }}"
+        name: "{{ bootstrap_access_target_user_group }}"
         system: true
         state: present
 
     - name: Create operational user
       ansible.builtin.user:
-        name: "{{ bootstrap_access_user_name }}"
-        group: "{{ bootstrap_access_user_group }}"
+        name: "{{ bootstrap_access_target_user_name }}"
+        group: "{{ bootstrap_access_target_user_group }}"
         groups: sudo
         append: true
-        shell: "{{ bootstrap_access_user_shell }}"
+        shell: "{{ bootstrap_access_target_user_shell }}"
         create_home: true
         password_lock: true
         state: present
 
     - name: Create operational SSH directory
       ansible.builtin.file:
-        path: "/home/{{ bootstrap_access_user_name }}/.ssh"
+        path: "/home/{{ bootstrap_access_target_user_name }}/.ssh"
         state: directory
-        owner: "{{ bootstrap_access_user_name }}"
-        group: "{{ bootstrap_access_user_group }}"
+        owner: "{{ bootstrap_access_target_user_name }}"
+        group: "{{ bootstrap_access_target_user_group }}"
         mode: "0700"
 
     - name: Install operational authorized keys
       ansible.builtin.copy:
-        content: "{{ bootstrap_access_public_keys | unique | join('\n') }}\n"
-        dest: "/home/{{ bootstrap_access_user_name }}/.ssh/authorized_keys"
-        owner: "{{ bootstrap_access_user_name }}"
-        group: "{{ bootstrap_access_user_group }}"
+        content: |
+          {{ bootstrap_access_target_public_keys | unique | join('\n') }}
+        dest: >-
+          /home/{{ bootstrap_access_target_user_name }}/.ssh/authorized_keys
+        owner: "{{ bootstrap_access_target_user_name }}"
+        group: "{{ bootstrap_access_target_user_group }}"
         mode: "0600"
 
     - name: Configure operational passwordless sudo
       ansible.builtin.copy:
-        content: "{{ bootstrap_access_user_name }} ALL=(ALL:ALL) NOPASSWD: ALL\n"
-        dest: "/etc/sudoers.d/{{ bootstrap_access_user_name }}"
+        content: |
+          {{ bootstrap_access_target_user_name }} ALL=(ALL:ALL) NOPASSWD: ALL
+        dest: "/etc/sudoers.d/{{ bootstrap_access_target_user_name }}"
         owner: root
         group: root
         mode: "0440"
         validate: /usr/sbin/visudo -cf %s
-      when: bootstrap_access_passwordless_sudo | bool
+      when: bootstrap_access_target_passwordless_sudo | bool
 
     - name: Remove managed passwordless sudo when disabled
       ansible.builtin.file:
-        path: "/etc/sudoers.d/{{ bootstrap_access_user_name }}"
+        path: "/etc/sudoers.d/{{ bootstrap_access_target_user_name }}"
         state: absent
-      when: not bootstrap_access_passwordless_sudo | bool
+      when: not bootstrap_access_target_passwordless_sudo | bool
