@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-20 03:41 -03
+2026-08-24 05:47 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
-- Milestone actual: documentación de despliegue actualizada con mapa de carpetas y responsabilidades.
-- Próximo paso sugerido: definir red administrativa y acceso SSH antes de tocar `170.210.96.164`.
+- Milestone actual: ajuste conservador del rol `firewall` para no limpiar todo el ruleset nftables por defecto.
+- Próximo paso sugerido: continuar bootstrap/testing remoto sin aplicar cambios de firewall hasta definir reglas completas para SSH y servicios institucionales.
 
 ---
 
@@ -67,36 +67,38 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test.
+- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test. Desde 2026-08-24 el rol `firewall` no ejecuta `flush ruleset` por defecto; sólo reemplaza su tabla administrada salvo que `firewall_flush_ruleset` se habilite explícitamente.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-20 03:41 -03
+- 2026-08-24 05:47 -03
 
 ### Plan diario usado
-- no existe `plan_dev/daily/2026-08-20.md`; se atendió una actualización documental puntual.
+- no existe `plan_dev/daily/2026-08-24.md`; se atendió un ajuste puntual del rol de firewall solicitado durante el pase a testing.
 
 ### Milestone trabajado
-- Documentación puntual de deploy
+- Ajuste conservador del rol `firewall`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- `deploy/README.md` ahora resume cada carpeta principal de despliegue y su
-  responsabilidad operativa.
+- `firewall_flush_ruleset` queda en `false` por defecto para evitar que el rol
+  borre reglas nftables existentes fuera de la tabla administrada.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/README.md` y status.
-- resumen técnico: se agregó un mapa de responsabilidades para `deploy/docs/`,
-  `deploy/provisioning/`, `playbooks/`, `inventories/`, `group_vars/`, `roles/`,
-  carpetas locales y archivos principales.
-- documentación actualizada: sí; `deploy/README.md`.
+- archivos tocados: `deploy/provisioning/roles/firewall/defaults/main.yml`,
+  `deploy/provisioning/roles/firewall/templates/nftables.conf.j2`,
+  `deploy/provisioning/roles/firewall/README.md` y status.
+- resumen técnico: se agregó la variable `firewall_flush_ruleset` con default
+  `false`; el template ahora destruye y recrea sólo la tabla
+  `inet medicina_laboral` salvo que se pida limpiar todo el ruleset.
+- documentación actualizada: sí; README del rol `firewall`.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -106,13 +108,18 @@ No debe reemplazar:
 
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
-- checks: `git diff --check`.
+- checks:
+  - `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/security.yml --syntax-check`
+  - `ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
+  - `git diff --check`
 - resultado: sin errores.
 
 ### Manuales sugeridas
 - confirmar red administrativa real antes de completar `ssh_allowed_networks`.
 - verificar acceso SSH por root o `deploy` desde la red correcta antes de ejecutar
   cualquier playbook contra testing.
+- no aplicar `security.yml` en testing hasta definir si la tabla administrada debe
+  permitir servicios institucionales existentes como el puerto `10050`.
 - mantener diferido el push remoto del tag hasta cerrar el corte.
 
 ---
@@ -121,6 +128,8 @@ No debe reemplazar:
 - no avanzar a `site.yml --check --diff` ni `site.yml` real hasta confirmar red
   administrativa, completar bootstrap si falta el usuario `deploy` y aprobar
   explícitamente la ejecución contra el servidor.
+- no aplicar firewall en testing hasta decidir cómo preservar los accesos y
+  servicios institucionales existentes.
 - no pushear tag remoto hasta que el corte de testing quede cerrado.
 
 ---

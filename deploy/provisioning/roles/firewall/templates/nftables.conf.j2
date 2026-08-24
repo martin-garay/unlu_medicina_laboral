@@ -1,5 +1,9 @@
 #!/usr/sbin/nft -f
+{% if firewall_flush_ruleset | bool %}
 flush ruleset
+{% else %}
+destroy table inet medicina_laboral
+{% endif %}
 table inet medicina_laboral {
   chain input {
     type filter hook input priority 0; policy drop;
