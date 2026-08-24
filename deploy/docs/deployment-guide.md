@@ -104,10 +104,11 @@ saltar por `martin@170.210.103.133:46659`, entrar como `mgaray` a
 humanas, el bootstrap manual de `deploy` y la configuración local de SSH quedan
 documentados en `deploy/provisioning/inventories/README.md`.
 
-Mientras no se defina la política completa de firewall institucional, testing
-usa `firewall_enabled: false`. Esto permite ejecutar `site.yml` completo sin
-aplicar el rol `firewall` ni exigir `nftables.service` en `monitoring`; no elimina
-ni reemplaza las reglas nftables existentes del servidor.
+Mientras no se defina la política completa de seguridad institucional, testing
+usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar
+`site.yml` completo sin aplicar los roles `hardening` ni `firewall`, y sin exigir
+`nftables.service` en `monitoring`; no elimina ni reemplaza las reglas nftables
+existentes ni modifica la política SSH del servidor.
 
 ## Validaciones iniciales
 

@@ -41,4 +41,5 @@ postgresql_database_name: medicina_laboral
 postgresql_application_user: medicina_laboral
 
 ssh_bastion_enabled: false
+security_enabled: true
 firewall_enabled: true

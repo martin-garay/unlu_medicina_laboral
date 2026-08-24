@@ -12,12 +12,12 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 06:02 -03
+2026-08-24 06:10 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
-- Milestone actual: `M1 - Preparar inventory y documentación de testing` y `M2 - Publicar tag de testing` del daily 2026-08-24.
+- Milestone actual: ajuste adicional de `M1 - Preparar inventory y documentación de testing` para saltear `security.yml` completo en testing.
 - Próximo paso sugerido: validar manualmente `ssh unlu-medicina-testing-deploy` y continuar con bootstrap remoto de `deploy`.
 
 ---
@@ -67,30 +67,30 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test. Desde 2026-08-24 el rol `firewall` no ejecuta `flush ruleset` por defecto; sólo reemplaza su tabla administrada salvo que `firewall_flush_ruleset` se habilite explícitamente. Testing remoto queda configurado con `firewall_enabled: false` para permitir `site.yml` completo sin modificar firewall institucional.
+- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test. Desde 2026-08-24 el rol `firewall` no ejecuta `flush ruleset` por defecto; sólo reemplaza su tabla administrada salvo que `firewall_flush_ruleset` se habilite explícitamente. Testing remoto queda configurado con `security_enabled: false` y `firewall_enabled: false` para permitir `site.yml` completo sin modificar hardening SSH ni firewall institucional.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 06:02 -03
+- 2026-08-24 06:10 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
 
 ### Milestone trabajado
 - `M1 - Preparar inventory y documentación de testing`
-- `M2 - Publicar tag de testing`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
 - Testing usa el release `testing-2026-08-24-01`, el alias local
-  `unlu-medicina-testing-deploy` y `firewall_enabled: false`.
+  `unlu-medicina-testing-deploy`, `security_enabled: false` y
+  `firewall_enabled: false`.
 - Se documentaron los prerequisitos manuales de SSH/bootstrap y el deploy
-  completo queda preparado para saltear firewall.
+  completo queda preparado para saltear security/firewall.
 
 ---
 
@@ -101,9 +101,10 @@ No debe reemplazar:
   `deploy/provisioning/inventories/testing/hosts.yml`,
   `deploy/provisioning/inventories/README.md`,
   `deploy/docs/deployment-guide.md`, `plan_dev/daily/2026-08-24.md` y status.
-- resumen técnico: se agregó `firewall_enabled` con default global `true`,
-  testing lo define en `false`, `security.yml` salta el rol firewall cuando está
-  deshabilitado y `monitoring` no exige `nftables.service` en ese caso.
+- resumen técnico: se agregó `security_enabled` con default global `true`,
+  testing lo define en `false`; `security.yml` salta hardening y firewall cuando
+  está deshabilitado. `firewall_enabled` sigue controlando sólo el rol firewall
+  y `monitoring` no exige `nftables.service` cuando firewall está deshabilitado.
 - documentación actualizada: sí; guía de inventarios, guía de despliegue y daily.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
@@ -116,6 +117,7 @@ No debe reemplazar:
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
   - `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
+  - `ansible-inventory -i inventories/vagrant/single/hosts.yml --host medicina-single`
   - `ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
   - `ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check`
   - `git diff --check`
@@ -135,8 +137,8 @@ No debe reemplazar:
 ## Bloqueos actuales
 - no avanzar a `site.yml --check --diff` ni `site.yml` real hasta completar
   bootstrap si falta el usuario `deploy` y validar SSH/sudo como `deploy`.
-- mantener `firewall_enabled: false` en testing hasta decidir cómo preservar los
-  accesos y servicios institucionales existentes.
+- mantener `security_enabled: false` y `firewall_enabled: false` en testing hasta
+  decidir cómo preservar los accesos y servicios institucionales existentes.
 
 ---
 

@@ -11,7 +11,8 @@
 - salto actual: `martin@170.210.103.133:46659`
 - acceso inicial confirmado: `mgaray@170.210.96.164` vía salto y elevación manual con `su -`
 - red administrativa observada por el servidor: `170.210.103.133`
-- firewall: no gestionado por Ansible en testing inicial (`firewall_enabled: false`)
+- security/hardening/firewall: no gestionados por Ansible en testing inicial
+  (`security_enabled: false`, `firewall_enabled: false`)
 
 El host de inventory `avisos-testing` usa `ansible_host:
 unlu-medicina-testing-deploy`, un alias local que debe existir en
@@ -119,14 +120,16 @@ Antes de ejecutar `site.yml`, confirmar:
 
 - `application_release_id` apunta al tag remoto previsto;
 - `deploy_user_public_keys` contiene la clave pública autorizada para el usuario `deploy`;
+- `security_enabled` sigue en `false` mientras no se gestione hardening desde Ansible;
 - `firewall_enabled` sigue en `false` mientras no se gestione firewall desde Ansible;
 - rutas de certificado si `tls_provider: provided` no usa los defaults de `group_vars/all.yml`.
 
-Testing conserva inicialmente el firewall institucional existente. El servidor
-ya tiene reglas nftables restrictivas cargadas aunque `nftables.service` figure
-`disabled/inactive`, incluyendo acceso SSH desde varias IPs institucionales y el
-puerto `10050` desde `170.210.96.186`. No habilitar `firewall_enabled` hasta
-definir cómo preservar esos accesos y servicios.
+Testing conserva inicialmente los controles institucionales existentes. El
+servidor ya tiene reglas nftables restrictivas cargadas aunque
+`nftables.service` figure `disabled/inactive`, incluyendo acceso SSH desde
+varias IPs institucionales y el puerto `10050` desde `170.210.96.186`. No
+habilitar `security_enabled` ni `firewall_enabled` hasta definir cómo preservar
+esos accesos, servicios y la política SSH existente.
 
 Si `ansible ping` falla por timeout a `170.210.96.164:22`, no ejecutar
 `site.yml` todavía. Primero validar firewall externo, VPN/ruta institucional o
