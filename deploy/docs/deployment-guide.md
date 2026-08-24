@@ -101,10 +101,11 @@ temporal no debe quedar guardado en el inventory permanente.
 En el servidor de testing institucional, el acceso inicial confirmado requiere
 saltar por `martin@170.210.103.133:46659`, entrar como `mgaray` a
 `170.210.96.164` y elevar con `su -`. Como ese paso depende de credenciales
-humanas, la configuración local de SSH y la carga del password de `su` en Vault
-quedan documentadas en `deploy/provisioning/inventories/README.md`. Una vez
-cargado `vault_testing_bootstrap_become_password`, el usuario `deploy` se crea
-con:
+humanas, la configuración local de SSH y la carga de passwords en Vault quedan
+documentadas en `deploy/provisioning/inventories/README.md`. En testing remoto
+se cargan `vault_testing_bastion_ssh_password` para el salto institucional y
+`vault_testing_bootstrap_become_password` para `su` a root. Una vez cargadas, el
+usuario `deploy` se crea con:
 
 ```bash
 cd deploy/provisioning

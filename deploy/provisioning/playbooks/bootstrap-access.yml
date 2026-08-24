@@ -18,6 +18,14 @@
         ansible_user: "{{ bootstrap_access_initial_user }}"
         ansible_ssh_private_key_file: >-
           {{ bootstrap_access_initial_ssh_private_key_file }}
+        ansible_password: >-
+          {{
+            bootstrap_access_initial_ssh_password
+            if (
+              bootstrap_access_initial_ssh_password | default('') | length > 0
+            )
+            else omit
+          }}
         ansible_become_method: >-
           {{ bootstrap_access_initial_become_method | default('sudo') }}
         ansible_become_user: >-
