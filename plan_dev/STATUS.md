@@ -12,13 +12,15 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 06:10 -03
+2026-08-24 06:26 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
-- Milestone actual: ajuste adicional de `M1 - Preparar inventory y documentación de testing` para saltear `security.yml` completo en testing.
-- Próximo paso sugerido: validar manualmente `ssh unlu-medicina-testing-deploy` y continuar con bootstrap remoto de `deploy`.
+- Milestone actual: instalación local de `yamllint`/`ansible-lint` y ajuste de
+  formato YAML para validar el corte de testing.
+- Próximo paso sugerido: validar manualmente `ssh unlu-medicina-testing-deploy`
+  y continuar con bootstrap remoto de `deploy`.
 
 ---
 
@@ -74,38 +76,35 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 06:10 -03
+- 2026-08-24 06:26 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
 
 ### Milestone trabajado
-- `M1 - Preparar inventory y documentación de testing`
+- Validación local de lint Ansible/YAML
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- Testing usa el release `testing-2026-08-24-01`, el alias local
-  `unlu-medicina-testing-deploy`, `security_enabled: false` y
-  `firewall_enabled: false`.
-- Se documentaron los prerequisitos manuales de SSH/bootstrap y el deploy
-  completo queda preparado para saltear security/firewall.
+- Se instalaron `yamllint` y `ansible-lint` en
+  `deploy/.tools/ansible-lint-venv`.
+- Se instalaron las colecciones de `requirements.yml` en
+  `deploy/.tools/ansible-collections`.
+- Se ajustó formato YAML para cumplir `yamllint`.
 
 ---
 
 ## Cambios realizados
 - archivos tocados: `deploy/provisioning/group_vars/all.yml`,
-  `deploy/provisioning/playbooks/security.yml`,
-  `deploy/provisioning/roles/monitoring/tasks/main.yml`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
-  `deploy/provisioning/inventories/README.md`,
-  `deploy/docs/deployment-guide.md`, `plan_dev/daily/2026-08-24.md` y status.
-- resumen técnico: se agregó `security_enabled` con default global `true`,
-  testing lo define en `false`; `security.yml` salta hardening y firewall cuando
-  está deshabilitado. `firewall_enabled` sigue controlando sólo el rol firewall
-  y `monitoring` no exige `nftables.service` cuando firewall está deshabilitado.
-- documentación actualizada: sí; guía de inventarios, guía de despliegue y daily.
+  `deploy/provisioning/playbooks/common.yml`,
+  `deploy/provisioning/roles/monitoring/tasks/main.yml` y status.
+- resumen técnico: se pasaron valores largos a escalares plegados y listas
+  multilínea para cumplir `yamllint` sin cambiar semántica. También se quitó
+  una línea final extra en `playbooks/common.yml` reportada por `ansible-lint`.
+- documentación actualizada: no; sólo estado operativo.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -116,15 +115,16 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
+  - `yamllint` sobre YAML de deploy modificado.
+  - `ansible-lint site.yml`.
   - `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
   - `ansible-inventory -i inventories/vagrant/single/hosts.yml --host medicina-single`
   - `ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
   - `ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check`
   - `git diff --check`
 - resultado: sin errores.
-- no ejecutadas:
-  - `yamllint`; no está instalado en la estación de control.
-  - `ansible-lint`; no está instalado en la estación de control.
+- observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
+  local, sin violaciones.
 
 ### Manuales sugeridas
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.

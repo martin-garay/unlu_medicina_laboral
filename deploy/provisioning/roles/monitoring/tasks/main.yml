@@ -24,7 +24,9 @@
   ansible.builtin.assert:
     that:
       - ansible_facts.services['apache2.service'].state == 'running'
-      - ansible_facts.services['php' ~ php_version ~ '-fpm.service'].state == 'running'
+      - >-
+        ansible_facts.services['php' ~ php_version ~ '-fpm.service'].state
+        == 'running'
   when: inventory_hostname in groups['app_servers']
 
 - name: Require PostgreSQL readiness
@@ -39,7 +41,10 @@
 
 - name: Require available disk capacity
   ansible.builtin.assert:
-    that: "monitoring_disk_usage.stdout_lines[-1] | regex_replace('[^0-9]', '') | int < monitoring_disk_warning_percent"
+    that: >-
+      monitoring_disk_usage.stdout_lines[-1]
+      | regex_replace('[^0-9]', '')
+      | int < monitoring_disk_warning_percent
   when: not ansible_check_mode
 
 - name: Verify Laravel operational doctor
@@ -59,12 +64,20 @@
   become: true
   register: monitoring_schedule
   changed_when: false
-  failed_when: "'conversations:process-timeouts' not in monitoring_schedule.stdout"
+  failed_when: >-
+    'conversations:process-timeouts' not in monitoring_schedule.stdout
   when: inventory_hostname in groups['app_servers']
 
 - name: Verify TLS certificate validity window
   ansible.builtin.command:
-    argv: [openssl, x509, -checkend, "{{ monitoring_tls_warning_seconds }}", -noout, -in, "{{ tls_certificate_path }}"]
+    argv:
+      - openssl
+      - x509
+      - -checkend
+      - "{{ monitoring_tls_warning_seconds }}"
+      - -noout
+      - -in
+      - "{{ tls_certificate_path }}"
   changed_when: false
   when:
     - inventory_hostname in groups['app_servers']
