@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 07:31 -03
+2026-08-24 07:49 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -27,9 +27,9 @@ No debe reemplazar:
   convertido a formato Ansible Vault; si los valores previos ya eran secretos
   reales, conviene rotarlos porque existian en commits anteriores.
 - Nota de bootstrap SSH: el acceso inicial ahora usa el alias local
-  `unlu-medicina-testing` sin inyectar `ansible_ssh_common_args` ni key
-  explicita desde Ansible, para no interferir con `~/.ssh/config` y su
-  `ProxyJump`.
+  `unlu-medicina-testing` y pisa explicitamente la key heredada para usar
+  `~/.ssh/id_ed25519`, evitando que Ansible intente conectar como `mgaray` con
+  la clave operativa `deploy_ed25519`.
 
 ---
 
@@ -85,7 +85,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 07:31 -03
+- 2026-08-24 07:49 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -108,9 +108,9 @@ No debe reemplazar:
   como YAML plano y `ansible-vault edit` fallaba con `Input is not vault
   encrypted data`.
 - Se corrigio el bootstrap inicial para apoyarse directamente en el alias SSH
-  local `unlu-medicina-testing`, evitando sobreescribir opciones de SSH que
-  podian cortar el salto por bastion con `Connection closed by UNKNOWN port
-  65535`.
+  local `unlu-medicina-testing`, usando explicitamente `~/.ssh/id_ed25519` para
+  no heredar `deploy_ed25519` desde `all.vars`. El `-vvvv` mostro que esa key
+  operativa se estaba inyectando en la conexion bootstrap.
 - No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
 
 ---
@@ -129,8 +129,9 @@ No debe reemplazar:
   `bootstrap_access_initial_user: mgaray`,
   `bootstrap_access_initial_become_method: su` y password desde
   `vault_testing_bootstrap_become_password`. El host bootstrap no define
-  `ansible_ssh_common_args` ni `ansible_ssh_private_key_file`; esas opciones
-  quedan delegadas al alias `unlu-medicina-testing` de `~/.ssh/config`.
+  `ansible_ssh_common_args`; el salto queda delegado al alias
+  `unlu-medicina-testing` de `~/.ssh/config`, pero la identidad SSH inicial se
+  fija como `~/.ssh/id_ed25519`.
 - documentación actualizada: si; inventario y guia de deploy documentan el flujo
   con Vault y el comando corto.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
