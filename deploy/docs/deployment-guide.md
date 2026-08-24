@@ -98,6 +98,17 @@ ese usuario todavía no exista, `playbooks/bootstrap-access.yml` lo crea en una
 ejecución inicial explícita usando un usuario privilegiado temporal. El usuario
 temporal no debe quedar guardado en el inventory permanente.
 
+En el servidor de testing institucional, el acceso inicial confirmado requiere
+saltar por `martin@170.210.103.133:46659`, entrar como `mgaray` a
+`170.210.96.164` y elevar con `su -`. Como ese paso depende de credenciales
+humanas, el bootstrap manual de `deploy` y la configuración local de SSH quedan
+documentados en `deploy/provisioning/inventories/README.md`.
+
+Mientras no se defina la política completa de firewall institucional, testing
+usa `firewall_enabled: false`. Esto permite ejecutar `site.yml` completo sin
+aplicar el rol `firewall` ni exigir `nftables.service` en `monitoring`; no elimina
+ni reemplaza las reglas nftables existentes del servidor.
+
 ## Validaciones iniciales
 
 Desde `deploy/provisioning/`:

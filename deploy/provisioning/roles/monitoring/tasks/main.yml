@@ -6,13 +6,19 @@
   ansible.builtin.assert:
     that:
       - ansible_facts.services['cron.service'].state == 'running'
+
+- name: Require firewall service when managed
+  ansible.builtin.assert:
+    that:
       - ansible_facts.services['nftables.service'].status == 'enabled'
+  when: firewall_enabled | bool
 
 - name: Verify effective firewall policy
   ansible.builtin.command: nft list ruleset
   register: monitoring_firewall
   changed_when: false
   failed_when: "'policy drop' not in monitoring_firewall.stdout"
+  when: firewall_enabled | bool
 
 - name: Require application services
   ansible.builtin.assert:

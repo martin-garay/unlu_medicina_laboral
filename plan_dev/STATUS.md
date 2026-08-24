@@ -12,13 +12,13 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 05:47 -03
+2026-08-24 06:02 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: `M12 - pruebas de infraestructura y matriz final`.
-- Milestone actual: ajuste conservador del rol `firewall` para no limpiar todo el ruleset nftables por defecto.
-- Próximo paso sugerido: continuar bootstrap/testing remoto sin aplicar cambios de firewall hasta definir reglas completas para SSH y servicios institucionales.
+- Milestone actual: `M1 - Preparar inventory y documentación de testing` y `M2 - Publicar tag de testing` del daily 2026-08-24.
+- Próximo paso sugerido: validar manualmente `ssh unlu-medicina-testing-deploy` y continuar con bootstrap remoto de `deploy`.
 
 ---
 
@@ -67,38 +67,44 @@ No debe reemplazar:
 
 ### Deploy / Ansible
 - estado: `in_progress`
-- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test. Desde 2026-08-24 el rol `firewall` no ejecuta `flush ruleset` por defecto; sólo reemplaza su tabla administrada salvo que `firewall_flush_ruleset` se habilite explícitamente.
+- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test. Desde 2026-08-24 el rol `firewall` no ejecuta `flush ruleset` por defecto; sólo reemplaza su tabla administrada salvo que `firewall_flush_ruleset` se habilite explícitamente. Testing remoto queda configurado con `firewall_enabled: false` para permitir `site.yml` completo sin modificar firewall institucional.
 
 ---
 
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 05:47 -03
+- 2026-08-24 06:02 -03
 
 ### Plan diario usado
-- no existe `plan_dev/daily/2026-08-24.md`; se atendió un ajuste puntual del rol de firewall solicitado durante el pase a testing.
+- `plan_dev/daily/2026-08-24.md`
 
 ### Milestone trabajado
-- Ajuste conservador del rol `firewall`
+- `M1 - Preparar inventory y documentación de testing`
+- `M2 - Publicar tag de testing`
 
 ### Resultado
 - `done`
 
 ### Resumen corto
-- `firewall_flush_ruleset` queda en `false` por defecto para evitar que el rol
-  borre reglas nftables existentes fuera de la tabla administrada.
+- Testing usa el release `testing-2026-08-24-01`, el alias local
+  `unlu-medicina-testing-deploy` y `firewall_enabled: false`.
+- Se documentaron los prerequisitos manuales de SSH/bootstrap y el deploy
+  completo queda preparado para saltear firewall.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/provisioning/roles/firewall/defaults/main.yml`,
-  `deploy/provisioning/roles/firewall/templates/nftables.conf.j2`,
-  `deploy/provisioning/roles/firewall/README.md` y status.
-- resumen técnico: se agregó la variable `firewall_flush_ruleset` con default
-  `false`; el template ahora destruye y recrea sólo la tabla
-  `inet medicina_laboral` salvo que se pida limpiar todo el ruleset.
-- documentación actualizada: sí; README del rol `firewall`.
+- archivos tocados: `deploy/provisioning/group_vars/all.yml`,
+  `deploy/provisioning/playbooks/security.yml`,
+  `deploy/provisioning/roles/monitoring/tasks/main.yml`,
+  `deploy/provisioning/inventories/testing/hosts.yml`,
+  `deploy/provisioning/inventories/README.md`,
+  `deploy/docs/deployment-guide.md`, `plan_dev/daily/2026-08-24.md` y status.
+- resumen técnico: se agregó `firewall_enabled` con default global `true`,
+  testing lo define en `false`, `security.yml` salta el rol firewall cuando está
+  deshabilitado y `monitoring` no exige `nftables.service` en ese caso.
+- documentación actualizada: sí; guía de inventarios, guía de despliegue y daily.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -109,28 +115,28 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
-  - `ansible-playbook -i inventories/vagrant/single/hosts.yml playbooks/security.yml --syntax-check`
+  - `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
   - `ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
+  - `ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check`
   - `git diff --check`
 - resultado: sin errores.
+- no ejecutadas:
+  - `yamllint`; no está instalado en la estación de control.
+  - `ansible-lint`; no está instalado en la estación de control.
 
 ### Manuales sugeridas
-- confirmar red administrativa real antes de completar `ssh_allowed_networks`.
-- verificar acceso SSH por root o `deploy` desde la red correcta antes de ejecutar
-  cualquier playbook contra testing.
-- no aplicar `security.yml` en testing hasta definir si la tabla administrada debe
-  permitir servicios institucionales existentes como el puerto `10050`.
-- mantener diferido el push remoto del tag hasta cerrar el corte.
+- validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
+- ejecutar `ansible -i inventories/testing/hosts.yml all -m ping` antes de
+  cualquier playbook remoto.
+- revisar `site.yml --check --diff` antes de aplicar `site.yml`.
 
 ---
 
 ## Bloqueos actuales
-- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta confirmar red
-  administrativa, completar bootstrap si falta el usuario `deploy` y aprobar
-  explícitamente la ejecución contra el servidor.
-- no aplicar firewall en testing hasta decidir cómo preservar los accesos y
-  servicios institucionales existentes.
-- no pushear tag remoto hasta que el corte de testing quede cerrado.
+- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta completar
+  bootstrap si falta el usuario `deploy` y validar SSH/sudo como `deploy`.
+- mantener `firewall_enabled: false` en testing hasta decidir cómo preservar los
+  accesos y servicios institucionales existentes.
 
 ---
 
@@ -148,8 +154,8 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- preparar una nueva ejecución específica para bootstrap/testing real con acceso
-  SSH confirmado.
+- continuar con `M3 - Bootstrap y validación remota de deploy` del daily
+  2026-08-24.
 
 ---
 
