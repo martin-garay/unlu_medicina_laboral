@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 08:35 -03
+2026-08-24 09:16 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -20,9 +20,9 @@ No debe reemplazar:
   testing con parametros movidos a inventory/Vault.
 - Milestone actual: `M3 - Bootstrap y validacion remota de deploy` del daily
   2026-08-24 queda pendiente de ejecucion real contra testing.
-- Próximo paso sugerido: cargar `vault_testing_bootstrap_become_password` en
-  Vault, cargar `vault_testing_bastion_ssh_password` si el salto institucional
-  pide password, y ejecutar `ansible-playbook -i inventories/testing/hosts.yml
+- Próximo paso sugerido: dejar el salto `unlu-pc` con clave SSH no interactiva,
+  mantener `vault_testing_bootstrap_become_password` en Vault y ejecutar
+  `ansible-playbook -i inventories/testing/hosts.yml
   playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
   convertido a formato Ansible Vault; si los valores previos ya eran secretos
@@ -33,8 +33,9 @@ No debe reemplazar:
   la clave operativa `deploy_ed25519`.
 - Nota de bastion: `ssh -o BatchMode=yes unlu-medicina-testing` confirmo que el
   corte `Connection closed by UNKNOWN port 65535` ocurre en el salto
-  `martin@170.210.103.133` por password SSH no interactiva. Testing soporta
-  `vault_testing_bastion_ssh_password` para que Ansible use `sshpass`.
+  `martin@170.210.103.133` por password SSH interactiva. La password del bastion
+  no resuelve el `ProxyJump` desde `ansible_password`; el prerequisito correcto
+  es configurar clave SSH no interactiva en `unlu-pc`.
 
 ---
 
@@ -90,7 +91,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 08:35 -03
+- 2026-08-24 09:16 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -116,9 +117,12 @@ No debe reemplazar:
   local `unlu-medicina-testing`, usando explicitamente `~/.ssh/id_ed25519` para
   no heredar `deploy_ed25519` desde `all.vars`. El `-vvvv` mostro que esa key
   operativa se estaba inyectando en la conexion bootstrap.
-- Se agrego `bootstrap_access_initial_ssh_password` desde
-  `vault_testing_bastion_ssh_password` para atravesar el ProxyJump cuando el
-  bastion requiere password y no clave SSH.
+- Se retiro el intento de modelar la password del bastion como
+  `ansible_password`, porque no se aplica al `ProxyJump`. El playbook ahora
+  valida primero `ssh -o BatchMode=yes unlu-medicina-testing true` y falla con
+  un mensaje claro si el salto requiere password interactiva.
+- Se agrego `no_log: true` al `add_host` dinamico para que `-vvvv` no exponga
+  valores de Vault en el registro del host bootstrap.
 - No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
 
 ---
@@ -139,9 +143,7 @@ No debe reemplazar:
   `vault_testing_bootstrap_become_password`. El host bootstrap no define
   `ansible_ssh_common_args`; el salto queda delegado al alias
   `unlu-medicina-testing` de `~/.ssh/config`, pero la identidad SSH inicial se
-  fija como `~/.ssh/id_ed25519`. Cuando
-  `vault_testing_bastion_ssh_password` existe, `add_host` define
-  `ansible_password` para habilitar `sshpass` en la conexion SSH.
+  fija como `~/.ssh/id_ed25519`. El acceso al bastion debe ser por clave SSH.
 - documentación actualizada: si; inventario y guia de deploy documentan el flujo
   con Vault y el comando corto.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
@@ -168,8 +170,10 @@ No debe reemplazar:
 ### Manuales sugeridas
 - cargar `vault_testing_bootstrap_become_password` en
   `deploy/provisioning/group_vars/vault.yml` con `ansible-vault edit`.
-- si el bastion pide password, cargar `vault_testing_bastion_ssh_password` en el
-  mismo Vault.
+- ejecutar `ssh-copy-id -i ~/.ssh/id_ed25519.pub -p 46659
+  martin@170.210.103.133` si el bastion todavia pide password.
+- validar `ssh -o BatchMode=yes unlu-pc 'whoami; hostname'`.
+- validar `ssh -o BatchMode=yes unlu-medicina-testing 'whoami; hostname'`.
 - ejecutar `ansible-playbook -i inventories/testing/hosts.yml
   playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
@@ -180,9 +184,8 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
-- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta cargar los
-  secretos de bootstrap necesarios, completar bootstrap y validar SSH/sudo como
-  `deploy`.
+- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta tener SSH no
+  interactivo por bastion, completar bootstrap y validar SSH/sudo como `deploy`.
 - mantener `security_enabled: false` y `firewall_enabled: false` en testing hasta
   decidir cómo preservar los accesos y servicios institucionales existentes.
 

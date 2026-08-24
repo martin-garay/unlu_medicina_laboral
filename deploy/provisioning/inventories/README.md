@@ -71,7 +71,16 @@ en lugar de la clave operativa `deploy_ed25519`. El playbook crea en memoria el
 host `avisos-testing-bootstrap`, por lo que ese alias no queda dentro del grupo
 `all` usado por `site.yml`.
 
-Las contraseñas no deben pasarse por línea de comandos. Cargarlas en Vault:
+El salto por bastion debe funcionar sin password interactiva. Configurar una
+clave SSH para `martin@170.210.103.133:46659`:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub -p 46659 martin@170.210.103.133
+ssh -o BatchMode=yes unlu-pc 'whoami; hostname'
+ssh -o BatchMode=yes unlu-medicina-testing 'whoami; hostname'
+```
+
+La contraseña de `su` no debe pasarse por línea de comandos. Cargarla en Vault:
 
 ```bash
 cd deploy/provisioning
@@ -81,12 +90,9 @@ ansible-vault edit group_vars/vault.yml
 Agregar dentro del Vault:
 
 ```yaml
-vault_testing_bastion_ssh_password: "<password-martin-bastion>"
 vault_testing_bootstrap_become_password: "<password-root-su-testing>"
 ```
 
-`vault_testing_bastion_ssh_password` se usa para atravesar el salto
-`martin@170.210.103.133` cuando todavía no hay clave SSH en el bastion.
 `vault_testing_bootstrap_become_password` se usa para `su` a root dentro de
 `medicina-pruebas`.
 
