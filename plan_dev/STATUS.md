@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-26 20:43 -03
+2026-08-26 20:52 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -39,6 +39,11 @@ No debe reemplazar:
 - Nota PC Uni: el control node de PC Uni reporto incompatibilidad con
   `ansible.builtin.raw` en `bootstrap-access.yml`; la tarea excepcional de
   bootstrap usa ahora `raw` corto con `skip_ansible_lint`.
+- Nota bootstrap remoto: el control node de PC Uni logro ejecutar la primera
+  tarea `raw`, pero los módulos Python remotos fallaron con
+  `No module named 'ansible.module_utils.six.moves'`. El bootstrap posterior a
+  los asserts usa ahora `raw` completo para no depender de módulos Python antes
+  de crear y validar el usuario `deploy`.
 
 ---
 
@@ -94,7 +99,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-26 20:43 -03
+- 2026-08-26 20:52 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -130,6 +135,9 @@ No debe reemplazar:
 - Se cambio la tarea de instalacion inicial de sudo de `ansible.builtin.raw` a
   `raw` corto para compatibilidad con la version de Ansible instalada en PC Uni.
   La excepcion queda limitada a esa tarea con `skip_ansible_lint`.
+- Se reemplazaron las tareas remotas `group`, `user`, `file` y `copy` del
+  bootstrap por un bloque `raw` idempotente que crea grupo, usuario, `.ssh`,
+  `authorized_keys` y sudoers sin ejecutar módulos Python en el servidor.
 - No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
 
 ---
@@ -153,7 +161,9 @@ No debe reemplazar:
   fija como `~/.ssh/id_ed25519`. El acceso al bastion debe ser por clave SSH.
   La instalacion inicial de sudo se mantiene con `raw` corto porque se ejecuta
   antes de garantizar Python/sudo completos en el host remoto y por
-  compatibilidad con el Ansible de PC Uni.
+  compatibilidad con el Ansible de PC Uni. El resto del bootstrap de acceso
+  operativo tambien usa `raw` para evitar el error remoto
+  `ansible.module_utils.six.moves` hasta completar la creacion de `deploy`.
 - documentación actualizada: si; inventario y guia de deploy documentan el flujo
   con Vault y el comando corto.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.

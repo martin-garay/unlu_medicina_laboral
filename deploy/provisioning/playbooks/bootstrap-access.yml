@@ -123,54 +123,53 @@
       tags:
         - skip_ansible_lint
 
-    - name: Create operational group
-      ansible.builtin.group:
-        name: "{{ bootstrap_access_target_user_group }}"
-        system: true
-        state: present
+    - name: Provision operational user and SSH access
+      raw: |
+        set -eu
 
-    - name: Create operational user
-      ansible.builtin.user:
-        name: "{{ bootstrap_access_target_user_name }}"
-        group: "{{ bootstrap_access_target_user_group }}"
-        groups: sudo
-        append: true
-        shell: "{{ bootstrap_access_target_user_shell }}"
-        create_home: true
-        password_lock: true
-        state: present
+        user={{ bootstrap_access_target_user_name | quote }}
+        group={{ bootstrap_access_target_user_group | quote }}
+        shell={{ bootstrap_access_target_user_shell | quote }}
+        home="/home/$user"
+        passwordless_sudo={{ bootstrap_access_target_passwordless_sudo |
+          quote }}
 
-    - name: Create operational SSH directory
-      ansible.builtin.file:
-        path: "/home/{{ bootstrap_access_target_user_name }}/.ssh"
-        state: directory
-        owner: "{{ bootstrap_access_target_user_name }}"
-        group: "{{ bootstrap_access_target_user_group }}"
-        mode: "0700"
+        if ! getent group "$group" >/dev/null 2>&1; then
+          groupadd --system "$group"
+        fi
 
-    - name: Install operational authorized keys
-      ansible.builtin.copy:
-        content: |
-          {{ bootstrap_access_target_public_keys | unique | join('\n') }}
-        dest: >-
-          /home/{{ bootstrap_access_target_user_name }}/.ssh/authorized_keys
-        owner: "{{ bootstrap_access_target_user_name }}"
-        group: "{{ bootstrap_access_target_user_group }}"
-        mode: "0600"
+        if id -u "$user" >/dev/null 2>&1; then
+          usermod --gid "$group" --append --groups sudo --shell "$shell" "$user"
+        else
+          useradd \
+            --gid "$group" \
+            --groups sudo \
+            --shell "$shell" \
+            --create-home \
+            "$user"
+        fi
 
-    - name: Configure operational passwordless sudo
-      ansible.builtin.copy:
-        content: |
-          {{ bootstrap_access_target_user_name }} ALL=(ALL:ALL) NOPASSWD: ALL
-        dest: "/etc/sudoers.d/{{ bootstrap_access_target_user_name }}"
-        owner: root
-        group: root
-        mode: "0440"
-        validate: /usr/sbin/visudo -cf %s
-      when: bootstrap_access_target_passwordless_sudo | bool
+        passwd -l "$user" >/dev/null 2>&1 || true
 
-    - name: Remove managed passwordless sudo when disabled
-      ansible.builtin.file:
-        path: "/etc/sudoers.d/{{ bootstrap_access_target_user_name }}"
-        state: absent
-      when: not bootstrap_access_target_passwordless_sudo | bool
+        install -d -o "$user" -g "$group" -m 0700 "$home/.ssh"
+        cat > "$home/.ssh/authorized_keys" <<'AUTHORIZED_KEYS'
+        {{ bootstrap_access_target_public_keys | unique | join('\n') }}
+        AUTHORIZED_KEYS
+        chown "$user:$group" "$home/.ssh/authorized_keys"
+        chmod 0600 "$home/.ssh/authorized_keys"
+
+        case "$passwordless_sudo" in
+          True|true|1|yes|Yes)
+            printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$user" \
+              > "/etc/sudoers.d/$user"
+            chown root:root "/etc/sudoers.d/$user"
+            chmod 0440 "/etc/sudoers.d/$user"
+            visudo -cf "/etc/sudoers.d/$user"
+            ;;
+          *)
+            rm -f "/etc/sudoers.d/$user"
+            ;;
+        esac
+      changed_when: true
+      tags:
+        - skip_ansible_lint
