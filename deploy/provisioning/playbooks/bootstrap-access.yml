@@ -115,6 +115,9 @@
 
     - name: Ensure sudo is installed for operational access
       raw: |
+        PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        export PATH
+
         if ! command -v sudo >/dev/null 2>&1; then
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y sudo
@@ -126,6 +129,8 @@
     - name: Provision operational user and SSH access
       raw: |
         set -eu
+        PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        export PATH
 
         user={{ bootstrap_access_target_user_name | quote }}
         group={{ bootstrap_access_target_user_group | quote }}
