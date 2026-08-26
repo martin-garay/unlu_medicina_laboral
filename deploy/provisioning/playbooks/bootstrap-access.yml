@@ -114,12 +114,14 @@
         - ansible_become_method | default('sudo') == 'su'
 
     - name: Ensure sudo is installed for operational access
-      ansible.builtin.raw: |
+      raw: |
         if ! command -v sudo >/dev/null 2>&1; then
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y sudo
         fi
       changed_when: false
+      tags:
+        - skip_ansible_lint
 
     - name: Create operational group
       ansible.builtin.group:

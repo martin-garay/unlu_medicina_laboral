@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-24 09:16 -03
+2026-08-26 20:43 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -36,6 +36,9 @@ No debe reemplazar:
   `martin@170.210.103.133` por password SSH interactiva. La password del bastion
   no resuelve el `ProxyJump` desde `ansible_password`; el prerequisito correcto
   es configurar clave SSH no interactiva en `unlu-pc`.
+- Nota PC Uni: el control node de PC Uni reporto incompatibilidad con
+  `ansible.builtin.raw` en `bootstrap-access.yml`; la tarea excepcional de
+  bootstrap usa ahora `raw` corto con `skip_ansible_lint`.
 
 ---
 
@@ -91,10 +94,11 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-24 09:16 -03
+- 2026-08-26 20:43 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
+- `plan_dev/daily/2026-08-26.md` no existe.
 
 ### Milestone trabajado
 - `M3 - Bootstrap y validacion remota de deploy`
@@ -123,6 +127,9 @@ No debe reemplazar:
   un mensaje claro si el salto requiere password interactiva.
 - Se agrego `no_log: true` al `add_host` dinamico para que `-vvvv` no exponga
   valores de Vault en el registro del host bootstrap.
+- Se cambio la tarea de instalacion inicial de sudo de `ansible.builtin.raw` a
+  `raw` corto para compatibilidad con la version de Ansible instalada en PC Uni.
+  La excepcion queda limitada a esa tarea con `skip_ansible_lint`.
 - No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
 
 ---
@@ -144,6 +151,9 @@ No debe reemplazar:
   `ansible_ssh_common_args`; el salto queda delegado al alias
   `unlu-medicina-testing` de `~/.ssh/config`, pero la identidad SSH inicial se
   fija como `~/.ssh/id_ed25519`. El acceso al bastion debe ser por clave SSH.
+  La instalacion inicial de sudo se mantiene con `raw` corto porque se ejecuta
+  antes de garantizar Python/sudo completos en el host remoto y por
+  compatibilidad con el Ansible de PC Uni.
 - documentación actualizada: si; inventario y guia de deploy documentan el flujo
   con Vault y el comando corto.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
