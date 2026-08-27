@@ -60,6 +60,28 @@ if git_ref not in ("testing-2026-08-24-01", "{{ application_release_id }}"):
         f"got {git_ref!r}"
     )
 
+required_defaults = [
+    "application_document_root",
+    "application_root",
+    "backup_root",
+    "deploy_user_group",
+    "deploy_user_name",
+    "monitoring_backup_max_age_seconds",
+    "monitoring_disk_warning_percent",
+    "monitoring_tls_warning_seconds",
+    "php_fpm_socket",
+    "postgresql_application_user",
+    "postgresql_database_name",
+    "private_storage_path",
+    "tls_ca_certificate_path",
+    "tls_certificate_path",
+    "tls_private_key_path",
+]
+
+for key in required_defaults:
+    if key not in host:
+        failures.append(f"{key}: required default is not loaded")
+
 if failures:
     print("Testing inventory invariants failed:", file=sys.stderr)
     for failure in failures:

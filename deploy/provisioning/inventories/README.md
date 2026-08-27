@@ -161,6 +161,11 @@ bin/check-deploy
 El check falla si un playbook intenta cargar `../group_vars/all.yml` como
 `vars_files`, porque eso puede pisar variables del inventory.
 
+Los directorios de inventory mantienen un enlace `group_vars` al directorio
+compartido `deploy/provisioning/group_vars`. Esto permite usar comandos como
+`-i inventories/testing/hosts.yml` sin perder defaults globales de bajo nivel,
+por ejemplo rutas TLS, backup o nombres de usuario.
+
 Si la estación de control usa Python 3.8, el check saltea `ansible-lint` y deja
 un warning. Eso no bloquea el deploy a testing; el lint completo queda como
 validación de integración en una estación con Python 3.10 o superior.

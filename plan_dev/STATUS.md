@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 20:44 -03
+2026-08-27 20:58 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -25,7 +25,9 @@ No debe reemplazar:
   agrego `bin/check-deploy` para detectar esta clase de regresiones antes de
   commitear, con `ansible-lint` opcional en control nodes Python 3.8. El rol
   `tls` ahora evita fallar en `--check` cuando faltan directorios remotos de
-  destino; falta reintentar `site.yml --check --diff` desde PC Uni.
+  destino. Los inventories versionados ahora enlazan `group_vars` compartido
+  para cargar defaults como `tls_private_key_path`; falta reintentar
+  `site.yml --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -117,7 +119,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 20:44 -03
+- 2026-08-27 20:58 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -162,6 +164,11 @@ No debe reemplazar:
   censurada por `no_log`. Como la generacion local ya habia pasado, se ajusto el
   rol para inspeccionar directorios remotos TLS, crearlos en apply real y
   saltear la copia durante `--check` si el directorio todavia no existe.
+- El reintento siguiente fallo en `tls : Inspect TLS target directories` porque
+  `tls_private_key_path` no estaba definido. Se agregaron enlaces `group_vars`
+  dentro de cada directorio de inventory para que `group_vars/all.yml` cargue
+  aun usando `-i inventories/testing/hosts.yml`, y se amplio `bin/check-deploy`
+  para validar defaults criticos.
 
 ---
 
@@ -173,6 +180,7 @@ No debe reemplazar:
   `deploy/provisioning/bin/check-deploy`,
   `deploy/provisioning/bin/setup-control-node`,
   `deploy/provisioning/group_vars/all.yml`,
+  `deploy/provisioning/inventories/*/group_vars`,
   `deploy/provisioning/playbooks/validate.yml`,
   `deploy/provisioning/requirements-control.txt`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
@@ -199,7 +207,8 @@ No debe reemplazar:
   herramienta; el lint completo se mantiene en estaciones con Python 3.10+. El
   rol `tls` crea los directorios remotos de destino en apply real y evita que
   `--check` falle en tareas `copy` con `no_log` cuando esos directorios aun no
-  existen.
+  existen. Los directorios de inventory enlazan `group_vars` compartido para que
+  los defaults globales carguen como inventory vars y no como `vars_files`.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing y el check
   pre-commit.

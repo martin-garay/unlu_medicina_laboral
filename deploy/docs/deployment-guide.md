@@ -121,6 +121,12 @@ selecciones del inventory, como `application_release_id`, `security_enabled` o
 `firewall_enabled`. Los playbooks sólo deben declarar `vars_files` para secretos
 explícitos, por ejemplo `../group_vars/vault.yml`.
 
+Cada directorio de inventory versionado contiene un enlace `group_vars` hacia
+`deploy/provisioning/group_vars`, para que los defaults compartidos carguen
+tambien cuando se invoca Ansible con un archivo concreto como
+`-i inventories/testing/hosts.yml`. `bin/check-deploy` valida que esos defaults
+esten disponibles antes de ejecutar deploy.
+
 La matriz de plataformas soportadas que usa `playbooks/validate.yml` vive en
 `playbooks/vars/supported-platforms.yml`. Esa matriz se carga de forma explicita
 porque no es una seleccion de entorno y no debe depender de la carga implicita de
