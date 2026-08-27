@@ -108,12 +108,32 @@ Luego validar la operación normal:
 ```bash
 ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'
 ansible app_servers -i inventories/testing/hosts.yml -m ping
-ansible app_servers -i inventories/testing/hosts.yml -m command -a 'sudo -n true' --become=false
+ansible app_servers -i inventories/testing/hosts.yml -m command -a 'sudo -n true' -e ansible_become=false
 ```
 
 El bootstrap instala `sudo` y `python3` si faltan. La validación posterior no
 instala dependencias; confirma que el usuario `deploy` ya puede ejecutar módulos
 Ansible normales antes de correr `site.yml`.
+
+Usar siempre el Ansible versionado de `deploy/provisioning/bin`. En PC Uni se
+observaron fallas del Ansible global por mezcla con paquetes `pip --user`
+(`environmentfilter`, filtro `bool` faltante y
+`ansible.module_utils.six.moves`). El flujo soportado es:
+
+```bash
+cd deploy/provisioning
+bin/setup-control-node
+export PATH="$PWD/bin:$PATH"
+ansible --version
+```
+
+Si el venv se crea con Python 3.8, puede aparecer un warning de deprecacion de
+`cryptography`. No es bloqueante, pero conviene recrearlo con Python 3.10 o
+superior cuando este disponible:
+
+```bash
+MEDICINA_CONTROL_PYTHON=python3.12 bin/setup-control-node
+```
 
 Para operación no interactiva, configurar una clave SSH explícita. El inventory
 usa `IdentitiesOnly=yes` para evitar que SSH ofrezca claves no deseadas desde

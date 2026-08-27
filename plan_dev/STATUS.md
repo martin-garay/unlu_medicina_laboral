@@ -12,19 +12,18 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-26 21:51 -03
+2026-08-27 19:18 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: preparacion del bootstrap de acceso operativo de
-  testing con parametros movidos a inventory/Vault.
-- Milestone actual: `M3 - Bootstrap y validacion remota de deploy` del daily
-  2026-08-24 queda pendiente de ejecucion real contra testing.
-- Próximo paso sugerido: dejar el salto `unlu-pc` con clave SSH no interactiva,
-  ejecutar `bin/setup-control-node` en PC Uni, mantener
-  `vault_testing_bootstrap_become_password` en Vault y ejecutar
-  `bin/ansible-playbook -i inventories/testing/hosts.yml
-  playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
+- Último bloque completado: bootstrap y validacion remota del usuario operativo
+  `deploy` en testing desde PC Uni.
+- Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
+  2026-08-24 queda listo para iniciar con `site.yml --check --diff`.
+- Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, usar el Ansible
+  versionado del repo y ejecutar `ansible-playbook -i
+  inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
+  SSH hardening, firewall ni nftables antes del apply real.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
   convertido a formato Ansible Vault; si los valores previos ya eran secretos
   reales, conviene rotarlos porque existian en commits anteriores.
@@ -51,7 +50,12 @@ No debe reemplazar:
 - Nota control node: se agregaron `requirements-control.txt`,
   `bin/setup-control-node` y wrappers `bin/ansible*` para crear y usar un venv
   limpio de Ansible bajo `deploy/.tools/`, evitando el Ansible global roto de PC
-  Uni y la mezcla con paquetes `pip --user`.
+  Uni y la mezcla con paquetes `pip --user`. Desde PC Uni, `ansible -m ping`
+  contra `app_servers` ya responde `pong` y la validacion de `sudo -n true`
+  devuelve `rc=0`.
+- Nota Python PC Uni: si el venv se crea con Python 3.8, puede aparecer
+  `CryptographyDeprecationWarning`. No bloqueo la validacion remota, pero queda
+  recomendado recrear el venv con Python 3.10 o superior cuando este disponible.
 
 ---
 
@@ -107,91 +111,49 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-26 21:51 -03
+- 2026-08-27 19:18 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
-- `plan_dev/daily/2026-08-26.md` no existe.
+- `plan_dev/daily/2026-08-27.md` no existe.
 
 ### Milestone trabajado
 - `M3 - Bootstrap y validacion remota de deploy`
 
 ### Resultado
-- `needs_review`
+- `done`
 
 ### Resumen corto
-- Se dejo `bootstrap-access.yml` parametrizado desde inventory/Vault para que
-  testing pueda ejecutarse con el comando corto:
-  `ansible-playbook -i inventories/testing/hosts.yml
-  playbooks/bootstrap-access.yml`.
-- El inventory de testing guarda las variables de acceso inicial; el playbook
-  crea dinamicamente `bootstrap_targets` para entrar como `mgaray`, elevar con
-  `su` y crear el usuario operativo `deploy`.
-- Se convirtio `group_vars/vault.yml` a formato Ansible Vault porque existia
-  como YAML plano y `ansible-vault edit` fallaba con `Input is not vault
-  encrypted data`.
-- Se corrigio el bootstrap inicial para apoyarse directamente en el alias SSH
-  local `unlu-medicina-testing`, usando explicitamente `~/.ssh/id_ed25519` para
-  no heredar `deploy_ed25519` desde `all.vars`. El `-vvvv` mostro que esa key
-  operativa se estaba inyectando en la conexion bootstrap.
-- Se retiro el intento de modelar la password del bastion como
-  `ansible_password`, porque no se aplica al `ProxyJump`. El playbook ahora
-  valida primero `ssh -o BatchMode=yes unlu-medicina-testing true` y falla con
-  un mensaje claro si el salto requiere password interactiva.
-- Se agrego `no_log: true` al `add_host` dinamico para que `-vvvv` no exponga
-  valores de Vault en el registro del host bootstrap.
-- Se cambio la tarea de instalacion inicial de sudo de `ansible.builtin.raw` a
-  `raw` corto para compatibilidad con la version de Ansible instalada en PC Uni.
-  La excepcion queda limitada a esa tarea con `skip_ansible_lint`.
-- Se reemplazaron las tareas remotas `group`, `user`, `file` y `copy` del
-  bootstrap por un bloque `raw` idempotente que crea grupo, usuario, `.ssh`,
-  `authorized_keys` y sudoers sin ejecutar módulos Python en el servidor.
-- Se agrego `PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin`
-  al bootstrap `raw` para encontrar herramientas administrativas como
-  `groupadd`, `useradd`, `usermod` y `visudo` bajo `su`.
-- Se agrego setup versionado de control node Ansible:
-  `deploy/provisioning/bin/setup-control-node`, wrappers `bin/ansible*` y
-  `requirements-control.txt`. Los wrappers fijan `PYTHONNOUSERSITE=1`,
-  `ANSIBLE_HOME`, `ANSIBLE_LOCAL_TEMP`, `ANSIBLE_COLLECTIONS_PATH` y
-  `XDG_CACHE_HOME` dentro de `deploy/.tools/`.
-- El bootstrap instala `sudo` y `python3` si faltan; la validacion posterior con
-  `ansible -m ping` confirma que el control node puede ejecutar módulos normales
-  contra el host, no instala dependencias.
-- No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
+- Se completo el bootstrap remoto de testing desde PC Uni y el host ya responde
+  con el usuario operativo `deploy` para Ansible.
+- La estacion de control usa el venv versionado de
+  `deploy/provisioning/bin/setup-control-node`, evitando el Ansible global que
+  fallaba por mezcla con paquetes `pip --user`.
+- Se documento por que fallaba antes: incompatibilidad Jinja2/Ansible en el
+  control node, payload remoto roto con `ansible.module_utils.six.moves`, uso de
+  modulos Python demasiado temprano en bootstrap y `PATH` incompleto bajo `su`.
+- Se corrigio la documentacion del comando ad-hoc para desactivar become usando
+  `-e ansible_become=false`, ya que `--become=false` no es una opcion valida de
+  Ansible.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/provisioning/playbooks/bootstrap-access.yml`,
-  `deploy/provisioning/requirements-control.txt`,
-  `deploy/provisioning/bin/`,
-  `deploy/provisioning/inventories/testing/hosts.yml`,
+- archivos tocados: `deploy/docs/deployment-guide.md`,
   `deploy/provisioning/inventories/README.md`,
-  `deploy/docs/deployment-guide.md`,
-  `deploy/README.md`,
-  `deploy/provisioning/group_vars/vault.yml`,
-  `plan_dev/daily/2026-08-24.md` y status.
-- resumen tecnico: `bootstrap-access.yml` ahora registra un host bootstrap
-  dinamico desde variables de inventory/Vault, luego apunta a `bootstrap_targets`,
-  valida opt-in, clave publica y password de `su` cuando corresponde, y toma
-  usuario/grupo/sudo desde variables. Testing define el acceso inicial con
-  `bootstrap_access_initial_user: mgaray`,
-  `bootstrap_access_initial_become_method: su` y password desde
-  `vault_testing_bootstrap_become_password`. El host bootstrap no define
-  `ansible_ssh_common_args`; el salto queda delegado al alias
-  `unlu-medicina-testing` de `~/.ssh/config`, pero la identidad SSH inicial se
-  fija como `~/.ssh/id_ed25519`. El acceso al bastion debe ser por clave SSH.
-  La instalacion inicial de sudo se mantiene con `raw` corto porque se ejecuta
-  antes de garantizar Python/sudo completos en el host remoto y por
-  compatibilidad con el Ansible de PC Uni. El resto del bootstrap de acceso
-  operativo tambien usa `raw` para evitar el error remoto
-  `ansible.module_utils.six.moves` hasta completar la creacion de `deploy`.
-  Ambos bloques `raw` definen `PATH` administrativo explicito porque `su` puede
-  iniciar `/bin/sh` sin `/usr/sbin`. La estacion de control debe usar los
-  wrappers versionados para evitar instalaciones globales inconsistentes de
-  Ansible.
+  `plan_dev/daily/2026-08-24.md` y `plan_dev/STATUS.md`.
+- resumen tecnico: la documentacion de deploy explicita los prerequisitos de la
+  estacion de control, el uso obligatorio del venv versionado de Ansible, la
+  recomendacion de Python 3.10+ y el significado no bloqueante del warning de
+  `cryptography` cuando PC Uni usa Python 3.8. Tambien documenta que los errores
+  `environmentfilter`, filtro `bool` faltante y
+  `ansible.module_utils.six.moves` vienen de una instalacion de Ansible
+  inconsistente en el control node, no del servidor de testing. El comando
+  ad-hoc para validar sudo sin become quedo corregido a
+  `-e ansible_become=false`.
 - documentación actualizada: si; inventario y guia de deploy documentan el flujo
-  con Vault y el comando corto.
+  con Vault, el comando corto, el venv versionado de Ansible, los prerequisitos
+  de la estacion de control y los errores observados en PC Uni.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -202,42 +164,27 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
-  - `yamllint deploy/provisioning/inventories/testing/hosts.yml deploy/provisioning/playbooks/bootstrap-access.yml`
-  - `ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
-  - `ansible-inventory -i inventories/testing/hosts.yml --graph`
-  - `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
-  - `ansible-vault view group_vars/vault.yml`
-  - `ansible-lint playbooks/bootstrap-access.yml`
-  - `bin/setup-control-node`
-  - `bin/ansible --version`
+  - `bin/yamllint inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
+  - `bin/ansible-lint playbooks/bootstrap-access.yml`
   - `bin/ansible-lint site.yml`
   - `git diff --check`
+  - PC Uni: `ansible -i inventories/testing/hosts.yml app_servers -m ping`
+  - PC Uni: `ansible -i inventories/testing/hosts.yml app_servers -m command -a 'sudo -n true'`
 - resultado: sin errores.
 - observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
-  local, sin violaciones.
+  local, sin violaciones. En PC Uni, el venv con Python 3.8 emite
+  `CryptographyDeprecationWarning`; no fue bloqueante.
 
 ### Manuales sugeridas
-- cargar `vault_testing_bootstrap_become_password` en
-  `deploy/provisioning/group_vars/vault.yml` con `ansible-vault edit`.
-- ejecutar `ssh-copy-id -i ~/.ssh/id_ed25519.pub -p 46659
-  martin@170.210.103.133` si el bastion todavia pide password.
-- validar `ssh -o BatchMode=yes unlu-pc 'whoami; hostname'`.
-- validar `ssh -o BatchMode=yes unlu-medicina-testing 'whoami; hostname'`.
-- ejecutar `ansible-playbook -i inventories/testing/hosts.yml
-  playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
-- en PC Uni, preferir `bin/ansible-playbook` o exportar
-  `PATH="$PWD/bin:$PATH"` luego de `bin/setup-control-node`.
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
-- ejecutar `ansible -i inventories/testing/hosts.yml app_servers -m ping` antes de
-  cualquier playbook remoto.
-- revisar `site.yml --check --diff` antes de aplicar `site.yml`.
+- para el proximo milestone, revisar `site.yml --check --diff` antes de aplicar
+  `site.yml`.
 
 ---
 
 ## Bloqueos actuales
-- no avanzar a `site.yml --check --diff` ni `site.yml` real hasta tener SSH no
-  interactivo por bastion, completar bootstrap y validar SSH/sudo como `deploy`.
 - mantener `security_enabled: false` y `firewall_enabled: false` en testing hasta
   decidir cómo preservar los accesos y servicios institucionales existentes.
 
@@ -257,7 +204,7 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- continuar con `M3 - Bootstrap y validación remota de deploy` del daily
+- continuar con `M4 - Deploy completo sin security/firewall` del daily
   2026-08-24.
 
 ---

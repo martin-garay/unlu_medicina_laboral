@@ -18,7 +18,8 @@ La arquitectura y las decisiones completas están en [`ansible-deployment-plan.m
 
 ## Requisitos de la estación de control
 
-- Python 3 y `python3-venv`;
+- Git, OpenSSH client y `rsync`;
+- Python 3 con `python3-venv`;
 - una clave SSH autorizada en los hosts;
 - el password file de Vault fuera del repositorio;
 - Vagrant y un provider compatible para las pruebas locales;
@@ -40,6 +41,28 @@ Los wrappers `bin/ansible`, `bin/ansible-playbook`, `bin/ansible-vault`,
 `bin/yamllint` fijan `PYTHONNOUSERSITE=1`, `ANSIBLE_HOME`, `ANSIBLE_LOCAL_TEMP`
 y `ANSIBLE_COLLECTIONS_PATH` dentro de `deploy/.tools/`. Si no se agrega `bin/`
 al `PATH`, ejecutar los comandos con prefijo `bin/`.
+
+Python 3.10 o superior es el minimo recomendado para la estacion de control. El
+setup acepta Python 3.8 para compatibilidad con PC Uni, pero puede mostrar
+warnings de deprecacion de `cryptography`; esos warnings no bloquean la
+ejecucion. Si existe un Python mas nuevo en la estacion de control, recrear el
+venv indicando explicitamente el interprete:
+
+```bash
+cd deploy/provisioning
+MEDICINA_CONTROL_PYTHON=python3.12 bin/setup-control-node
+```
+
+Para verificar que se esta usando el Ansible versionado del repo:
+
+```bash
+which ansible
+ansible --version
+```
+
+La ruta debe resolver a `deploy/provisioning/bin/ansible` o al venv
+`deploy/.tools/ansible-control-venv`. Si aparece `/usr/bin/ansible`, falta
+exportar `PATH="$PWD/bin:$PATH"` o usar el prefijo `bin/`.
 
 El password file inicial esperado es:
 
@@ -134,6 +157,27 @@ usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar
 `site.yml` completo sin aplicar los roles `hardening` ni `firewall`, y sin exigir
 `nftables.service` en `monitoring`; no elimina ni reemplaza las reglas nftables
 existentes ni modifica la política SSH del servidor.
+
+## Diagnóstico de la estación de control
+
+Si aparecen errores como `No filter named 'bool' found`, referencias a
+`environmentfilter` de Jinja2 o `No module named 'ansible.module_utils.six.moves'`,
+el problema esperado no esta en el servidor sino en la instalacion de Ansible de
+la estacion de control. La causa observada en PC Uni fue una combinacion del
+Ansible del sistema con paquetes `pip --user` de Python 3.8. Corregirlo usando
+el venv versionado:
+
+```bash
+cd deploy/provisioning
+bin/setup-control-node
+export PATH="$PWD/bin:$PATH"
+ansible --version
+```
+
+El bootstrap inicial de `deploy` usa tareas `raw` a proposito: instala `sudo` y
+`python3` si faltan, y crea el usuario operativo antes de depender de modulos
+Python remotos. Despues del bootstrap, `ansible -m ping` es una validacion de
+que el host ya puede ejecutar modulos Ansible normales.
 
 ## Validaciones iniciales
 
