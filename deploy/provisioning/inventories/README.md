@@ -8,6 +8,7 @@
 - servidor: `170.210.96.164`
 - usuario SSH operativo: `deploy`
 - clave SSH operativa local: `deploy/.local/ssh/deploy_ed25519`
+- checkout de aplicación: HTTPS contra GitHub desde la estación de control
 - salto actual: `martin@170.210.103.133:46659`
 - acceso inicial confirmado: `mgaray@170.210.96.164` vía salto y elevación manual con `su -`
 - red administrativa observada por el servidor: `170.210.103.133`
@@ -144,6 +145,8 @@ usa `IdentitiesOnly=yes` para evitar que SSH ofrezca claves no deseadas desde
 Antes de ejecutar `site.yml`, confirmar:
 
 - `application_release_id` apunta al tag remoto previsto;
+- `application_git_repo` usa una URL alcanzable desde la estación de control;
+  en PC Uni debe ser HTTPS, no SSH por `github.com:22`;
 - `deploy_user_public_keys` contiene la clave pública autorizada para el usuario `deploy`;
 - `security_enabled` sigue en `false` mientras no se gestione hardening desde Ansible;
 - `firewall_enabled` sigue en `false` mientras no se gestione firewall desde Ansible;

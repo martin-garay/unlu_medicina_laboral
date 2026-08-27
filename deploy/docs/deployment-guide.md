@@ -97,6 +97,13 @@ postgresql_version: "17"
 
 Una versión nueva se incorpora dentro del rol de la tecnología afectada y luego se habilita en su lista de versiones soportadas.
 
+`group_vars/all.yml` contiene defaults compartidos y Ansible lo carga como
+variables de grupo. No debe incluirse como `vars_files` dentro de los playbooks:
+las variables cargadas con `vars_files` tienen mayor precedencia y pueden pisar
+selecciones del inventory, como `application_release_id`, `security_enabled` o
+`firewall_enabled`. Los playbooks sólo deben declarar `vars_files` para secretos
+explícitos, por ejemplo `../group_vars/vault.yml`.
+
 ## Inventarios locales
 
 - `inventories/vagrant/single/hosts.yml`: una VM en los grupos de aplicación y base.
@@ -151,6 +158,10 @@ usuario `deploy` se crea con:
 cd deploy/provisioning
 ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml
 ```
+
+El checkout de la aplicación se realiza en la estación de control y luego se
+sincroniza al host remoto. En testing se usa HTTPS para GitHub porque desde PC
+Uni se observo timeout hacia `github.com:22`.
 
 Mientras no se defina la política completa de seguridad institucional, testing
 usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar

@@ -4,8 +4,6 @@
   serial: 1
   gather_facts: false
   become: true
-  vars_files:
-    - ../group_vars/all.yml
   vars:
     rollback_target_path: "{{ application_root }}/releases/{{ rollback_release_id | mandatory }}"
   pre_tasks:

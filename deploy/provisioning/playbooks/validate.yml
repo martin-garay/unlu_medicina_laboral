@@ -5,8 +5,6 @@
   connection: local
   run_once: true
   become: false
-  vars_files:
-    - ../group_vars/all.yml
   tasks:
     - name: Validate operating system selection
       ansible.builtin.assert:

@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 20:05 -03
+2026-08-27 20:20 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -20,8 +20,9 @@ No debe reemplazar:
   `deploy` en testing desde PC Uni.
 - Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
   2026-08-24 queda en `needs_review`: se corrigieron bloqueos de dry-run y
-  compatibilidad OpenSSL en el rol `tls`; falta reintentar `site.yml
-  --check --diff` desde PC Uni.
+  compatibilidad OpenSSL en el rol `tls`, y se corrigio la precedencia de
+  variables para que el inventory de testing no sea pisado por defaults; falta
+  reintentar `site.yml --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -113,7 +114,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 20:05 -03
+- 2026-08-27 20:20 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -137,6 +138,13 @@ No debe reemplazar:
 - El reintento desde PC Uni avanzo hasta `Sign server certificate with local CA`
   y fallo porque `openssl x509` no reconoce `-copy_extensions`. Se reemplazo
   esa opcion por firma con archivo local de extensiones `-extfile`.
+- El siguiente bloqueo ocurrio en `application : Checkout application release on
+  control node`: PC Uni no llega a `github.com:22` y ademas el playbook estaba
+  usando `workspace` por cargar `group_vars/all.yml` como `vars_files`, lo que
+  pisaba el `application_release_id` del inventory.
+- Se cambio testing a checkout Git por HTTPS y se retiro `group_vars/all.yml` de
+  `vars_files` en los playbooks. `group_vars/all.yml` queda como group vars
+  normal; `vars_files` se reserva para Vault.
 
 ---
 
@@ -144,7 +152,10 @@ No debe reemplazar:
 - archivos tocados: `deploy/provisioning/roles/tls/tasks/main.yml`,
   `deploy/provisioning/roles/tls/defaults/main.yml`,
   `deploy/provisioning/roles/tls/README.md`,
-  `deploy/docs/deployment-guide.md` y `plan_dev/STATUS.md`.
+  `deploy/provisioning/inventories/testing/hosts.yml`,
+  `deploy/provisioning/playbooks/*.yml`, `deploy/docs/deployment-guide.md`,
+  `deploy/provisioning/inventories/README.md`,
+  `plan_dev/daily/2026-08-24.md` y `plan_dev/STATUS.md`.
 - resumen tecnico: las tareas que crean directorio, CA, key, CSR y certificado
   local para `tls_provider: local_ca` usan `check_mode: false`, porque son
   insumo local para simular las copias remotas. Se agrego una validacion `stat`
@@ -152,9 +163,14 @@ No debe reemplazar:
   antes de la copia de clave privada con `no_log`. La firma del certificado de
   servidor ahora usa un archivo `*.ext` con `subjectAltName`, `basicConstraints`,
   `keyUsage` y `extendedKeyUsage`, evitando depender de
-  `openssl x509 -copy_extensions`.
-- documentación actualizada: si; el README del rol y la guia de deploy explican
-  por que `local_ca` genera material local durante `--check`.
+  `openssl x509 -copy_extensions`. El inventory de testing ahora usa
+  `https://github.com/martin-garay/unlu_medicina_laboral.git` para evitar el
+  puerto SSH 22 bloqueado desde PC Uni. Los playbooks ya no cargan
+  `group_vars/all.yml` como `vars_files` para evitar que defaults de play pisen
+  variables del inventory; mantienen `../group_vars/vault.yml` cuando requieren
+  secretos.
+- documentación actualizada: si; la guia de deploy y el README de inventarios
+  explican la regla de precedencia y el uso de HTTPS para testing.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -166,9 +182,19 @@ No debe reemplazar:
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
   - `bin/yamllint roles/tls/defaults/main.yml roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
+  - `bin/ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
+  - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_release_id'`
+  - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_git_repo'`
+  - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'msg="security={{ security_enabled }} firewall={{ firewall_enabled }} ref={{ application_git_ref }}"'`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/application.yml --syntax-check`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/security.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
+  - syntax-check por lote de `playbooks/*.yml` contra inventory testing
+  - `bin/ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check`
+  - `bin/ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml --syntax-check`
   - `bin/ansible-lint roles/tls/tasks/main.yml`
+  - `bin/ansible-lint playbooks/application.yml`
   - `bin/ansible-lint playbooks/bootstrap-access.yml`
   - `bin/ansible-lint site.yml`
   - `git diff --check`

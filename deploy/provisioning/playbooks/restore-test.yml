@@ -3,8 +3,6 @@
   hosts: db_servers
   gather_facts: false
   become: true
-  vars_files:
-    - ../group_vars/all.yml
   vars:
     restore_test_database: "{{ postgresql_database_name }}_restore_test"
   tasks:
@@ -88,8 +86,6 @@
   hosts: app_servers
   gather_facts: false
   become: true
-  vars_files:
-    - ../group_vars/all.yml
   tasks:
     - name: Find persistent files backup artifacts
       ansible.builtin.find:

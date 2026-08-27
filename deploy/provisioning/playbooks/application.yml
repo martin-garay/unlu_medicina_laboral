@@ -4,7 +4,6 @@
   gather_facts: true
   become: true
   vars_files:
-    - ../group_vars/all.yml
     - ../group_vars/vault.yml
   vars:
     application_database_inventory_host: "{{ groups['db_servers'] | first }}"
@@ -18,8 +17,6 @@
   hosts: app_servers
   gather_facts: false
   become: true
-  vars_files:
-    - ../group_vars/all.yml
   roles:
     - role: apache
       apache_document_root: "{{ application_document_root }}"
