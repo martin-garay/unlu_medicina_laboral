@@ -18,11 +18,28 @@ La arquitectura y las decisiones completas están en [`ansible-deployment-plan.m
 
 ## Requisitos de la estación de control
 
-- Ansible;
+- Python 3 y `python3-venv`;
 - una clave SSH autorizada en los hosts;
 - el password file de Vault fuera del repositorio;
 - Vagrant y un provider compatible para las pruebas locales;
 - `ansible-lint` y `yamllint` para la validación completa.
+
+La instalación operativa de Ansible debe hacerse con el venv versionado del
+repo, no con paquetes globales del sistema. Esto evita mezclar el Ansible del
+sistema con paquetes `pip --user` del operador:
+
+```bash
+cd deploy/provisioning
+bin/setup-control-node
+export PATH="$PWD/bin:$PATH"
+ansible --version
+```
+
+Los wrappers `bin/ansible`, `bin/ansible-playbook`, `bin/ansible-vault`,
+`bin/ansible-galaxy`, `bin/ansible-inventory`, `bin/ansible-lint` y
+`bin/yamllint` fijan `PYTHONNOUSERSITE=1`, `ANSIBLE_HOME`, `ANSIBLE_LOCAL_TEMP`
+y `ANSIBLE_COLLECTIONS_PATH` dentro de `deploy/.tools/`. Si no se agrega `bin/`
+al `PATH`, ejecutar los comandos con prefijo `bin/`.
 
 El password file inicial esperado es:
 

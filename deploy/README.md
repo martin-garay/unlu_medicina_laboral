@@ -57,6 +57,8 @@ deploy/
 - `deploy/provisioning/roles/`: roles Ansible reutilizables por tecnología o
   responsabilidad.
 - `deploy/provisioning/bin/`: wrappers auxiliares versionables, como `bin/vagrant`.
+- `deploy/provisioning/requirements-control.txt`: dependencias Python del venv
+  limpio usado por la estación de control Ansible.
 - `deploy/provisioning/Vagrantfile`: definición del laboratorio local.
 - `deploy/.local/`: material local no versionado, como claves SSH, descargas,
   Vagrant home local y archivos temporales.
@@ -80,7 +82,8 @@ plantillas, pruebas y documentación operativa permanecen bajo `deploy/`.
 
 ```bash
 cd deploy/provisioning
-ansible-galaxy collection install -r requirements.yml
+bin/setup-control-node
+export PATH="$PWD/bin:$PATH"
 ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml
 ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml
 ```

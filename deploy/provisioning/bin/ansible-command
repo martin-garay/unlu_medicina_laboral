@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+    echo "usage: $0 <ansible-command> [args...]" >&2
+    exit 2
+fi
+
+ansible_command="$1"
+shift
+
+provisioning_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+deploy_dir="$(cd "${provisioning_dir}/.." && pwd)"
+venv_dir="${deploy_dir}/.tools/ansible-control-venv"
+
+if [[ ! -x "${venv_dir}/bin/${ansible_command}" ]]; then
+    echo "Missing ${venv_dir}/bin/${ansible_command}." >&2
+    echo "Run ${provisioning_dir}/bin/setup-control-node first." >&2
+    exit 127
+fi
+
+export PYTHONNOUSERSITE=1
+export ANSIBLE_HOME="${deploy_dir}/.tools/ansible-home"
+export ANSIBLE_LOCAL_TEMP="${TMPDIR:-/tmp}/medicina-laboral-ansible-local"
+export ANSIBLE_COLLECTIONS_PATH="${deploy_dir}/.tools/ansible-collections"
+export XDG_CACHE_HOME="${deploy_dir}/.tools/cache"
+
+mkdir -p \
+    "${ANSIBLE_HOME}" \
+    "${ANSIBLE_LOCAL_TEMP}" \
+    "${ANSIBLE_COLLECTIONS_PATH}" \
+    "${XDG_CACHE_HOME}"
+
+exec "${venv_dir}/bin/${ansible_command}" "$@"

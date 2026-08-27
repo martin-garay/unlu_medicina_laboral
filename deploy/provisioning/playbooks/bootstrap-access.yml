@@ -113,14 +113,15 @@
         - bootstrap_access_use_become | default(false) | bool
         - ansible_become_method | default('sudo') == 'su'
 
-    - name: Ensure sudo is installed for operational access
+    - name: Ensure sudo and Python are installed for operational access
       raw: |
         PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         export PATH
 
-        if ! command -v sudo >/dev/null 2>&1; then
+        if ! command -v sudo >/dev/null 2>&1 ||
+            ! command -v python3 >/dev/null 2>&1; then
           apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y sudo
+          DEBIAN_FRONTEND=noninteractive apt-get install -y sudo python3
         fi
       changed_when: false
       tags:

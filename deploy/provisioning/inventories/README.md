@@ -99,6 +99,7 @@ vault_testing_bootstrap_become_password: "<password-root-su-testing>"
 Luego el bootstrap se ejecuta sin parámetros extra:
 
 ```bash
+export PATH="$PWD/bin:$PATH"
 ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml
 ```
 
@@ -109,6 +110,10 @@ ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'
 ansible app_servers -i inventories/testing/hosts.yml -m ping
 ansible app_servers -i inventories/testing/hosts.yml -m command -a 'sudo -n true' --become=false
 ```
+
+El bootstrap instala `sudo` y `python3` si faltan. La validación posterior no
+instala dependencias; confirma que el usuario `deploy` ya puede ejecutar módulos
+Ansible normales antes de correr `site.yml`.
 
 Para operación no interactiva, configurar una clave SSH explícita. El inventory
 usa `IdentitiesOnly=yes` para evitar que SSH ofrezca claves no deseadas desde

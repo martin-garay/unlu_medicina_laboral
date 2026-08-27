@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-26 20:58 -03
+2026-08-26 21:51 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -21,8 +21,9 @@ No debe reemplazar:
 - Milestone actual: `M3 - Bootstrap y validacion remota de deploy` del daily
   2026-08-24 queda pendiente de ejecucion real contra testing.
 - Próximo paso sugerido: dejar el salto `unlu-pc` con clave SSH no interactiva,
-  mantener `vault_testing_bootstrap_become_password` en Vault y ejecutar
-  `ansible-playbook -i inventories/testing/hosts.yml
+  ejecutar `bin/setup-control-node` en PC Uni, mantener
+  `vault_testing_bootstrap_become_password` en Vault y ejecutar
+  `bin/ansible-playbook -i inventories/testing/hosts.yml
   playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
   convertido a formato Ansible Vault; si los valores previos ya eran secretos
@@ -47,6 +48,10 @@ No debe reemplazar:
 - Nota PATH remoto: bajo `su`, el shell remoto no incluia `/usr/sbin` y fallaba
   con `groupadd: not found`. Las tareas `raw` de bootstrap fijan ahora un `PATH`
   administrativo explicito.
+- Nota control node: se agregaron `requirements-control.txt`,
+  `bin/setup-control-node` y wrappers `bin/ansible*` para crear y usar un venv
+  limpio de Ansible bajo `deploy/.tools/`, evitando el Ansible global roto de PC
+  Uni y la mezcla con paquetes `pip --user`.
 
 ---
 
@@ -102,7 +107,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-26 20:58 -03
+- 2026-08-26 21:51 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -144,15 +149,26 @@ No debe reemplazar:
 - Se agrego `PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin`
   al bootstrap `raw` para encontrar herramientas administrativas como
   `groupadd`, `useradd`, `usermod` y `visudo` bajo `su`.
+- Se agrego setup versionado de control node Ansible:
+  `deploy/provisioning/bin/setup-control-node`, wrappers `bin/ansible*` y
+  `requirements-control.txt`. Los wrappers fijan `PYTHONNOUSERSITE=1`,
+  `ANSIBLE_HOME`, `ANSIBLE_LOCAL_TEMP`, `ANSIBLE_COLLECTIONS_PATH` y
+  `XDG_CACHE_HOME` dentro de `deploy/.tools/`.
+- El bootstrap instala `sudo` y `python3` si faltan; la validacion posterior con
+  `ansible -m ping` confirma que el control node puede ejecutar módulos normales
+  contra el host, no instala dependencias.
 - No se ejecuto el bootstrap remoto; falta cargar la clave de `su` en Vault.
 
 ---
 
 ## Cambios realizados
 - archivos tocados: `deploy/provisioning/playbooks/bootstrap-access.yml`,
+  `deploy/provisioning/requirements-control.txt`,
+  `deploy/provisioning/bin/`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
   `deploy/provisioning/inventories/README.md`,
   `deploy/docs/deployment-guide.md`,
+  `deploy/README.md`,
   `deploy/provisioning/group_vars/vault.yml`,
   `plan_dev/daily/2026-08-24.md` y status.
 - resumen tecnico: `bootstrap-access.yml` ahora registra un host bootstrap
@@ -171,7 +187,9 @@ No debe reemplazar:
   operativo tambien usa `raw` para evitar el error remoto
   `ansible.module_utils.six.moves` hasta completar la creacion de `deploy`.
   Ambos bloques `raw` definen `PATH` administrativo explicito porque `su` puede
-  iniciar `/bin/sh` sin `/usr/sbin`.
+  iniciar `/bin/sh` sin `/usr/sbin`. La estacion de control debe usar los
+  wrappers versionados para evitar instalaciones globales inconsistentes de
+  Ansible.
 - documentación actualizada: si; inventario y guia de deploy documentan el flujo
   con Vault y el comando corto.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
@@ -190,6 +208,10 @@ No debe reemplazar:
   - `ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
   - `ansible-vault view group_vars/vault.yml`
   - `ansible-lint playbooks/bootstrap-access.yml`
+  - `bin/setup-control-node`
+  - `bin/ansible --version`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
+  - `bin/ansible-lint site.yml`
   - `git diff --check`
 - resultado: sin errores.
 - observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
@@ -204,6 +226,8 @@ No debe reemplazar:
 - validar `ssh -o BatchMode=yes unlu-medicina-testing 'whoami; hostname'`.
 - ejecutar `ansible-playbook -i inventories/testing/hosts.yml
   playbooks/bootstrap-access.yml` desde `deploy/provisioning`.
+- en PC Uni, preferir `bin/ansible-playbook` o exportar
+  `PATH="$PWD/bin:$PATH"` luego de `bin/setup-control-node`.
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
 - ejecutar `ansible -i inventories/testing/hosts.yml app_servers -m ping` antes de
   cualquier playbook remoto.
