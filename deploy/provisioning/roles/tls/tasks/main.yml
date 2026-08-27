@@ -15,6 +15,7 @@
   delegate_to: localhost
   become: false
   run_once: true
+  check_mode: false
   when: tls_provider == 'local_ca'
 
 - name: Generate local CA private key
@@ -24,6 +25,7 @@
   delegate_to: localhost
   become: false
   run_once: true
+  check_mode: false
   when: tls_provider == 'local_ca'
 
 - name: Generate local CA certificate
@@ -33,6 +35,7 @@
   delegate_to: localhost
   become: false
   run_once: true
+  check_mode: false
   when: tls_provider == 'local_ca'
 
 - name: Generate server private key
@@ -41,6 +44,7 @@
     creates: "{{ tls_local_server_key }}"
   delegate_to: localhost
   become: false
+  check_mode: false
   when: tls_provider == 'local_ca'
 
 - name: Generate server CSR
@@ -49,12 +53,37 @@
     creates: "{{ tls_local_server_csr }}"
   delegate_to: localhost
   become: false
+  check_mode: false
   when: tls_provider == 'local_ca'
 
 - name: Sign server certificate with local CA
   ansible.builtin.command:
     argv: [openssl, x509, -req, -in, "{{ tls_local_server_csr }}", -CA, "{{ tls_local_ca_certificate }}", -CAkey, "{{ tls_local_ca_key }}", -CAcreateserial, -days, "825", -sha256, -copy_extensions, copy, -out, "{{ tls_local_server_certificate }}"]
     creates: "{{ tls_local_server_certificate }}"
+  delegate_to: localhost
+  become: false
+  check_mode: false
+  when: tls_provider == 'local_ca'
+
+- name: Validate generated local TLS material
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ tls_local_server_key }}"
+    - "{{ tls_local_server_certificate }}"
+    - "{{ tls_local_ca_certificate }}"
+  register: tls_local_generated_files
+  delegate_to: localhost
+  become: false
+  when: tls_provider == 'local_ca'
+
+- name: Require generated local TLS material
+  ansible.builtin.assert:
+    that:
+      - tls_local_generated_files.results | map(attribute='stat.exists') | min
+    fail_msg: >-
+      Local TLS material could not be generated under {{ tls_local_directory }}.
+      Verify that openssl is installed on the Ansible control node.
   delegate_to: localhost
   become: false
   when: tls_provider == 'local_ca'

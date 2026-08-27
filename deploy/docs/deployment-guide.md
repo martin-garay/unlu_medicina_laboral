@@ -179,6 +179,13 @@ El bootstrap inicial de `deploy` usa tareas `raw` a proposito: instala `sudo` y
 Python remotos. Despues del bootstrap, `ansible -m ping` es una validacion de
 que el host ya puede ejecutar modulos Ansible normales.
 
+Si `site.yml --check --diff` falla en `tls : Install TLS private key` con salida
+censurada por `no_log`, revisar primero que se este usando un commit que genere
+el material `local_ca` tambien en check mode. El rol necesita tener disponibles
+la clave y certificados locales antes de simular las tareas `copy`; si no puede
+crearlos, falla antes con un mensaje que apunta a `openssl` en la estacion de
+control.
+
 ## Validaciones iniciales
 
 Desde `deploy/provisioning/`:

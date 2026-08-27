@@ -12,16 +12,17 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 19:18 -03
+2026-08-27 19:35 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: bootstrap y validacion remota del usuario operativo
   `deploy` en testing desde PC Uni.
 - Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
-  2026-08-24 queda listo para iniciar con `site.yml --check --diff`.
-- Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, usar el Ansible
-  versionado del repo y ejecutar `ansible-playbook -i
+  2026-08-24 queda en `needs_review`: se corrigio un bloqueo de dry-run en el
+  rol `tls` y falta reintentar `site.yml --check --diff` desde PC Uni.
+- Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
+  usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
   SSH hardening, firewall ni nftables antes del apply real.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
@@ -111,49 +112,43 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 19:18 -03
+- 2026-08-27 19:35 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
 - `plan_dev/daily/2026-08-27.md` no existe.
 
 ### Milestone trabajado
-- `M3 - Bootstrap y validacion remota de deploy`
+- `M4 - Deploy completo sin security/firewall`
 
 ### Resultado
-- `done`
+- `needs_review`
 
 ### Resumen corto
-- Se completo el bootstrap remoto de testing desde PC Uni y el host ya responde
-  con el usuario operativo `deploy` para Ansible.
-- La estacion de control usa el venv versionado de
-  `deploy/provisioning/bin/setup-control-node`, evitando el Ansible global que
-  fallaba por mezcla con paquetes `pip --user`.
-- Se documento por que fallaba antes: incompatibilidad Jinja2/Ansible en el
-  control node, payload remoto roto con `ansible.module_utils.six.moves`, uso de
-  modulos Python demasiado temprano en bootstrap y `PATH` incompleto bajo `su`.
-- Se corrigio la documentacion del comando ad-hoc para desactivar become usando
-  `-e ansible_become=false`, ya que `--become=false` no es una opcion valida de
-  Ansible.
+- El primer `site.yml --check --diff` remoto llego hasta el rol `tls` y fallo en
+  `Install TLS private key` con salida censurada por `no_log`.
+- La causa probable es propia del modo check: las tareas locales de `openssl`
+  no generaban archivos bajo `.local/tls`, pero `copy` necesitaba leer la clave
+  privada local para calcular el cambio remoto.
+- Se ajusto el rol `tls` para generar el material `local_ca` en la estacion de
+  control incluso durante `--check` y para validar esos archivos antes de llegar
+  a la tarea censurada.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/docs/deployment-guide.md`,
+- archivos tocados: `deploy/provisioning/roles/tls/tasks/main.yml`,
+  `deploy/provisioning/roles/tls/README.md`,
+  `deploy/docs/deployment-guide.md`,
   `deploy/provisioning/inventories/README.md`,
   `plan_dev/daily/2026-08-24.md` y `plan_dev/STATUS.md`.
-- resumen tecnico: la documentacion de deploy explicita los prerequisitos de la
-  estacion de control, el uso obligatorio del venv versionado de Ansible, la
-  recomendacion de Python 3.10+ y el significado no bloqueante del warning de
-  `cryptography` cuando PC Uni usa Python 3.8. Tambien documenta que los errores
-  `environmentfilter`, filtro `bool` faltante y
-  `ansible.module_utils.six.moves` vienen de una instalacion de Ansible
-  inconsistente en el control node, no del servidor de testing. El comando
-  ad-hoc para validar sudo sin become quedo corregido a
-  `-e ansible_become=false`.
-- documentación actualizada: si; inventario y guia de deploy documentan el flujo
-  con Vault, el comando corto, el venv versionado de Ansible, los prerequisitos
-  de la estacion de control y los errores observados en PC Uni.
+- resumen tecnico: las tareas que crean directorio, CA, key, CSR y certificado
+  local para `tls_provider: local_ca` usan `check_mode: false`, porque son
+  insumo local para simular las copias remotas. Se agrego una validacion `stat`
+  y `assert` sobre esos archivos para reportar errores de `openssl` o paths
+  antes de la copia de clave privada con `no_log`.
+- documentación actualizada: si; el README del rol y la guia de deploy explican
+  por que `local_ca` genera material local durante `--check`.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -164,23 +159,21 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
-  - `bin/yamllint inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
+  - `bin/yamllint roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
+  - `bin/ansible-lint roles/tls/tasks/main.yml`
   - `bin/ansible-lint playbooks/bootstrap-access.yml`
   - `bin/ansible-lint site.yml`
   - `git diff --check`
-  - PC Uni: `ansible -i inventories/testing/hosts.yml app_servers -m ping`
-  - PC Uni: `ansible -i inventories/testing/hosts.yml app_servers -m command -a 'sudo -n true'`
 - resultado: sin errores.
 - observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
-  local, sin violaciones. En PC Uni, el venv con Python 3.8 emite
-  `CryptographyDeprecationWarning`; no fue bloqueante.
+  local, sin violaciones.
 
 ### Manuales sugeridas
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
-- para el proximo milestone, revisar `site.yml --check --diff` antes de aplicar
-  `site.yml`.
+- reintentar desde PC Uni: `ansible-playbook -i inventories/testing/hosts.yml
+  site.yml --check --diff`.
 
 ---
 
@@ -204,8 +197,8 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- continuar con `M4 - Deploy completo sin security/firewall` del daily
-  2026-08-24.
+- reintentar `M4 - Deploy completo sin security/firewall` desde PC Uni con el
+  commit actualizado.
 
 ---
 
