@@ -219,6 +219,11 @@ la clave y certificados locales antes de simular las tareas `copy`; si no puede
 crearlos, falla antes con un mensaje que apunta a `openssl` en la estacion de
 control.
 
+En `--check`, si el host remoto todavia no tiene directorios como
+`/etc/ssl/private`, el rol informa que los crearia durante el apply real y
+saltea la copia TLS correspondiente para no fallar dentro de una tarea con
+`no_log`.
+
 Si falla en `tls : Sign server certificate with local CA` con
 `x509: Unrecognized flag copy_extensions`, la estacion de control todavia esta
 usando una version anterior del rol. Actualizar desde `origin/main`; el rol

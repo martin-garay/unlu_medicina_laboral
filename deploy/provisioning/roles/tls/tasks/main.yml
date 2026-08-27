@@ -103,6 +103,76 @@
   become: false
   when: tls_provider == 'local_ca'
 
+- name: Inspect TLS target directories
+  ansible.builtin.stat:
+    path: "{{ item.path | dirname }}"
+  loop:
+    - name: private_key
+      path: "{{ tls_private_key_path }}"
+    - name: certificate
+      path: "{{ tls_certificate_path }}"
+    - name: ca_certificate
+      path: "{{ tls_ca_certificate_path }}"
+  register: tls_target_directories
+  when: tls_provider == 'local_ca'
+
+- name: Track TLS target directory state
+  ansible.builtin.set_fact:
+    tls_private_key_directory_exists: >-
+      {{
+        tls_target_directories.results
+        | selectattr('item.name', 'equalto', 'private_key')
+        | map(attribute='stat.isdir')
+        | first
+        | default(false)
+      }}
+    tls_certificate_directory_exists: >-
+      {{
+        tls_target_directories.results
+        | selectattr('item.name', 'equalto', 'certificate')
+        | map(attribute='stat.isdir')
+        | first
+        | default(false)
+      }}
+    tls_ca_certificate_directory_exists: >-
+      {{
+        tls_target_directories.results
+        | selectattr('item.name', 'equalto', 'ca_certificate')
+        | map(attribute='stat.isdir')
+        | first
+        | default(false)
+      }}
+  when: tls_provider == 'local_ca'
+
+- name: Report TLS target directories missing during check mode
+  ansible.builtin.debug:
+    msg: >-
+      Would create {{ item.item.path | dirname }} during apply; TLS copy is
+      skipped in check mode because the target directory does not exist yet.
+  loop: "{{ tls_target_directories.results }}"
+  when:
+    - tls_provider == 'local_ca'
+    - ansible_check_mode
+    - not (item.stat.isdir | default(false))
+
+- name: Ensure TLS target directories exist
+  ansible.builtin.file:
+    path: "{{ item.path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - path: "{{ tls_private_key_path }}"
+      mode: "0700"
+    - path: "{{ tls_certificate_path }}"
+      mode: "0755"
+    - path: "{{ tls_ca_certificate_path }}"
+      mode: "0755"
+  when:
+    - tls_provider == 'local_ca'
+    - not ansible_check_mode
+
 - name: Install TLS private key
   ansible.builtin.copy:
     src: "{{ tls_local_server_key }}"
@@ -110,7 +180,9 @@
     owner: root
     group: root
     mode: "0600"
-  when: tls_provider == 'local_ca'
+  when:
+    - tls_provider == 'local_ca'
+    - not ansible_check_mode or tls_private_key_directory_exists
   no_log: true
   notify: Reload Apache after TLS change
 
@@ -121,7 +193,9 @@
     owner: root
     group: root
     mode: "0644"
-  when: tls_provider == 'local_ca'
+  when:
+    - tls_provider == 'local_ca'
+    - not ansible_check_mode or tls_certificate_directory_exists
   notify: Reload Apache after TLS change
 
 - name: Install local CA trust
@@ -132,7 +206,9 @@
     group: root
     mode: "0644"
   notify: Update CA certificates
-  when: tls_provider == 'local_ca'
+  when:
+    - tls_provider == 'local_ca'
+    - not ansible_check_mode or tls_ca_certificate_directory_exists
 
 - name: Resolve local TLS hostname inside Vagrant host
   ansible.builtin.lineinfile:

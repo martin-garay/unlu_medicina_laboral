@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 20:33 -03
+2026-08-27 20:44 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -23,8 +23,9 @@ No debe reemplazar:
   compatibilidad OpenSSL en el rol `tls`, y se corrigio la precedencia de
   variables para que el inventory de testing no sea pisado por defaults. Se
   agrego `bin/check-deploy` para detectar esta clase de regresiones antes de
-  commitear, con `ansible-lint` opcional en control nodes Python 3.8; falta
-  reintentar `site.yml --check --diff` desde PC Uni.
+  commitear, con `ansible-lint` opcional en control nodes Python 3.8. El rol
+  `tls` ahora evita fallar en `--check` cuando faltan directorios remotos de
+  destino; falta reintentar `site.yml --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -116,7 +117,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 20:33 -03
+- 2026-08-27 20:44 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -157,6 +158,10 @@ No debe reemplazar:
   `functools.cache`, disponible recien desde Python 3.9. Se ajusto el check para
   saltear `ansible-lint` en Python < 3.10 y mantenerlo obligatorio en estaciones
   con Python moderno.
+- Un nuevo reintento fallo en `tls : Install TLS private key` con salida
+  censurada por `no_log`. Como la generacion local ya habia pasado, se ajusto el
+  rol para inspeccionar directorios remotos TLS, crearlos en apply real y
+  saltear la copia durante `--check` si el directorio todavia no existe.
 
 ---
 
@@ -191,7 +196,10 @@ No debe reemplazar:
   `bin/check-deploy` valida lint, syntax-checks, invariantes de testing y la
   ausencia de `../group_vars/all.yml` en `vars_files`. En Python 3.8, el check
   saltea `ansible-lint` para no bloquear el deploy por incompatibilidad de la
-  herramienta; el lint completo se mantiene en estaciones con Python 3.10+.
+  herramienta; el lint completo se mantiene en estaciones con Python 3.10+. El
+  rol `tls` crea los directorios remotos de destino en apply real y evita que
+  `--check` falle en tareas `copy` con `no_log` cuando esos directorios aun no
+  existen.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing y el check
   pre-commit.
