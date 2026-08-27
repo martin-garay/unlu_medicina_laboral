@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 20:21 -03
+2026-08-27 20:33 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -23,7 +23,8 @@ No debe reemplazar:
   compatibilidad OpenSSL en el rol `tls`, y se corrigio la precedencia de
   variables para que el inventory de testing no sea pisado por defaults. Se
   agrego `bin/check-deploy` para detectar esta clase de regresiones antes de
-  commitear; falta reintentar `site.yml --check --diff` desde PC Uni.
+  commitear, con `ansible-lint` opcional en control nodes Python 3.8; falta
+  reintentar `site.yml --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -115,7 +116,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 20:21 -03
+- 2026-08-27 20:33 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -151,6 +152,11 @@ No debe reemplazar:
   `playbooks/validate.yml`. Se separo la matriz de soporte a
   `playbooks/vars/supported-platforms.yml` y se agrego `bin/check-deploy` para
   ejecutar esa validacion localmente antes de commitear.
+- En PC Uni, `bin/check-deploy` avanzo hasta `ansible-lint` y fallo porque el
+  venv usa Python 3.8; la version instalada de `ansible-lint` importa
+  `functools.cache`, disponible recien desde Python 3.9. Se ajusto el check para
+  saltear `ansible-lint` en Python < 3.10 y mantenerlo obligatorio en estaciones
+  con Python moderno.
 
 ---
 
@@ -163,6 +169,7 @@ No debe reemplazar:
   `deploy/provisioning/bin/setup-control-node`,
   `deploy/provisioning/group_vars/all.yml`,
   `deploy/provisioning/playbooks/validate.yml`,
+  `deploy/provisioning/requirements-control.txt`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
   `deploy/provisioning/playbooks/*.yml`, `deploy/docs/deployment-guide.md`,
   `deploy/provisioning/inventories/README.md`,
@@ -182,7 +189,9 @@ No debe reemplazar:
   secretos. La matriz `supported_*` usada por `validate.yml` se movio a
   `playbooks/vars/supported-platforms.yml`, porque no es un default de entorno.
   `bin/check-deploy` valida lint, syntax-checks, invariantes de testing y la
-  ausencia de `../group_vars/all.yml` en `vars_files`.
+  ausencia de `../group_vars/all.yml` en `vars_files`. En Python 3.8, el check
+  saltea `ansible-lint` para no bloquear el deploy por incompatibilidad de la
+  herramienta; el lint completo se mantiene en estaciones con Python 3.10+.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing y el check
   pre-commit.
@@ -218,7 +227,8 @@ No debe reemplazar:
   - `git diff --check`
 - resultado: sin errores.
 - observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
-  local, sin violaciones.
+  local, sin violaciones. En PC Uni, `bin/check-deploy` saltea `ansible-lint`
+  si el venv se creo con Python 3.8.
 
 ### Manuales sugeridas
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.

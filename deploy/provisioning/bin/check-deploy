@@ -7,6 +7,13 @@ cd "${provisioning_dir}"
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "${tmp_dir}"' EXIT
+control_python="${provisioning_dir}/../.tools/ansible-control-venv/bin/python"
+
+if [[ ! -x "${control_python}" ]]; then
+    echo "Missing ${control_python}." >&2
+    echo "Run ${provisioning_dir}/bin/setup-control-node first." >&2
+    exit 127
+fi
 
 if grep -R --line-number --fixed-strings "../group_vars/all.yml" playbooks; then
     echo "Do not include ../group_vars/all.yml as vars_files in playbooks." >&2
@@ -26,7 +33,7 @@ bin/ansible-inventory \
     -i inventories/testing/hosts.yml \
     --host avisos-testing > "${tmp_dir}/testing-host.json"
 
-python3 - "${tmp_dir}/testing-host.json" <<'PY'
+"${control_python}" - "${tmp_dir}/testing-host.json" <<'PY'
 import json
 import sys
 
@@ -69,9 +76,19 @@ bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check
 bin/ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check
 bin/ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml --syntax-check
 
-bin/ansible-lint --project-dir "${provisioning_dir}" roles/tls/tasks/main.yml
-bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/application.yml
-bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/bootstrap-access.yml
-bin/ansible-lint --project-dir "${provisioning_dir}" site.yml
+"${control_python}" - <<'PY' > "${tmp_dir}/supports-ansible-lint"
+import sys
+print("yes" if sys.version_info >= (3, 10) else "no")
+PY
+
+if [[ "$(cat "${tmp_dir}/supports-ansible-lint")" == "yes" ]]; then
+    bin/ansible-lint --project-dir "${provisioning_dir}" roles/tls/tasks/main.yml
+    bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/application.yml
+    bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/bootstrap-access.yml
+    bin/ansible-lint --project-dir "${provisioning_dir}" site.yml
+else
+    echo "Skipping ansible-lint: control venv uses Python < 3.10." >&2
+    echo "Run full lint from a control node with Python 3.10 or newer before merge." >&2
+fi
 
 git -C "${provisioning_dir}/../.." diff --check

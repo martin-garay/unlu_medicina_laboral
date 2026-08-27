@@ -74,6 +74,13 @@ Ese check valida lint, syntax-check de playbooks, invariantes criticas de
 testing y que ningun playbook vuelva a cargar `../group_vars/all.yml` como
 `vars_files`.
 
+En estaciones de control con Python 3.8, como PC Uni, `bin/check-deploy` saltea
+`ansible-lint` porque las versiones actuales de esa herramienta ya no son
+compatibles de forma confiable con ese interprete. Los checks criticos de
+deploy siguen corriendo: invariantes, `yamllint`, `validate.yml --check`,
+syntax-check y `git diff --check`. El lint completo debe ejecutarse desde una
+estacion con Python 3.10 o superior antes de integrar cambios de provisioning.
+
 El password file inicial esperado es:
 
 ```text

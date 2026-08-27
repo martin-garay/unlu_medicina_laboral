@@ -161,6 +161,10 @@ bin/check-deploy
 El check falla si un playbook intenta cargar `../group_vars/all.yml` como
 `vars_files`, porque eso puede pisar variables del inventory.
 
+Si la estación de control usa Python 3.8, el check saltea `ansible-lint` y deja
+un warning. Eso no bloquea el deploy a testing; el lint completo queda como
+validación de integración en una estación con Python 3.10 o superior.
+
 Testing conserva inicialmente los controles institucionales existentes. El
 servidor ya tiene reglas nftables restrictivas cargadas aunque
 `nftables.service` figure `disabled/inactive`, incluyendo acceso SSH desde
