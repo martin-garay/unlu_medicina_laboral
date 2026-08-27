@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 20:20 -03
+2026-08-27 20:21 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -21,8 +21,9 @@ No debe reemplazar:
 - Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
   2026-08-24 queda en `needs_review`: se corrigieron bloqueos de dry-run y
   compatibilidad OpenSSL en el rol `tls`, y se corrigio la precedencia de
-  variables para que el inventory de testing no sea pisado por defaults; falta
-  reintentar `site.yml --check --diff` desde PC Uni.
+  variables para que el inventory de testing no sea pisado por defaults. Se
+  agrego `bin/check-deploy` para detectar esta clase de regresiones antes de
+  commitear; falta reintentar `site.yml --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -114,7 +115,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 20:20 -03
+- 2026-08-27 20:21 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -145,6 +146,11 @@ No debe reemplazar:
 - Se cambio testing a checkout Git por HTTPS y se retiro `group_vars/all.yml` de
   `vars_files` en los playbooks. `group_vars/all.yml` queda como group vars
   normal; `vars_files` se reserva para Vault.
+- El reintento fallo en `Validate operating system selection` porque
+  `supported_operating_systems` ya no estaba disponible dentro de
+  `playbooks/validate.yml`. Se separo la matriz de soporte a
+  `playbooks/vars/supported-platforms.yml` y se agrego `bin/check-deploy` para
+  ejecutar esa validacion localmente antes de commitear.
 
 ---
 
@@ -152,10 +158,15 @@ No debe reemplazar:
 - archivos tocados: `deploy/provisioning/roles/tls/tasks/main.yml`,
   `deploy/provisioning/roles/tls/defaults/main.yml`,
   `deploy/provisioning/roles/tls/README.md`,
+  `deploy/provisioning/playbooks/vars/supported-platforms.yml`,
+  `deploy/provisioning/bin/check-deploy`,
+  `deploy/provisioning/bin/setup-control-node`,
+  `deploy/provisioning/group_vars/all.yml`,
+  `deploy/provisioning/playbooks/validate.yml`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
   `deploy/provisioning/playbooks/*.yml`, `deploy/docs/deployment-guide.md`,
   `deploy/provisioning/inventories/README.md`,
-  `plan_dev/daily/2026-08-24.md` y `plan_dev/STATUS.md`.
+  `deploy/README.md`, `plan_dev/daily/2026-08-24.md` y `plan_dev/STATUS.md`.
 - resumen tecnico: las tareas que crean directorio, CA, key, CSR y certificado
   local para `tls_provider: local_ca` usan `check_mode: false`, porque son
   insumo local para simular las copias remotas. Se agrego una validacion `stat`
@@ -168,9 +179,13 @@ No debe reemplazar:
   puerto SSH 22 bloqueado desde PC Uni. Los playbooks ya no cargan
   `group_vars/all.yml` como `vars_files` para evitar que defaults de play pisen
   variables del inventory; mantienen `../group_vars/vault.yml` cuando requieren
-  secretos.
+  secretos. La matriz `supported_*` usada por `validate.yml` se movio a
+  `playbooks/vars/supported-platforms.yml`, porque no es un default de entorno.
+  `bin/check-deploy` valida lint, syntax-checks, invariantes de testing y la
+  ausencia de `../group_vars/all.yml` en `vars_files`.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
-  explican la regla de precedencia y el uso de HTTPS para testing.
+  explican la regla de precedencia, el uso de HTTPS para testing y el check
+  pre-commit.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -182,6 +197,7 @@ No debe reemplazar:
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
   - `bin/yamllint roles/tls/defaults/main.yml roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
+  - `bin/yamllint group_vars/all.yml inventories playbooks roles/tls/defaults/main.yml roles/tls/tasks/main.yml requirements-control.txt`
   - `bin/ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
   - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_release_id'`
   - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_git_repo'`
@@ -189,6 +205,7 @@ No debe reemplazar:
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/application.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/security.yml --syntax-check`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/validate.yml --check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
   - syntax-check por lote de `playbooks/*.yml` contra inventory testing
   - `bin/ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check`
@@ -197,6 +214,7 @@ No debe reemplazar:
   - `bin/ansible-lint playbooks/application.yml`
   - `bin/ansible-lint playbooks/bootstrap-access.yml`
   - `bin/ansible-lint site.yml`
+  - `bin/check-deploy`
   - `git diff --check`
 - resultado: sin errores.
 - observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
@@ -206,6 +224,8 @@ No debe reemplazar:
 - validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
 - reintentar desde PC Uni: `ansible-playbook -i inventories/testing/hosts.yml
   site.yml --check --diff`.
+- antes de commitear cambios futuros de provisioning, correr
+  `cd deploy/provisioning && bin/check-deploy`.
 
 ---
 

@@ -64,6 +64,16 @@ La ruta debe resolver a `deploy/provisioning/bin/ansible` o al venv
 `deploy/.tools/ansible-control-venv`. Si aparece `/usr/bin/ansible`, falta
 exportar `PATH="$PWD/bin:$PATH"` o usar el prefijo `bin/`.
 
+Antes de commitear cambios en `deploy/provisioning`, correr el check versionado:
+
+```bash
+bin/check-deploy
+```
+
+Ese check valida lint, syntax-check de playbooks, invariantes criticas de
+testing y que ningun playbook vuelva a cargar `../group_vars/all.yml` como
+`vars_files`.
+
 El password file inicial esperado es:
 
 ```text
@@ -103,6 +113,11 @@ las variables cargadas con `vars_files` tienen mayor precedencia y pueden pisar
 selecciones del inventory, como `application_release_id`, `security_enabled` o
 `firewall_enabled`. Los playbooks sólo deben declarar `vars_files` para secretos
 explícitos, por ejemplo `../group_vars/vault.yml`.
+
+La matriz de plataformas soportadas que usa `playbooks/validate.yml` vive en
+`playbooks/vars/supported-platforms.yml`. Esa matriz se carga de forma explicita
+porque no es una seleccion de entorno y no debe depender de la carga implicita de
+`group_vars`.
 
 ## Inventarios locales
 

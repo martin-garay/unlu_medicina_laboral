@@ -1,18 +1,4 @@
 ---
-supported_operating_systems:
-  debian:
-    - "13"
-
-supported_web_servers:
-  apache:
-    - "2.4"
-
-supported_php_versions:
-  - "8.4"
-
-supported_postgresql_versions:
-  - "17"
-
 php_fpm_socket: "/run/php/php{{ php_version }}-fpm.sock"
 
 application_name: medicina-laboral

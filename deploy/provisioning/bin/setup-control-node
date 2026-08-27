@@ -64,3 +64,4 @@ echo
 echo "Use one of:"
 echo "  export PATH=\"${provisioning_dir}/bin:\$PATH\""
 echo "  bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --check --diff"
+echo "  bin/check-deploy"

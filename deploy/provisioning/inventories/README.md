@@ -152,6 +152,15 @@ Antes de ejecutar `site.yml`, confirmar:
 - `firewall_enabled` sigue en `false` mientras no se gestione firewall desde Ansible;
 - rutas de certificado si `tls_provider: provided` no usa los defaults de `group_vars/all.yml`.
 
+Antes de commitear cambios de provisioning o inventory, ejecutar:
+
+```bash
+bin/check-deploy
+```
+
+El check falla si un playbook intenta cargar `../group_vars/all.yml` como
+`vars_files`, porque eso puede pisar variables del inventory.
+
 Testing conserva inicialmente los controles institucionales existentes. El
 servidor ya tiene reglas nftables restrictivas cargadas aunque
 `nftables.service` figure `disabled/inactive`, incluyendo acceso SSH desde

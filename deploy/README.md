@@ -84,6 +84,7 @@ plantillas, pruebas y documentación operativa permanecen bajo `deploy/`.
 cd deploy/provisioning
 bin/setup-control-node
 export PATH="$PWD/bin:$PATH"
+bin/check-deploy
 ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml
 ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml
 ```

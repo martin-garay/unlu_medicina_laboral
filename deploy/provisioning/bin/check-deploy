@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+provisioning_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${provisioning_dir}"
+
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "${tmp_dir}"' EXIT
+
+if grep -R --line-number --fixed-strings "../group_vars/all.yml" playbooks; then
+    echo "Do not include ../group_vars/all.yml as vars_files in playbooks." >&2
+    echo "It raises precedence and can override inventory values." >&2
+    exit 1
+fi
+
+bin/yamllint \
+    group_vars/all.yml \
+    inventories \
+    playbooks \
+    roles/tls/defaults/main.yml \
+    roles/tls/tasks/main.yml \
+    requirements-control.txt
+
+bin/ansible-inventory \
+    -i inventories/testing/hosts.yml \
+    --host avisos-testing > "${tmp_dir}/testing-host.json"
+
+python3 - "${tmp_dir}/testing-host.json" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as handle:
+    host = json.load(handle)
+
+expected = {
+    "application_release_id": "testing-2026-08-24-01",
+    "application_git_repo": "https://github.com/martin-garay/unlu_medicina_laboral.git",
+    "security_enabled": False,
+    "firewall_enabled": False,
+}
+
+failures = []
+for key, value in expected.items():
+    if host.get(key) != value:
+        failures.append(f"{key}: expected {value!r}, got {host.get(key)!r}")
+
+git_ref = host.get("application_git_ref")
+if git_ref not in ("testing-2026-08-24-01", "{{ application_release_id }}"):
+    failures.append(
+        "application_git_ref: expected tag or application_release_id template, "
+        f"got {git_ref!r}"
+    )
+
+if failures:
+    print("Testing inventory invariants failed:", file=sys.stderr)
+    for failure in failures:
+        print(f"- {failure}", file=sys.stderr)
+    raise SystemExit(1)
+PY
+
+for playbook in playbooks/*.yml; do
+    bin/ansible-playbook -i inventories/testing/hosts.yml "${playbook}" --syntax-check >/dev/null
+done
+
+bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/validate.yml --check
+bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check
+bin/ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check
+bin/ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml --syntax-check
+
+bin/ansible-lint --project-dir "${provisioning_dir}" roles/tls/tasks/main.yml
+bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/application.yml
+bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/bootstrap-access.yml
+bin/ansible-lint --project-dir "${provisioning_dir}" site.yml
+
+git -C "${provisioning_dir}/../.." diff --check
