@@ -186,6 +186,11 @@ la clave y certificados locales antes de simular las tareas `copy`; si no puede
 crearlos, falla antes con un mensaje que apunta a `openssl` en la estacion de
 control.
 
+Si falla en `tls : Sign server certificate with local CA` con
+`x509: Unrecognized flag copy_extensions`, la estacion de control todavia esta
+usando una version anterior del rol. Actualizar desde `origin/main`; el rol
+actual firma el certificado con `-extfile` y no depende de `-copy_extensions`.
+
 ## Validaciones iniciales
 
 Desde `deploy/provisioning/`:

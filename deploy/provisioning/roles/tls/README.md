@@ -8,3 +8,7 @@ Con `tls_provider: local_ca`, el rol genera el material TLS en la estación de
 control incluso durante `--check`. Es necesario para que Ansible pueda evaluar
 las tareas `copy` que instalarían la clave y los certificados en el host remoto.
 Ese material queda bajo `.local/`, fuera de Git.
+
+El certificado de servidor se firma con un archivo local de extensiones
+`*.ext`, no con `openssl x509 -copy_extensions`, para mantener compatibilidad
+con estaciones de control que tienen versiones antiguas de OpenSSL.

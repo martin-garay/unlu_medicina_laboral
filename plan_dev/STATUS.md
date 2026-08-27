@@ -12,15 +12,16 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 19:35 -03
+2026-08-27 20:05 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: bootstrap y validacion remota del usuario operativo
   `deploy` en testing desde PC Uni.
 - Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
-  2026-08-24 queda en `needs_review`: se corrigio un bloqueo de dry-run en el
-  rol `tls` y falta reintentar `site.yml --check --diff` desde PC Uni.
+  2026-08-24 queda en `needs_review`: se corrigieron bloqueos de dry-run y
+  compatibilidad OpenSSL en el rol `tls`; falta reintentar `site.yml
+  --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -112,7 +113,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 19:35 -03
+- 2026-08-27 20:05 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -133,20 +134,25 @@ No debe reemplazar:
 - Se ajusto el rol `tls` para generar el material `local_ca` en la estacion de
   control incluso durante `--check` y para validar esos archivos antes de llegar
   a la tarea censurada.
+- El reintento desde PC Uni avanzo hasta `Sign server certificate with local CA`
+  y fallo porque `openssl x509` no reconoce `-copy_extensions`. Se reemplazo
+  esa opcion por firma con archivo local de extensiones `-extfile`.
 
 ---
 
 ## Cambios realizados
 - archivos tocados: `deploy/provisioning/roles/tls/tasks/main.yml`,
+  `deploy/provisioning/roles/tls/defaults/main.yml`,
   `deploy/provisioning/roles/tls/README.md`,
-  `deploy/docs/deployment-guide.md`,
-  `deploy/provisioning/inventories/README.md`,
-  `plan_dev/daily/2026-08-24.md` y `plan_dev/STATUS.md`.
+  `deploy/docs/deployment-guide.md` y `plan_dev/STATUS.md`.
 - resumen tecnico: las tareas que crean directorio, CA, key, CSR y certificado
   local para `tls_provider: local_ca` usan `check_mode: false`, porque son
   insumo local para simular las copias remotas. Se agrego una validacion `stat`
   y `assert` sobre esos archivos para reportar errores de `openssl` o paths
-  antes de la copia de clave privada con `no_log`.
+  antes de la copia de clave privada con `no_log`. La firma del certificado de
+  servidor ahora usa un archivo `*.ext` con `subjectAltName`, `basicConstraints`,
+  `keyUsage` y `extendedKeyUsage`, evitando depender de
+  `openssl x509 -copy_extensions`.
 - documentación actualizada: si; el README del rol y la guia de deploy explican
   por que `local_ca` genera material local durante `--check`.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
@@ -159,7 +165,7 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
-  - `bin/yamllint roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
+  - `bin/yamllint roles/tls/defaults/main.yml roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
   - `bin/ansible-lint roles/tls/tasks/main.yml`

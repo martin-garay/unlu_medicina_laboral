@@ -56,9 +56,24 @@
   check_mode: false
   when: tls_provider == 'local_ca'
 
+- name: Write server certificate extensions
+  ansible.builtin.copy:
+    dest: "{{ tls_local_server_extensions }}"
+    mode: "0600"
+    content: |
+      [server_cert]
+      basicConstraints=critical,CA:FALSE
+      keyUsage=critical,digitalSignature,keyEncipherment
+      extendedKeyUsage=serverAuth
+      subjectAltName=DNS:{{ application_hostname }}
+  delegate_to: localhost
+  become: false
+  check_mode: false
+  when: tls_provider == 'local_ca'
+
 - name: Sign server certificate with local CA
   ansible.builtin.command:
-    argv: [openssl, x509, -req, -in, "{{ tls_local_server_csr }}", -CA, "{{ tls_local_ca_certificate }}", -CAkey, "{{ tls_local_ca_key }}", -CAcreateserial, -days, "825", -sha256, -copy_extensions, copy, -out, "{{ tls_local_server_certificate }}"]
+    argv: [openssl, x509, -req, -in, "{{ tls_local_server_csr }}", -CA, "{{ tls_local_ca_certificate }}", -CAkey, "{{ tls_local_ca_key }}", -CAcreateserial, -days, "825", -sha256, -extfile, "{{ tls_local_server_extensions }}", -extensions, server_cert, -out, "{{ tls_local_server_certificate }}"]
     creates: "{{ tls_local_server_certificate }}"
   delegate_to: localhost
   become: false
