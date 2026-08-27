@@ -12,6 +12,30 @@
     update_cache: true
     cache_valid_time: 3600
 
+- name: Install rsync for application synchronization
+  ansible.builtin.apt:
+    name: rsync
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Check remote rsync availability
+  ansible.builtin.command:
+    argv: [rsync, --version]
+  register: application_remote_rsync
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Report missing remote rsync during check mode
+  ansible.builtin.debug:
+    msg: >-
+      Would install rsync during apply; application source synchronization is
+      skipped in check mode because rsync is not available on the remote host.
+  when:
+    - ansible_check_mode
+    - (application_remote_rsync.rc | default(1)) != 0
+
 - name: Create application release directories
   ansible.builtin.file:
     path: "{{ item }}"
@@ -24,6 +48,21 @@
     - "{{ application_root }}/releases"
     - "{{ application_release_path }}"
     - "{{ application_shared_path }}"
+
+- name: Inspect application release path
+  ansible.builtin.stat:
+    path: "{{ application_release_path }}"
+  register: application_release_directory
+
+- name: Report missing application release path during check mode
+  ansible.builtin.debug:
+    msg: >-
+      Would create {{ application_release_path }} during apply; application
+      source synchronization is skipped in check mode because the release
+      directory does not exist yet.
+  when:
+    - ansible_check_mode
+    - not (application_release_directory.stat.isdir | default(false))
 
 - name: Create shared writable directories
   ansible.builtin.file:
@@ -95,6 +134,9 @@
       - --exclude=vendor/
       - --exclude=phpunit.xml
       - --exclude=.phpunit.result.cache
+  when:
+    - not ansible_check_mode or (application_remote_rsync.rc | default(1)) == 0
+    - not ansible_check_mode or (application_release_directory.stat.isdir | default(false))
 
 - name: Set release ownership
   ansible.builtin.file:

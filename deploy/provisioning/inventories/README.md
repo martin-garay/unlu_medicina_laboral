@@ -151,6 +151,9 @@ Antes de ejecutar `site.yml`, confirmar:
 - `security_enabled` sigue en `false` mientras no se gestione hardening desde Ansible;
 - `firewall_enabled` sigue en `false` mientras no se gestione firewall desde Ansible;
 - rutas de certificado si `tls_provider: provided` no usa los defaults de `group_vars/all.yml`.
+- el primer `--check` puede saltear la sincronización de aplicación si `rsync`
+  todavía no existe en el servidor o si el directorio de release aún no fue
+  creado; el apply real prepara ambos antes de sincronizar.
 
 Antes de commitear cambios de provisioning o inventory, ejecutar:
 

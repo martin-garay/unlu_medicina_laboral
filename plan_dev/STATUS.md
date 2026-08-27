@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 20:58 -03
+2026-08-27 20:49 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -26,8 +26,9 @@ No debe reemplazar:
   commitear, con `ansible-lint` opcional en control nodes Python 3.8. El rol
   `tls` ahora evita fallar en `--check` cuando faltan directorios remotos de
   destino. Los inventories versionados ahora enlazan `group_vars` compartido
-  para cargar defaults como `tls_private_key_path`; falta reintentar
-  `site.yml --check --diff` desde PC Uni.
+  para cargar defaults como `tls_private_key_path`. El rol `application` ahora
+  instala `rsync` en apply real y saltea la sincronizacion en dry-run si el host
+  aun no lo tiene; falta reintentar `site.yml --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -119,7 +120,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 20:58 -03
+- 2026-08-27 20:49 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -169,6 +170,12 @@ No debe reemplazar:
   dentro de cada directorio de inventory para que `group_vars/all.yml` cargue
   aun usando `-i inventories/testing/hosts.yml`, y se amplio `bin/check-deploy`
   para validar defaults criticos.
+- El reintento avanzo hasta `application : Synchronize application source into
+  release` y fallo porque el servidor testing no tenia `rsync`. Se ajusto el rol
+  `application` para instalar `rsync` en apply real, verificar su disponibilidad
+  y saltear la sincronizacion en `--check` cuando todavia no existe. Tambien se
+  inspecciona el directorio de release para saltear esa sincronizacion durante
+  el dry-run inicial si el apply real aun no creo la ruta remota.
 
 ---
 
@@ -183,6 +190,8 @@ No debe reemplazar:
   `deploy/provisioning/inventories/*/group_vars`,
   `deploy/provisioning/playbooks/validate.yml`,
   `deploy/provisioning/requirements-control.txt`,
+  `deploy/provisioning/roles/application/tasks/main.yml`,
+  `deploy/provisioning/roles/application/README.md`,
   `deploy/provisioning/inventories/testing/hosts.yml`,
   `deploy/provisioning/playbooks/*.yml`, `deploy/docs/deployment-guide.md`,
   `deploy/provisioning/inventories/README.md`,
@@ -208,10 +217,13 @@ No debe reemplazar:
   rol `tls` crea los directorios remotos de destino en apply real y evita que
   `--check` falle en tareas `copy` con `no_log` cuando esos directorios aun no
   existen. Los directorios de inventory enlazan `group_vars` compartido para que
-  los defaults globales carguen como inventory vars y no como `vars_files`.
+  los defaults globales carguen como inventory vars y no como `vars_files`. El
+  rol `application` instala `rsync`, valida si esta disponible y evita que el
+  primer `--check` falle en `synchronize` antes de que el apply pueda instalarlo
+  y crear el directorio remoto de release.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
-  explican la regla de precedencia, el uso de HTTPS para testing y el check
-  pre-commit.
+  explican la regla de precedencia, el uso de HTTPS para testing, el check
+  pre-commit y el comportamiento de `rsync` en dry-run.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -223,6 +235,7 @@ No debe reemplazar:
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
   - `bin/yamllint roles/tls/defaults/main.yml roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
+  - `bin/yamllint roles/application/tasks/main.yml playbooks/application.yml site.yml`
   - `bin/yamllint group_vars/all.yml inventories playbooks roles/tls/defaults/main.yml roles/tls/tasks/main.yml requirements-control.txt`
   - `bin/ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
   - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_release_id'`

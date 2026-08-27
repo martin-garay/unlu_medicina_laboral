@@ -191,6 +191,13 @@ El checkout de la aplicación se realiza en la estación de control y luego se
 sincroniza al host remoto. En testing se usa HTTPS para GitHub porque desde PC
 Uni se observo timeout hacia `github.com:22`.
 
+La sincronizacion de la aplicación usa `rsync` en la estación de control y en el
+servidor. El rol `application` instala `rsync` en apply real. En un primer
+`--check`, si el servidor todavía no lo tiene, la tarea de sincronización se
+saltea con un mensaje explicito porque el paquete aún no fue instalado. Lo mismo
+ocurre si el directorio de release todavía no existe: el apply real lo crea antes
+de sincronizar.
+
 Mientras no se defina la política completa de seguridad institucional, testing
 usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar
 `site.yml` completo sin aplicar los roles `hardening` ni `firewall`, y sin exigir

@@ -11,6 +11,13 @@ La opción futura `artifact` queda reservada para un paquete generado por CI con
 
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
 
+El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`
+necesita `rsync` tanto en la estación de control como en el servidor. En
+`--check`, si el paquete todavía no está disponible en el servidor, informa que
+lo instalaría en apply real y saltea la sincronización para no bloquear el
+dry-run inicial. La misma regla se aplica si el directorio de release todavía no
+existe, porque en modo check las tareas previas sólo simulan su creación.
+
 La activación es transaccional a nivel de código: conserva el destino previo de
 `current`, recarga PHP-FPM y valida `/up`. Ante un fallo restaura el symlink
 anterior y finaliza con error. Las migraciones no se revierten automáticamente.
