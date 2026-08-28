@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-28 04:45 -03
+2026-08-28 04:52 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -32,8 +32,8 @@ No debe reemplazar:
   `--check` para no fallar antes de que el apply cree servicios, releases y
   backups reales. Durante el primer apply real se detecto una espera prolongada
   en `application : Synchronize application source into release`; el rol ahora
-  usa `sudo -n rsync` y timeouts explicitos para fallar rapido si sudo o SSH no
-  estan listos.
+  usa `sudo -n rsync` y timeout de inactividad para fallar rapido si sudo o la
+  transferencia no estan listos.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -125,7 +125,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-28 04:45 -03
+- 2026-08-28 04:52 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -189,6 +189,9 @@ No debe reemplazar:
   source into release`. La tarea usaba `rsync_path: sudo rsync`; se cambio a
   `sudo -n rsync` y se agregaron timeouts de rsync para evitar esperas
   interactivas silenciosas.
+- El reintento fallo rapido en la misma tarea porque `--contimeout` solo aplica
+  al modo rsync daemon, no a rsync sobre SSH. Se retiro esa opcion y se conserva
+  `--timeout=120` como timeout de inactividad de transferencia.
 
 ---
 
@@ -237,7 +240,7 @@ No debe reemplazar:
   validaciones de servicios, doctor Laravel, scheduler, TLS y backups para apply
   real, pero las informa como omitidas durante `--check` para evitar falsos
   negativos en un servidor que aun no fue convergido. La sincronizacion de
-  aplicacion usa ahora `sudo -n rsync` y timeouts explicitos.
+  aplicacion usa ahora `sudo -n rsync` y timeout de inactividad.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing, el check
   pre-commit y el comportamiento de `rsync` y `monitoring` en dry-run.

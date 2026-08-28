@@ -17,9 +17,9 @@ necesita `rsync` tanto en la estación de control como en el servidor. En
 lo instalaría en apply real y saltea la sincronización para no bloquear el
 dry-run inicial. La misma regla se aplica si el directorio de release todavía no
 existe, porque en modo check las tareas previas sólo simulan su creación.
-La sincronización remota usa `sudo -n rsync` y timeouts explícitos para fallar
-con error visible si el sudo remoto o la conexión SSH no están listos, en lugar
-de quedar esperando interacción.
+La sincronización remota usa `sudo -n rsync` y un timeout de inactividad para
+fallar con error visible si el sudo remoto o la transferencia no están listos,
+en lugar de quedar esperando interacción.
 
 La activación es transaccional a nivel de código: conserva el destino previo de
 `current`, recarga PHP-FPM y valida `/up`. Ante un fallo restaura el symlink
