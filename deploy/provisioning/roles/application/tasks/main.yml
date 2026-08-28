@@ -112,8 +112,10 @@
     src: "{{ application_effective_source_path }}/"
     dest: "{{ application_release_path }}/"
     delete: false
-    rsync_path: sudo rsync
+    rsync_path: sudo -n rsync
     rsync_opts:
+      - --timeout=120
+      - --contimeout=30
       - --no-owner
       - --no-group
       - --no-perms
