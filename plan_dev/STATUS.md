@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-27 20:49 -03
+2026-08-28 04:35 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -28,7 +28,9 @@ No debe reemplazar:
   destino. Los inventories versionados ahora enlazan `group_vars` compartido
   para cargar defaults como `tls_private_key_path`. El rol `application` ahora
   instala `rsync` en apply real y saltea la sincronizacion en dry-run si el host
-  aun no lo tiene; falta reintentar `site.yml --check --diff` desde PC Uni.
+  aun no lo tiene. El rol `monitoring` ahora omite checks operativos durante
+  `--check` para no fallar antes de que el apply cree servicios, releases y
+  backups reales; falta reintentar `site.yml --check --diff` desde PC Uni.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -120,7 +122,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-27 20:49 -03
+- 2026-08-28 04:35 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -176,6 +178,10 @@ No debe reemplazar:
   y saltear la sincronizacion en `--check` cuando todavia no existe. Tambien se
   inspecciona el directorio de release para saltear esa sincronizacion durante
   el dry-run inicial si el apply real aun no creo la ruta remota.
+- El reintento posterior avanzo hasta `monitoring : Require application
+  services` y fallo porque `service_facts` no tenia `apache2.service` en un
+  host que todavia no paso por apply real. Se ajusto el rol `monitoring` para
+  omitir checks operativos en `--check` y mantenerlos obligatorios en apply real.
 
 ---
 
@@ -220,10 +226,13 @@ No debe reemplazar:
   los defaults globales carguen como inventory vars y no como `vars_files`. El
   rol `application` instala `rsync`, valida si esta disponible y evita que el
   primer `--check` falle en `synchronize` antes de que el apply pueda instalarlo
-  y crear el directorio remoto de release.
+  y crear el directorio remoto de release. El rol `monitoring` mantiene las
+  validaciones de servicios, doctor Laravel, scheduler, TLS y backups para apply
+  real, pero las informa como omitidas durante `--check` para evitar falsos
+  negativos en un servidor que aun no fue convergido.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing, el check
-  pre-commit y el comportamiento de `rsync` en dry-run.
+  pre-commit y el comportamiento de `rsync` y `monitoring` en dry-run.
 - runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
@@ -236,6 +245,7 @@ No debe reemplazar:
 - checks:
   - `bin/yamllint roles/tls/defaults/main.yml roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
   - `bin/yamllint roles/application/tasks/main.yml playbooks/application.yml site.yml`
+  - `bin/yamllint roles/monitoring/tasks/main.yml playbooks/monitoring.yml site.yml`
   - `bin/yamllint group_vars/all.yml inventories playbooks roles/tls/defaults/main.yml roles/tls/tasks/main.yml requirements-control.txt`
   - `bin/ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
   - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_release_id'`
@@ -243,6 +253,7 @@ No debe reemplazar:
   - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'msg="security={{ security_enabled }} firewall={{ firewall_enabled }} ref={{ application_git_ref }}"'`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/application.yml --syntax-check`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/monitoring.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/security.yml --syntax-check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/validate.yml --check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`

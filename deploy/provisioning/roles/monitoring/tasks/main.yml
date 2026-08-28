@@ -2,42 +2,62 @@
 - name: Collect service state
   ansible.builtin.service_facts:
 
+- name: Report operational monitoring skipped during check mode
+  ansible.builtin.debug:
+    msg: >-
+      Operational health checks are skipped in check mode because previous
+      roles only simulate package installs, service starts, releases and backups.
+  when: ansible_check_mode
+
 - name: Require base operational services
   ansible.builtin.assert:
     that:
-      - ansible_facts.services['cron.service'].state == 'running'
+      - ansible_facts.services.get('cron.service', {}).get('state') == 'running'
+    fail_msg: "cron.service must be installed and running."
+  when: not ansible_check_mode
 
 - name: Require firewall service when managed
   ansible.builtin.assert:
     that:
-      - ansible_facts.services['nftables.service'].status == 'enabled'
-  when: firewall_enabled | bool
+      - ansible_facts.services.get('nftables.service', {}).get('status') == 'enabled'
+    fail_msg: "nftables.service must be enabled when firewall_enabled=true."
+  when:
+    - firewall_enabled | bool
+    - not ansible_check_mode
 
 - name: Verify effective firewall policy
   ansible.builtin.command: nft list ruleset
   register: monitoring_firewall
   changed_when: false
   failed_when: "'policy drop' not in monitoring_firewall.stdout"
-  when: firewall_enabled | bool
+  when:
+    - firewall_enabled | bool
+    - not ansible_check_mode
 
 - name: Require application services
   ansible.builtin.assert:
     that:
-      - ansible_facts.services['apache2.service'].state == 'running'
+      - ansible_facts.services.get('apache2.service', {}).get('state') == 'running'
       - >-
-        ansible_facts.services['php' ~ php_version ~ '-fpm.service'].state
+        ansible_facts.services.get('php' ~ php_version ~ '-fpm.service', {}).get('state')
         == 'running'
-  when: inventory_hostname in groups['app_servers']
+    fail_msg: "Apache and PHP-FPM must be installed and running on app servers."
+  when:
+    - inventory_hostname in groups['app_servers']
+    - not ansible_check_mode
 
 - name: Require PostgreSQL readiness
   ansible.builtin.command: pg_isready --dbname "{{ postgresql_database_name }}"
   changed_when: false
-  when: inventory_hostname in groups['db_servers']
+  when:
+    - inventory_hostname in groups['db_servers']
+    - not ansible_check_mode
 
 - name: Read root filesystem usage
   ansible.builtin.command: df --output=pcent /
   register: monitoring_disk_usage
   changed_when: false
+  when: not ansible_check_mode
 
 - name: Require available disk capacity
   ansible.builtin.assert:
@@ -54,7 +74,9 @@
   become_user: "{{ deploy_user_name }}"
   become: true
   changed_when: false
-  when: inventory_hostname in groups['app_servers']
+  when:
+    - inventory_hostname in groups['app_servers']
+    - not ansible_check_mode
 
 - name: Verify Laravel scheduler registration
   ansible.builtin.command:
@@ -66,7 +88,9 @@
   changed_when: false
   failed_when: >-
     'conversations:process-timeouts' not in monitoring_schedule.stdout
-  when: inventory_hostname in groups['app_servers']
+  when:
+    - inventory_hostname in groups['app_servers']
+    - not ansible_check_mode
 
 - name: Verify TLS certificate validity window
   ansible.builtin.command:
@@ -82,6 +106,7 @@
   when:
     - inventory_hostname in groups['app_servers']
     - tls_enabled | default(false)
+    - not ansible_check_mode
 
 - name: Find recent PostgreSQL backup
   ansible.builtin.find:
@@ -89,12 +114,16 @@
     patterns: "*.dump"
     age: "-{{ monitoring_backup_max_age_seconds }}s"
   register: monitoring_database_backups
-  when: inventory_hostname in groups['db_servers']
+  when:
+    - inventory_hostname in groups['db_servers']
+    - not ansible_check_mode
 
 - name: Require recent PostgreSQL backup
   ansible.builtin.assert:
     that: monitoring_database_backups.matched | int > 0
-  when: inventory_hostname in groups['db_servers']
+  when:
+    - inventory_hostname in groups['db_servers']
+    - not ansible_check_mode
 
 - name: Find recent persistent files backup
   ansible.builtin.find:
@@ -102,9 +131,13 @@
     patterns: "*.tar.gz"
     age: "-{{ monitoring_backup_max_age_seconds }}s"
   register: monitoring_files_backups
-  when: inventory_hostname in groups['app_servers']
+  when:
+    - inventory_hostname in groups['app_servers']
+    - not ansible_check_mode
 
 - name: Require recent persistent files backup
   ansible.builtin.assert:
     that: monitoring_files_backups.matched | int > 0
-  when: inventory_hostname in groups['app_servers']
+  when:
+    - inventory_hostname in groups['app_servers']
+    - not ansible_check_mode

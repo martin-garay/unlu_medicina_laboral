@@ -24,6 +24,7 @@ fi
 bin/yamllint \
     group_vars/all.yml \
     inventories \
+    roles/monitoring/tasks/main.yml \
     playbooks \
     roles/tls/defaults/main.yml \
     roles/tls/tasks/main.yml \
@@ -105,6 +106,7 @@ PY
 
 if [[ "$(cat "${tmp_dir}/supports-ansible-lint")" == "yes" ]]; then
     bin/ansible-lint --project-dir "${provisioning_dir}" roles/tls/tasks/main.yml
+    bin/ansible-lint --project-dir "${provisioning_dir}" roles/monitoring/tasks/main.yml
     bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/application.yml
     bin/ansible-lint --project-dir "${provisioning_dir}" playbooks/bootstrap-access.yml
     bin/ansible-lint --project-dir "${provisioning_dir}" site.yml

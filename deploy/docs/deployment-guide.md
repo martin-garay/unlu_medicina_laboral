@@ -198,6 +198,11 @@ saltea con un mensaje explicito porque el paquete aún no fue instalado. Lo mism
 ocurre si el directorio de release todavía no existe: el apply real lo crea antes
 de sincronizar.
 
+El rol `monitoring` valida salud operativa al final del apply real: servicios,
+doctor de Laravel, scheduler, TLS y backups recientes. En `--check` informa que
+omite esos controles porque el dry-run no instala servicios ni crea releases o
+backups reales.
+
 Mientras no se defina la política completa de seguridad institucional, testing
 usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar
 `site.yml` completo sin aplicar los roles `hardening` ni `firewall`, y sin exigir
