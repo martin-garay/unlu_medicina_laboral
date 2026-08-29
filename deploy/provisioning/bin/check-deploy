@@ -45,6 +45,7 @@ with open(path, encoding="utf-8") as handle:
 expected = {
     "application_release_id": "testing-2026-08-24-01",
     "application_git_repo": "https://github.com/martin-garay/unlu_medicina_laboral.git",
+    "application_transfer_strategy": "archive",
     "security_enabled": False,
     "firewall_enabled": False,
 }
@@ -64,6 +65,7 @@ if git_ref not in ("testing-2026-08-24-01", "{{ application_release_id }}"):
 required_defaults = [
     "application_document_root",
     "application_root",
+    "application_transfer_strategy",
     "backup_root",
     "deploy_user_group",
     "deploy_user_name",

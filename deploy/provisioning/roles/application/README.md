@@ -7,6 +7,12 @@ Despliega Laravel con directorios `releases`, `shared` y symlink `current`.
 - `local`: sincroniza el workspace actual; pensado para Vagrant/desarrollo.
 - `git`: clona un tag/SHA en la máquina de control y lo sincroniza al servidor; pensado para testing/producción.
 
+`application_transfer_strategy` soporta dos valores:
+
+- `rsync`: sincroniza el árbol con `ansible.posix.synchronize`.
+- `archive`: empaqueta el source en un `.tar.gz`, lo copia por SSH con Ansible y
+  lo extrae en el release remoto.
+
 La opción futura `artifact` queda reservada para un paquete generado por CI con checksum; no está implementada.
 
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
@@ -26,6 +32,8 @@ pueda ejecutar `sudo -n rsync --version`.
 Por defecto, antes de sincronizar limpia el directorio del release si existe pero
 no es el release activo apuntado por `current`; esto permite reintentar un deploy
 fallido sin conservar archivos excluidos o parciales de intentos anteriores.
+En testing se usa `archive` para evitar esperas opacas de `synchronize` sobre el
+salto SSH institucional.
 
 La activación es transaccional a nivel de código: conserva el destino previo de
 `current`, recarga PHP-FPM y valida `/up`. Ante un fallo restaura el symlink

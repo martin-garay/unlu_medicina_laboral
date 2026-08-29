@@ -188,15 +188,14 @@ ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml
 ```
 
 El checkout de la aplicación se realiza en la estación de control y luego se
-sincroniza al host remoto. En testing se usa HTTPS para GitHub porque desde PC
+transfiere al host remoto. En testing se usa HTTPS para GitHub porque desde PC
 Uni se observo timeout hacia `github.com:22`.
 
-La sincronizacion de la aplicación usa `rsync` en la estación de control y en el
-servidor. El rol `application` instala `rsync` en apply real. En un primer
-`--check`, si el servidor todavía no lo tiene, la tarea de sincronización se
-saltea con un mensaje explicito porque el paquete aún no fue instalado. Lo mismo
-ocurre si el directorio de release todavía no existe: el apply real lo crea antes
-de sincronizar.
+El rol `application` soporta transferencia por `rsync` o por artefacto `.tar.gz`.
+Testing usa `application_transfer_strategy: archive`: empaqueta el checkout local
+con los excludes definidos, copia el archivo por SSH normal de Ansible y lo
+extrae en el release remoto. Esto evita esperas opacas de
+`ansible.posix.synchronize` sobre el salto SSH institucional.
 
 El rol `monitoring` valida salud operativa al final del apply real: servicios,
 doctor de Laravel, scheduler, TLS y backups recientes. En `--check` informa que

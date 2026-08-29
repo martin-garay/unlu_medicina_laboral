@@ -147,13 +147,14 @@ Antes de ejecutar `site.yml`, confirmar:
 - `application_release_id` apunta al tag remoto previsto;
 - `application_git_repo` usa una URL alcanzable desde la estación de control;
   en PC Uni debe ser HTTPS, no SSH por `github.com:22`;
+- `application_transfer_strategy` queda en `archive` para testing remoto por el
+  salto SSH institucional;
 - `deploy_user_public_keys` contiene la clave pública autorizada para el usuario `deploy`;
 - `security_enabled` sigue en `false` mientras no se gestione hardening desde Ansible;
 - `firewall_enabled` sigue en `false` mientras no se gestione firewall desde Ansible;
 - rutas de certificado si `tls_provider: provided` no usa los defaults de `group_vars/all.yml`.
-- el primer `--check` puede saltear la sincronización de aplicación si `rsync`
-  todavía no existe en el servidor o si el directorio de release aún no fue
-  creado; el apply real prepara ambos antes de sincronizar.
+- con transferencia `archive`, el apply empaqueta el checkout local, copia el
+  `.tar.gz` al servidor y lo extrae en el release remoto.
 
 Antes de commitear cambios de provisioning o inventory, ejecutar:
 

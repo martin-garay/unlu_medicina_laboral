@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-28 22:48 -03
+2026-08-29 00:15 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -37,6 +37,8 @@ No debe reemplazar:
   local, source local con `composer.json` y `sudo -n rsync` remoto antes de
   sincronizar. El rol ahora limpia releases inactivos antes de sincronizar para
   poder reintentar deploys fallidos sin arrastrar archivos parciales o excluidos.
+  Testing cambia a `application_transfer_strategy: archive` para dejar de usar
+  `ansible.posix.synchronize` sobre el salto SSH institucional.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -128,7 +130,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-28 22:48 -03
+- 2026-08-29 00:15 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -204,6 +206,11 @@ No debe reemplazar:
   archivos que debian estar excluidos (`deploy/`, `tests/`, `.git`, `.docker`),
   probablemente arrastrados por un intento parcial previo. Se agrego limpieza
   previa de releases inactivos antes de sincronizar.
+- El reintento siguiente volvio a quedar detenido en
+  `application : Synchronize application source into release`. Se incorporo
+  `application_transfer_strategy` con opcion `archive` y testing queda
+  configurado para empaquetar el checkout local como `.tar.gz`, copiarlo con el
+  transporte SSH normal de Ansible y extraerlo en el release remoto.
 
 ---
 
@@ -252,8 +259,10 @@ No debe reemplazar:
   validaciones de servicios, doctor Laravel, scheduler, TLS y backups para apply
   real, pero las informa como omitidas durante `--check` para evitar falsos
   negativos en un servidor que aun no fue convergido. La sincronizacion de
-  aplicacion usa ahora `sudo -n rsync`, timeout de inactividad, preflights
-  explicitos de source/rsync y limpieza de release inactivo antes de sincronizar.
+  aplicacion soporta transferencia por `rsync` o por `archive`; testing usa
+  `archive` para evitar esperas opacas de `ansible.posix.synchronize` sobre el
+  salto SSH institucional. El rol mantiene preflights explicitos de source,
+  herramienta de transferencia y limpieza de release inactivo antes de publicar.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing, el check
   pre-commit y el comportamiento de `rsync` y `monitoring` en dry-run.
@@ -269,6 +278,7 @@ No debe reemplazar:
 - checks:
   - `bin/yamllint roles/tls/defaults/main.yml roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
   - `bin/yamllint roles/application/tasks/main.yml playbooks/application.yml site.yml`
+  - `bin/yamllint roles/application/defaults/main.yml roles/application/tasks/main.yml inventories/testing/hosts.yml playbooks/application.yml site.yml`
   - `bin/yamllint roles/monitoring/tasks/main.yml playbooks/monitoring.yml site.yml`
   - `bin/yamllint group_vars/all.yml inventories playbooks roles/tls/defaults/main.yml roles/tls/tasks/main.yml requirements-control.txt`
   - `bin/ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`

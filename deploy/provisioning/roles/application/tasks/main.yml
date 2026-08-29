@@ -3,7 +3,10 @@
   ansible.builtin.assert:
     that:
       - application_source_strategy in ['local', 'git']
-    fail_msg: "Unsupported application source strategy: {{ application_source_strategy }}"
+      - application_transfer_strategy in ['rsync', 'archive']
+    fail_msg: >-
+      Unsupported application source or transfer strategy:
+      {{ application_source_strategy }} / {{ application_transfer_strategy }}.
 
 - name: Install Composer
   ansible.builtin.apt:
@@ -18,6 +21,7 @@
     state: present
     update_cache: true
     cache_valid_time: 3600
+  when: application_transfer_strategy == 'rsync'
 
 - name: Check remote rsync availability
   ansible.builtin.command:
@@ -26,6 +30,7 @@
   changed_when: false
   failed_when: false
   check_mode: false
+  when: application_transfer_strategy == 'rsync'
 
 - name: Report missing remote rsync during check mode
   ansible.builtin.debug:
@@ -34,6 +39,7 @@
       skipped in check mode because rsync is not available on the remote host.
   when:
     - ansible_check_mode
+    - application_transfer_strategy == 'rsync'
     - (application_remote_rsync.rc | default(1)) != 0
 
 - name: Read active application release before synchronization
@@ -52,6 +58,14 @@
     - not ansible_check_mode
     - application_clean_inactive_release_before_sync | bool
     - application_active_release_before_sync.stdout | default('') != application_release_path
+
+- name: Select whether application release needs transfer
+  ansible.builtin.set_fact:
+    application_should_transfer_release: >-
+      {{
+        (not (application_clean_inactive_release_before_sync | bool))
+        or ((application_active_release_before_sync.stdout | default('')) != application_release_path)
+      }}
 
 - name: Create application release directories
   ansible.builtin.file:
@@ -131,6 +145,7 @@
   become: false
   run_once: true
   changed_when: false
+  when: application_transfer_strategy == 'rsync'
 
 - name: Inspect application source path on control node
   ansible.builtin.stat:
@@ -166,6 +181,7 @@
   changed_when: false
   failed_when: false
   check_mode: false
+  when: application_transfer_strategy == 'rsync'
 
 - name: Report unavailable remote privileged rsync during check mode
   ansible.builtin.debug:
@@ -175,6 +191,7 @@
       is not available.
   when:
     - ansible_check_mode
+    - application_transfer_strategy == 'rsync'
     - (application_remote_privileged_rsync.rc | default(1)) != 0
 
 - name: Require remote privileged rsync during apply
@@ -184,7 +201,100 @@
     fail_msg: >-
       Remote synchronization requires passwordless sudo for rsync. Validate
       `ssh unlu-medicina-testing-deploy 'sudo -n rsync --version'`.
-  when: not ansible_check_mode
+  when:
+    - not ansible_check_mode
+    - application_transfer_strategy == 'rsync'
+
+- name: Create application artifact root on control node
+  ansible.builtin.file:
+    path: "{{ application_artifact_root }}"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: application_transfer_strategy == 'archive'
+
+- name: Check local tar availability
+  ansible.builtin.command:
+    argv: [tar, --version]
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: false
+  when: application_transfer_strategy == 'archive'
+
+- name: Check remote tar availability
+  ansible.builtin.command:
+    argv: [tar, --version]
+  register: application_remote_tar
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  when: application_transfer_strategy == 'archive'
+
+- name: Require remote tar during apply
+  ansible.builtin.assert:
+    that:
+      - (application_remote_tar.rc | default(1)) == 0
+    fail_msg: "Remote archive extraction requires tar on the target host."
+  when:
+    - not ansible_check_mode
+    - application_transfer_strategy == 'archive'
+
+- name: Build application artifact on control node
+  ansible.builtin.command:
+    cmd: >-
+      tar --create --gzip
+      --file {{ application_artifact_path | quote }}
+      --directory {{ application_effective_source_path | quote }}
+      {% for excluded_path in application_source_excludes %}
+      --exclude={{ excluded_path | quote }}
+      {% endfor %}
+      .
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: true
+  when:
+    - not ansible_check_mode
+    - application_transfer_strategy == 'archive'
+    - application_should_transfer_release | bool
+  tags:
+    - skip_ansible_lint
+
+- name: Copy application artifact to target
+  ansible.builtin.copy:
+    src: "{{ application_artifact_path }}"
+    dest: "{{ application_artifact_remote_path }}"
+    owner: "{{ deploy_user_name }}"
+    group: "{{ deploy_user_group }}"
+    mode: "0600"
+  when:
+    - not ansible_check_mode
+    - application_transfer_strategy == 'archive'
+    - application_should_transfer_release | bool
+
+- name: Extract application artifact into release
+  ansible.builtin.unarchive:
+    src: "{{ application_artifact_remote_path }}"
+    dest: "{{ application_release_path }}"
+    remote_src: true
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+  when:
+    - not ansible_check_mode
+    - application_transfer_strategy == 'archive'
+    - application_should_transfer_release | bool
+
+- name: Remove remote application artifact
+  ansible.builtin.file:
+    path: "{{ application_artifact_remote_path }}"
+    state: absent
+  when:
+    - not ansible_check_mode
+    - application_transfer_strategy == 'archive'
+    - application_should_transfer_release | bool
 
 - name: Synchronize application source into release
   ansible.posix.synchronize:
@@ -199,22 +309,24 @@
       - --no-perms
       - --omit-dir-times
       - "--chown={{ deploy_user_name }}:www-data"
-      - --exclude=.git/
-      - --exclude=.agents/
-      - --exclude=.codex/
-      - --exclude=.docker/
+      - --exclude=.git
+      - --exclude=.agents
+      - --exclude=.codex
+      - --exclude=.docker
       - --exclude=.env
-      - --exclude=deploy/
-      - --exclude=docs/
-      - --exclude=node_modules/
-      - --exclude=plan_dev/
+      - --exclude=deploy
+      - --exclude=docs
+      - --exclude=node_modules
+      - --exclude=plan_dev
       - --exclude=storage
       - --exclude=bootstrap/cache
-      - --exclude=tests/
-      - --exclude=vendor/
+      - --exclude=tests
+      - --exclude=vendor
       - --exclude=phpunit.xml
       - --exclude=.phpunit.result.cache
   when:
+    - application_transfer_strategy == 'rsync'
+    - application_should_transfer_release | bool
     - not ansible_check_mode or (application_remote_rsync.rc | default(1)) == 0
     - not ansible_check_mode or (application_release_directory.stat.isdir | default(false))
     - not ansible_check_mode or (application_remote_privileged_rsync.rc | default(1)) == 0
