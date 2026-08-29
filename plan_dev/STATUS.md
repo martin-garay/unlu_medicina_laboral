@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-28 04:52 -03
+2026-08-28 22:35 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -33,7 +33,9 @@ No debe reemplazar:
   backups reales. Durante el primer apply real se detecto una espera prolongada
   en `application : Synchronize application source into release`; el rol ahora
   usa `sudo -n rsync` y timeout de inactividad para fallar rapido si sudo o la
-  transferencia no estan listos.
+  transferencia no estan listos. Se agregaron preflights para validar `rsync`
+  local, source local con `composer.json` y `sudo -n rsync` remoto antes de
+  sincronizar.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -125,7 +127,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-28 04:52 -03
+- 2026-08-28 22:35 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -192,6 +194,11 @@ No debe reemplazar:
 - El reintento fallo rapido en la misma tarea porque `--contimeout` solo aplica
   al modo rsync daemon, no a rsync sobre SSH. Se retiro esa opcion y se conserva
   `--timeout=120` como timeout de inactividad de transferencia.
+- La prueba manual de rsync expuso que el path local diagnosticado debe ser
+  `.local/releases/testing-2026-08-24-01/` desde `deploy/provisioning`. Se
+  agregaron preflights al rol `application` para validar el source resuelto en
+  la estacion de control y `sudo -n rsync` en el host remoto antes de ejecutar
+  `ansible.posix.synchronize`.
 
 ---
 
@@ -240,7 +247,8 @@ No debe reemplazar:
   validaciones de servicios, doctor Laravel, scheduler, TLS y backups para apply
   real, pero las informa como omitidas durante `--check` para evitar falsos
   negativos en un servidor que aun no fue convergido. La sincronizacion de
-  aplicacion usa ahora `sudo -n rsync` y timeout de inactividad.
+  aplicacion usa ahora `sudo -n rsync`, timeout de inactividad y preflights
+  explicitos de source/rsync antes de sincronizar.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing, el check
   pre-commit y el comportamiento de `rsync` y `monitoring` en dry-run.

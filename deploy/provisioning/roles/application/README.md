@@ -20,6 +20,9 @@ existe, porque en modo check las tareas previas sólo simulan su creación.
 La sincronización remota usa `sudo -n rsync` y un timeout de inactividad para
 fallar con error visible si el sudo remoto o la transferencia no están listos,
 en lugar de quedar esperando interacción.
+Antes de sincronizar, el rol valida que `rsync` exista en la estación de control,
+que el source resuelto exista y contenga `composer.json`, y que el host remoto
+pueda ejecutar `sudo -n rsync --version`.
 
 La activación es transaccional a nivel de código: conserva el destino previo de
 `current`, recarga PHP-FPM y valida `/up`. Ante un fallo restaura el symlink

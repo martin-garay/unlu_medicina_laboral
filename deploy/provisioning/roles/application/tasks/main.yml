@@ -107,6 +107,68 @@
     application_effective_source_path: >-
       {{ application_git_checkout_path if application_source_strategy == 'git' else application_source_path }}
 
+- name: Check local rsync availability
+  ansible.builtin.command:
+    argv: [rsync, --version]
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: false
+
+- name: Inspect application source path on control node
+  ansible.builtin.stat:
+    path: "{{ application_effective_source_path }}"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  register: application_source_directory
+
+- name: Inspect Laravel manifest on control node
+  ansible.builtin.stat:
+    path: "{{ application_effective_source_path }}/composer.json"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  register: application_source_composer
+
+- name: Require valid application source on control node
+  ansible.builtin.assert:
+    that:
+      - application_source_directory.stat.isdir | default(false)
+      - application_source_composer.stat.exists | default(false)
+    fail_msg: >-
+      Application source path {{ application_effective_source_path }} must exist
+      on the control node and contain composer.json before synchronization.
+  run_once: true
+
+- name: Check remote privileged rsync availability
+  ansible.builtin.command:
+    argv: [sudo, -n, rsync, --version]
+  become: false
+  register: application_remote_privileged_rsync
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Report unavailable remote privileged rsync during check mode
+  ansible.builtin.debug:
+    msg: >-
+      Would require passwordless sudo for remote rsync during apply; application
+      source synchronization is skipped in check mode because `sudo -n rsync`
+      is not available.
+  when:
+    - ansible_check_mode
+    - (application_remote_privileged_rsync.rc | default(1)) != 0
+
+- name: Require remote privileged rsync during apply
+  ansible.builtin.assert:
+    that:
+      - (application_remote_privileged_rsync.rc | default(1)) == 0
+    fail_msg: >-
+      Remote synchronization requires passwordless sudo for rsync. Validate
+      `ssh unlu-medicina-testing-deploy 'sudo -n rsync --version'`.
+  when: not ansible_check_mode
+
 - name: Synchronize application source into release
   ansible.posix.synchronize:
     src: "{{ application_effective_source_path }}/"
@@ -138,6 +200,7 @@
   when:
     - not ansible_check_mode or (application_remote_rsync.rc | default(1)) == 0
     - not ansible_check_mode or (application_release_directory.stat.isdir | default(false))
+    - not ansible_check_mode or (application_remote_privileged_rsync.rc | default(1)) == 0
 
 - name: Set release ownership
   ansible.builtin.file:
