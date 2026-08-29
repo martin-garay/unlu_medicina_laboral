@@ -36,6 +36,23 @@
     - ansible_check_mode
     - (application_remote_rsync.rc | default(1)) != 0
 
+- name: Read active application release before synchronization
+  ansible.builtin.command:
+    argv: [readlink, -f, "{{ application_current_path }}"]
+  register: application_active_release_before_sync
+  changed_when: false
+  failed_when: false
+  when: application_clean_inactive_release_before_sync | bool
+
+- name: Clean inactive application release path before synchronization
+  ansible.builtin.file:
+    path: "{{ application_release_path }}"
+    state: absent
+  when:
+    - not ansible_check_mode
+    - application_clean_inactive_release_before_sync | bool
+    - application_active_release_before_sync.stdout | default('') != application_release_path
+
 - name: Create application release directories
   ansible.builtin.file:
     path: "{{ item }}"

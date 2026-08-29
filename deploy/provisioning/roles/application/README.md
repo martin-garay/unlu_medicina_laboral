@@ -23,6 +23,9 @@ en lugar de quedar esperando interacción.
 Antes de sincronizar, el rol valida que `rsync` exista en la estación de control,
 que el source resuelto exista y contenga `composer.json`, y que el host remoto
 pueda ejecutar `sudo -n rsync --version`.
+Por defecto, antes de sincronizar limpia el directorio del release si existe pero
+no es el release activo apuntado por `current`; esto permite reintentar un deploy
+fallido sin conservar archivos excluidos o parciales de intentos anteriores.
 
 La activación es transaccional a nivel de código: conserva el destino previo de
 `current`, recarga PHP-FPM y valida `/up`. Ante un fallo restaura el symlink

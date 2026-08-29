@@ -15,8 +15,10 @@ application_git_accept_hostkey: false
 application_release_path: "{{ application_root }}/releases/{{ application_release_id }}"
 application_shared_path: "{{ application_root }}/shared"
 application_current_path: "{{ application_root }}/current"
+# Cleans a failed or stale inactive release directory before rsync. The active
+# release pointed by application_current_path is never removed by this guard.
+application_clean_inactive_release_before_sync: true
 
 application_db_host: 127.0.0.1
 application_db_port: 5432
 application_log_level: info
-

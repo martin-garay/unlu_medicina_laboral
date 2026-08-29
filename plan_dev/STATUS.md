@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-28 22:35 -03
+2026-08-28 22:48 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -35,7 +35,8 @@ No debe reemplazar:
   usa `sudo -n rsync` y timeout de inactividad para fallar rapido si sudo o la
   transferencia no estan listos. Se agregaron preflights para validar `rsync`
   local, source local con `composer.json` y `sudo -n rsync` remoto antes de
-  sincronizar.
+  sincronizar. El rol ahora limpia releases inactivos antes de sincronizar para
+  poder reintentar deploys fallidos sin arrastrar archivos parciales o excluidos.
 - Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
   usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
   inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
@@ -127,7 +128,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-28 22:35 -03
+- 2026-08-28 22:48 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
@@ -199,6 +200,10 @@ No debe reemplazar:
   agregaron preflights al rol `application` para validar el source resuelto en
   la estacion de control y `sudo -n rsync` en el host remoto antes de ejecutar
   `ansible.posix.synchronize`.
+- Un nuevo reintento mostro procesos `rsync` vivos y un release remoto con
+  archivos que debian estar excluidos (`deploy/`, `tests/`, `.git`, `.docker`),
+  probablemente arrastrados por un intento parcial previo. Se agrego limpieza
+  previa de releases inactivos antes de sincronizar.
 
 ---
 
@@ -247,8 +252,8 @@ No debe reemplazar:
   validaciones de servicios, doctor Laravel, scheduler, TLS y backups para apply
   real, pero las informa como omitidas durante `--check` para evitar falsos
   negativos en un servidor que aun no fue convergido. La sincronizacion de
-  aplicacion usa ahora `sudo -n rsync`, timeout de inactividad y preflights
-  explicitos de source/rsync antes de sincronizar.
+  aplicacion usa ahora `sudo -n rsync`, timeout de inactividad, preflights
+  explicitos de source/rsync y limpieza de release inactivo antes de sincronizar.
 - documentación actualizada: si; la guia de deploy y el README de inventarios
   explican la regla de precedencia, el uso de HTTPS para testing, el check
   pre-commit y el comportamiento de `rsync` y `monitoring` en dry-run.
