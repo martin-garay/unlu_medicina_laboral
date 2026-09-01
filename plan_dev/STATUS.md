@@ -12,37 +12,22 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-08-29 00:15 -03
+2026-09-01 07:44 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: bootstrap y validacion remota del usuario operativo
   `deploy` en testing desde PC Uni.
 - Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
-  2026-08-24 queda en `needs_review`: se corrigieron bloqueos de dry-run y
-  compatibilidad OpenSSL en el rol `tls`, y se corrigio la precedencia de
-  variables para que el inventory de testing no sea pisado por defaults. Se
-  agrego `bin/check-deploy` para detectar esta clase de regresiones antes de
-  commitear, con `ansible-lint` opcional en control nodes Python 3.8. El rol
-  `tls` ahora evita fallar en `--check` cuando faltan directorios remotos de
-  destino. Los inventories versionados ahora enlazan `group_vars` compartido
-  para cargar defaults como `tls_private_key_path`. El rol `application` ahora
-  instala `rsync` en apply real y saltea la sincronizacion en dry-run si el host
-  aun no lo tiene. El rol `monitoring` ahora omite checks operativos durante
-  `--check` para no fallar antes de que el apply cree servicios, releases y
-  backups reales. Durante el primer apply real se detecto una espera prolongada
-  en `application : Synchronize application source into release`; el rol ahora
-  usa `sudo -n rsync` y timeout de inactividad para fallar rapido si sudo o la
-  transferencia no estan listos. Se agregaron preflights para validar `rsync`
-  local, source local con `composer.json` y `sudo -n rsync` remoto antes de
-  sincronizar. El rol ahora limpia releases inactivos antes de sincronizar para
-  poder reintentar deploys fallidos sin arrastrar archivos parciales o excluidos.
-  Testing cambia a `application_transfer_strategy: archive` para dejar de usar
-  `ansible.posix.synchronize` sobre el salto SSH institucional.
-- Próximo paso sugerido: desde PC Uni y `deploy/provisioning`, hacer `git pull`,
-  usar el Ansible versionado del repo y ejecutar `ansible-playbook -i
-  inventories/testing/hosts.yml site.yml --check --diff`; revisar que no toque
-  SSH hardening, firewall ni nftables antes del apply real.
+  2026-08-24 queda en `needs_review`: las validaciones locales de provisioning
+  pasan y se corrigio el inventory de testing para usar el alias existente
+  `unlu-medicina-testing` con alta inicial de host key por `accept-new`.
+- Proximo paso sugerido: reintentar desde PC Uni y `deploy/provisioning`
+  `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --check --diff`.
+  Cuando el check remoto pase y el diff sea razonable, ejecutar
+  `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml`.
+- Nota repo local: `.git` esta montado read-only en esta sesion. Los commits se
+  realizan con metadata Git temporal en `/tmp` hasta corregir el montaje.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
   convertido a formato Ansible Vault; si los valores previos ya eran secretos
   reales, conviene rotarlos porque existian en commits anteriores.
@@ -130,11 +115,11 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-08-29 00:15 -03
+- 2026-09-01 07:44 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-08-24.md`
-- `plan_dev/daily/2026-08-27.md` no existe.
+- `plan_dev/daily/2026-09-01.md` no existe.
 
 ### Milestone trabajado
 - `M4 - Deploy completo sin security/firewall`
@@ -143,130 +128,41 @@ No debe reemplazar:
 - `needs_review`
 
 ### Resumen corto
-- El primer `site.yml --check --diff` remoto llego hasta el rol `tls` y fallo en
-  `Install TLS private key` con salida censurada por `no_log`.
-- La causa probable es propia del modo check: las tareas locales de `openssl`
-  no generaban archivos bajo `.local/tls`, pero `copy` necesitaba leer la clave
-  privada local para calcular el cambio remoto.
-- Se ajusto el rol `tls` para generar el material `local_ca` en la estacion de
-  control incluso durante `--check` y para validar esos archivos antes de llegar
-  a la tarea censurada.
-- El reintento desde PC Uni avanzo hasta `Sign server certificate with local CA`
-  y fallo porque `openssl x509` no reconoce `-copy_extensions`. Se reemplazo
-  esa opcion por firma con archivo local de extensiones `-extfile`.
-- El siguiente bloqueo ocurrio en `application : Checkout application release on
-  control node`: PC Uni no llega a `github.com:22` y ademas el playbook estaba
-  usando `workspace` por cargar `group_vars/all.yml` como `vars_files`, lo que
-  pisaba el `application_release_id` del inventory.
-- Se cambio testing a checkout Git por HTTPS y se retiro `group_vars/all.yml` de
-  `vars_files` en los playbooks. `group_vars/all.yml` queda como group vars
-  normal; `vars_files` se reserva para Vault.
-- El reintento fallo en `Validate operating system selection` porque
-  `supported_operating_systems` ya no estaba disponible dentro de
-  `playbooks/validate.yml`. Se separo la matriz de soporte a
-  `playbooks/vars/supported-platforms.yml` y se agrego `bin/check-deploy` para
-  ejecutar esa validacion localmente antes de commitear.
-- En PC Uni, `bin/check-deploy` avanzo hasta `ansible-lint` y fallo porque el
-  venv usa Python 3.8; la version instalada de `ansible-lint` importa
-  `functools.cache`, disponible recien desde Python 3.9. Se ajusto el check para
-  saltear `ansible-lint` en Python < 3.10 y mantenerlo obligatorio en estaciones
-  con Python moderno.
-- Un nuevo reintento fallo en `tls : Install TLS private key` con salida
-  censurada por `no_log`. Como la generacion local ya habia pasado, se ajusto el
-  rol para inspeccionar directorios remotos TLS, crearlos en apply real y
-  saltear la copia durante `--check` si el directorio todavia no existe.
-- El reintento siguiente fallo en `tls : Inspect TLS target directories` porque
-  `tls_private_key_path` no estaba definido. Se agregaron enlaces `group_vars`
-  dentro de cada directorio de inventory para que `group_vars/all.yml` cargue
-  aun usando `-i inventories/testing/hosts.yml`, y se amplio `bin/check-deploy`
-  para validar defaults criticos.
-- El reintento avanzo hasta `application : Synchronize application source into
-  release` y fallo porque el servidor testing no tenia `rsync`. Se ajusto el rol
-  `application` para instalar `rsync` en apply real, verificar su disponibilidad
-  y saltear la sincronizacion en `--check` cuando todavia no existe. Tambien se
-  inspecciona el directorio de release para saltear esa sincronizacion durante
-  el dry-run inicial si el apply real aun no creo la ruta remota.
-- El reintento posterior avanzo hasta `monitoring : Require application
-  services` y fallo porque `service_facts` no tenia `apache2.service` en un
-  host que todavia no paso por apply real. Se ajusto el rol `monitoring` para
-  omitir checks operativos en `--check` y mantenerlos obligatorios en apply real.
-- El primer apply real quedo esperando en `application : Synchronize application
-  source into release`. La tarea usaba `rsync_path: sudo rsync`; se cambio a
-  `sudo -n rsync` y se agregaron timeouts de rsync para evitar esperas
-  interactivas silenciosas.
-- El reintento fallo rapido en la misma tarea porque `--contimeout` solo aplica
-  al modo rsync daemon, no a rsync sobre SSH. Se retiro esa opcion y se conserva
-  `--timeout=120` como timeout de inactividad de transferencia.
-- La prueba manual de rsync expuso que el path local diagnosticado debe ser
-  `.local/releases/testing-2026-08-24-01/` desde `deploy/provisioning`. Se
-  agregaron preflights al rol `application` para validar el source resuelto en
-  la estacion de control y `sudo -n rsync` en el host remoto antes de ejecutar
-  `ansible.posix.synchronize`.
-- Un nuevo reintento mostro procesos `rsync` vivos y un release remoto con
-  archivos que debian estar excluidos (`deploy/`, `tests/`, `.git`, `.docker`),
-  probablemente arrastrados por un intento parcial previo. Se agrego limpieza
-  previa de releases inactivos antes de sincronizar.
-- El reintento siguiente volvio a quedar detenido en
-  `application : Synchronize application source into release`. Se incorporo
-  `application_transfer_strategy` con opcion `archive` y testing queda
-  configurado para empaquetar el checkout local como `.tar.gz`, copiarlo con el
-  transporte SSH normal de Ansible y extraerlo en el release remoto.
+- Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
+  con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
+  system`.
+- `git status --short` funciona para lectura y muestra cambios pendientes de
+  provisioning/documentacion ya existentes en el workspace.
+- El Ansible versionado del repo esta disponible y usa Python 3.12.
+- `ssh -G unlu-medicina-testing-deploy` no resuelve el alias local esperado en
+  esta sesion: queda como hostname literal y usuario `mgaray`.
+- La prueba con `ProxyJump` explicito y `known_hosts` local evito tocar
+  `~/.ssh/known_hosts`, pero el bastion rechazo autenticacion no interactiva para
+  `martin@170.210.103.133:46659` con `Permission denied (publickey,password)`.
+- La corrida documentada de `site.yml --check --diff` llego hasta `Gathering
+  Facts` y quedo `UNREACHABLE` por `Host key verification failed`.
+- Se ajusto el inventory de testing para usar `ansible_host:
+  unlu-medicina-testing`, que es el alias local existente con `ProxyJump
+  unlu-pc`, y se agrego `StrictHostKeyChecking=accept-new` para registrar la
+  host key inicial sin desactivar la verificacion de cambios posteriores.
+- No se ejecuto el apply real de `site.yml`; falta reintentar desde PC Uni.
 
 ---
 
 ## Cambios realizados
-- archivos tocados: `deploy/provisioning/roles/tls/tasks/main.yml`,
-  `deploy/provisioning/roles/tls/defaults/main.yml`,
-  `deploy/provisioning/roles/tls/README.md`,
-  `deploy/provisioning/playbooks/vars/supported-platforms.yml`,
+- archivos tocados en esta ejecucion: `deploy/provisioning/inventories/testing/hosts.yml`,
   `deploy/provisioning/bin/check-deploy`,
-  `deploy/provisioning/bin/setup-control-node`,
-  `deploy/provisioning/group_vars/all.yml`,
-  `deploy/provisioning/inventories/*/group_vars`,
-  `deploy/provisioning/playbooks/validate.yml`,
-  `deploy/provisioning/requirements-control.txt`,
-  `deploy/provisioning/roles/application/tasks/main.yml`,
-  `deploy/provisioning/roles/application/README.md`,
-  `deploy/provisioning/inventories/testing/hosts.yml`,
-  `deploy/provisioning/playbooks/*.yml`, `deploy/docs/deployment-guide.md`,
   `deploy/provisioning/inventories/README.md`,
-  `deploy/README.md`, `plan_dev/daily/2026-08-24.md` y `plan_dev/STATUS.md`.
-- resumen tecnico: las tareas que crean directorio, CA, key, CSR y certificado
-  local para `tls_provider: local_ca` usan `check_mode: false`, porque son
-  insumo local para simular las copias remotas. Se agrego una validacion `stat`
-  y `assert` sobre esos archivos para reportar errores de `openssl` o paths
-  antes de la copia de clave privada con `no_log`. La firma del certificado de
-  servidor ahora usa un archivo `*.ext` con `subjectAltName`, `basicConstraints`,
-  `keyUsage` y `extendedKeyUsage`, evitando depender de
-  `openssl x509 -copy_extensions`. El inventory de testing ahora usa
-  `https://github.com/martin-garay/unlu_medicina_laboral.git` para evitar el
-  puerto SSH 22 bloqueado desde PC Uni. Los playbooks ya no cargan
-  `group_vars/all.yml` como `vars_files` para evitar que defaults de play pisen
-  variables del inventory; mantienen `../group_vars/vault.yml` cuando requieren
-  secretos. La matriz `supported_*` usada por `validate.yml` se movio a
-  `playbooks/vars/supported-platforms.yml`, porque no es un default de entorno.
-  `bin/check-deploy` valida lint, syntax-checks, invariantes de testing y la
-  ausencia de `../group_vars/all.yml` en `vars_files`. En Python 3.8, el check
-  saltea `ansible-lint` para no bloquear el deploy por incompatibilidad de la
-  herramienta; el lint completo se mantiene en estaciones con Python 3.10+. El
-  rol `tls` crea los directorios remotos de destino en apply real y evita que
-  `--check` falle en tareas `copy` con `no_log` cuando esos directorios aun no
-  existen. Los directorios de inventory enlazan `group_vars` compartido para que
-  los defaults globales carguen como inventory vars y no como `vars_files`. El
-  rol `application` instala `rsync`, valida si esta disponible y evita que el
-  primer `--check` falle en `synchronize` antes de que el apply pueda instalarlo
-  y crear el directorio remoto de release. El rol `monitoring` mantiene las
-  validaciones de servicios, doctor Laravel, scheduler, TLS y backups para apply
-  real, pero las informa como omitidas durante `--check` para evitar falsos
-  negativos en un servidor que aun no fue convergido. La sincronizacion de
-  aplicacion soporta transferencia por `rsync` o por `archive`; testing usa
-  `archive` para evitar esperas opacas de `ansible.posix.synchronize` sobre el
-  salto SSH institucional. El rol mantiene preflights explicitos de source,
-  herramienta de transferencia y limpieza de release inactivo antes de publicar.
-- documentación actualizada: si; la guia de deploy y el README de inventarios
-  explican la regla de precedencia, el uso de HTTPS para testing, el check
-  pre-commit y el comportamiento de `rsync` y `monitoring` en dry-run.
-- runtime Laravel/Docker modificado: no; sólo provisioning y documentación.
+  `deploy/docs/deployment-guide.md`, `plan_dev/STATUS.md` y
+  `plan_dev/daily/2026-08-24.md`.
+- resumen tecnico: testing ya no depende del alias inexistente
+  `unlu-medicina-testing-deploy`; usa el alias existente `unlu-medicina-testing`
+  y Ansible sobreescribe usuario/clave del target con el usuario operativo
+  `deploy`.
+- documentación operativa actualizada: si; se registro la regla de alias SSH y
+  host key de testing en `STATUS.md`, daily activo, README de inventories y guia
+  de deploy.
+- runtime Laravel/Docker modificado: no.
 - diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
 
 ---
@@ -276,38 +172,32 @@ No debe reemplazar:
 ### Automáticas
 - tests de Laravel: no corresponden; no hubo cambios funcionales.
 - checks:
-  - `bin/yamllint roles/tls/defaults/main.yml roles/tls/tasks/main.yml inventories/testing/hosts.yml playbooks/bootstrap-access.yml requirements-control.txt`
-  - `bin/yamllint roles/application/tasks/main.yml playbooks/application.yml site.yml`
-  - `bin/yamllint roles/application/defaults/main.yml roles/application/tasks/main.yml inventories/testing/hosts.yml playbooks/application.yml site.yml`
-  - `bin/yamllint roles/monitoring/tasks/main.yml playbooks/monitoring.yml site.yml`
-  - `bin/yamllint group_vars/all.yml inventories playbooks roles/tls/defaults/main.yml roles/tls/tasks/main.yml requirements-control.txt`
+  - `findmnt -T .git -o TARGET,OPTIONS`
+  - `touch .git/codex-write-test && rm .git/codex-write-test` fallo por
+    filesystem read-only
+  - `git status --short`
+  - `git show --no-patch --oneline testing-2026-08-24-01`
+  - `git ls-remote --tags origin testing-2026-08-24-01`
+  - `bin/ansible --version`
+  - `ssh -o BatchMode=yes unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'` fallo por `Host key verification failed`
+  - prueba SSH con `ProxyJump` explicito a `martin@170.210.103.133:46659` fallo por `Permission denied (publickey,password)`
   - `bin/ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
-  - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_release_id'`
-  - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'var=application_git_repo'`
-  - `bin/ansible -i inventories/testing/hosts.yml avisos-testing -m debug -a 'msg="security={{ security_enabled }} firewall={{ firewall_enabled }} ref={{ application_git_ref }}"'`
-  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml --syntax-check`
-  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/application.yml --syntax-check`
-  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/monitoring.yml --syntax-check`
-  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/security.yml --syntax-check`
-  - `bin/ansible-playbook -i inventories/testing/hosts.yml playbooks/validate.yml --check`
   - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
-  - syntax-check por lote de `playbooks/*.yml` contra inventory testing
-  - `bin/ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check`
-  - `bin/ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml --syntax-check`
-  - `bin/ansible-lint roles/tls/tasks/main.yml`
-  - `bin/ansible-lint playbooks/application.yml`
-  - `bin/ansible-lint playbooks/bootstrap-access.yml`
-  - `bin/ansible-lint site.yml`
+  - `bin/yamllint inventories/testing/hosts.yml`
   - `bin/check-deploy`
   - `git diff --check`
-- resultado: sin errores.
-- observación: `ansible-lint` emite un warning de entorno por `PATH` del venv
-  local, sin violaciones. En PC Uni, `bin/check-deploy` saltea `ansible-lint`
-  si el venv se creo con Python 3.8.
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --check --diff`
+- resultado: validaciones locales sin errores; validacion remota pendiente de
+  reintento desde PC Uni.
+- observación: `bin/check-deploy` paso completo. `ansible-lint` emitio warnings
+  de entorno/deprecaciones, sin violaciones.
 
 ### Manuales sugeridas
-- validar `ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'`.
-- reintentar desde PC Uni: `ansible-playbook -i inventories/testing/hosts.yml
+- validar `ssh -i deploy/.local/ssh/deploy_ed25519 deploy@unlu-medicina-testing 'whoami; sudo -n true; python3 --version'`.
+- verificar que `ssh -G unlu-medicina-testing` resuelva el host, clave humana y
+  salto esperados; Ansible aplica el usuario `deploy` y la clave operativa desde
+  el inventory.
+- reintentar desde PC Uni: `bin/ansible-playbook -i inventories/testing/hosts.yml
   site.yml --check --diff`.
 - antes de commitear cambios futuros de provisioning, correr
   `cd deploy/provisioning && bin/check-deploy`.
@@ -315,6 +205,10 @@ No debe reemplazar:
 ---
 
 ## Bloqueos actuales
+- `.git` esta montado read-only en esta sesion; los commits se realizan con
+  metadata Git temporal en `/tmp` hasta corregir el montaje.
+- la validacion remota de M4 debe reintentarse desde PC Uni con el alias
+  `unlu-medicina-testing`.
 - mantener `security_enabled: false` y `firewall_enabled: false` en testing hasta
   decidir cómo preservar los accesos y servicios institucionales existentes.
 
@@ -334,8 +228,8 @@ No debe reemplazar:
 ---
 
 ## Próximo milestone recomendado
-- reintentar `M4 - Deploy completo sin security/firewall` desde PC Uni con el
-  commit actualizado.
+- reintentar `M4 - Deploy completo sin security/firewall` desde PC Uni y
+  `deploy/provisioning` con el inventory actualizado.
 
 ---
 

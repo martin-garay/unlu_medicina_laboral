@@ -191,6 +191,11 @@ El checkout de la aplicación se realiza en la estación de control y luego se
 transfiere al host remoto. En testing se usa HTTPS para GitHub porque desde PC
 Uni se observo timeout hacia `github.com:22`.
 
+El inventory de testing usa `ansible_host: unlu-medicina-testing`. Ese alias
+local debe resolver el salto `ProxyJump unlu-pc`; Ansible fuerza el usuario
+`deploy` y la clave operativa desde el inventory. No se requiere un alias SSH
+separado para `deploy`.
+
 El rol `application` soporta transferencia por `rsync` o por artefacto `.tar.gz`.
 Testing usa `application_transfer_strategy: archive`: empaqueta el checkout local
 con los excludes definidos, copia el archivo por SSH normal de Ansible y lo

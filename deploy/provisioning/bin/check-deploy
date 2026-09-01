@@ -43,6 +43,7 @@ with open(path, encoding="utf-8") as handle:
     host = json.load(handle)
 
 expected = {
+    "ansible_host": "unlu-medicina-testing",
     "application_release_id": "testing-2026-08-24-01",
     "application_git_repo": "https://github.com/martin-garay/unlu_medicina_laboral.git",
     "application_transfer_strategy": "archive",
@@ -54,6 +55,10 @@ failures = []
 for key, value in expected.items():
     if host.get(key) != value:
         failures.append(f"{key}: expected {value!r}, got {host.get(key)!r}")
+
+ssh_common_args = host.get("ansible_ssh_common_args", "")
+if "StrictHostKeyChecking=accept-new" not in ssh_common_args:
+    failures.append("ansible_ssh_common_args: expected StrictHostKeyChecking=accept-new")
 
 git_ref = host.get("application_git_ref")
 if git_ref not in ("testing-2026-08-24-01", "{{ application_release_id }}"):

@@ -16,8 +16,9 @@
   (`security_enabled: false`, `firewall_enabled: false`)
 
 El host de inventory `avisos-testing` usa `ansible_host:
-unlu-medicina-testing-deploy`, un alias local que debe existir en
-`~/.ssh/config`. Así el salto queda fuera del inventory versionado.
+unlu-medicina-testing`, un alias local que debe existir en `~/.ssh/config`.
+Asi el salto queda fuera del inventory versionado; Ansible sobreescribe el
+usuario y la clave del target con las variables del inventory.
 
 El salto actual depende de una máquina institucional usada como punto de acceso.
 Mantenerlo en `~/.ssh/config` del operador y no hardcodearlo en el inventory:
@@ -37,12 +38,6 @@ Host unlu-medicina-testing
   IdentitiesOnly yes
   IdentityFile ~/.ssh/id_ed25519
 
-Host unlu-medicina-testing-deploy
-  HostName 170.210.96.164
-  User deploy
-  ProxyJump unlu-pc
-  IdentitiesOnly yes
-  IdentityFile /home/mgaray/UNLu/unlu_medicina_laboral/deploy/.local/ssh/deploy_ed25519
 ```
 
 Validar primero el acceso manual:
@@ -107,7 +102,7 @@ ansible-playbook -i inventories/testing/hosts.yml playbooks/bootstrap-access.yml
 Luego validar la operación normal:
 
 ```bash
-ssh unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'
+ssh -i deploy/.local/ssh/deploy_ed25519 deploy@unlu-medicina-testing 'whoami; sudo -n true; python3 --version'
 ansible app_servers -i inventories/testing/hosts.yml -m ping
 ansible app_servers -i inventories/testing/hosts.yml -m command -a 'sudo -n true' -e ansible_become=false
 ```
@@ -142,6 +137,14 @@ usa `IdentitiesOnly=yes` para evitar que SSH ofrezca claves no deseadas desde
 `ansible_ssh_private_key_file` en el host o usar un alias en `~/.ssh/config` con
 `IdentityFile`.
 
+Testing usa el alias SSH local `unlu-medicina-testing`, que debe resolver
+`170.210.96.164` vía `ProxyJump unlu-pc`. Ansible sobreescribe el usuario y la
+clave del target con `ansible_user: deploy` y `deploy/.local/ssh/deploy_ed25519`;
+no hace falta definir un alias separado `unlu-medicina-testing-deploy`.
+El inventory de testing usa `StrictHostKeyChecking=accept-new` para registrar la
+host key en el primer contacto sin desactivar la verificación de cambios
+posteriores.
+
 Antes de ejecutar `site.yml`, confirmar:
 
 - `application_release_id` apunta al tag remoto previsto;
@@ -149,6 +152,8 @@ Antes de ejecutar `site.yml`, confirmar:
   en PC Uni debe ser HTTPS, no SSH por `github.com:22`;
 - `application_transfer_strategy` queda en `archive` para testing remoto por el
   salto SSH institucional;
+- `ansible_host` queda en `unlu-medicina-testing`, no en un alias local
+  adicional;
 - `deploy_user_public_keys` contiene la clave pública autorizada para el usuario `deploy`;
 - `security_enabled` sigue en `false` mientras no se gestione hardening desde Ansible;
 - `firewall_enabled` sigue en `false` mientras no se gestione firewall desde Ansible;
