@@ -47,6 +47,7 @@ expected = {
     "application_release_id": "testing-2026-08-24-01",
     "application_git_repo": "https://github.com/martin-garay/unlu_medicina_laboral.git",
     "application_transfer_strategy": "archive",
+    "application_composer_install_local": True,
     "security_enabled": False,
     "firewall_enabled": False,
 }

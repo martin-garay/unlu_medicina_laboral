@@ -15,6 +15,22 @@ Despliega Laravel con directorios `releases`, `shared` y symlink `current`.
 
 La opción futura `artifact` queda reservada para un paquete generado por CI con checksum; no está implementada.
 
+`application_composer_install_local` controla dónde se descargan las
+dependencias de producción:
+
+- `false`: Composer se ejecuta en el host administrado.
+- `true`: la estación de control construye `vendor/` dentro de un contenedor
+  creado con `docker/app/Dockerfile` del checkout exacto seleccionado por
+  `application_git_ref`, y luego lo sincroniza por rsync al
+  `application_release_path` correspondiente.
+
+El modo local existe para entornos sin salida HTTPS a Packagist/GitHub. No
+depende del PHP instalado en la estación de control: usa el PHP del Dockerfile
+versionado junto al release. Después de transferir `vendor/`, el host remoto
+ejecuta `composer check-platform-reqs --no-dev` antes de migrar o activar el
+release. Python local y remoto no necesitan compartir versión; sólo deben ser
+compatibles con sus respectivos lados de Ansible.
+
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
 
 El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`

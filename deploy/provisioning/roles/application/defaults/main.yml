@@ -6,6 +6,12 @@
 # - artifact: CI-built package with checksum; not implemented yet.
 application_source_strategy: local
 application_transfer_strategy: rsync
+# Build production Composer dependencies on the Ansible control node when the
+# managed host has no outbound access to Packagist/GitHub. The build uses the
+# Dockerfile from the exact source checkout selected by application_git_ref,
+# then synchronizes vendor/ only into that same application_release_path.
+# Keep false when the managed host can run Composer with outbound HTTPS.
+application_composer_install_local: false
 application_source_path: "{{ playbook_dir }}/../../.."
 application_git_repo: git@github.com:martin-garay/unlu_medicina_laboral.git
 application_git_ref: "{{ application_release_id }}"

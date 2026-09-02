@@ -4,6 +4,7 @@
     that:
       - application_source_strategy in ['local', 'git']
       - application_transfer_strategy in ['rsync', 'archive']
+      - application_composer_install_local is boolean
     fail_msg: >-
       Unsupported application source or transfer strategy:
       {{ application_source_strategy }} / {{ application_transfer_strategy }}.
@@ -22,6 +23,7 @@
     update_cache: true
     cache_valid_time: 3600
   when: application_transfer_strategy == 'rsync'
+    or application_composer_install_local | bool
 
 - name: Check remote rsync availability
   ansible.builtin.command:
@@ -31,6 +33,7 @@
   failed_when: false
   check_mode: false
   when: application_transfer_strategy == 'rsync'
+    or application_composer_install_local | bool
 
 - name: Report missing remote rsync during check mode
   ansible.builtin.debug:
@@ -39,7 +42,7 @@
       skipped in check mode because rsync is not available on the remote host.
   when:
     - ansible_check_mode
-    - application_transfer_strategy == 'rsync'
+    - application_transfer_strategy == 'rsync' or application_composer_install_local | bool
     - (application_remote_rsync.rc | default(1)) != 0
 
 - name: Read active application release before synchronization
@@ -146,6 +149,7 @@
   run_once: true
   changed_when: false
   when: application_transfer_strategy == 'rsync'
+    or application_composer_install_local | bool
 
 - name: Inspect application source path on control node
   ansible.builtin.stat:
@@ -191,7 +195,7 @@
       is not available.
   when:
     - ansible_check_mode
-    - application_transfer_strategy == 'rsync'
+    - application_transfer_strategy == 'rsync' or application_composer_install_local | bool
     - (application_remote_privileged_rsync.rc | default(1)) != 0
 
 - name: Require remote privileged rsync during apply
@@ -203,7 +207,7 @@
       `ssh unlu-medicina-testing-deploy 'sudo -n rsync --version'`.
   when:
     - not ansible_check_mode
-    - application_transfer_strategy == 'rsync'
+    - application_transfer_strategy == 'rsync' or application_composer_install_local | bool
 
 - name: Create application artifact root on control node
   ansible.builtin.file:
@@ -331,6 +335,105 @@
     - not ansible_check_mode or (application_release_directory.stat.isdir | default(false))
     - not ansible_check_mode or (application_remote_privileged_rsync.rc | default(1)) == 0
 
+- name: Check Docker availability for local Composer build
+  ansible.builtin.command:
+    argv: [docker, version]
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: false
+  when: application_composer_install_local | bool
+
+- name: Read control node user id for local Composer build
+  ansible.builtin.command:
+    argv: [id, -u]
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: false
+  register: application_control_uid
+  when: application_composer_install_local | bool
+
+- name: Read control node group id for local Composer build
+  ansible.builtin.command:
+    argv: [id, -g]
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: false
+  register: application_control_gid
+  when: application_composer_install_local | bool
+
+- name: Build local Composer image from selected release
+  ansible.builtin.command:
+    argv:
+      - docker
+      - build
+      - --tag
+      - medicina-laboral-composer-control:latest
+      - --build-arg
+      - "UID={{ application_control_uid.stdout }}"
+      - --build-arg
+      - "GID={{ application_control_gid.stdout }}"
+      - --file
+      - "{{ application_effective_source_path }}/docker/app/Dockerfile"
+      - "{{ application_effective_source_path }}"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: true
+  when:
+    - not ansible_check_mode
+    - application_composer_install_local | bool
+    - application_should_transfer_release | bool
+
+- name: Install production Composer dependencies on control node
+  ansible.builtin.command:
+    argv:
+      - docker
+      - run
+      - --rm
+      - --user
+      - "{{ application_control_uid.stdout }}:{{ application_control_gid.stdout }}"
+      - --volume
+      - "{{ application_effective_source_path }}:/var/www/html"
+      - --workdir
+      - /var/www/html
+      - medicina-laboral-composer-control:latest
+      - composer
+      - install
+      - --no-dev
+      - --prefer-dist
+      - --optimize-autoloader
+      - --no-interaction
+      - --no-progress
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: true
+  when:
+    - not ansible_check_mode
+    - application_composer_install_local | bool
+    - application_should_transfer_release | bool
+
+- name: Synchronize locally built Composer dependencies into release
+  ansible.posix.synchronize:
+    src: "{{ application_effective_source_path }}/vendor/"
+    dest: "{{ application_release_path }}/vendor/"
+    delete: true
+    rsync_path: sudo -n rsync
+    rsync_opts:
+      - --timeout=120
+      - --no-owner
+      - --no-group
+      - --no-perms
+      - --omit-dir-times
+      - "--chown={{ deploy_user_name }}:www-data"
+  when:
+    - not ansible_check_mode
+    - application_composer_install_local | bool
+    - application_should_transfer_release | bool
+
 - name: Set release ownership
   ansible.builtin.file:
     path: "{{ application_release_path }}"
@@ -383,7 +486,23 @@
     prefer_dist: true
   become: true
   become_user: "{{ deploy_user_name }}"
-  when: not ansible_check_mode
+  when:
+    - not ansible_check_mode
+    - not application_composer_install_local | bool
+
+- name: Validate locally built Composer platform requirements
+  ansible.builtin.command:
+    argv:
+      - composer
+      - check-platform-reqs
+      - --no-dev
+    chdir: "{{ application_release_path }}"
+  become: true
+  become_user: "{{ deploy_user_name }}"
+  changed_when: false
+  when:
+    - not ansible_check_mode
+    - application_composer_install_local | bool
 
 - name: Run Laravel migrations
   ansible.builtin.command:

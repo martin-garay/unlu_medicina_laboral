@@ -12,20 +12,21 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-01 07:44 -03
+2026-09-02 20:49 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: bootstrap y validacion remota del usuario operativo
   `deploy` en testing desde PC Uni.
 - Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
-  2026-08-24 queda en `needs_review`: las validaciones locales de provisioning
-  pasan y se corrigio el inventory de testing para usar el alias existente
-  `unlu-medicina-testing` con alta inicial de host key por `accept-new`.
-- Proximo paso sugerido: reintentar desde PC Uni y `deploy/provisioning`
-  `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --check --diff`.
-  Cuando el check remoto pase y el diff sea razonable, ejecutar
-  `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml`.
+  2026-08-24 queda en `needs_review`: el check remoto paso, pero el apply quedo
+  bloqueado porque testing no tiene egreso HTTPS a GitHub/Packagist.
+- Se preparo un modo configurable de Composer local: PC Uni construye `vendor/`
+  en Docker desde el checkout exacto del tag y lo sincroniza al release remoto;
+  testing valida requisitos de plataforma antes de migrar y activar.
+- Proximo paso sugerido: actualizar PC Uni con estos cambios, cancelar cualquier
+  Composer remoto residual y reintentar `site.yml --check --diff`; luego ejecutar
+  el apply real, monitoreo e idempotencia si el check pasa.
 - Nota repo local: `.git` esta montado read-only en esta sesion. Los commits se
   realizan con metadata Git temporal en `/tmp` hasta corregir el montaje.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
@@ -115,11 +116,11 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-09-01 07:44 -03
+- 2026-09-02 20:49 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-08-24.md`
-- `plan_dev/daily/2026-09-01.md` no existe.
+- `plan_dev/daily/2026-09-02.md`
+- continúa `M4` heredado de `plan_dev/daily/2026-08-24.md`.
 
 ### Milestone trabajado
 - `M4 - Deploy completo sin security/firewall`
@@ -128,6 +129,15 @@ No debe reemplazar:
 - `needs_review`
 
 ### Resumen corto
+- El check remoto de `site.yml --check --diff` paso desde PC Uni.
+- El apply real llego a Composer y quedo esperando porque testing no puede
+  acceder por HTTPS a GitHub: `git ls-remote` y `curl` vencieron con `rc=124`.
+- Se agrego `application_composer_install_local` (default `false`, testing
+  `true`). El modo local usa el Dockerfile del checkout exacto del release,
+  instala dependencias en PC Uni, sincroniza `vendor/` por rsync al mismo
+  release y valida requisitos PHP/extensiones en el destino.
+- `bin/check-deploy` paso completo en sin fallas; falta validar el recorrido
+  real desde PC Uni.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.

@@ -202,6 +202,15 @@ con los excludes definidos, copia el archivo por SSH normal de Ansible y lo
 extrae en el release remoto. Esto evita esperas opacas de
 `ansible.posix.synchronize` sobre el salto SSH institucional.
 
+El servidor de testing no tiene salida HTTPS a GitHub/Packagist. Por eso su
+inventory habilita `application_composer_install_local: true`: PC Uni construye
+`vendor/` en Docker usando el `docker/app/Dockerfile` del checkout exacto de
+`application_git_ref` y lo sincroniza por rsync exclusivamente al directorio de
+ese mismo release. El servidor no descarga paquetes, pero valida el resultado
+con `composer check-platform-reqs --no-dev` antes de ejecutar migraciones y
+activar `current`. Este modo requiere Docker y rsync en la estación de control,
+y `sudo -n rsync` en el destino.
+
 El rol `monitoring` valida salud operativa al final del apply real: servicios,
 doctor de Laravel, scheduler, TLS y backups recientes. En `--check` informa que
 omite esos controles porque el dry-run no instala servicios ni crea releases o
