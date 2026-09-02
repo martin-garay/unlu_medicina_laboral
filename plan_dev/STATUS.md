@@ -24,6 +24,8 @@ No debe reemplazar:
 - Se preparo un modo configurable de Composer local: PC Uni construye `vendor/`
   en Docker desde el checkout exacto del tag y lo sincroniza al release remoto;
   testing valida requisitos de plataforma antes de migrar y activar.
+- Cortes publicados en `origin/main`: `33bd091` registra `DEPLOY-001` en backlog
+  y `a5acf76` implementa Composer local + rsync y la reanudacion operativa de M4.
 - Proximo paso sugerido: actualizar PC Uni con estos cambios, cancelar cualquier
   Composer remoto residual y reintentar `site.yml --check --diff`; luego ejecutar
   el apply real, monitoreo e idempotencia si el check pasa.
@@ -136,8 +138,11 @@ No debe reemplazar:
   `true`). El modo local usa el Dockerfile del checkout exacto del release,
   instala dependencias en PC Uni, sincroniza `vendor/` por rsync al mismo
   release y valida requisitos PHP/extensiones en el destino.
-- `bin/check-deploy` paso completo en sin fallas; falta validar el recorrido
+- `bin/check-deploy` paso completo sin fallas; falta validar el recorrido
   real desde PC Uni.
+- El trabajo quedo publicado hasta `origin/main@a5acf76`. El `.git` de este
+  workspace continua montado read-only, por lo que su indice local no refleja
+  los commits; el remoto y la metadata Git temporal fueron verificados limpios.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.
