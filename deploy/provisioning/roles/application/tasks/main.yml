@@ -9,6 +9,12 @@
       Unsupported application source or transfer strategy:
       {{ application_source_strategy }} / {{ application_transfer_strategy }}.
 
+- name: Select whether rsync capability is required
+  ansible.builtin.set_fact:
+    application_rsync_required: >-
+      {{ application_transfer_strategy == 'rsync'
+         or application_composer_install_local | bool }}
+
 - name: Install Composer
   ansible.builtin.apt:
     name: composer
@@ -22,8 +28,7 @@
     state: present
     update_cache: true
     cache_valid_time: 3600
-  when: application_transfer_strategy == 'rsync'
-    or application_composer_install_local | bool
+  when: application_rsync_required | bool
 
 - name: Check remote rsync availability
   ansible.builtin.command:
@@ -32,8 +37,7 @@
   changed_when: false
   failed_when: false
   check_mode: false
-  when: application_transfer_strategy == 'rsync'
-    or application_composer_install_local | bool
+  when: application_rsync_required | bool
 
 - name: Report missing remote rsync during check mode
   ansible.builtin.debug:
@@ -42,7 +46,7 @@
       skipped in check mode because rsync is not available on the remote host.
   when:
     - ansible_check_mode
-    - application_transfer_strategy == 'rsync' or application_composer_install_local | bool
+    - application_rsync_required | bool
     - (application_remote_rsync.rc | default(1)) != 0
 
 - name: Read active application release before synchronization
@@ -148,8 +152,7 @@
   become: false
   run_once: true
   changed_when: false
-  when: application_transfer_strategy == 'rsync'
-    or application_composer_install_local | bool
+  when: application_rsync_required | bool
 
 - name: Inspect application source path on control node
   ansible.builtin.stat:
@@ -185,7 +188,7 @@
   changed_when: false
   failed_when: false
   check_mode: false
-  when: application_transfer_strategy == 'rsync'
+  when: application_rsync_required | bool
 
 - name: Report unavailable remote privileged rsync during check mode
   ansible.builtin.debug:
@@ -195,7 +198,7 @@
       is not available.
   when:
     - ansible_check_mode
-    - application_transfer_strategy == 'rsync' or application_composer_install_local | bool
+    - application_rsync_required | bool
     - (application_remote_privileged_rsync.rc | default(1)) != 0
 
 - name: Require remote privileged rsync during apply
@@ -211,7 +214,7 @@
       deploy@unlu-medicina-testing '/usr/bin/sudo -n /usr/bin/rsync --version'`.
   when:
     - not ansible_check_mode
-    - application_transfer_strategy == 'rsync' or application_composer_install_local | bool
+    - application_rsync_required | bool
 
 - name: Create application artifact root on control node
   ansible.builtin.file:

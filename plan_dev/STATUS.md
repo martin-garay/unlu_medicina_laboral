@@ -148,6 +148,11 @@ No debe reemplazar:
   `sudo -n true` y `/usr/bin/sudo -n /usr/bin/rsync --version` con `rc=0`.
   No corresponde cambiar permisos: se prepararon rutas absolutas y diagnóstico
   detallado en el rol; falta actualizar PC Uni y reintentar M4.
+- El siguiente reintento informó `rc=not-run` y permitió localizar el defecto:
+  el chequeo privilegiado todavía se omitía cuando la transferencia principal
+  era `archive`. La necesidad de rsync quedó centralizada en
+  `application_rsync_required` para que instalación, chequeos y asserts usen la
+  misma condición. Falta validar este ajuste desde PC Uni.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.
