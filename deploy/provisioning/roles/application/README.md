@@ -43,6 +43,12 @@ Composer. La URL institucional no se hardcodea ni se guarda en el inventory. Si
 el proxy incorpora credenciales, deben inyectarse en el entorno operativo desde
 un mecanismo seguro y nunca versionarse.
 
+Antes de ejecutar Composer, el rol crea en el checkout local `bootstrap/cache`
+y los subdirectorios escribibles de `storage/`. El bind mount del checkout
+oculta los directorios creados dentro de la imagen Docker; sin esta preparación,
+los scripts de Composer de Laravel/Filament fallan aunque las dependencias ya se
+hayan descargado.
+
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
 
 El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`

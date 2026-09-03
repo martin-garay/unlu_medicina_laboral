@@ -371,6 +371,22 @@
   register: application_control_gid
   when: application_composer_install_local | bool
 
+- name: Create Laravel writable directories for local Composer scripts
+  ansible.builtin.file:
+    path: "{{ application_effective_source_path }}/{{ item }}"
+    state: directory
+    mode: "0775"
+  loop:
+    - bootstrap/cache
+    - storage/framework/cache/data
+    - storage/framework/sessions
+    - storage/framework/views
+    - storage/logs
+  delegate_to: localhost
+  become: false
+  run_once: true
+  when: application_composer_install_local | bool
+
 - name: Build local Composer image from selected release
   ansible.builtin.command:
     argv:

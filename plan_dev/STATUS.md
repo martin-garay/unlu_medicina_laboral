@@ -158,6 +158,10 @@ No debe reemplazar:
   `https_proxy` y `no_proxy` alcanzaron GitHub API y Packagist con HTTP 200. El
   rol propaga ahora el proxy del entorno de control a build y run; falta
   actualizar PC Uni y reintentar M4.
+- Con el proxy activo se instalaron los 109 paquetes, pero el post-script de
+  Filament falló porque el checkout montado no contenía `bootstrap/cache`. El
+  rol prepara ahora los directorios escribibles de Laravel en el checkout local
+  antes de Composer; falta actualizar PC Uni y reintentar M4.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.
