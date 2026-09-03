@@ -36,6 +36,13 @@ La sincronización de `vendor/` invoca explícitamente
 de la sesión no interactiva y exige el mismo privilegio sin contraseña que se
 valida antes de transferir.
 
+Cuando la estación de control requiere proxy, el rol toma `http_proxy`,
+`https_proxy` y `no_proxy` de su entorno (con fallback a las variantes en
+mayúsculas) y las propaga tanto a `docker build` como al contenedor que ejecuta
+Composer. La URL institucional no se hardcodea ni se guarda en el inventory. Si
+el proxy incorpora credenciales, deben inyectarse en el entorno operativo desde
+un mecanismo seguro y nunca versionarse.
+
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
 
 El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`

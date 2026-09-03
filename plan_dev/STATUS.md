@@ -153,6 +153,11 @@ No debe reemplazar:
   era `archive`. La necesidad de rsync quedó centralizada en
   `application_rsync_required` para que instalación, chequeos y asserts usen la
   misma condición. Falta validar este ajuste desde PC Uni.
+- Composer local terminó con `rc=100` porque Docker no heredaba el proxy de PC
+  Uni. Las pruebas explícitas dentro del contenedor con `http_proxy`,
+  `https_proxy` y `no_proxy` alcanzaron GitHub API y Packagist con HTTP 200. El
+  rol propaga ahora el proxy del entorno de control a build y run; falta
+  actualizar PC Uni y reintentar M4.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.

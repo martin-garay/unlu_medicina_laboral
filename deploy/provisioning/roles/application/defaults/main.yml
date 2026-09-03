@@ -12,6 +12,19 @@ application_transfer_strategy: rsync
 # then synchronizes vendor/ only into that same application_release_path.
 # Keep false when the managed host can run Composer with outbound HTTPS.
 application_composer_install_local: false
+# Proxy values for Docker on the Ansible control node. Lowercase variables are
+# preferred because Composer/curl use them in PC Uni; uppercase variants remain
+# supported as fallback. Values come from the operator environment and are not
+# hardcoded in inventories or committed with institutional credentials.
+application_control_http_proxy: >-
+  {{ lookup('ansible.builtin.env', 'http_proxy')
+     or lookup('ansible.builtin.env', 'HTTP_PROXY') }}
+application_control_https_proxy: >-
+  {{ lookup('ansible.builtin.env', 'https_proxy')
+     or lookup('ansible.builtin.env', 'HTTPS_PROXY') }}
+application_control_no_proxy: >-
+  {{ lookup('ansible.builtin.env', 'no_proxy')
+     or lookup('ansible.builtin.env', 'NO_PROXY') }}
 application_source_path: "{{ playbook_dir }}/../../.."
 application_git_repo: git@github.com:martin-garay/unlu_medicina_laboral.git
 application_git_ref: "{{ application_release_id }}"

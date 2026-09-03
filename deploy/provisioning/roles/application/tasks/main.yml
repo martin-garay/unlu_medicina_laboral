@@ -382,9 +382,19 @@
       - "UID={{ application_control_uid.stdout }}"
       - --build-arg
       - "GID={{ application_control_gid.stdout }}"
+      - --build-arg
+      - http_proxy
+      - --build-arg
+      - https_proxy
+      - --build-arg
+      - no_proxy
       - --file
       - "{{ application_effective_source_path }}/docker/app/Dockerfile"
       - "{{ application_effective_source_path }}"
+  environment:
+    http_proxy: "{{ application_control_http_proxy }}"
+    https_proxy: "{{ application_control_https_proxy }}"
+    no_proxy: "{{ application_control_no_proxy }}"
   delegate_to: localhost
   become: false
   run_once: true
@@ -402,6 +412,12 @@
       - --rm
       - --user
       - "{{ application_control_uid.stdout }}:{{ application_control_gid.stdout }}"
+      - --env
+      - http_proxy
+      - --env
+      - https_proxy
+      - --env
+      - no_proxy
       - --volume
       - "{{ application_effective_source_path }}:/var/www/html"
       - --workdir
@@ -414,6 +430,10 @@
       - --optimize-autoloader
       - --no-interaction
       - --no-progress
+  environment:
+    http_proxy: "{{ application_control_http_proxy }}"
+    https_proxy: "{{ application_control_https_proxy }}"
+    no_proxy: "{{ application_control_no_proxy }}"
   delegate_to: localhost
   become: false
   run_once: true

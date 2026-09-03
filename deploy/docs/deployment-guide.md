@@ -211,6 +211,12 @@ con `composer check-platform-reqs --no-dev` antes de ejecutar migraciones y
 activar `current`. Este modo requiere Docker y rsync en la estación de control,
 y `sudo -n rsync` en el destino.
 
+Si PC Uni sale a Internet mediante proxy, deben estar exportadas en el shell que
+ejecuta Ansible las variables `http_proxy`, `https_proxy` y `no_proxy`. El rol
+las propaga al build y al contenedor Docker de Composer sin fijar una URL
+institucional en el repositorio. Se puede validar el entorno antes del deploy
+con `env | grep -iE '^(http|https|no)_proxy='`.
+
 El rol `monitoring` valida salud operativa al final del apply real: servicios,
 doctor de Laravel, scheduler, TLS y backups recientes. En `--check` informa que
 omite esos controles porque el dry-run no instala servicios ni crea releases o
