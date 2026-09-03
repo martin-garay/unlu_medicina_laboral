@@ -179,7 +179,7 @@
 
 - name: Check remote privileged rsync availability
   ansible.builtin.command:
-    argv: [sudo, -n, rsync, --version]
+    argv: [/usr/bin/sudo, -n, /usr/bin/rsync, --version]
   become: false
   register: application_remote_privileged_rsync
   changed_when: false
@@ -203,8 +203,12 @@
     that:
       - (application_remote_privileged_rsync.rc | default(1)) == 0
     fail_msg: >-
-      Remote synchronization requires passwordless sudo for rsync. Validate
-      `ssh unlu-medicina-testing-deploy 'sudo -n rsync --version'`.
+      Remote synchronization requires passwordless sudo for /usr/bin/rsync.
+      Check result: rc={{ application_remote_privileged_rsync.rc | default('not-run') }},
+      stdout={{ application_remote_privileged_rsync.stdout | default('') | trim }},
+      stderr={{ application_remote_privileged_rsync.stderr | default('') | trim }}.
+      Validate `ssh -i ../.local/ssh/deploy_ed25519
+      deploy@unlu-medicina-testing '/usr/bin/sudo -n /usr/bin/rsync --version'`.
   when:
     - not ansible_check_mode
     - application_transfer_strategy == 'rsync' or application_composer_install_local | bool
@@ -421,7 +425,7 @@
     src: "{{ application_effective_source_path }}/vendor/"
     dest: "{{ application_release_path }}/vendor/"
     delete: true
-    rsync_path: sudo -n rsync
+    rsync_path: /usr/bin/sudo -n /usr/bin/rsync
     rsync_opts:
       - --timeout=120
       - --no-owner

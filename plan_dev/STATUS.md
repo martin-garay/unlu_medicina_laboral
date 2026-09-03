@@ -140,9 +140,14 @@ No debe reemplazar:
   release y valida requisitos PHP/extensiones en el destino.
 - `bin/check-deploy` paso completo sin fallas; falta validar el recorrido
   real desde PC Uni.
-- El trabajo quedo publicado hasta `origin/main@a5acf76`. El `.git` de este
+- El trabajo quedo publicado hasta `origin/main@be83e36`. El `.git` de este
   workspace continua montado read-only, por lo que su indice local no refleja
   los commits; el remoto y la metadata Git temporal fueron verificados limpios.
+- El reintento desde PC Uni fallo en el assert de rsync privilegiado, aunque la
+  verificacion directa y el comando ad hoc de Ansible confirmaron
+  `sudo -n true` y `/usr/bin/sudo -n /usr/bin/rsync --version` con `rc=0`.
+  No corresponde cambiar permisos: se prepararon rutas absolutas y diagnóstico
+  detallado en el rol; falta actualizar PC Uni y reintentar M4.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.

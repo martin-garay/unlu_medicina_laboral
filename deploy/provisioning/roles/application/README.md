@@ -31,6 +31,11 @@ ejecuta `composer check-platform-reqs --no-dev` antes de migrar o activar el
 release. Python local y remoto no necesitan compartir versión; sólo deben ser
 compatibles con sus respectivos lados de Ansible.
 
+La sincronización de `vendor/` invoca explícitamente
+`/usr/bin/sudo -n /usr/bin/rsync` en el destino. Esto evita depender del `PATH`
+de la sesión no interactiva y exige el mismo privilegio sin contraseña que se
+valida antes de transferir.
+
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
 
 El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`
