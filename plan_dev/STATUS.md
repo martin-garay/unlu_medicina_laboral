@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-04 01:32 -03
+2026-09-04 01:40 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -180,6 +180,12 @@ No debe reemplazar:
 - El rol usa ahora `curl` remoto para `/up`, valida que el release anterior sea
   un directorio existente bajo `releases/` y gestiona ambos symlinks con
   `follow: false`. `bin/check-deploy` pasó nuevamente sobre 48 archivos.
+- La validación posterior del playbook `application` encontró otro uso de
+  `ansible.builtin.uri` y reprodujo el error incluso contra
+  `http://127.0.0.1/up`. Se reemplazaron todos los usos restantes en los
+  playbooks `application`, `runtime`, `tls` y `rollback` por probes `curl` con
+  sus mismas reglas de HTTP, contenido y certificados. No quedan referencias a
+  `ansible.builtin.uri` y `bin/check-deploy` volvió a pasar sobre 48 archivos.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.

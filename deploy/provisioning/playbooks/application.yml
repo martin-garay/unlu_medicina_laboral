@@ -28,9 +28,28 @@
   become: false
   tasks:
     - name: Request Laravel health endpoint
-      ansible.builtin.uri:
-        url: http://127.0.0.1/up
-        headers:
-          Host: "{{ application_hostname }}"
-        status_code: "{{ [200, 301] if (tls_enabled | default(false)) else 200 }}"
+      ansible.builtin.command:
+        argv:
+          - curl
+          - --silent
+          - --show-error
+          - --output
+          - /dev/null
+          - --write-out
+          - "%{http_code}"
+          - --connect-timeout
+          - "10"
+          - --max-time
+          - "30"
+          - --noproxy
+          - "*"
+          - --header
+          - "Host: {{ application_hostname }}"
+          - http://127.0.0.1/up
+      register: application_http_health
+      changed_when: false
+      failed_when: >-
+        application_http_health.rc != 0
+        or application_http_health.stdout not in
+        (['200', '301'] if tls_enabled | default(false) | bool else ['200'])
       when: not ansible_check_mode

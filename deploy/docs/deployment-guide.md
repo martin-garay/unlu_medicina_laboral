@@ -229,6 +229,11 @@ servidor. Si el chequeo falla, el rollback sólo acepta como release anterior un
 directorio existente dentro de `releases/`; nunca restaura enlaces circulares o
 destinos inexistentes.
 
+La misma regla se aplica a los probes de los playbooks `application`, `runtime`,
+`tls` y `rollback`: todos usan `curl`, deshabilitan el proxy para destinos
+locales y conservan las validaciones de código HTTP, contenido y certificados
+que corresponden a cada escenario.
+
 Mientras no se defina la política completa de seguridad institucional, testing
 usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar
 `site.yml` completo sin aplicar los roles `hardening` ni `firewall`, y sin exigir

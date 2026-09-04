@@ -11,24 +11,53 @@
       apache_install_runtime_probe: false
   post_tasks:
     - name: Validate HTTP to HTTPS redirect
-      ansible.builtin.uri:
-        url: "http://127.0.0.1/up"
-        headers:
-          Host: "{{ application_hostname }}"
-        status_code: 301
-        follow_redirects: none
-        use_proxy: false
+      ansible.builtin.command:
+        argv:
+          - curl
+          - --silent
+          - --show-error
+          - --output
+          - /dev/null
+          - --write-out
+          - "%{http_code}"
+          - --connect-timeout
+          - "10"
+          - --max-time
+          - "30"
+          - --noproxy
+          - "*"
+          - --header
+          - "Host: {{ application_hostname }}"
+          - http://127.0.0.1/up
+      register: tls_http_redirect
+      changed_when: false
+      failed_when: >-
+        tls_http_redirect.rc != 0 or tls_http_redirect.stdout != '301'
       when:
         - tls_enabled
         - not ansible_check_mode
 
     - name: Validate trusted Laravel HTTPS endpoint
-      ansible.builtin.uri:
-        url: "https://{{ application_hostname }}/up"
-        status_code: 200
-        validate_certs: true
-        use_proxy: false
-        ca_path: "{{ tls_ca_certificate_path if tls_provider == 'local_ca' else omit }}"
+      ansible.builtin.command:
+        argv: >-
+          {{
+            [
+              'curl', '--silent', '--show-error', '--fail',
+              '--output', '/dev/null', '--write-out', '%{http_code}',
+              '--connect-timeout', '10', '--max-time', '30',
+              '--noproxy', '*'
+            ]
+            + (
+              ['--cacert', tls_ca_certificate_path]
+              if tls_provider == 'local_ca'
+              else []
+            )
+            + ['https://' ~ application_hostname ~ '/up']
+          }}
+      register: tls_https_health
+      changed_when: false
+      failed_when: >-
+        tls_https_health.rc != 0 or tls_https_health.stdout != '200'
       when:
         - tls_enabled
         - not ansible_check_mode

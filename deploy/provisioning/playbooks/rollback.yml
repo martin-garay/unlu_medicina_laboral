@@ -39,6 +39,7 @@
             dest: "{{ application_root }}/current"
             state: link
             force: true
+            follow: false
             owner: "{{ deploy_user_name }}"
             group: www-data
 
@@ -56,12 +57,33 @@
             state: reloaded
 
         - name: Validate rollback health endpoint
-          ansible.builtin.uri:
-            url: "{{ application_url }}/up"
-            status_code: 200
-            validate_certs: "{{ tls_enabled | default(false) }}"
-            ca_path: "{{ tls_ca_certificate_path if (tls_provider | default('provided')) == 'local_ca' else omit }}"
-            use_proxy: false
+          ansible.builtin.command:
+            argv: >-
+              {{
+                [
+                  'curl', '--silent', '--show-error', '--fail',
+                  '--output', '/dev/null', '--write-out', '%{http_code}',
+                  '--connect-timeout', '10', '--max-time', '30',
+                  '--noproxy', '*'
+                ]
+                + (
+                  [] if tls_enabled | default(false) | bool
+                  else ['--insecure']
+                )
+                + (
+                  ['--cacert', tls_ca_certificate_path]
+                  if (
+                    tls_enabled | default(false) | bool
+                    and tls_provider | default('provided') == 'local_ca'
+                  )
+                  else []
+                )
+                + [application_url ~ '/up']
+              }}
+          register: rollback_health
+          changed_when: false
+          failed_when: >-
+            rollback_health.rc != 0 or rollback_health.stdout != '200'
 
       rescue:
         - name: Restore previous release symlink
@@ -70,6 +92,7 @@
             dest: "{{ application_root }}/current"
             state: link
             force: true
+            follow: false
             owner: "{{ deploy_user_name }}"
             group: www-data
 
@@ -79,12 +102,13 @@
             state: reloaded
 
         - name: Verify service recovered on previous release
-          ansible.builtin.uri:
-            url: "{{ application_url }}/up"
-            status_code: 200
-            validate_certs: "{{ tls_enabled | default(false) }}"
-            ca_path: "{{ tls_ca_certificate_path if (tls_provider | default('provided')) == 'local_ca' else omit }}"
-            use_proxy: false
+          ansible.builtin.command:
+            argv: "{{ rollback_health.cmd }}"
+          register: rollback_recovery_health
+          changed_when: false
+          failed_when: >-
+            rollback_recovery_health.rc != 0
+            or rollback_recovery_health.stdout != '200'
 
         - name: Report failed rollback
           ansible.builtin.fail:

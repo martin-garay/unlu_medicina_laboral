@@ -18,14 +18,26 @@
   become: false
   tasks:
     - name: Request temporary runtime probe
-      ansible.builtin.uri:
-        url: http://127.0.0.1/
-        headers:
-          Host: "{{ application_hostname }}"
-        return_content: true
-        status_code: 200
+      ansible.builtin.command:
+        argv:
+          - curl
+          - --silent
+          - --show-error
+          - --fail
+          - --connect-timeout
+          - "10"
+          - --max-time
+          - "30"
+          - --noproxy
+          - "*"
+          - --header
+          - "Host: {{ application_hostname }}"
+          - http://127.0.0.1/
       register: runtime_probe
-      failed_when: "'medicina-laboral-runtime-ok' not in runtime_probe.content"
+      changed_when: false
+      failed_when: >-
+        runtime_probe.rc != 0
+        or 'medicina-laboral-runtime-ok' not in runtime_probe.stdout
       when:
         - runtime_probe_enabled | default(true)
         - not ansible_check_mode
