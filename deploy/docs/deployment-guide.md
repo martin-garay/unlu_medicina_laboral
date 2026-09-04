@@ -223,6 +223,12 @@ doctor de Laravel, scheduler, TLS y backups recientes. En `--check` informa que
 omite esos controles porque el dry-run no instala servicios ni crea releases o
 backups reales.
 
+La activación valida `/up` con `curl` ejecutado en el host administrado. Esto
+evita depender de la combinación de `urllib3` y el módulo HTTPS de Ansible del
+servidor. Si el chequeo falla, el rollback sólo acepta como release anterior un
+directorio existente dentro de `releases/`; nunca restaura enlaces circulares o
+destinos inexistentes.
+
 Mientras no se defina la política completa de seguridad institucional, testing
 usa `security_enabled: false` y `firewall_enabled: false`. Esto permite ejecutar
 `site.yml` completo sin aplicar los roles `hardening` ni `firewall`, y sin exigir

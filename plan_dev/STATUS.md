@@ -12,23 +12,23 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-04 01:02 -03
+2026-09-04 01:32 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: bootstrap y validacion remota del usuario operativo
   `deploy` en testing desde PC Uni.
 - Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
-  2026-08-24 queda en `needs_review`: el check remoto paso, pero el apply quedo
-  bloqueado porque testing no tiene egreso HTTPS a GitHub/Packagist.
-- Se preparo un modo configurable de Composer local: PC Uni construye `vendor/`
-  en Docker desde el checkout exacto del tag y lo sincroniza al release remoto;
-  testing valida requisitos de plataforma antes de migrar y activar.
-- Cortes publicados en `origin/main`: `33bd091` registra `DEPLOY-001` en backlog
-  y `a5acf76` implementa Composer local + rsync y la reanudacion operativa de M4.
-- Proximo paso sugerido: actualizar PC Uni con estos cambios, cancelar cualquier
-  Composer remoto residual y reintentar `site.yml --check --diff`; luego ejecutar
-  el apply real, monitoreo e idempotencia si el check pasa.
+  2026-08-24 queda en `needs_review`: el release nuevo fue construido, migrado y
+  activado manualmente con `/up` en HTTP 200; falta validar el cierre automático
+  del playbook, monitoreo e idempotencia.
+- Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
+  lo transfiere como tar.gz por SFTP y valida requisitos en testing.
+- El health check deja de usar el stack HTTPS Python incompatible del servidor y
+  pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
+  enlaces circulares mediante `follow: false`.
+- Próximo paso sugerido: actualizar PC Uni, ejecutar `site.yml`, monitoreo y una
+  segunda ejecución de `site.yml` para confirmar idempotencia.
 - Nota repo local: `.git` esta montado read-only en esta sesion. Los commits se
   realizan con metadata Git temporal en `/tmp` hasta corregir el montaje.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
@@ -118,7 +118,7 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-09-02 20:49 -03
+- 2026-09-04 01:32 -03
 
 ### Plan diario usado
 - `plan_dev/daily/2026-09-04.md`
@@ -170,6 +170,16 @@ No debe reemplazar:
 - Validación local del reemplazo: `git diff --check`, `bin/yamllint`,
   `bin/ansible-playbook ... --syntax-check` y `bin/check-deploy` finalizaron sin
   fallas. La aplicación real y la idempotencia siguen pendientes en PC Uni.
+- El apply remoto transfirió `vendor/` (102 MB), ejecutó la preparación del
+  release y llegó a activarlo. `ansible.builtin.uri` falló por incompatibilidad
+  HTTPS (`CustomHTTPSConnection` sin `cert_file`) y su rollback restauró un
+  enlace circular `current -> current`.
+- Se reparó manualmente `current` para apuntar a
+  `testing-2026-08-24-01`; `.env`, `storage`, `artisan` y `vendor/` quedaron
+  verificados y `/up` respondió HTTP 200 desde testing.
+- El rol usa ahora `curl` remoto para `/up`, valida que el release anterior sea
+  un directorio existente bajo `releases/` y gestiona ambos symlinks con
+  `follow: false`. `bin/check-deploy` pasó nuevamente sobre 48 archivos.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.

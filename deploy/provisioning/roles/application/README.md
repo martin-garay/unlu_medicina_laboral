@@ -71,5 +71,8 @@ En testing se usa `archive` para evitar esperas opacas de `synchronize` sobre el
 salto SSH institucional.
 
 La activación es transaccional a nivel de código: conserva el destino previo de
-`current`, recarga PHP-FPM y valida `/up`. Ante un fallo restaura el symlink
-anterior y finaliza con error. Las migraciones no se revierten automáticamente.
+`current`, recarga PHP-FPM y valida `/up` mediante `curl` remoto sin usar el
+stack HTTPS de Python. Ante un fallo sólo restaura un destino anterior si es un
+directorio existente bajo `releases/`; un enlace vacío, circular o externo no
+se considera recuperable. Los symlinks se administran con `follow: false`.
+Las migraciones no se revierten automáticamente.

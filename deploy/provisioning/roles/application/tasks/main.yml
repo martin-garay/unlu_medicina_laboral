@@ -619,6 +619,31 @@
   failed_when: false
   when: not ansible_check_mode
 
+- name: Inspect previously active application release
+  ansible.builtin.stat:
+    path: "{{ application_previous_release.stdout }}"
+  register: application_previous_release_path
+  when:
+    - not ansible_check_mode
+    - application_previous_release.rc == 0
+    - application_previous_release.stdout | length > 0
+    - application_previous_release.stdout != application_current_path
+
+- name: Validate previously active application release
+  ansible.builtin.set_fact:
+    application_previous_release_valid: >-
+      {{
+        application_previous_release.rc == 0
+        and application_previous_release.stdout | length > 0
+        and application_previous_release.stdout != application_current_path
+        and application_previous_release.stdout.startswith(
+          application_root ~ '/releases/'
+        )
+        and application_previous_release_path.stat.exists | default(false)
+        and application_previous_release_path.stat.isdir | default(false)
+      }}
+  when: not ansible_check_mode
+
 - name: Activate and validate application release
   when: not ansible_check_mode
   block:
@@ -628,6 +653,7 @@
         dest: "{{ application_current_path }}"
         state: link
         force: true
+        follow: false
         owner: "{{ deploy_user_name }}"
         group: www-data
 
@@ -637,12 +663,36 @@
         state: reloaded
 
     - name: Validate activated release health endpoint
-      ansible.builtin.uri:
-        url: "{{ application_url }}/up"
-        status_code: 200
-        validate_certs: "{{ tls_enabled | default(false) }}"
-        ca_path: "{{ tls_ca_certificate_path if (tls_provider | default('provided')) == 'local_ca' else omit }}"
-        use_proxy: false
+      ansible.builtin.command:
+        argv: >-
+          {{
+            [
+              'curl', '--silent', '--show-error', '--fail', '--location',
+              '--output', '/dev/null', '--write-out', '%{http_code}',
+              '--connect-timeout', '10', '--max-time', '30',
+              '--noproxy', '*'
+            ]
+            + (
+              [] if tls_enabled | default(false) | bool
+              else ['--insecure']
+            )
+            + (
+              ['--cacert', tls_ca_certificate_path]
+              if (
+                tls_enabled | default(false) | bool
+                and tls_provider | default('provided') == 'local_ca'
+              )
+              else []
+            )
+            + [application_url ~ '/up']
+          }}
+      register: application_health_check
+      changed_when: false
+      retries: 5
+      delay: 2
+      until:
+        - application_health_check.rc == 0
+        - application_health_check.stdout == '200'
 
   rescue:
     - name: Restore previously active release
@@ -651,15 +701,16 @@
         dest: "{{ application_current_path }}"
         state: link
         force: true
+        follow: false
         owner: "{{ deploy_user_name }}"
         group: www-data
-      when: application_previous_release.rc == 0
+      when: application_previous_release_valid | bool
 
     - name: Remove failed first activation
       ansible.builtin.file:
         path: "{{ application_current_path }}"
         state: absent
-      when: application_previous_release.rc != 0
+      when: not application_previous_release_valid | bool
 
     - name: Reload PHP-FPM after failed activation
       ansible.builtin.service:
