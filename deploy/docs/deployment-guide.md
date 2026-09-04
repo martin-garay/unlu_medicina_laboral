@@ -205,11 +205,12 @@ extrae en el release remoto. Esto evita esperas opacas de
 El servidor de testing no tiene salida HTTPS a GitHub/Packagist. Por eso su
 inventory habilita `application_composer_install_local: true`: PC Uni construye
 `vendor/` en Docker usando el `docker/app/Dockerfile` del checkout exacto de
-`application_git_ref` y lo sincroniza por rsync exclusivamente al directorio de
-ese mismo release. El servidor no descarga paquetes, pero valida el resultado
-con `composer check-platform-reqs --no-dev` antes de ejecutar migraciones y
-activar `current`. Este modo requiere Docker y rsync en la estación de control,
-y `sudo -n rsync` en el destino.
+`application_git_ref`, lo empaqueta en un `.tar.gz`, lo copia por SFTP y lo
+extrae exclusivamente en el directorio de ese mismo release. El servidor no
+descarga paquetes, pero valida el resultado con
+`composer check-platform-reqs --no-dev` antes de ejecutar migraciones y activar
+`current`. Este modo requiere Docker y tar en la estación de control, y tar en
+el destino.
 
 Si PC Uni sale a Internet mediante proxy, deben estar exportadas en el shell que
 ejecuta Ansible las variables `http_proxy`, `https_proxy` y `no_proxy`. El rol

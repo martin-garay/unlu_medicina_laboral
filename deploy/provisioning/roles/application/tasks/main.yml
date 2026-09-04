@@ -12,7 +12,9 @@
 - name: Select whether rsync capability is required
   ansible.builtin.set_fact:
     application_rsync_required: >-
-      {{ application_transfer_strategy == 'rsync'
+      {{ application_transfer_strategy == 'rsync' }}
+    application_archive_required: >-
+      {{ application_transfer_strategy == 'archive'
          or application_composer_install_local | bool }}
 
 - name: Install Composer
@@ -224,7 +226,7 @@
   delegate_to: localhost
   become: false
   run_once: true
-  when: application_transfer_strategy == 'archive'
+  when: application_archive_required | bool
 
 - name: Check local tar availability
   ansible.builtin.command:
@@ -233,7 +235,7 @@
   become: false
   run_once: true
   changed_when: false
-  when: application_transfer_strategy == 'archive'
+  when: application_archive_required | bool
 
 - name: Check remote tar availability
   ansible.builtin.command:
@@ -242,7 +244,7 @@
   changed_when: false
   failed_when: false
   check_mode: false
-  when: application_transfer_strategy == 'archive'
+  when: application_archive_required | bool
 
 - name: Require remote tar during apply
   ansible.builtin.assert:
@@ -251,7 +253,7 @@
     fail_msg: "Remote archive extraction requires tar on the target host."
   when:
     - not ansible_check_mode
-    - application_transfer_strategy == 'archive'
+    - application_archive_required | bool
 
 - name: Build application artifact on control node
   ansible.builtin.command:
@@ -459,19 +461,54 @@
     - application_composer_install_local | bool
     - application_should_transfer_release | bool
 
-- name: Synchronize locally built Composer dependencies into release
-  ansible.posix.synchronize:
-    src: "{{ application_effective_source_path }}/vendor/"
-    dest: "{{ application_release_path }}/vendor/"
-    delete: true
-    rsync_path: /usr/bin/sudo -n /usr/bin/rsync
-    rsync_opts:
-      - --timeout=120
-      - --no-owner
-      - --no-group
-      - --no-perms
-      - --omit-dir-times
-      - "--chown={{ deploy_user_name }}:www-data"
+- name: Build local Composer vendor artifact
+  ansible.builtin.command:
+    argv:
+      - tar
+      - --create
+      - --gzip
+      - --file
+      - "{{ application_vendor_artifact_path }}"
+      - --directory
+      - "{{ application_effective_source_path }}"
+      - vendor
+  delegate_to: localhost
+  become: false
+  run_once: true
+  changed_when: true
+  when:
+    - not ansible_check_mode
+    - application_composer_install_local | bool
+    - application_should_transfer_release | bool
+
+- name: Copy local Composer vendor artifact to target
+  ansible.builtin.copy:
+    src: "{{ application_vendor_artifact_path }}"
+    dest: "{{ application_vendor_artifact_remote_path }}"
+    owner: "{{ deploy_user_name }}"
+    group: "{{ deploy_user_group }}"
+    mode: "0600"
+  when:
+    - not ansible_check_mode
+    - application_composer_install_local | bool
+    - application_should_transfer_release | bool
+
+- name: Extract local Composer dependencies into release
+  ansible.builtin.unarchive:
+    src: "{{ application_vendor_artifact_remote_path }}"
+    dest: "{{ application_release_path }}"
+    remote_src: true
+    owner: "{{ deploy_user_name }}"
+    group: www-data
+  when:
+    - not ansible_check_mode
+    - application_composer_install_local | bool
+    - application_should_transfer_release | bool
+
+- name: Remove remote Composer vendor artifact
+  ansible.builtin.file:
+    path: "{{ application_vendor_artifact_remote_path }}"
+    state: absent
   when:
     - not ansible_check_mode
     - application_composer_install_local | bool

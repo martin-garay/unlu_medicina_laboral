@@ -21,7 +21,8 @@ dependencias de producción:
 - `false`: Composer se ejecuta en el host administrado.
 - `true`: la estación de control construye `vendor/` dentro de un contenedor
   creado con `docker/app/Dockerfile` del checkout exacto seleccionado por
-  `application_git_ref`, y luego lo sincroniza por rsync al
+  `application_git_ref`, lo empaqueta como `.tar.gz`, lo copia por SFTP y lo
+  extrae en el
   `application_release_path` correspondiente.
 
 El modo local existe para entornos sin salida HTTPS a Packagist/GitHub. No
@@ -31,10 +32,10 @@ ejecuta `composer check-platform-reqs --no-dev` antes de migrar o activar el
 release. Python local y remoto no necesitan compartir versión; sólo deben ser
 compatibles con sus respectivos lados de Ansible.
 
-La sincronización de `vendor/` invoca explícitamente
-`/usr/bin/sudo -n /usr/bin/rsync` en el destino. Esto evita depender del `PATH`
-de la sesión no interactiva y exige el mismo privilegio sin contraseña que se
-valida antes de transferir.
+`vendor/` no usa `ansible.posix.synchronize`: los saltos SSH institucionales
+dejaron el proceso rsync esperando antes de crear el destino. El archivo
+comprimido reutiliza la copia SFTP normal de Ansible, el mismo transporte ya
+validado para el source, y se elimina del destino después de extraerlo.
 
 Cuando la estación de control requiere proxy, el rol toma `http_proxy`,
 `https_proxy` y `no_proxy` de su entorno (con fallback a las variantes en

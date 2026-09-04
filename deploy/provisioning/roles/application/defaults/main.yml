@@ -9,7 +9,7 @@ application_transfer_strategy: rsync
 # Build production Composer dependencies on the Ansible control node when the
 # managed host has no outbound access to Packagist/GitHub. The build uses the
 # Dockerfile from the exact source checkout selected by application_git_ref,
-# then synchronizes vendor/ only into that same application_release_path.
+# then packages vendor/ and extracts it only into that same release path.
 # Keep false when the managed host can run Composer with outbound HTTPS.
 application_composer_install_local: false
 # Proxy values for Docker on the Ansible control node. Lowercase variables are
@@ -35,6 +35,12 @@ application_git_accept_hostkey: false
 application_artifact_root: "{{ playbook_dir }}/../.local/artifacts"
 application_artifact_path: "{{ application_artifact_root }}/{{ application_release_id }}.tar.gz"
 application_artifact_remote_path: "/tmp/{{ application_name }}-{{ application_release_id }}.tar.gz"
+# Local Composer uses a separate vendor artifact so the application source can
+# keep its existing transfer strategy while avoiding rsync over SSH bastions.
+application_vendor_artifact_path: >-
+  {{ application_artifact_root }}/{{ application_release_id }}-vendor.tar.gz
+application_vendor_artifact_remote_path: >-
+  /tmp/{{ application_name }}-{{ application_release_id }}-vendor.tar.gz
 application_release_path: "{{ application_root }}/releases/{{ application_release_id }}"
 application_shared_path: "{{ application_root }}/shared"
 application_current_path: "{{ application_root }}/current"

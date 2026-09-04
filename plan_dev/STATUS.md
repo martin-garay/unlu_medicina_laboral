@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-02 20:49 -03
+2026-09-04 01:02 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -121,7 +121,8 @@ No debe reemplazar:
 - 2026-09-02 20:49 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-09-02.md`
+- `plan_dev/daily/2026-09-04.md`
+- continúa `M4` heredado de `plan_dev/daily/2026-09-02.md`.
 - continúa `M4` heredado de `plan_dev/daily/2026-08-24.md`.
 
 ### Milestone trabajado
@@ -162,6 +163,13 @@ No debe reemplazar:
   Filament falló porque el checkout montado no contenía `bootstrap/cache`. El
   rol prepara ahora los directorios escribibles de Laravel en el checkout local
   antes de Composer; falta actualizar PC Uni y reintentar M4.
+- La transferencia posterior de `vendor/` por rsync quedó esperando más de 30
+  minutos sin crear el destino. Se canceló sin procesos residuales, migraciones
+  ni activación. El recorrido preparado usa ahora tar.gz + SFTP + extracción
+  remota; M4 continúa en `needs_review` hasta validarlo desde PC Uni.
+- Validación local del reemplazo: `git diff --check`, `bin/yamllint`,
+  `bin/ansible-playbook ... --syntax-check` y `bin/check-deploy` finalizaron sin
+  fallas. La aplicación real y la idempotencia siguen pendientes en PC Uni.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.
