@@ -73,10 +73,12 @@ administrador inicial es opcional y permanece deshabilitada por defecto mediante
 Cuando un inventory habilita el bootstrap, debe definir nombre, correo y rol, y
 obtener `application_backoffice_admin_password` desde Vault. El rol valida estos
 datos sin mostrarlos, consulta si el correo ya existe y sólo entonces ejecuta
-`BackofficeRolesAndPermissionsSeeder`. Las ejecuciones posteriores no cambian la
-contraseña de un usuario existente. Este mecanismo es de bootstrap; la rotación
-y administración posterior de la cuenta se realiza por un procedimiento
-separado.
+`backoffice:bootstrap --if-admin-missing`, un comando cargado por el autoload
+productivo. Las ejecuciones posteriores no cambian la contraseña de un usuario
+existente. El comando se ejecuta con el usuario de runtime y el usuario de
+deploy pertenece al mismo grupo para operar sobre los logs compartidos. Este
+mecanismo es de bootstrap; la rotación y administración posterior de la cuenta
+se realiza por un procedimiento separado.
 
 El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`
 necesita `rsync` tanto en la estación de control como en el servidor. En

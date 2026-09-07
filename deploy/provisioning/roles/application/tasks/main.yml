@@ -33,6 +33,12 @@
       password of at least 8 characters, and the admin role.
   no_log: true
 
+- name: Allow deployment user to write shared runtime files
+  ansible.builtin.user:
+    name: "{{ deploy_user_name }}"
+    groups: "{{ application_runtime_group }}"
+    append: true
+
 - name: Select whether rsync capability is required
   ansible.builtin.set_fact:
     application_rsync_required: >-
@@ -662,45 +668,23 @@
   run_once: true
   when: not ansible_check_mode
 
-- name: Check whether backoffice bootstrap admin exists
-  ansible.builtin.command:
-    argv:
-      - php
-      - artisan
-      - tinker
-      - --execute
-      - >-
-        exit(App\Models\User::query()
-        ->where('email', config('backoffice.local_admin.email'))
-        ->exists() ? 0 : 1);
-    chdir: "{{ application_release_path }}"
-  become: true
-  become_user: "{{ deploy_user_name }}"
-  register: application_backoffice_admin_exists
-  changed_when: false
-  failed_when: false
-  no_log: true
-  when:
-    - not ansible_check_mode
-    - application_backoffice_admin_enabled | bool
-
 - name: Create backoffice bootstrap admin and permissions
   ansible.builtin.command:
     argv:
       - php
       - artisan
-      - db:seed
-      - --class=Database\Seeders\BackofficeRolesAndPermissionsSeeder
-      - --force
+      - backoffice:bootstrap
+      - --if-admin-missing
     chdir: "{{ application_release_path }}"
   become: true
-  become_user: "{{ deploy_user_name }}"
-  changed_when: true
+  become_user: "{{ application_runtime_user }}"
+  register: application_backoffice_bootstrap
+  changed_when: >-
+    'Backoffice bootstrap applied.' in application_backoffice_bootstrap.stdout
   no_log: true
   when:
     - not ansible_check_mode
     - application_backoffice_admin_enabled | bool
-    - application_backoffice_admin_exists.rc != 0
 
 - name: Optimize Laravel caches
   ansible.builtin.command:

@@ -12,7 +12,22 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 12:30 -03
+2026-09-07 13:00 -03
+
+## Última actividad — Bootstrap productivo del backoffice
+
+- Fecha/hora: 2026-09-07 13:00 -03.
+- Milestone: M4, resultado `needs_review`.
+- El apply de `testing-2026-09-07-03` confirmó dos fallas: los seeders no están
+  disponibles con autoload `--no-dev` y el usuario `deploy` no podía abrir el
+  log diario creado por `www-data`.
+- La lógica se extrajo a un servicio de aplicación y al comando productivo
+  `backoffice:bootstrap --if-admin-missing`. Ansible lo ejecuta como usuario de
+  runtime y agrega `deploy` al grupo compartido; reruns no rotan la contraseña.
+- Validaciones: 4 tests específicos con 27 assertions; suite completa con 217
+  tests y 894 assertions; `bin/check-deploy` sin fallas en 48 archivos y
+  `git diff --check` OK.
+- Próximo release: `testing-2026-09-07-04`. Falta desplegarlo y validar `/admin`.
 
 ## Última actividad — Dry-run de checkout Git nuevo
 
@@ -70,7 +85,7 @@ No debe reemplazar:
   del playbook, monitoreo e idempotencia.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
-- El siguiente release de testing es `testing-2026-09-07-03`, que incorpora la
+- El siguiente release de testing es `testing-2026-09-07-04`, que incorpora la
   corrección del chat interno, los permisos de logs y el administrador bootstrap
   exclusivo de testing.
 - El health check deja de usar el stack HTTPS Python incompatible del servidor y

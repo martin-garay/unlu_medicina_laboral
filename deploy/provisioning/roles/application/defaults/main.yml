@@ -74,3 +74,7 @@ application_backoffice_admin_name: ""
 application_backoffice_admin_email: ""
 application_backoffice_admin_password: ""
 application_backoffice_admin_role: admin
+# Runtime identity used by PHP-FPM. The deploy user joins this group so shared
+# logs remain writable from both web requests and operational Artisan commands.
+application_runtime_user: www-data
+application_runtime_group: www-data

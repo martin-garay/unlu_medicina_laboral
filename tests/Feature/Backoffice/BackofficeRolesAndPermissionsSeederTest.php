@@ -4,6 +4,7 @@ namespace Tests\Feature\Backoffice;
 
 use App\Models\User;
 use Database\Seeders\BackofficeRolesAndPermissionsSeeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -74,6 +75,43 @@ class BackofficeRolesAndPermissionsSeederTest extends TestCase
         $this->assertTrue($user->can('backoffice.access'));
         $this->assertTrue($user->is_admin);
         $this->assertNotSame('admin123456', $user->password);
+    }
+
+    public function test_production_command_can_create_local_admin_user(): void
+    {
+        config()->set('backoffice.local_admin.enabled', true);
+        config()->set('backoffice.local_admin.email', 'testing-admin@example.com');
+        config()->set('backoffice.local_admin.password', 'Testing8');
+
+        $this->assertSame(0, Artisan::call('backoffice:bootstrap'));
+
+        $user = User::query()->where('email', 'testing-admin@example.com')->firstOrFail();
+
+        $this->assertTrue($user->hasRole('admin'));
+        $this->assertTrue($user->can('backoffice.access'));
+        $this->assertTrue($user->is_admin);
+    }
+
+    public function test_production_command_does_not_reset_existing_admin(): void
+    {
+        config()->set('backoffice.local_admin.enabled', true);
+        config()->set('backoffice.local_admin.email', 'existing-admin@example.com');
+        config()->set('backoffice.local_admin.password', 'Initial8');
+
+        $this->assertSame(0, Artisan::call('backoffice:bootstrap', ['--if-admin-missing' => true]));
+
+        $initialPassword = User::query()
+            ->where('email', 'existing-admin@example.com')
+            ->value('password');
+
+        config()->set('backoffice.local_admin.password', 'Changed8');
+
+        $this->assertSame(0, Artisan::call('backoffice:bootstrap', ['--if-admin-missing' => true]));
+        $this->assertSame(
+            $initialPassword,
+            User::query()->where('email', 'existing-admin@example.com')->value('password'),
+        );
+        $this->assertStringContainsString('no changes', Artisan::output());
     }
 
     private function auditCountForAction(string $action): int
