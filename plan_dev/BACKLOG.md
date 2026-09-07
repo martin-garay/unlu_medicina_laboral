@@ -86,6 +86,16 @@ Usar una categoría para agrupar mejor:
 - dependencia: definición de alcance del admin y criterios institucionales de protección de datos.
 - notas: por decisión humana del 2026-04-24 no se implementa todavía, pero debe tratarse como pendiente importante. M6 del 2026-04-26 confirmó que existen logs con payloads completos en webhook/sender y que no debe aplicarse redacción parcial sin política explícita.
 
+### [LOG-002] Iterar propuesta de monitoreo centralizado de logs
+- estado: `candidate`
+- prioridad: `medium`
+- categoría: `operacion`
+- detectado en: conversación del 2026-09-07; el usuario solicita reservar la idea para retomarla.
+- contexto: explorar logs de Laravel, conversaciones, carga de certificados, Apache/PHP y scheduler desde una interfaz común, con posibilidad de sumar alertas y métricas del servidor.
+- acción sugerida: definir primero consultas y problemas a resolver, fuentes, volumen, retención, usuarios y recursos disponibles. Comparar Grafana + Loki + Alloy como candidato inicial con Graylog; considerar Dozzle para visualización de contenedores de desarrollo. No hay herramienta elegida.
+- dependencia: revisar `LOG-001` antes de centralizar datos; acordar alcance inicial (logs de aplicación o también infraestructura) y ubicación del servicio.
+- notas: empezar por una propuesta acotada para testing y luego evaluar paneles/alertas. Incluir despliegue mantenible con Ansible, roles independientes y documentación canónica bajo `deploy/`, acceso, capacidad y mantenimiento. Retomar mediante conversación de diseño y promover a una daily sólo por decisión explícita; no altera el orden de milestones vigente ni autoriza implementación.
+
 ### [BO-001] Definir stack y matriz de permisos del backoffice
 - estado: `done`
 - prioridad: `high`
