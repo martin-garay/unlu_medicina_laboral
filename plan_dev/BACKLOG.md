@@ -168,11 +168,11 @@ Usar una categoría para agrupar mejor:
 - notas: no bloquea el provisioning ni D1; la matriz split cubrió ejecución selectiva, check, apply e idempotencia.
 
 ### [DEPLOY-002] Consolidar documentación integral del despliegue
-- estado: `pending` (promovido a `plan_dev/daily/2026-09-07.md`, D2)
+- estado: `needs_review` (implementado en `plan_dev/daily/2026-09-07.md`, D2)
 - prioridad: `high`
 - categoría: `documentacion`
 - detectado en: solicitud explícita del 2026-09-07 después del primer despliegue completo de testing.
 - contexto: existe documentación extensa y distribuida bajo `deploy/`, pero las correcciones operativas recientes muestran que hace falta un recorrido canónico de punta a punta, comandos por máquina y troubleshooting basado en evidencia.
 - acción sugerida: ejecutar D2 después de estabilizar tags; consolidar índice, arquitectura, preparación del control node, inventarios/Vault, flujo de release, operación, rollback, backup/restore, monitoreo, seguridad, troubleshooting y diagrama del pipeline.
 - dependencia: cerrar M4 y D1 para documentar comportamiento ya validado y el contrato definitivo de tags.
-- notas: no versionar secretos ni convertir decisiones institucionales pendientes en supuestos. La documentación canónica permanece bajo `deploy/`; `plan_dev/` sólo registra planificación y estado.
+- notas: documentación y checks automáticos completados el 2026-09-07. Falta el recorrido manual desde un perfil limpio de PC Uni; no versionar secretos ni convertir decisiones institucionales pendientes en supuestos.
