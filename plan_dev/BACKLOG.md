@@ -115,7 +115,10 @@ Usar una categoría para agrupar mejor:
 - contexto: los certificados médicos no deben almacenarse ni servirse desde rutas públicas. El storage actual sigue metadata-only.
 - acción sugerida: confirmar driver de storage privado y mecanismo de acceso: Temporary URLs o Controller Stream con validación de permisos.
 - dependencia: antes de ejecutar `I4 - Storage privado de certificados`.
-- notas: toda visualización o descarga debe auditarse.
+- notas: toda visualización o descarga debe auditarse. M5 confirmó filesystem
+  local privado, contratos, formatos y límite actual; siguen pendientes
+  retención/purga de borradores, ejecución síncrona o por cola, política de
+  timeouts/reintentos y mecanismo de acceso administrativo.
 
 ### [BO-003] Definir operación manual de asociaciones aviso-certificado
 - estado: `pending`
@@ -168,11 +171,21 @@ Usar una categoría para agrupar mejor:
 - notas: no bloquea el provisioning ni D1; la matriz split cubrió ejecución selectiva, check, apply e idempotencia.
 
 ### [DEPLOY-002] Consolidar documentación integral del despliegue
-- estado: `needs_review` (implementado en `plan_dev/daily/2026-09-07.md`, D2)
+- estado: `done` (cerrado en `plan_dev/daily/2026-09-07.md`, D2)
 - prioridad: `high`
 - categoría: `documentacion`
 - detectado en: solicitud explícita del 2026-09-07 después del primer despliegue completo de testing.
 - contexto: existe documentación extensa y distribuida bajo `deploy/`, pero las correcciones operativas recientes muestran que hace falta un recorrido canónico de punta a punta, comandos por máquina y troubleshooting basado en evidencia.
 - acción sugerida: ejecutar D2 después de estabilizar tags; consolidar índice, arquitectura, preparación del control node, inventarios/Vault, flujo de release, operación, rollback, backup/restore, monitoreo, seguridad, troubleshooting y diagrama del pipeline.
 - dependencia: cerrar M4 y D1 para documentar comportamiento ya validado y el contrato definitivo de tags.
-- notas: documentación y checks automáticos completados el 2026-09-07. Falta el recorrido manual desde un perfil limpio de PC Uni; no versionar secretos ni convertir decisiones institucionales pendientes en supuestos.
+- notas: documentación y checks automáticos completados el 2026-09-07. La revisión manual se sigue por separado en `DEPLOY-004`; no versionar secretos ni convertir decisiones institucionales pendientes en supuestos.
+
+### [DEPLOY-004] Recorrer el runbook desde un perfil limpio de PC Uni
+- estado: `pending`
+- prioridad: `medium`
+- categoría: `operacion`
+- detectado en: cierre de D2 del 2026-09-07.
+- contexto: la documentación y sus checks automáticos están completos, pero falta comprobar el onboarding sin apoyarse en historial de shell o conversaciones.
+- acción sugerida: crear un perfil limpio, seguir `deploy/docs/deployment-guide.md` y `deploy/docs/operations-runbook.md`, y registrar comandos ambiguos o prerequisitos faltantes.
+- dependencia: no bloquea M5 por decisión explícita; debe completarse antes de delegar la operación o autorizar producción.
+- notas: no usar secretos reales en la evidencia del recorrido.

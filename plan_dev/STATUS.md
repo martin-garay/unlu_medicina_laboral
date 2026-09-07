@@ -12,7 +12,30 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 19:23 -03
+2026-09-07 19:31 -03
+
+## Última actividad — Revisión de decisiones de storage
+
+- Fecha/hora: 2026-09-07 19:31 -03.
+- Milestone: M5, resultado `blocked`.
+- El código y las decisiones existentes ya fijan Laravel Filesystem local
+  privado, contratos draft/final, fallback metadata, PDF/JPEG/PNG, máximo 3
+  archivos y 5120 KiB. La tabla actual contiene los campos necesarios.
+- BO-002 sigue abierto por políticas no definidas: retención/purga de borradores
+  y huérfanos, descarga síncrona o por cola, timeouts/reintentos y mecanismo
+  administrativo de acceso. No se asumieron políticas para archivos médicos.
+- Validación: contratos, configuración, migración y documentación cruzados;
+  `git diff --check` pendiente del corte final.
+- Próximo paso: resolver BO-002. No iniciar M6 mientras M5 permanezca bloqueado.
+
+## Última actividad — Cierre técnico de D2
+
+- Fecha/hora: 2026-09-07 19:30 -03.
+- Milestone: D2, resultado `done` por decisión explícita del usuario.
+- La recorrida desde un perfil limpio de PC Uni queda pendiente no bloqueante en
+  `DEPLOY-004`; debe completarse antes de delegar operación o producción.
+- Se habilitó continuar con M5 sin alterar las validaciones técnicas ya
+  registradas para D2.
 
 ## Última actividad — Documentación integral del despliegue
 
@@ -156,7 +179,7 @@ No debe reemplazar:
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: M4, deploy completo y aceptación remota de testing
   desde PC Uni sobre `testing-2026-09-07-04`.
-- Milestone actual: D2, documentación integral del deploy, en `needs_review`.
+- Milestone actual: M5, decisiones de almacenamiento, en `blocked` por BO-002.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
 - El release activo de testing es `testing-2026-09-07-04`, que incorpora la
@@ -165,8 +188,8 @@ No debe reemplazar:
 - El health check deja de usar el stack HTTPS Python incompatible del servidor y
   pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
   enlaces circulares mediante `follow: false`.
-- Próximo paso sugerido: recorrer el runbook desde un perfil limpio de PC Uni,
-  registrar ambigüedades y cerrar D2 antes de comenzar M5.
+- Próximo paso sugerido: resolver las políticas abiertas de BO-002; la recorrida
+  limpia de PC Uni continúa como `DEPLOY-004` no bloqueante.
 - Nota repo local: la sesión actual tiene acceso de escritura a `.git`; se
   sincronizó la metadata local con `origin/main` sin alterar el árbol de trabajo.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
