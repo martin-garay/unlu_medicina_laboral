@@ -50,6 +50,11 @@ oculta los directorios creados dentro de la imagen Docker; sin esta preparación
 los scripts de Composer de Laravel/Filament fallan aunque las dependencias ya se
 hayan descargado.
 
+En `--check`, un checkout Git nuevo se informa pero no se materializa. Si el
+directorio todavía no existe, el rol difiere la validación de `composer.json` y
+la preparación de sus directorios hasta el apply; la ejecución real conserva
+ambas validaciones como obligatorias antes de transferir archivos.
+
 El entorno administrado expresa el sender deshabilitado como
 `MEDICINA_LABORAL_MAIL_DRIVER="null"`. Las comillas son significativas: Dotenv
 debe conservar `null` como cadena para seleccionar

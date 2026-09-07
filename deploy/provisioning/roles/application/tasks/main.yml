@@ -223,6 +223,23 @@
       Application source path {{ application_effective_source_path }} must exist
       on the control node and contain composer.json before synchronization.
   run_once: true
+  when: >-
+    not ansible_check_mode
+    or application_source_strategy != 'git'
+    or (application_source_directory.stat.isdir | default(false))
+
+- name: Report deferred Git source validation in check mode
+  ansible.builtin.debug:
+    msg: >-
+      The immutable Git checkout {{ application_effective_source_path }} does
+      not exist yet on the control node. Check mode does not create it; the
+      apply run will checkout {{ application_git_ref }} and validate
+      composer.json before transferring the release.
+  run_once: true
+  when:
+    - ansible_check_mode
+    - application_source_strategy == 'git'
+    - not (application_source_directory.stat.isdir | default(false))
 
 - name: Check remote privileged rsync availability
   ansible.builtin.command:
@@ -429,7 +446,11 @@
   delegate_to: localhost
   become: false
   run_once: true
-  when: application_composer_install_local | bool
+  when:
+    - application_composer_install_local | bool
+    - >-
+      not ansible_check_mode
+      or (application_source_directory.stat.isdir | default(false))
 
 - name: Build local Composer image from selected release
   ansible.builtin.command:

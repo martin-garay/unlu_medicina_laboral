@@ -12,7 +12,19 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 12:00 -03
+2026-09-07 12:30 -03
+
+## Última actividad — Dry-run de checkout Git nuevo
+
+- Fecha/hora: 2026-09-07 12:30 -03.
+- Milestone: M4, resultado `needs_review`.
+- El dry-run de `testing-2026-09-07-02` falló porque `ansible.builtin.git`
+  simuló un checkout nuevo sin materializarlo y la validación siguiente exigió
+  el directorio local.
+- El rol ahora informa esa condición y difiere sólo la validación del checkout
+  Git inexistente hasta el apply. En ejecución real, y para fuentes locales, el
+  directorio y `composer.json` siguen siendo obligatorios.
+- Próximo release: `testing-2026-09-07-03`. Falta desplegarlo y validar `/admin`.
 
 ## Última actividad — Administrador inicial de testing
 
@@ -58,7 +70,7 @@ No debe reemplazar:
   del playbook, monitoreo e idempotencia.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
-- El siguiente release de testing es `testing-2026-09-07-02`, que incorpora la
+- El siguiente release de testing es `testing-2026-09-07-03`, que incorpora la
   corrección del chat interno, los permisos de logs y el administrador bootstrap
   exclusivo de testing.
 - El health check deja de usar el stack HTTPS Python incompatible del servidor y

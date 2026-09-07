@@ -44,7 +44,7 @@ with open(path, encoding="utf-8") as handle:
 
 expected = {
     "ansible_host": "unlu-medicina-testing",
-    "application_release_id": "testing-2026-09-07-02",
+    "application_release_id": "testing-2026-09-07-03",
     "application_git_repo": "https://github.com/martin-garay/unlu_medicina_laboral.git",
     "application_transfer_strategy": "archive",
     "application_composer_install_local": True,
@@ -64,7 +64,7 @@ if "StrictHostKeyChecking=accept-new" not in ssh_common_args:
     failures.append("ansible_ssh_common_args: expected StrictHostKeyChecking=accept-new")
 
 git_ref = host.get("application_git_ref")
-if git_ref not in ("testing-2026-09-07-02", "{{ application_release_id }}"):
+if git_ref not in ("testing-2026-09-07-03", "{{ application_release_id }}"):
     failures.append(
         "application_git_ref: expected tag or application_release_id template, "
         f"got {git_ref!r}"
