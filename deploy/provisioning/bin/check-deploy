@@ -44,10 +44,12 @@ with open(path, encoding="utf-8") as handle:
 
 expected = {
     "ansible_host": "unlu-medicina-testing",
-    "application_release_id": "testing-2026-09-07-01",
+    "application_release_id": "testing-2026-09-07-02",
     "application_git_repo": "https://github.com/martin-garay/unlu_medicina_laboral.git",
     "application_transfer_strategy": "archive",
     "application_composer_install_local": True,
+    "application_backoffice_admin_enabled": True,
+    "application_backoffice_admin_email": "admin@amin.com",
     "security_enabled": False,
     "firewall_enabled": False,
 }
@@ -62,11 +64,15 @@ if "StrictHostKeyChecking=accept-new" not in ssh_common_args:
     failures.append("ansible_ssh_common_args: expected StrictHostKeyChecking=accept-new")
 
 git_ref = host.get("application_git_ref")
-if git_ref not in ("testing-2026-09-07-01", "{{ application_release_id }}"):
+if git_ref not in ("testing-2026-09-07-02", "{{ application_release_id }}"):
     failures.append(
         "application_git_ref: expected tag or application_release_id template, "
         f"got {git_ref!r}"
     )
+
+admin_password = host.get("application_backoffice_admin_password", "")
+if len(admin_password) < 8 or admin_password == "admin123456":
+    failures.append("application_backoffice_admin_password: invalid Vault secret")
 
 required_defaults = [
     "application_document_root",

@@ -9,6 +9,30 @@
       Unsupported application source or transfer strategy:
       {{ application_source_strategy }} / {{ application_transfer_strategy }}.
 
+- name: Validate optional backoffice bootstrap admin
+  ansible.builtin.assert:
+    that:
+      - application_backoffice_admin_enabled is boolean
+      - >-
+        not application_backoffice_admin_enabled
+        or application_backoffice_admin_name | length > 0
+      - >-
+        not application_backoffice_admin_enabled
+        or application_backoffice_admin_email is match('^[^@]+@[^@]+\\.[^@]+$')
+      - >-
+        not application_backoffice_admin_enabled
+        or application_backoffice_admin_password | length >= 8
+      - >-
+        not application_backoffice_admin_enabled
+        or application_backoffice_admin_password != 'admin123456'
+      - >-
+        not application_backoffice_admin_enabled
+        or application_backoffice_admin_role == 'admin'
+    fail_msg: >-
+      Backoffice bootstrap admin requires a name, valid email, Vault-backed
+      password of at least 8 characters, and the admin role.
+  no_log: true
+
 - name: Select whether rsync capability is required
   ansible.builtin.set_fact:
     application_rsync_required: >-
@@ -616,6 +640,46 @@
   changed_when: "'Nothing to migrate' not in application_migrations.stdout"
   run_once: true
   when: not ansible_check_mode
+
+- name: Check whether backoffice bootstrap admin exists
+  ansible.builtin.command:
+    argv:
+      - php
+      - artisan
+      - tinker
+      - --execute
+      - >-
+        exit(App\Models\User::query()
+        ->where('email', config('backoffice.local_admin.email'))
+        ->exists() ? 0 : 1);
+    chdir: "{{ application_release_path }}"
+  become: true
+  become_user: "{{ deploy_user_name }}"
+  register: application_backoffice_admin_exists
+  changed_when: false
+  failed_when: false
+  no_log: true
+  when:
+    - not ansible_check_mode
+    - application_backoffice_admin_enabled | bool
+
+- name: Create backoffice bootstrap admin and permissions
+  ansible.builtin.command:
+    argv:
+      - php
+      - artisan
+      - db:seed
+      - --class=Database\Seeders\BackofficeRolesAndPermissionsSeeder
+      - --force
+    chdir: "{{ application_release_path }}"
+  become: true
+  become_user: "{{ deploy_user_name }}"
+  changed_when: true
+  no_log: true
+  when:
+    - not ansible_check_mode
+    - application_backoffice_admin_enabled | bool
+    - application_backoffice_admin_exists.rc != 0
 
 - name: Optimize Laravel caches
   ansible.builtin.command:

@@ -67,3 +67,10 @@ application_source_excludes:
 application_db_host: 127.0.0.1
 application_db_port: 5432
 application_log_level: info
+# The bootstrap admin is opt-in per environment. Keep credentials outside role
+# defaults and source them from Vault when an inventory enables this feature.
+application_backoffice_admin_enabled: false
+application_backoffice_admin_name: ""
+application_backoffice_admin_email: ""
+application_backoffice_admin_password: ""
+application_backoffice_admin_role: admin

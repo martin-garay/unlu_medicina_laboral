@@ -60,7 +60,18 @@ los `.log` existentes en storage compartido para que PHP-FPM (`www-data`) y el
 usuario operativo `deploy` puedan escribir durante requests, scheduler y
 comandos Artisan.
 
-Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
+Administra Composer, `.env` desde Vault, storage compartido, permisos,
+migraciones, cachés y health check. No crea secretos. El alta de un
+administrador inicial es opcional y permanece deshabilitada por defecto mediante
+`application_backoffice_admin_enabled: false`.
+
+Cuando un inventory habilita el bootstrap, debe definir nombre, correo y rol, y
+obtener `application_backoffice_admin_password` desde Vault. El rol valida estos
+datos sin mostrarlos, consulta si el correo ya existe y sólo entonces ejecuta
+`BackofficeRolesAndPermissionsSeeder`. Las ejecuciones posteriores no cambian la
+contraseña de un usuario existente. Este mecanismo es de bootstrap; la rotación
+y administración posterior de la cuenta se realiza por un procedimiento
+separado.
 
 El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`
 necesita `rsync` tanto en la estación de control como en el servidor. En

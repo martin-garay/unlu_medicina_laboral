@@ -12,7 +12,22 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 10:00 -03
+2026-09-07 12:00 -03
+
+## Última actividad — Administrador inicial de testing
+
+- Fecha/hora: 2026-09-07 12:00 -03.
+- Milestone: M4, resultado `needs_review` hasta aplicar y validar remotamente.
+- Se preparó el release `testing-2026-09-07-02` con un administrador bootstrap
+  habilitado sólo en testing; la contraseña queda cifrada en Ansible Vault.
+- El rol valida la configuración con `no_log`, crea la cuenta sólo si el correo
+  no existe y no restablece su contraseña en ejecuciones posteriores.
+- Producción y los demás entornos conservan el bootstrap deshabilitado por
+  defecto.
+- Validaciones: suite completa, 215 tests y 886 assertions; `git diff --check` y
+  validación/lint de provisioning sin fallas. Falta aplicar el playbook desde PC
+  Uni, comprobar `/admin` y repetirlo para confirmar idempotencia.
+- Próximo paso: publicar el commit/tag, desplegar desde PC Uni y validar login.
 
 ## Última actividad — Planificación de certificados
 
@@ -43,8 +58,9 @@ No debe reemplazar:
   del playbook, monitoreo e idempotencia.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
-- El siguiente release de testing es `testing-2026-09-07-01`, que incorpora la
-  corrección del chat interno y de los permisos de logs.
+- El siguiente release de testing es `testing-2026-09-07-02`, que incorpora la
+  corrección del chat interno, los permisos de logs y el administrador bootstrap
+  exclusivo de testing.
 - El health check deja de usar el stack HTTPS Python incompatible del servidor y
   pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
   enlaces circulares mediante `follow: false`.

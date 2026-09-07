@@ -448,7 +448,7 @@ En servidores reales se pedirá un usuario inicial equivalente o que infraestruc
 | Correo | `MEDICINA_LABORAL_MAIL_*` y variables del mailer futuro | definir contrato SMTP antes de habilitar |
 | Scheduler | `MEDICINA_LABORAL_SECOND_INACTIVITY_ACTION` | valor validado por doctor; cron externo cada minuto |
 | Integración | `MAPUCHE_DRIVER`, `WORKER_IDENTIFICATION_DRIVER` y flags mock | no aceptar datos desconocidos ni usar mock en producción sin decisión explícita |
-| Backoffice | `BACKOFFICE_GUARD`, `BACKOFFICE_LOCAL_ADMIN_ENABLED`, credenciales locales | admin local siempre deshabilitado; alta inicial por procedimiento seguro |
+| Backoffice | `BACKOFFICE_GUARD`, `BACKOFFICE_LOCAL_ADMIN_ENABLED`, credenciales locales | deshabilitado por defecto y en producción; testing puede habilitar un bootstrap con contraseña en Vault |
 | Runtime | `CACHE_STORE`, `QUEUE_CONNECTION`, `SESSION_DRIVER` | file/sync son aceptables para host único inicial; revisar al escalar horizontalmente |
 
 ### Vault
@@ -590,7 +590,10 @@ Si en el futuro se necesita alta disponibilidad o múltiples app servers, se agr
 - Usuario PostgreSQL dedicado, SCRAM, mínimo privilegio y sin exposición global.
 - Código propiedad del deploy user; FPM solo escribe rutas compartidas necesarias.
 - Actualizaciones de seguridad controladas y reinicios planificados, no upgrades mayores automáticos.
-- Admin local deshabilitado. No desplegar `admin@admin.com`/`admin123456`; crear administradores por procedimiento separado, auditable y con cambio/rotación inicial.
+- Admin local deshabilitado por defecto y en producción. No desplegar
+  `admin@admin.com`/`admin123456`; testing puede crear una cuenta bootstrap con
+  contraseña en Vault, sin restablecerla en reruns. La rotación y el alta
+  productiva requieren un procedimiento separado y auditable.
 - HTTPS, headers, protección de archivos sensibles y backoffice bajo permisos existentes; evaluar controles institucionales adicionales sin romper el webhook.
 - Resolver `LOG-001` antes de producción: minimizar payloads, teléfono, token y respuestas; definir retención y acceso.
 - Rotación de APP/DB/WhatsApp/SMTP/backup con responsables. Rotar `APP_KEY` implica impacto sobre datos cifrados/cookies y requiere procedimiento especial.

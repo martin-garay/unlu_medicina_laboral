@@ -89,6 +89,19 @@ El password file inicial esperado es:
 
 Debe pertenecer al operador y tener permisos `0600`. Nunca debe copiarse al repositorio.
 
+## Administrador inicial de testing
+
+El inventory de testing habilita una cuenta interna inicial para acceder a
+`/admin`. El correo no secreto se declara en el inventory y la contraseña vive
+exclusivamente en `group_vars/vault.yml` como
+`vault_testing_backoffice_admin_password`; no debe copiarse a esta guía ni a
+otros archivos en texto plano.
+
+El rol sólo ejecuta el seeder cuando el correo configurado todavía no existe.
+Por lo tanto, volver a ejecutar el playbook no restablece la contraseña ni pisa
+una cuenta ya administrada. La función está deshabilitada por defecto y no debe
+habilitarse en producción sin un procedimiento de alta y rotación aprobado.
+
 ## Estructura
 
 ```text

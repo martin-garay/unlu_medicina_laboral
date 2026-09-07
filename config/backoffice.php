@@ -48,6 +48,6 @@ return [
         'name' => env('BACKOFFICE_LOCAL_ADMIN_NAME', 'Admin'),
         'email' => env('BACKOFFICE_LOCAL_ADMIN_EMAIL', 'admin@admin.com'),
         'password' => env('BACKOFFICE_LOCAL_ADMIN_PASSWORD', 'admin123456'),
-        'role' => 'admin',
+        'role' => env('BACKOFFICE_LOCAL_ADMIN_ROLE', 'admin'),
     ],
 ];
