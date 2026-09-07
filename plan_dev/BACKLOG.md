@@ -148,11 +148,21 @@ Usar una categoría para agrupar mejor:
 - notas: no fue necesario para corregir el bug operativo del daily; queda como refuerzo futuro.
 
 ### [DEPLOY-001] Incorporar tags operativos de Ansible inspirados en Elecciones
-- estado: `candidate`
+- estado: `pending` (promovido a `plan_dev/daily/2026-09-07.md`, D1)
 - prioridad: `low`
 - categoría: `operacion`
 - detectado en: revisión comparativa del 2026-09-02 con `/opt/eleccion/msa/deploy/provisioning`.
 - contexto: el provisioning de Elecciones usa ampliamente tags como `redeploy`, `deploy`, `deploy_db`, `codigo`, `paquetes`, `apache`, `certs`, `cron`, `firewall` y `restart`. Medicina Laboral ya separa las capacidades en playbooks importados desde `site.yml`, por lo que puede ofrecer una experiencia operativa familiar sin replicar la granularidad histórica a nivel de cada tarea.
 - acción sugerida: agregar inicialmente tags de alto nivel sobre los `import_playbook` de `site.yml`: `validate`, `common`, `database`, `runtime`, `application`, `scheduler`, `tls`, `backup`, `security`, `monitoring` y el agregado operativo `redeploy`. Evaluar `deploy` como alias explícito del recorrido completo solo si aporta valor frente a ejecutar `site.yml` sin `--tags`. Hacer que `redeploy` abarque validación, aplicación, scheduler y monitoreo, sin incluir PostgreSQL, instalación de runtime, TLS, backups, hardening ni firewall. Mantener las validaciones críticas bajo `always` para que acompañen las ejecuciones selectivas. Documentar y probar al menos `--list-tags`, `--list-tasks`, `--check --diff`, ejecución selectiva e idempotencia.
-- dependencia: promover a un plan diario propio después de cerrar el milestone de testing remoto vigente; revisar la semántica de propagación de tags sobre `import_playbook` con todas las versiones de `ansible-core` soportadas por `requirements-control.txt`.
+- dependencia: cerrar M4; luego ejecutar D1 y revisar la semántica de propagación de tags sobre `import_playbook` con todas las versiones de `ansible-core` soportadas por `requirements-control.txt`.
 - notas: objetivo de uso principal: `ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy`. Evitar inicialmente tags de tarea peligrosamente granulares como `migrate`, `restart`, `borrar` o `reset_db`, porque podrían saltear dependencias y controles. Mantener backup, restore y rollback como playbooks operativos dedicados. No implementado en el corte actual.
+
+### [DEPLOY-002] Consolidar documentación integral del despliegue
+- estado: `pending` (promovido a `plan_dev/daily/2026-09-07.md`, D2)
+- prioridad: `low`
+- categoría: `documentacion`
+- detectado en: solicitud explícita del 2026-09-07 después del primer despliegue completo de testing.
+- contexto: existe documentación extensa y distribuida bajo `deploy/`, pero las correcciones operativas recientes muestran que hace falta un recorrido canónico de punta a punta, comandos por máquina y troubleshooting basado en evidencia.
+- acción sugerida: ejecutar D2 después de estabilizar tags; consolidar índice, arquitectura, preparación del control node, inventarios/Vault, flujo de release, operación, rollback, backup/restore, monitoreo, seguridad, troubleshooting y diagrama del pipeline.
+- dependencia: cerrar M4 y D1 para documentar comportamiento ya validado y el contrato definitivo de tags.
+- notas: no versionar secretos ni convertir decisiones institucionales pendientes en supuestos. La documentación canónica permanece bajo `deploy/`; `plan_dev/` sólo registra planificación y estado.

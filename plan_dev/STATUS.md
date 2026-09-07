@@ -12,7 +12,22 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 13:00 -03
+2026-09-07 13:30 -03
+
+## Última actividad — Planificación de tags y documentación de deploy
+
+- Fecha/hora: 2026-09-07 13:30 -03.
+- Resultado: `done` para la planificación; implementación pendiente.
+- Por decisión explícita se promovió `DEPLOY-001` al daily como D1, manteniendo
+  prioridad baja: tags de capacidades y agregado seguro `redeploy`, con pruebas
+  de alcance, check mode e idempotencia.
+- Se agregó D2 para consolidar bajo `deploy/` la documentación integral de
+  arquitectura, preparación, releases, secretos, proxy/Composer, operación,
+  rollback, backups, monitoreo, seguridad, troubleshooting y diagramas.
+- Orden vigente: cerrar M4, ejecutar D1 y D2, y luego retomar M5–M9 de storage.
+- No se implementaron tags ni cambios de runtime en esta actividad.
+- Validación: revisión cruzada con `DEPLOY-001`, documentación existente, orden
+  efectivo de milestones y `git diff --check`, todo OK.
 
 ## Última actividad — Bootstrap productivo del backoffice
 
