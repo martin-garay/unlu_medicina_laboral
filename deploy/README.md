@@ -91,6 +91,17 @@ ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml
 ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml
 ```
 
+Para redeployar sólo aplicación, scheduler y monitoreo, conservando las
+validaciones obligatorias:
+
+```bash
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy --check --diff
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy
+```
+
+Los tags disponibles y su alcance están documentados en
+[`docs/deployment-guide.md`](docs/deployment-guide.md#tags-operativos).
+
 Consultar [`docs/deployment-guide.md`](docs/deployment-guide.md) para operación y
 [`docs/production-deployment.md`](docs/production-deployment.md) antes de usar
 servidores institucionales.

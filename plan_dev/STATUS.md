@@ -12,7 +12,24 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 18:19 -03
+2026-09-07 20:45 -03
+
+## Última actividad — Tags operativos de Ansible
+
+- Fecha/hora: 2026-09-07 20:45 -03.
+- Milestone: D1, resultado `done`.
+- `site.yml` expone tags por capacidad y `redeploy` limita su recorrido a
+  validación, aplicación, scheduler y monitoreo. Se omitió `deploy` por ser
+  redundante y se conservaron operaciones sensibles en playbooks dedicados.
+- `bin/check-deploy` controla el contrato y aprobó syntax checks y lint sobre 49
+  archivos. La propagación fue compatible con `ansible-core` 2.13.13, 2.17.14
+  y 2.21.3.
+- En Vagrant split pasaron el check individual de cada tag, el check de
+  `redeploy` y dos applies. La última convergencia fue idempotente:
+  aplicación `ok=71 changed=0 failed=0`; base `ok=10 changed=0 failed=0`.
+- La activación recarga PHP-FPM sólo cuando cambia `current` y fuerza el handler
+  antes del health check. El laboratorio single corrupto quedó en `DEPLOY-003`.
+- Próximo paso: ejecutar D2, documentación integral del despliegue.
 
 ## Última actividad — Cierre de M4 en testing
 
@@ -122,8 +139,7 @@ No debe reemplazar:
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
 - Último bloque completado: M4, deploy completo y aceptación remota de testing
   desde PC Uni sobre `testing-2026-09-07-04`.
-- Milestone actual: D1, tags operativos de Ansible, con prioridad alta; D2,
-  documentación integral del deploy, continúa inmediatamente después.
+- Milestone actual: D2, documentación integral del deploy, con prioridad alta.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
 - El release activo de testing es `testing-2026-09-07-04`, que incorpora la
@@ -132,8 +148,8 @@ No debe reemplazar:
 - El health check deja de usar el stack HTTPS Python incompatible del servidor y
   pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
   enlaces circulares mediante `follow: false`.
-- Próximo paso sugerido: implementar D1 y validar el contrato de tags en Vagrant antes
-  de probar `redeploy` selectivamente desde PC Uni.
+- Próximo paso sugerido: ejecutar D2 y recorrer después la documentación desde
+  PC Uni como validación manual.
 - Nota repo local: la sesión actual tiene acceso de escritura a `.git`; se
   sincronizó la metadata local con `origin/main` sin alterar el árbol de trabajo.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue

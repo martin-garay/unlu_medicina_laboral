@@ -148,14 +148,24 @@ Usar una categoría para agrupar mejor:
 - notas: no fue necesario para corregir el bug operativo del daily; queda como refuerzo futuro.
 
 ### [DEPLOY-001] Incorporar tags operativos de Ansible inspirados en Elecciones
-- estado: `pending` (promovido a `plan_dev/daily/2026-09-07.md`, D1)
+- estado: `done` (cerrado en `plan_dev/daily/2026-09-07.md`, D1)
 - prioridad: `high`
 - categoría: `operacion`
 - detectado en: revisión comparativa del 2026-09-02 con `/opt/eleccion/msa/deploy/provisioning`.
 - contexto: el provisioning de Elecciones usa ampliamente tags como `redeploy`, `deploy`, `deploy_db`, `codigo`, `paquetes`, `apache`, `certs`, `cron`, `firewall` y `restart`. Medicina Laboral ya separa las capacidades en playbooks importados desde `site.yml`, por lo que puede ofrecer una experiencia operativa familiar sin replicar la granularidad histórica a nivel de cada tarea.
 - acción sugerida: agregar inicialmente tags de alto nivel sobre los `import_playbook` de `site.yml`: `validate`, `common`, `database`, `runtime`, `application`, `scheduler`, `tls`, `backup`, `security`, `monitoring` y el agregado operativo `redeploy`. Evaluar `deploy` como alias explícito del recorrido completo solo si aporta valor frente a ejecutar `site.yml` sin `--tags`. Hacer que `redeploy` abarque validación, aplicación, scheduler y monitoreo, sin incluir PostgreSQL, instalación de runtime, TLS, backups, hardening ni firewall. Mantener las validaciones críticas bajo `always` para que acompañen las ejecuciones selectivas. Documentar y probar al menos `--list-tags`, `--list-tasks`, `--check --diff`, ejecución selectiva e idempotencia.
 - dependencia: cerrar M4; luego ejecutar D1 y revisar la semántica de propagación de tags sobre `import_playbook` con todas las versiones de `ansible-core` soportadas por `requirements-control.txt`.
-- notas: objetivo de uso principal: `ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy`. Evitar inicialmente tags de tarea peligrosamente granulares como `migrate`, `restart`, `borrar` o `reset_db`, porque podrían saltear dependencias y controles. Mantener backup, restore y rollback como playbooks operativos dedicados. No implementado en el corte actual.
+- notas: implementado y validado el 2026-09-07. El uso principal es `ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy`. Se omitió el alias redundante `deploy`; backup, restore y rollback permanecen como playbooks dedicados.
+
+### [DEPLOY-003] Recuperar el laboratorio Vagrant single
+- estado: `candidate`
+- prioridad: `medium`
+- categoría: `operacion`
+- detectado en: validación de D1 del 2026-09-07.
+- contexto: el disco ext4 de la VM single y su snapshot `pristine-debian13` presentaron corrupción. El forward NAT aceptó TCP sin entregar banner SSH; la topología split quedó accesible por las IP host-only y permitió completar D1.
+- acción sugerida: recrear de forma controlada la VM single y revisar el comportamiento NAT con VirtualBox 7.2.14, preservando antes cualquier evidencia necesaria.
+- dependencia: autorización explícita antes de destruir o reemplazar la VM existente.
+- notas: no bloquea el provisioning ni D1; la matriz split cubrió ejecución selectiva, check, apply e idempotencia.
 
 ### [DEPLOY-002] Consolidar documentación integral del despliegue
 - estado: `pending` (promovido a `plan_dev/daily/2026-09-07.md`, D2)

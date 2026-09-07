@@ -328,6 +328,51 @@ ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml
 ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml
 ```
 
+## Tags operativos
+
+`site.yml` expone tags de alto nivel por capacidad. Esta interfaz toma como
+referencia la experiencia operativa de Elecciones, pero evita tags por tareas
+internas que puedan omitir dependencias o controles.
+
+| Tag | Alcance |
+|---|---|
+| `validate` | selección de plataforma y versiones |
+| `common` | baseline del sistema operativo y usuario operativo |
+| `database` | PostgreSQL y validación de conexión desde la aplicación |
+| `runtime` | PHP-FPM, Apache y probe HTTP del runtime |
+| `application` | release Laravel, Apache apuntando a `current` y health check |
+| `scheduler` | cron de Laravel y validación de tareas programadas |
+| `tls` | material TLS, configuración HTTPS y validación |
+| `backup` | backups de PostgreSQL y archivos persistentes |
+| `security` | hardening y firewall según flags del inventory |
+| `monitoring` | diagnóstico operativo, capacidad, servicios, TLS y backups |
+| `redeploy` | `validate` + `application` + `scheduler` + `monitoring` |
+
+Las validaciones de plataforma también llevan `always`, por lo que acompañan
+las ejecuciones selectivas. `redeploy` no instala ni reconfigura common,
+PostgreSQL, PHP/runtime, TLS, backups, hardening o firewall. Para esas
+capacidades se debe usar su tag explícito o ejecutar `site.yml` completo.
+
+No existe un tag `deploy`: sería un alias redundante del playbook completo. No
+se ofrecen tags como `migrate`, `restart`, `reset_db` o `borrar`, porque
+permitirían recorridos parciales difíciles de operar con seguridad. Bootstrap
+de acceso, rollback y restore siguen siendo playbooks dedicados.
+
+Desde `deploy/provisioning`, inspeccionar siempre el alcance antes de usar una
+selección nueva:
+
+```bash
+ansible-playbook -i inventories/testing/hosts.yml site.yml --list-tags
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy --list-tasks
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy --check --diff
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy
+```
+
+Para una capacidad individual, reemplazar `redeploy` por el tag correspondiente.
+Una lista separada por comas ejecuta la unión de alcances, por ejemplo
+`--tags application,scheduler`. Después de un apply selectivo, repetir el mismo
+comando para verificar idempotencia.
+
 Para generar backups inmediatos y ensayar una restauración no destructiva:
 
 ```bash
@@ -342,6 +387,10 @@ checksum y que el archivo tar pueda leerse; no sobrescribe storage activo.
 
 `monitoring.yml` falla si falta un servicio, la política nftables, capacidad de
 disco, configuración Laravel/WhatsApp, scheduler, vigencia TLS o un backup reciente.
+Como `redeploy` incluye esta validación pero deliberadamente no genera backups,
+el entorno debe contar con copias recientes. Si no las tiene, ejecutar primero
+el playbook dedicado `playbooks/backup.yml` con `backup_run_now=true`; no agregar
+`backup` al agregado para ocultar una precondición operativa.
 
 Para volver a una release ya instalada:
 

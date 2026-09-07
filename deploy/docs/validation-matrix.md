@@ -46,6 +46,22 @@ Los avisos de deprecación observados provienen de `ansible.posix.synchronize`
 2.1.0 y no son fallos de reglas. La colección está fijada y deberá actualizarse
 en un milestone independiente con repetición de esta matriz.
 
+## Evidencia de tags operativos 2026-09-07
+
+- `--list-tags` y `--tags redeploy --list-tasks`: contrato aprobado;
+- propagación aprobada con `ansible-core` 2.13.13, 2.17.14 y 2.21.3;
+- tags `validate`, `common`, `database`, `runtime`, `application`, `scheduler`,
+  `tls`, `backup`, `security` y `monitoring`: ejecución selectiva en check mode
+  aprobada sobre el inventario Vagrant split;
+- `redeploy --check --diff`: aprobado;
+- dos convergencias reales de `redeploy`: la última terminó con `changed=0`,
+  `failed=0` en aplicación y base de datos;
+- `bin/check-deploy`: syntax checks y 49 archivos de lint aprobados.
+
+La primera convergencia detectó correctamente que el laboratorio restaurado no
+tenía backups recientes. Después de ejecutar `playbooks/backup.yml` de forma
+explícita, `monitoring` y `redeploy` aprobaron. El agregado no crea backups.
+
 ## Límites antes de producción real
 
 - completar hosts, redes, dominio, DNS, certificado y acceso institucional;
