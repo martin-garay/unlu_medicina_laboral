@@ -12,7 +12,16 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 19:31 -03
+2026-09-07 19:35 -03
+
+## Última actividad — M6 diferido
+
+- Fecha/hora: 2026-09-07 19:35 -03.
+- Resultado: `done` para el registro de la decisión; implementación pendiente.
+- Por decisión explícita del usuario no se continúa con M6 en esta sesión.
+- M5 conserva estado `blocked` por BO-002 y M6 queda `pending`; no se eligieron
+  retención, purga, colas, reintentos ni mecanismo de acceso a archivos.
+- Próximo paso cuando se retome: resolver BO-002 antes de modificar runtime.
 
 ## Última actividad — Revisión de decisiones de storage
 
