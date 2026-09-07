@@ -1,10 +1,15 @@
-# Guía de despliegue
+# Preparación del despliegue
 
 ## Propósito
 
-Esta guía será la entrada operativa para aprovisionar y desplegar Medicina Laboral con Ansible. La implementación crece por etapas; los comandos documentados aquí solo deben utilizarse cuando los archivos correspondientes existan y hayan pasado sus validaciones.
+Esta guía prepara la estación de control, acceso, inventarios y secretos para
+aprovisionar Medicina Laboral con Ansible. La ejecución cotidiana y la matriz de
+comandos viven en [`operations-runbook.md`](operations-runbook.md); los errores
+conocidos se diagnostican con [`troubleshooting.md`](troubleshooting.md).
 
-La arquitectura y las decisiones completas están en [`ansible-deployment-plan.md`](ansible-deployment-plan.md). La operación productiva se documenta por separado en [`production-deployment.md`](production-deployment.md).
+La arquitectura implementada está en [`architecture.md`](architecture.md), el
+plan histórico en [`ansible-deployment-plan.md`](ansible-deployment-plan.md) y
+la operación productiva en [`production-deployment.md`](production-deployment.md).
 
 ## Alcance inicial
 
@@ -89,6 +94,28 @@ El password file inicial esperado es:
 
 Debe pertenecer al operador y tener permisos `0600`. Nunca debe copiarse al repositorio.
 
+Crear el archivo de password fuera del repositorio y editar el Vault desde
+**PC Uni**:
+
+```bash
+install -d -m 0700 "$HOME/.config/medicina-laboral"
+install -m 0600 /dev/null "$HOME/.config/medicina-laboral/ansible-vault-password"
+ansible-vault edit group_vars/vault.yml
+ansible-vault view group_vars/vault.yml >/dev/null
+```
+
+El operador carga el password mediante un editor seguro; no se muestra en la
+línea de comandos. El Vault contiene, según el entorno, `vault_app_key`,
+`vault_postgresql_password`, tokens de WhatsApp y credenciales de bootstrap.
+Testing agrega el password de `su` inicial y el del administrador bootstrap.
+Nunca copiar valores descifrados a inventarios, documentación, logs o tickets.
+
+La precedencia esperada es: variables explícitas de ejecución cuando el runbook
+las exige, variables del play/inventory, defaults compartidos de `group_vars` y
+defaults de rol. No usar `-e` rutinariamente para reemplazar selecciones del
+entorno; queda reservado a entradas operativas explícitas como
+`backup_run_now` y `rollback_release_id`.
+
 ## Administrador inicial de testing
 
 El inventory de testing habilita una cuenta interna inicial para acceder a
@@ -114,7 +141,7 @@ deploy/provisioning/
 └── roles/
 ```
 
-Cada tecnología tendrá su propio rol. El inventory elegirá sus versiones sin formar un perfil monolítico:
+Cada tecnología tiene su propio rol. El inventory elige sus versiones sin formar un perfil monolítico:
 
 ```yaml
 operating_system_family: debian

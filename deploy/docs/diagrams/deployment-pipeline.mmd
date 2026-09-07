@@ -1,0 +1,27 @@
+flowchart TD
+    A[PC Uni: preflight] --> B[Seleccionar tag inmutable]
+    B --> C[Checkout exacto en control node]
+    C --> D{Composer local habilitado?}
+    D -- Sí --> E[Docker construye vendor con proxy del shell]
+    D -- No --> F[Composer en host administrado]
+    E --> G[Empaquetar source y vendor]
+    F --> H[Preparar release remoto]
+    G --> H
+    H --> I[Enlazar .env y storage compartidos]
+    I --> J[Validar plataforma y ejecutar migraciones]
+    J --> K[Optimizar cachés]
+    K --> L[Cambiar symlink current]
+    L --> M[Recargar PHP-FPM si current cambió]
+    M --> N{GET /up = 200?}
+    N -- Sí --> O[Scheduler y monitoring]
+    N -- No --> P{Release anterior válido?}
+    P -- Sí --> Q[Restaurar symlink anterior]
+    P -- No --> R[Retirar primera activación fallida]
+    Q --> S[Recargar PHP-FPM y fallar deploy]
+    R --> S
+
+    T[Rollback manual] --> U[Validar release existente y distinto]
+    U --> V[Cambiar current y reconstruir cachés]
+    V --> W{GET /up = 200?}
+    W -- Sí --> X[Confirmar rollback]
+    W -- No --> Q

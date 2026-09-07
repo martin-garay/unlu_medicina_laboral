@@ -11,12 +11,28 @@ misma composición, copiando y completando el inventory de ejemplo con datos rea
 
 ## Documentación
 
-- [`docs/certificate-storage-rollout.md`](docs/certificate-storage-rollout.md): plan de despliegue y aceptación del almacenamiento privado de certificados (pendiente).
+Orden recomendado:
 
-- [`docs/ansible-deployment-plan.md`](docs/ansible-deployment-plan.md): relevamiento del repositorio, arquitectura objetivo y plan completo de implementación con Ansible.
-- [`docs/deployment-guide.md`](docs/deployment-guide.md): entrada operativa y flujo general de despliegue.
-- [`docs/production-deployment.md`](docs/production-deployment.md): controles y procedimiento previsto para producción.
-- [`docs/validation-matrix.md`](docs/validation-matrix.md): evidencia de lint, convergencia, restore y rollback.
+1. [`docs/architecture.md`](docs/architecture.md): contrato implementado, capas,
+   topologías y decisiones de diseño.
+2. [`docs/deployment-guide.md`](docs/deployment-guide.md): preparación del control
+   node, acceso, inventarios y Vault.
+3. [`docs/operations-runbook.md`](docs/operations-runbook.md): comandos diarios,
+   releases, deploy, verificación, backup y rollback.
+4. [`docs/troubleshooting.md`](docs/troubleshooting.md): diagnóstico basado en
+   fallas observadas.
+5. [`docs/production-deployment.md`](docs/production-deployment.md): requisitos y
+   autorización de producción.
+6. [`docs/validation-matrix.md`](docs/validation-matrix.md): evidencia validada.
+
+Referencias complementarias:
+
+- [`docs/ansible-deployment-plan.md`](docs/ansible-deployment-plan.md):
+  relevamiento y decisiones históricas de la implementación.
+- [`docs/certificate-storage-rollout.md`](docs/certificate-storage-rollout.md):
+  plan pendiente para almacenamiento privado de certificados.
+- [`docs/diagrams/README.md`](docs/diagrams/README.md): diagramas como código del
+  pipeline de despliegue.
 
 ## Estructura
 
@@ -102,6 +118,7 @@ ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy
 Los tags disponibles y su alcance están documentados en
 [`docs/deployment-guide.md`](docs/deployment-guide.md#tags-operativos).
 
-Consultar [`docs/deployment-guide.md`](docs/deployment-guide.md) para operación y
-[`docs/production-deployment.md`](docs/production-deployment.md) antes de usar
-servidores institucionales.
+Consultar [`docs/operations-runbook.md`](docs/operations-runbook.md) para operar
+y [`docs/production-deployment.md`](docs/production-deployment.md) antes de usar
+servidores institucionales. `bin/check-docs` valida enlaces y correspondencia
+básica entre la documentación y el provisioning.

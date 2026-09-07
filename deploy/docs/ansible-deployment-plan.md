@@ -1,5 +1,9 @@
 # Plan de despliegue con Ansible
 
+> Documento histórico de diseño. Para el contrato implementado consultar
+> [`architecture.md`](architecture.md); para operar consultar
+> [`operations-runbook.md`](operations-runbook.md).
+
 ## Propósito y estado
 
 Este documento es la fuente de verdad técnica para planificar el despliegue de Medicina Laboral UNLu con Ansible. Está basado en el repositorio relevado el 2026-08-04 y separa explícitamente:

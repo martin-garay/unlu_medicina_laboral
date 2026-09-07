@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+provisioning_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+deploy_dir="$(cd "${provisioning_dir}/.." && pwd)"
+control_python="${deploy_dir}/.tools/ansible-control-venv/bin/python"
+
+if [[ ! -x "${control_python}" ]]; then
+    echo "Missing ${control_python}. Run bin/setup-control-node first." >&2
+    exit 127
+fi
+
+"${control_python}" - "${deploy_dir}" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+deploy = Path(sys.argv[1]).resolve()
+documents = [deploy / "README.md"]
+documents.extend(sorted((deploy / "docs").rglob("*.md")))
+documents.append(deploy / "provisioning/inventories/README.md")
+documents.append(deploy / "provisioning/roles/README.md")
+documents.extend(sorted((deploy / "provisioning/roles").glob("*/README.md")))
+failures = []
+
+link_pattern = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
+for document in documents:
+    content = document.read_text(encoding="utf-8")
+    for raw_target in link_pattern.findall(content):
+        target = raw_target.strip().split()[0].strip("<>")
+        if not target or target.startswith(("#", "http://", "https://", "mailto:")):
+            continue
+        path_text = target.split("#", 1)[0]
+        if not path_text:
+            continue
+        resolved = (document.parent / path_text).resolve()
+        try:
+            resolved.relative_to(deploy.parent)
+        except ValueError:
+            failures.append(f"{document.relative_to(deploy)}: link escapes repository: {target}")
+            continue
+        if not resolved.exists():
+            failures.append(f"{document.relative_to(deploy)}: missing link target: {target}")
+
+required_documents = [
+    "README.md",
+    "docs/architecture.md",
+    "docs/deployment-guide.md",
+    "docs/operations-runbook.md",
+    "docs/production-deployment.md",
+    "docs/troubleshooting.md",
+    "docs/validation-matrix.md",
+    "docs/diagrams/deployment-pipeline.mmd",
+]
+for relative in required_documents:
+    if not (deploy / relative).is_file():
+        failures.append(f"missing canonical document: {relative}")
+
+site = (deploy / "provisioning/site.yml").read_text(encoding="utf-8")
+runbook = (deploy / "docs/operations-runbook.md").read_text(encoding="utf-8")
+for tag in [
+    "validate", "common", "database", "runtime", "application", "scheduler",
+    "tls", "backup", "security", "monitoring", "redeploy",
+]:
+    if tag not in site or f"`{tag}`" not in runbook:
+        failures.append(f"tag is not aligned between site.yml and runbook: {tag}")
+
+for playbook in [
+    "bootstrap-access.yml", "backup.yml", "monitoring.yml", "restore-test.yml",
+    "rollback.yml",
+]:
+    if not (deploy / "provisioning/playbooks" / playbook).is_file():
+        failures.append(f"missing documented playbook: {playbook}")
+    if f"playbooks/{playbook}" not in runbook:
+        failures.append(f"runbook does not document playbook: {playbook}")
+
+for variable in [
+    "application_release_id", "application_source_strategy",
+    "application_transfer_strategy", "application_composer_install_local",
+    "application_backoffice_admin_enabled", "security_enabled",
+    "firewall_enabled",
+]:
+    code_files = list((deploy / "provisioning").rglob("*.yml"))
+    if not any(variable in path.read_text(encoding="utf-8") for path in code_files):
+        failures.append(f"documented variable is absent from provisioning: {variable}")
+
+diagram = (deploy / "docs/diagrams/deployment-pipeline.mmd").read_text(encoding="utf-8")
+if not diagram.startswith("flowchart "):
+    failures.append("deployment pipeline must be a Mermaid flowchart")
+for required_step in ["Composer", "migraciones", "current", "GET /up", "Rollback"]:
+    if required_step not in diagram:
+        failures.append(f"deployment pipeline is missing step: {required_step}")
+
+if failures:
+    print("Deployment documentation checks failed:", file=sys.stderr)
+    for failure in failures:
+        print(f"- {failure}", file=sys.stderr)
+    raise SystemExit(1)
+
+print(f"Deployment documentation checks passed: {len(documents)} Markdown files.")
+PY

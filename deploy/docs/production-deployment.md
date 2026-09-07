@@ -4,6 +4,10 @@
 
 Este documento define el procedimiento y los controles requeridos para producción. La base ya se prueba con Vagrant en topologías de una y dos máquinas; la autorización productiva sigue condicionada a los controles finales y datos institucionales enumerados aquí.
 
+La preparación común está en [`deployment-guide.md`](deployment-guide.md) y los
+comandos operativos en [`operations-runbook.md`](operations-runbook.md). Este
+documento agrega gates productivos; no los reemplaza por valores supuestos.
+
 ## Datos que deberá proporcionar la Universidad
 
 - IP o hostname de los servidores de aplicación y base;
