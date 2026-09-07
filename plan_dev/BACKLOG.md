@@ -97,6 +97,7 @@ Usar una categoría para agrupar mejor:
 - notas: resuelto en `plan_dev/daily/2026-04-28.md` D1. Stack elegido: Spatie Laravel Permission. Roles iniciales: `admin`, `auditor`, `director`. Matriz documentada en `docs/backoffice/permissions.md`. No se implementan permisos por campo o columna.
 
 ### [BO-002] Definir estrategia de storage privado de certificados
+- planificación activa: `plan_dev/daily/2026-09-07.md`, M5–M9, promueve recepción y persistencia de binarios con despliegue. Descarga/preview administrativo permanece en el plan de backoffice. No cerrado por esta planificación.
 - estado: `pending`
 - prioridad: `high`
 - categoría: `operacion`

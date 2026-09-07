@@ -11,6 +11,8 @@ misma composición, copiando y completando el inventory de ejemplo con datos rea
 
 ## Documentación
 
+- [`docs/certificate-storage-rollout.md`](docs/certificate-storage-rollout.md): plan de despliegue y aceptación del almacenamiento privado de certificados (pendiente).
+
 - [`docs/ansible-deployment-plan.md`](docs/ansible-deployment-plan.md): relevamiento del repositorio, arquitectura objetivo y plan completo de implementación con Ansible.
 - [`docs/deployment-guide.md`](docs/deployment-guide.md): entrada operativa y flujo general de despliegue.
 - [`docs/production-deployment.md`](docs/production-deployment.md): controles y procedimiento previsto para producción.

@@ -10,6 +10,11 @@ Dejar separado el frente futuro de storage privado, visualización segura de arc
 
 ## Estado actual resumido
 
+Actualización 2026-09-07: la recepción y persistencia de binarios se promueve a
+`plan_dev/daily/2026-09-07.md` M5–M9, incluyendo despliegue. Este plan conserva
+descarga/preview administrativo y configuración. P1/BO-002 no se consideran
+resueltos por esa planificación; evitar ejecutar dos implementaciones de storage.
+
 - `I4 - Storage privado de certificados` está pendiente.
 - No se debe implementar todavía descarga ni visualización real de archivos médicos.
 - Existen servicios metadata-only de storage como etapa previa.
@@ -87,4 +92,3 @@ Definir qué parámetros del sistema se administrarán desde UI y cuáles seguir
 
 ### Estado
 `pending`
-

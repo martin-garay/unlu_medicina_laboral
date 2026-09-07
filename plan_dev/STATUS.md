@@ -12,7 +12,26 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 08:27 -03
+2026-09-07 10:00 -03
+
+## Última actividad — Planificación de certificados
+
+- Fecha/hora: 2026-09-07 10:00 -03.
+- Resultado: `done` (planificación documental solicitada; implementación pendiente).
+- Daily: `plan_dev/daily/2026-09-07.md`. Se agregaron M5–M9 después de M4,
+  que continúa en `needs_review` y es el primer milestone a cerrar.
+- Se recuperó el diseño previo de abril y se vinculó BO-002 sin cerrarlo:
+  decisiones, descarga a borrador privado, persistencia final, preparación de
+  despliegue y aceptación con WhatsApp real en testing.
+- Especificación canónica de despliegue en
+  `deploy/docs/certificate-storage-rollout.md`: storage compartido, permisos,
+  conectividad de runtime, secretos, backup/restore, idempotencia y rollback.
+- Validación: revisión de referencias y secuencia; `git diff --check`.
+  No se ejecutaron tests de runtime ni despliegue: sólo se modificó documentación.
+- Pendientes humanos: cierre remoto de M4 y decisiones de BO-002 en M5.
+- Próximo paso: cerrar M4; luego ejecutar M5 sin saltar bloqueos. El flujo sigue
+  metadata-only hasta implementar y aceptar los milestones posteriores.
+- La ejecución técnica anterior se conserva debajo como contexto del M4 abierto.
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
