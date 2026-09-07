@@ -149,7 +149,7 @@ Usar una categoría para agrupar mejor:
 
 ### [DEPLOY-001] Incorporar tags operativos de Ansible inspirados en Elecciones
 - estado: `pending` (promovido a `plan_dev/daily/2026-09-07.md`, D1)
-- prioridad: `low`
+- prioridad: `high`
 - categoría: `operacion`
 - detectado en: revisión comparativa del 2026-09-02 con `/opt/eleccion/msa/deploy/provisioning`.
 - contexto: el provisioning de Elecciones usa ampliamente tags como `redeploy`, `deploy`, `deploy_db`, `codigo`, `paquetes`, `apache`, `certs`, `cron`, `firewall` y `restart`. Medicina Laboral ya separa las capacidades en playbooks importados desde `site.yml`, por lo que puede ofrecer una experiencia operativa familiar sin replicar la granularidad histórica a nivel de cada tarea.
@@ -159,7 +159,7 @@ Usar una categoría para agrupar mejor:
 
 ### [DEPLOY-002] Consolidar documentación integral del despliegue
 - estado: `pending` (promovido a `plan_dev/daily/2026-09-07.md`, D2)
-- prioridad: `low`
+- prioridad: `high`
 - categoría: `documentacion`
 - detectado en: solicitud explícita del 2026-09-07 después del primer despliegue completo de testing.
 - contexto: existe documentación extensa y distribuida bajo `deploy/`, pero las correcciones operativas recientes muestran que hace falta un recorrido canónico de punta a punta, comandos por máquina y troubleshooting basado en evidencia.

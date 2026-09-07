@@ -12,14 +12,26 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 13:30 -03
+2026-09-07 14:00 -03
+
+## Última actividad — Priorización de faltantes de deploy
+
+- Fecha/hora: 2026-09-07 14:00 -03.
+- Resultado: `done` para la repriorización; ejecución pendiente.
+- D1 (tags operativos) y D2 (documentación integral) pasan de prioridad baja a
+  alta por decisión explícita.
+- Orden inmediato: cerrar la aceptación remota de M4, ejecutar D1 y luego D2.
+  El trabajo de storage M5–M9 queda después de completar estos faltantes.
+- No se implementaron tags ni cambios de runtime en esta actividad.
+- Validación: referencias cruzadas de D1/D2 y `DEPLOY-001`/`DEPLOY-002`
+  revisadas; `git diff --check` OK.
 
 ## Última actividad — Planificación de tags y documentación de deploy
 
 - Fecha/hora: 2026-09-07 13:30 -03.
 - Resultado: `done` para la planificación; implementación pendiente.
-- Por decisión explícita se promovió `DEPLOY-001` al daily como D1, manteniendo
-  prioridad baja: tags de capacidades y agregado seguro `redeploy`, con pruebas
+- Por decisión explícita se promovió `DEPLOY-001` al daily como D1, actualmente
+  con prioridad alta: tags de capacidades y agregado seguro `redeploy`, con pruebas
   de alcance, check mode e idempotencia.
 - Se agregó D2 para consolidar bajo `deploy/` la documentación integral de
   arquitectura, preparación, releases, secretos, proxy/Composer, operación,
