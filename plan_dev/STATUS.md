@@ -12,7 +12,22 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 14:00 -03
+2026-09-07 18:19 -03
+
+## Última actividad — Cierre de M4 en testing
+
+- Fecha/hora: 2026-09-07 18:19 -03.
+- Milestone: M4, resultado `done`.
+- El operador confirmó nuevamente todos los puntos de aceptación remota:
+  dry-run, apply, segunda ejecución/idempotencia, release activo
+  `testing-2026-09-07-04`, endpoints `/up`, `/internal/chat` y `/admin`, y
+  administrador bootstrap disponible.
+- Se cierra el deploy completo de testing con `security_enabled: false` y
+  `firewall_enabled: false`; esos controles continúan fuera de este milestone.
+- No hubo cambios de runtime en este cierre; se registró la evidencia humana.
+- Próximo paso: ejecutar D1, tags operativos de Ansible, y luego D2,
+  documentación integral del despliegue.
+- Validación del corte documental: estado consolidado y `git diff --check` OK.
 
 ## Última actividad — Priorización de faltantes de deploy
 
@@ -100,27 +115,25 @@ No debe reemplazar:
 - Pendientes humanos: cierre remoto de M4 y decisiones de BO-002 en M5.
 - Próximo paso: cerrar M4; luego ejecutar M5 sin saltar bloqueos. El flujo sigue
   metadata-only hasta implementar y aceptar los milestones posteriores.
-- La ejecución técnica anterior se conserva debajo como contexto del M4 abierto.
+- La ejecución técnica anterior se conserva debajo como contexto histórico del
+  M4 ya cerrado.
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: bootstrap y validacion remota del usuario operativo
-  `deploy` en testing desde PC Uni.
-- Milestone actual: `M4 - Deploy completo sin security/firewall` del daily
-  2026-08-24 queda en `needs_review`: el release nuevo fue construido, migrado y
-  activado manualmente con `/up` en HTTP 200; falta validar el cierre automático
-  del playbook, monitoreo e idempotencia.
+- Último bloque completado: M4, deploy completo y aceptación remota de testing
+  desde PC Uni sobre `testing-2026-09-07-04`.
+- Milestone actual: D1, tags operativos de Ansible, con prioridad alta; D2,
+  documentación integral del deploy, continúa inmediatamente después.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
-- El siguiente release de testing es `testing-2026-09-07-04`, que incorpora la
+- El release activo de testing es `testing-2026-09-07-04`, que incorpora la
   corrección del chat interno, los permisos de logs y el administrador bootstrap
   exclusivo de testing.
 - El health check deja de usar el stack HTTPS Python incompatible del servidor y
   pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
   enlaces circulares mediante `follow: false`.
-- Próximo paso sugerido: actualizar PC Uni, ejecutar `site.yml`, monitoreo y una
-  segunda ejecución de `site.yml` para confirmar idempotencia; luego validar
-  `/internal/chat`.
+- Próximo paso sugerido: implementar D1 y validar el contrato de tags en Vagrant antes
+  de probar `redeploy` selectivamente desde PC Uni.
 - Nota repo local: la sesión actual tiene acceso de escritura a `.git`; se
   sincronizó la metadata local con `origin/main` sin alterar el árbol de trabajo.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
