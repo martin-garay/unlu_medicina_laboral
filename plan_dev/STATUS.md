@@ -24,6 +24,8 @@ No debe reemplazar:
   del playbook, monitoreo e idempotencia.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
+- El siguiente release de testing es `testing-2026-09-07-01`, que incorpora la
+  corrección del chat interno y de los permisos de logs.
 - El health check deja de usar el stack HTTPS Python incompatible del servidor y
   pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
   enlaces circulares mediante `follow: false`.
@@ -197,6 +199,9 @@ No debe reemplazar:
   acepta defensivamente `null` y `'null'`, los canales de archivo crean logs
   `0664` y Ansible normaliza los logs compartidos existentes. La suite pasó con
   215 tests y 886 assertions; `bin/check-deploy` pasó sobre 48 archivos.
+- El inventory selecciona `testing-2026-09-07-01` para desplegar el código del
+  fix como un release nuevo e inmutable, sin modificar el tag ya validado de
+  agosto.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.
