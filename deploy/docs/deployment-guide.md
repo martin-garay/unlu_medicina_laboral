@@ -218,6 +218,12 @@ las propaga al build y al contenedor Docker de Composer sin fijar una URL
 institucional en el repositorio. Se puede validar el entorno antes del deploy
 con `env | grep -iE '^(http|https|no)_proxy='`.
 
+Testing usa el sender de notificaciones nulo. El template debe escribir
+`MEDICINA_LABORAL_MAIL_DRIVER="null"`: sin comillas, Dotenv transforma el valor
+en `null` de PHP y el binding rechaza el driver. Los logs diarios se crean y se
+normalizan con modo `0664` para permitir escritura tanto desde PHP-FPM como
+desde los comandos operativos ejecutados por `deploy`.
+
 El rol `monitoring` valida salud operativa al final del apply real: servicios,
 doctor de Laravel, scheduler, TLS y backups recientes. En `--check` informa que
 omite esos controles porque el dry-run no instala servicios ni crea releases o

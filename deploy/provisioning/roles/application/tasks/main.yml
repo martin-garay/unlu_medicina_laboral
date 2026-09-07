@@ -119,6 +119,24 @@
     - "{{ application_shared_path }}/storage/logs"
     - "{{ private_storage_path }}"
 
+- name: Find existing shared Laravel logs
+  ansible.builtin.find:
+    paths: "{{ application_shared_path }}/storage/logs"
+    patterns: "*.log"
+    file_type: file
+  register: application_shared_log_files
+  when: not ansible_check_mode
+
+- name: Keep existing Laravel logs group writable
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    group: www-data
+    mode: "0664"
+  loop: "{{ application_shared_log_files.files | default([]) }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: not ansible_check_mode
+
 - name: Create Git checkout root on control node
   ansible.builtin.file:
     path: "{{ application_git_checkout_root }}"

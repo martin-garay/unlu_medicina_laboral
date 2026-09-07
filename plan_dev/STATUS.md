@@ -12,7 +12,7 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-04 01:40 -03
+2026-09-07 08:27 -03
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
@@ -28,9 +28,10 @@ No debe reemplazar:
   pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
   enlaces circulares mediante `follow: false`.
 - Próximo paso sugerido: actualizar PC Uni, ejecutar `site.yml`, monitoreo y una
-  segunda ejecución de `site.yml` para confirmar idempotencia.
-- Nota repo local: `.git` esta montado read-only en esta sesion. Los commits se
-  realizan con metadata Git temporal en `/tmp` hasta corregir el montaje.
+  segunda ejecución de `site.yml` para confirmar idempotencia; luego validar
+  `/internal/chat`.
+- Nota repo local: la sesión actual tiene acceso de escritura a `.git`; se
+  sincronizó la metadata local con `origin/main` sin alterar el árbol de trabajo.
 - Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
   convertido a formato Ansible Vault; si los valores previos ya eran secretos
   reales, conviene rotarlos porque existian en commits anteriores.
@@ -118,10 +119,11 @@ No debe reemplazar:
 ## Última ejecución del agente
 
 ### Fecha/hora
-- 2026-09-04 01:32 -03
+- 2026-09-07 08:27 -03
 
 ### Plan diario usado
-- `plan_dev/daily/2026-09-04.md`
+- `plan_dev/daily/2026-09-07.md`
+- continúa `M4` heredado de `plan_dev/daily/2026-09-04.md`.
 - continúa `M4` heredado de `plan_dev/daily/2026-09-02.md`.
 - continúa `M4` heredado de `plan_dev/daily/2026-08-24.md`.
 
@@ -186,6 +188,15 @@ No debe reemplazar:
   playbooks `application`, `runtime`, `tls` y `rollback` por probes `curl` con
   sus mismas reglas de HTTP, contenido y certificados. No quedan referencias a
   `ansible.builtin.uri` y `bin/check-deploy` volvió a pasar sobre 48 archivos.
+- La validación manual encontró `/internal/chat` en HTTP 500 aunque `/up`
+  continuaba en HTTP 200. El template generaba
+  `MEDICINA_LABORAL_MAIL_DRIVER=null`; Dotenv lo convertía a `null` real y el
+  provider rechazaba el driver. Además, el log diario creado por PHP-FPM tenía
+  modo `0644` e impedía que `deploy` registrara errores desde Artisan.
+- El template usa ahora `MEDICINA_LABORAL_MAIL_DRIVER="null"`, el provider
+  acepta defensivamente `null` y `'null'`, los canales de archivo crean logs
+  `0664` y Ansible normaliza los logs compartidos existentes. La suite pasó con
+  215 tests y 886 assertions; `bin/check-deploy` pasó sobre 48 archivos.
 - Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
   con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
   system`.

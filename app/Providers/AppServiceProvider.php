@@ -82,7 +82,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(BusinessNotificationSender::class, function () {
             return match (config('medicina_laboral.mail.driver', 'null')) {
-                'null' => new NullBusinessNotificationSender(),
+                null, 'null' => new NullBusinessNotificationSender(),
                 'laravel_mail' => new LaravelMailBusinessNotificationSender(app('mail.manager')),
                 default => throw new \InvalidArgumentException('Unsupported business notification driver configured.'),
             };

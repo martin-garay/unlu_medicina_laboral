@@ -50,6 +50,16 @@ oculta los directorios creados dentro de la imagen Docker; sin esta preparación
 los scripts de Composer de Laravel/Filament fallan aunque las dependencias ya se
 hayan descargado.
 
+El entorno administrado expresa el sender deshabilitado como
+`MEDICINA_LABORAL_MAIL_DRIVER="null"`. Las comillas son significativas: Dotenv
+debe conservar `null` como cadena para seleccionar
+`NullBusinessNotificationSender`, no convertirlo al valor nulo de PHP.
+
+Los canales de log basados en archivo usan modo `0664`. El rol también corrige
+los `.log` existentes en storage compartido para que PHP-FPM (`www-data`) y el
+usuario operativo `deploy` puedan escribir durante requests, scheduler y
+comandos Artisan.
+
 Administra Composer, `.env` desde Vault, storage compartido, permisos, migraciones, cachés y health check. No crea secretos ni administradores locales.
 
 El rol instala `rsync` en el host remoto porque `ansible.posix.synchronize`
