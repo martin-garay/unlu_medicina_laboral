@@ -103,4 +103,7 @@ La activación es transaccional a nivel de código: conserva el destino previo d
 stack HTTPS de Python. Ante un fallo sólo restaura un destino anterior si es un
 directorio existente bajo `releases/`; un enlace vacío, circular o externo no
 se considera recuperable. Los symlinks se administran con `follow: false`.
+PHP-FPM sólo se recarga cuando cambia el enlace `current`; el handler se fuerza
+antes del health check para validar el release con el runtime ya actualizado y
+mantener idempotentes las reejecuciones del mismo release.
 Las migraciones no se revierten automáticamente.

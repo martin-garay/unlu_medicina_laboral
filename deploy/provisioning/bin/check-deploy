@@ -113,6 +113,75 @@ bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check
 bin/ansible-playbook -i inventories/vagrant/single/hosts.yml site.yml --syntax-check
 bin/ansible-playbook -i inventories/vagrant/split/hosts.yml site.yml --syntax-check
 
+bin/ansible-playbook \
+    -i inventories/testing/hosts.yml \
+    site.yml \
+    --list-tags > "${tmp_dir}/site-tags.txt"
+bin/ansible-playbook \
+    -i inventories/testing/hosts.yml \
+    site.yml \
+    --tags redeploy \
+    --list-tasks > "${tmp_dir}/redeploy-tasks.txt"
+
+"${control_python}" - \
+    "${tmp_dir}/site-tags.txt" \
+    "${tmp_dir}/redeploy-tasks.txt" <<'PY'
+import re
+import sys
+
+tags_output = open(sys.argv[1], encoding="utf-8").read()
+redeploy_output = open(sys.argv[2], encoding="utf-8").read()
+
+available_tags = set()
+for tag_list in re.findall(r"TAGS: \[([^]]*)]", tags_output):
+    available_tags.update(tag.strip() for tag in tag_list.split(",") if tag.strip())
+
+required_tags = {
+    "always",
+    "application",
+    "backup",
+    "common",
+    "database",
+    "monitoring",
+    "redeploy",
+    "runtime",
+    "scheduler",
+    "security",
+    "tls",
+    "validate",
+}
+
+missing_tags = sorted(required_tags - available_tags)
+if missing_tags:
+    raise SystemExit(f"Missing site.yml tags: {', '.join(missing_tags)}")
+
+if "deploy" in available_tags:
+    raise SystemExit("The redundant deploy alias must not be exposed")
+
+required_redeploy_tasks = [
+    "Validate operating system selection",
+    "application : Validate application source strategy",
+    "laravel_scheduler : Install scheduler runtime packages",
+    "monitoring : Collect service state",
+]
+for task in required_redeploy_tasks:
+    if task not in redeploy_output:
+        raise SystemExit(f"Redeploy contract is missing task: {task}")
+
+forbidden_redeploy_roles = [
+    "common :",
+    "postgresql :",
+    "php :",
+    "tls :",
+    "backup :",
+    "hardening :",
+    "firewall :",
+]
+for role_prefix in forbidden_redeploy_roles:
+    if role_prefix in redeploy_output:
+        raise SystemExit(f"Redeploy unexpectedly includes role: {role_prefix[:-2]}")
+PY
+
 "${control_python}" - <<'PY' > "${tmp_dir}/supports-ansible-lint"
 import sys
 print("yes" if sys.version_info >= (3, 10) else "no")

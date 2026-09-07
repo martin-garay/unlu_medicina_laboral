@@ -743,11 +743,13 @@
         follow: false
         owner: "{{ deploy_user_name }}"
         group: www-data
+      register: application_release_activation
+      notify: Reload PHP-FPM for application
 
-    - name: Reload PHP-FPM after release activation
-      ansible.builtin.service:
-        name: "php{{ php_version }}-fpm"
-        state: reloaded
+    # The activation reload must complete before probing the new release.
+    - name: Apply release activation handlers before health check  # noqa no-handler
+      ansible.builtin.meta: flush_handlers
+      when: application_release_activation.changed
 
     - name: Validate activated release health endpoint
       ansible.builtin.command:
