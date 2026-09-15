@@ -12,7 +12,25 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-14 21:47 -03
+2026-09-14 21:52 -03
+
+## Última actividad — M5: límites, promoción y limpieza
+
+- Fecha/hora: 2026-09-14 21:52 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` por políticas restantes; estrategia documental ampliada.
+- Límites de config compartidos por chat, validación y storage, con política por
+  intento. Detectado que el runtime actual no valida tamaño ni lo informa al
+  adjuntar; su corrección funcional queda en M6, no se declara implementada.
+- Propuesta: metadata desde borrador, FK nullable al anticipo, contenido 1:1,
+  promoción transaccional sin copiar bytes y estados separados de negocio.
+- Limpieza propuesta con Scheduler, gracia configurable, lotes, locks y auditoría;
+  conserva metadata/historial y excluye confirmados. Agregado DBML futuro separado.
+- Pendientes: acordar gracia/defaults, retención de confirmados/backups, descarga
+  y acceso. No hay migraciones, tareas activadas ni purga de datos.
+- Validaciones: `git diff --check` OK, `bin/check-docs` OK (23 documentos),
+  enlaces locales de diseño OK y contraste con handler/config/Scheduler actual.
+  DBML propuesto revisado como texto; no se ejecutó parser DBML ni pruebas funcionales.
+- Próximo paso: acordar parámetros y políticas restantes para cerrar M5.
 
 ## Última actividad — M5: PostgreSQL y rendimiento
 

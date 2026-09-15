@@ -657,8 +657,9 @@ Esta decisión reemplaza la propuesta anterior de drivers locales sobre Filesyst
 El runtime sigue siendo metadata-only mediante `DraftAttachmentStorage` y
 `FinalAttachmentStorage`. Se conservarán esas abstracciones, ajustando sus DTOs
 si hace falta representar una referencia de base de datos sin inventar rutas.
-Se requiere una migración nueva; el vínculo de borradores con conversación y su
-asociación final debe resolverse antes de implementarla. No se crea una entidad
+Se requiere una migración nueva; la propuesta de registro técnico desde borrador,
+contenido 1:1 y asociación final está en el
+[ciclo de vida](backoffice/certificate-attachment-lifecycle.md). No se crea una entidad
 de negocio nueva para certificados.
 
 El cliente mockeable de media obtiene la URL por `provider_media_id`, descarga,

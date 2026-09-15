@@ -1,0 +1,29 @@
+// PROPUESTA M5 2026-09-14. No aplicada; solo columnas relevantes.
+// El esquema de runtime continúa en medicina-laboral.dbml.
+Table conversaciones {
+  id bigint [pk]
+}
+Table anticipos_certificado {
+  id bigint [pk]
+}
+Table anticipo_certificado_archivos {
+  id bigint [pk]
+  conversacion_id bigint [not null]
+  intento_uuid uuid [not null, note: 'Identifica el intento incluso dentro de la misma conversación']
+  anticipo_certificado_id bigint [note: 'Nullable hasta confirmar']
+  estado_storage varchar [not null, note: 'Estado técnico independiente de estado_validacion']
+  descartado_en timestamp
+  purgar_despues_de timestamp
+  purgado_en timestamp
+  size_bytes bigint
+  hash_archivo varchar
+  Note: 'Metadata: no contiene bytes. Preservar campos existentes omitidos en este esquema parcial.'
+}
+Table anticipo_certificado_archivo_contenidos {
+  archivo_id bigint [pk]
+  contenido bytea [not null]
+  Note: 'Cero o una fila por archivo; confirmar no copia ni modifica contenido.'
+}
+Ref: anticipo_certificado_archivos.conversacion_id > conversaciones.id
+Ref: anticipo_certificado_archivos.anticipo_certificado_id > anticipos_certificado.id
+Ref: anticipo_certificado_archivo_contenidos.archivo_id - anticipo_certificado_archivos.id

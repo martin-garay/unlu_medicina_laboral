@@ -70,3 +70,23 @@ credencial o aceptación real, registrar el bloqueo sin afirmar disponibilidad.
 - Backup recuperable con hash comprobado y rollback compatible ensayado.
 - `/up`, `/internal/chat`, aviso de ausencia y scheduler sin regresiones.
 - Evidencia de WhatsApp real; tests simulados no reemplazan esta aceptación.
+
+## Limpieza de borradores — operación propuesta
+
+- Reutilizar el cron existente de `schedule:run`; agregar la tarea en Laravel,
+  sin SQL de limpieza en cron. Frecuencia, gracia, lotes y presupuesto temporal
+  deben provenir de config/inventory según el
+  [diseño de ciclo de vida](../../docs/backoffice/certificate-attachment-lifecycle.md).
+- Primero ejecutar `--dry-run`, después habilitar por entorno con datos sintéticos;
+  no hay purga implementada ni habilitada por este documento.
+- Registrar última ejecución exitosa, candidatos, purgados, bytes lógicos según
+  metadata, fallos y atraso del candidato elegible más antiguo, sin binarios.
+- Monitorear autovacuum de tabla y TOAST. Borrar contenido habilita reutilización
+  de espacio tras vacuum; no garantiza que disminuya inmediatamente el archivo
+  de base en el sistema operativo. No programar `VACUUM FULL` como limpieza diaria.
+  Referencia: [PostgreSQL VACUUM](https://www.postgresql.org/docs/16/sql-vacuum.html).
+- El presupuesto de ejecución debe preservar la cadencia de inactividad existente;
+  ajustar timeout SQL/locks y medirlo antes de aumentar los lotes.
+- Un restore puede recuperar borradores purgados después del backup. Revisar
+  elegibilidad antes de reactivar tareas; no confundir purga activa con eliminación
+  de todas las copias históricas.

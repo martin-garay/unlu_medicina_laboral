@@ -27,17 +27,17 @@ identificador y con autorización; la elección final del endpoint sigue pendien
   ni cargan automáticamente la relación de binarios. Ocultarlo al serializar no
   evita el costo de haberlo consultado.
 - Indexar identificadores y relaciones según las consultas; no indexar el binario.
-- Mantener 3 archivos de 5120 KiB y validar los bytes reales antes de persistir.
+- Usar la política configurable de cantidad, tamaño y formatos tanto en chat como
+  en validación y storage; ver el ciclo de vida enlazado abajo. Los valores actuales
+  son defaults configurables, no límites fijos del diseño.
 - Descargar y validar antes de abrir la transacción de persistencia. No sostener
   transacciones ni locks mientras se espera a Meta.
-- Evitar duplicar el contenido al pasar de borrador a definitivo; resolver el
-  vínculo transaccional y la idempotencia en el diseño de M6/M7. La tabla actual
-  se crea al confirmar, por lo que el vínculo del binario borrador con la
-  conversación debe definirse antes de la migración.
+- Confirmar mediante vínculo y cambio de estado del registro técnico, conservando
+  la misma fila binaria; el diseño propuesto está en el ciclo de vida.
 - Leer un archivo por operación y medir memoria real de PHP/PDO. Una respuesta
   HTTP en streaming no garantiza lectura incremental de `bytea` desde PostgreSQL.
 - Medir latencia de listados y descargas (p95), memoria máxima, conexiones y
-  concurrencia con contenido sintético representativo, incluyendo archivos de 5 MiB.
+  concurrencia con contenido sintético representativo, incluyendo archivos al máximo configurado.
 - Conservar contratos de storage para permitir una migración futura a otro backend
   si las mediciones lo justifican, sin cambiar el flujo de negocio.
 
@@ -54,6 +54,12 @@ por compresión de PDFs e imágenes ya comprimidos.
 Las pruebas y controles de capacidad, backups y restauración se especifican en
 [el plan de despliegue](../../deploy/docs/certificate-storage-rollout.md).
 No se declara capacidad productiva validada sin esas mediciones.
+
+## Ciclo de vida propuesto
+
+[Límites, estados y limpieza de borradores](certificate-attachment-lifecycle.md)
+define la propuesta de M5. Incluye esquema futuro separado del DBML de runtime.
+No implica que ya existan el validador de bytes ni la tarea de limpieza.
 
 ## Estrategia esperada
 
@@ -109,4 +115,4 @@ La implementación de storage privado debe cubrir:
 - detalle del esquema y ciclo de vida de binarios borradores/finales; el backend PostgreSQL y la separación de tablas ya están acordados
 - uso de Temporary URLs o Controller Stream
 - política de retención de archivos y exportaciones
-- concurrencia esperada, volumen mensual y objetivos de rendimiento; se mantiene el límite actual de 5120 KiB por archivo
+- concurrencia esperada, volumen mensual y objetivos de rendimiento; los límites se obtienen de la política configurable compartida con el chat

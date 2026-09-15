@@ -331,3 +331,11 @@ La estrategia de inactividad se considerará correctamente implementada cuando e
 - cancelar automáticamente sin borrar historial
 - impedir reutilización de conversaciones canceladas
 - iniciar una nueva conversación si el usuario vuelve a escribir
+
+## Limpieza de adjuntos — propuesta M5 del 2026-09-14
+
+La limpieza de borradores vencidos se incorporará al mismo Laravel Scheduler,
+con comando y servicio propios. No está implementada. Separar expiración del
+intento y purga de bytes después de una gracia configurable; conservar historial.
+La cancelación del subflujo también descarta borradores aunque siga activa la
+conversación. Ver [ciclo de vida](backoffice/certificate-attachment-lifecycle.md).
