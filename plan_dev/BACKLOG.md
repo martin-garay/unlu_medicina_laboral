@@ -107,7 +107,7 @@ Usar una categoría para agrupar mejor:
 - notas: resuelto en `plan_dev/daily/2026-04-28.md` D1. Stack elegido: Spatie Laravel Permission. Roles iniciales: `admin`, `auditor`, `director`. Matriz documentada en `docs/backoffice/permissions.md`. No se implementan permisos por campo o columna.
 
 ### [BO-002] Definir estrategia de storage privado de certificados
-- planificación activa: `plan_dev/daily/2026-09-07.md`, M5–M9, promueve recepción y persistencia de binarios con despliegue. Descarga/preview administrativo permanece en el plan de backoffice. No cerrado por esta planificación.
+- planificación activa: `plan_dev/daily/2026-09-14.md` continúa M5–M9 del 07/09, promueve recepción y persistencia de binarios con despliegue. Descarga/preview administrativo permanece en el plan de backoffice. No cerrado por esta planificación.
 - estado: `pending`
 - prioridad: `high`
 - categoría: `operacion`
@@ -118,6 +118,8 @@ Usar una categoría para agrupar mejor:
 - notas: toda visualización o descarga debe auditarse. El 2026-09-14 se aprobó
   PostgreSQL `bytea` en tabla separada, reemplazando filesystem local privado;
   criterios de rendimiento en `docs/backoffice/storage-and-sensitive-files.md`.
+  Matriz obligatoria de settings y pendientes de cierre de M5 en
+  `docs/backoffice/certificate-storage-settings.md`; no duplicar límites del chat.
   Se conservan contratos, formatos y límite actual; siguen pendientes
   retención/purga de borradores, ejecución síncrona o por cola, política de
   timeouts/reintentos y mecanismo de acceso administrativo.

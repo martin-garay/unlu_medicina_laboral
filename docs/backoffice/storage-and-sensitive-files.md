@@ -55,6 +55,12 @@ Las pruebas y controles de capacidad, backups y restauración se especifican en
 [el plan de despliegue](../../deploy/docs/certificate-storage-rollout.md).
 No se declara capacidad productiva validada sin esas mediciones.
 
+## Configuración obligatoria
+
+La [matriz de settings](certificate-storage-settings.md) integra el alcance de M5:
+fuentes, validaciones, aplicación de cambios y requisitos pendientes de cierre.
+Config es la fuente inicial; la UI administrativa todavía no está implementada.
+
 ## Ciclo de vida propuesto
 
 [Límites, estados y limpieza de borradores](certificate-attachment-lifecycle.md)

@@ -90,3 +90,12 @@ credencial o aceptación real, registrar el bloqueo sin afirmar disponibilidad.
 - Un restore puede recuperar borradores purgados después del backup. Revisar
   elegibilidad antes de reactivar tareas; no confundir purga activa con eliminación
   de todas las copias históricas.
+
+## Contrato de settings para M8
+
+La [matriz de M5](../../docs/backoffice/certificate-storage-settings.md) debe
+mapearse a inventory/defaults/templates sin duplicar límites de runtime. Documentar
+qué cambios requieren regenerar config cache y reiniciar workers; verificar que
+web, worker y scheduler reciben la misma versión efectiva. Umbrales de capacidad,
+alertas, concurrencia y limpieza se configuran por entorno con rangos validados.
+No habilitar capacidades con combinaciones incompatibles de límites y timeouts.

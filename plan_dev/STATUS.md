@@ -12,7 +12,23 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-14 21:52 -03
+2026-09-14 22:03 -03
+
+## Última actividad — M5: configuración integral y revisión de completitud
+
+- Fecha/hora: 2026-09-14 22:03 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` por decisiones funcionales/operativas restantes de M5.
+- Incorporado requisito explícito: políticas y parámetros configurables, fuente
+  única, sin defaults duplicados y con coherencia chat/validación/storage.
+- Nuevo contrato `docs/backoffice/certificate-storage-settings.md`: matriz,
+  validaciones, vigencia, UI futura, pendientes de cierre y evidencia M6–M9.
+- Actualizados daily activo, storage/ciclo de vida, backlog, referencia P3 y deploy.
+- Config actual y ausencia de UI contrastadas; no se implementaron settings,
+  migraciones, descargas ni limpieza. La solución todavía no está completa.
+- Próximo paso: cerrar modalidad de descarga, retención, acceso y catálogo de
+  settings, con defaults válidos y escenarios de capacidad; luego M6.
+- Validaciones: `git diff --check` OK; `bin/check-docs` OK (23 documentos);
+  enlaces locales de diseño/dailies OK. No se ejecutaron pruebas de runtime.
 
 ## Última actividad — M5: límites, promoción y limpieza
 

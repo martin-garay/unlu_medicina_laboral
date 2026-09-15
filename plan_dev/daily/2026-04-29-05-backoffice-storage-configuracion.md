@@ -20,6 +20,11 @@ resueltos por esa planificación; evitar ejecutar dos implementaciones de storag
 - Existen servicios metadata-only de storage como etapa previa.
 - Configuración administrativa todavía no tiene UI.
 
+Referencia vigente (2026-09-14): M5 define el contrato en
+[settings de certificados](../../docs/backoffice/certificate-storage-settings.md).
+P3 debe reutilizar ese proveedor y catálogo, con permisos/auditoría y precedencia
+explícita; no crear una segunda fuente independiente de límites para el chat.
+
 ## Reglas de ejecucion
 
 - No iniciar este daily hasta cerrar módulos read-only base.

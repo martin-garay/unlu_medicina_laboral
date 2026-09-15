@@ -4,6 +4,14 @@ Estado: estrategia propuesta en M5 el 2026-09-14; sin implementación ni purga a
 Backend aprobado: PostgreSQL `bytea` en tabla separada. Los plazos operativos que
 siguen son propuestas configurables, no políticas institucionales aprobadas.
 
+## Contrato de settings
+
+[Configuración y cierre de M5](certificate-storage-settings.md) es la matriz
+obligatoria de parámetros, validación, aplicación de cambios y pendientes. Todo
+valor numérico de este diseño es un default propuesto configurable, no una
+constante a repetir en runtime. Los estados y garantías de integridad son
+invariantes centralizadas, no opciones que permitan desactivar seguridad.
+
 ## Política única de límites
 
 Usar `medicina_laboral.certificados.max_files`, `max_size_kb`,
