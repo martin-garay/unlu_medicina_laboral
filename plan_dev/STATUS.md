@@ -12,7 +12,23 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-14 22:03 -03
+2026-09-14 22:20 -03
+
+## Última actividad — M5: plan incremental conjunto
+
+- Fecha/hora: 2026-09-14 22:20 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` para cierre de M5, por decisiones restantes.
+- Documento de problemática y entregas creado en
+  `docs/14-certificados-problematica-y-plan-incremental.md`; enlazado desde índices.
+- Etapas propuestas: decisiones, circuito funcional, aceptación testing,
+  administración y escalado por mediciones. Cortes con validaciones/manual/stop.
+- D1 preguntada (cola PostgreSQL o directa); D2–D5 pendientes. No se aceptaron
+  recomendaciones por silencio. UI/acceso conserva scope previo hasta acordar D2.
+- No existen todavía config de cola/migraciones de jobs; su incorporación depende
+  de D1. Sin modificaciones de runtime ni purga habilitada.
+- Validaciones: `git diff --check` OK; `bin/check-docs` OK (23 documentos);
+  enlaces locales del plan/índices/daily OK. Sin pruebas de runtime.
+- Próximo paso: respuesta D1, luego D2/D3.
 
 ## Última actividad — M5: configuración integral y revisión de completitud
 

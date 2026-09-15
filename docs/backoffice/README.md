@@ -32,6 +32,10 @@ Estado despues de `I3` base:
 - `security-and-audit.md`: seguridad, permisos y auditoría administrativa.
 - `storage-and-sensitive-files.md`: estrategia esperada para archivos médicos sensibles.
 
+La problemática y el plan por entregas se coordinan en
+[el plan incremental](../14-certificados-problematica-y-plan-incremental.md),
+con decisiones pendientes explícitas para acceso mínimo y UI futura.
+
 ## Principios base
 
 - Filament es UI administrativa, no capa de reglas de negocio.
