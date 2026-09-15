@@ -4,6 +4,14 @@ Estado: contrato documental de M5, 2026-09-14. No crea settings de runtime ni UI
 Requisito del usuario: toda política y parámetro operativo debe ser configurable,
 sin valores dispersos en handlers, servicios, comandos, mensajes o tests.
 
+## D1 aprobada — 2026-09-14
+
+Cola PostgreSQL desde la primera versión. La modalidad inicial ya está elegida;
+las claves y valores operativos de jobs/worker se completan en D4 del
+[plan incremental](../14-certificados-problematica-y-plan-incremental.md).
+No se implementarán simultáneamente dos recorridos de descarga para satisfacer
+un setting: el driver elegido debe estar soportado y validado antes de activarlo.
+
 ## Fuente de verdad y ciclo de cambios
 
 - Primera implementación: `config/*.php`, reutilizando claves existentes. `env()`
@@ -40,7 +48,7 @@ no representan claves implementadas. Las claves existentes se conservan.
 | `conversation` y `certificados` existentes | Intentos inválidos, inactividad, plazo de aviso, palabras/menús de cancelación | Reutilizar política conversacional; no crear timeout rival para borradores. |
 | Política de capacidad nueva | Bytes máximos pendientes por intento/usuario y presupuesto global, concurrencia de recepción/descarga | Contabilizar pendientes además de archivos completos; aplicar reserva transaccional para evitar excedentes simultáneos. |
 | Descarga nueva | Modalidad, conexión HTTP, tiempo por petición/trabajo, intentos, esperas, vigencia del trabajo, tamaño del bloque, hosts permitidos y redirecciones | Operación validada por entorno; URL nueva por ID de media cuando expire; secretos fuera del snapshot. |
-| Cola, si se elige | Conexión, nombre, workers, concurrencia, timeout, retry_after, lease, intentos y recuperación de fallidos | No duplicar reintentos HTTP y de job sin un presupuesto total definido. |
+| Cola PostgreSQL acordada | Conexión, nombre, workers, concurrencia, timeout, retry_after, lease, intentos y recuperación de fallidos | No duplicar reintentos HTTP y de job sin un presupuesto total definido. |
 | `storage` existente/ampliado | Drivers de borrador/final, conexión de DB, compatibilidad metadata-only | Registrar backend por archivo; cambiar default no cambia referencias anteriores. |
 | `certificados.cleanup` propuesta | Habilitación, gracia, expresión de calendario, zona horaria, lote, tiempo máximo, lock y timeout SQL | Parámetros configurables; dry-run disponible; no deriva retención de confirmados. |
 | Retención | Tratamiento por descarte/vencimiento/cancelación, parciales, huérfanos, confirmados y backups | Explicitar qué políticas se habilitan; sin plazo aprobado no activar purga para esa categoría. |
@@ -73,7 +81,7 @@ restricciones externas: configurar un tamaño mayor no amplía la capacidad de M
 
 | Tema | Falta resolver / documentar | Implementación posterior |
 | --- | --- | --- |
-| Descarga | Elegir modalidad, parámetros iniciales y operación; si hay cola, dispatch durable después del commit y recuperación de mensajes/trabajos perdidos | M6 y M8 |
+| Descarga | Modalidad aprobada: cola PostgreSQL. Completar parámetros, publicación atómica o outbox transaccional y recuperación de trabajos/notificaciones | M6 y M8 |
 | Retención | Acordar gracia de borradores, cancelados, parciales/huérfanos y política de confirmados/backups; los valores previos son propuestas | M7–M9; política productiva antes de producción |
 | Acceso | Seleccionar endpoint autenticado o mecanismo temporal, matriz de permisos y auditoría | I4/P2 de backoffice |
 | Catálogo | Completar nombres, defaults y validaciones de la matriz; decidir parámetros de entorno vs UI futura | M6–M8; UI en P3 |

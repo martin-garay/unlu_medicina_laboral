@@ -671,7 +671,8 @@ Criterios obligatorios y decisiones todavía abiertas:
 Validación operativa:
 [Despliegue de almacenamiento](../deploy/docs/certificate-storage-rollout.md).
 
-M5 sigue bloqueado por retención/purga, ejecución de descarga, tiempos/reintentos
+D1 aprobó descarga mediante cola PostgreSQL desde el inicio.
+M5 sigue bloqueado por retención/purga, tiempos/reintentos
 y mecanismo de acceso administrativo. La aceptación de PostgreSQL no aprueba
 implícitamente esas políticas. M6/M7 incorporarán tests sobre PostgreSQL real
 para `bytea`, integridad, rollback e idempotencia; SQLite/fakes solos no validan

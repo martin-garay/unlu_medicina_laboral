@@ -1,7 +1,8 @@
 # Adjuntos: límites, estados y limpieza
 
 Estado: estrategia propuesta en M5 el 2026-09-14; sin implementación ni purga activa.
-Backend aprobado: PostgreSQL `bytea` en tabla separada. Los plazos operativos que
+Backend aprobado: PostgreSQL `bytea` en tabla separada.
+D1 aprobada: descarga en cola PostgreSQL con worker desde el inicio. Los plazos operativos que
 siguen son propuestas configurables, no políticas institucionales aprobadas.
 
 ## Contrato de settings
@@ -99,7 +100,7 @@ La expiración funcional y la eliminación física son momentos distintos:
   TTL independiente desde la subida que pueda borrar un trámite activo.
 - Una revisión periódica reconcilia cierres cuyo evento no terminó de procesarse.
 - No descartar por antigüedad solamente un intento con procesamiento vigente;
-  definir recuperación de workers/leases al resolver la modalidad de descarga.
+  definir valores de recuperación de workers/leases en D4; D1 ya eligió cola.
 
 Valores iniciales propuestos bajo `medicina_laboral.certificados.cleanup`:
 

@@ -76,6 +76,7 @@ No debemos asumir que workers, limpieza o descargas ya están operativos.
 ## Decisiones acordadas
 
 - PostgreSQL `bytea`, contenido separado de la metadata, sin Base64 en persistencia.
+- D1 aprobada: descarga mediante cola PostgreSQL desde la primera versión, con worker administrado.
 - Políticas y parámetros configurables; una fuente efectiva para chat y storage.
 - Rendimiento como requisito de implementación y aceptación.
 - Conservar conversaciones, mensajes y eventos; no confundirlos con los binarios.
@@ -86,17 +87,36 @@ No debemos asumir que workers, limpieza o descargas ya están operativos.
 
 | ID | Decisión | Recomendación para primera entrega | Estado |
 | --- | --- | --- | --- |
-| D1 | Ejecución de descarga | Cola PostgreSQL y worker acotado; evita esperar al archivo dentro del webhook | Preguntada, pendiente de respuesta |
+| D1 | Ejecución de descarga | Cola PostgreSQL y worker acotado; evita esperar al archivo dentro del webhook | Aprobada por el usuario el 2026-09-14 |
 | D2 | Definición de funcional | Incluir descarga autenticada mínima de confirmados con permiso/auditoría; posponer preview | Propuesta; promover corte de I4/P2 explícitamente |
 | D3 | Borradores vencidos/cancelados | Scheduler, gracia configurable; 24 h propuesta, no aprobada; confirmados sin purga automática en testing | Pendiente |
 | D4 | Parámetros iniciales | Reutilizar defaults actuales de tamaño/cantidad; completar timeouts, reintentos, lotes y validaciones compatibles | Pendiente, después de D1 |
 | D5 | Capacidad y aceptación | Acordar volumen y concurrencia de testing; medir p95, memoria, crecimiento y restore | Pendiente |
 
-D1 alternativa: descarga directa con timeout estricto. Reduce operación inicial,
-pero alarga el webhook y obliga igualmente a tratar duplicados y recuperación.
-Si se elige, medir el presupuesto de respuesta antes de validarla; no asumir que
-funciona por tratarse de archivos pequeños. La abstracción del downloader permite
-migrar a cola después. El resto del diseño de binarios no depende de esa elección.
+### D1 acordada — descarga mediante cola PostgreSQL
+
+El webhook persiste recepción y adjunto pendiente; un worker descarga y valida
+fuera de la solicitud HTTP. El job transporta identificadores, nunca bytes,
+tokens ni URLs temporales. Obtiene credenciales/config al ejecutar y verifica
+intento vigente antes de persistir el contenido. Confirmar requiere disponible.
+
+Implementar publicación durable: recepción/pendiente y job se confirman
+atómicamente en la misma conexión PostgreSQL, o mediante outbox transaccional
+con recuperación si el mecanismo de cola no permite esa atomicidad. Un simple
+dispatch después del commit sin recuperación deja una ventana de pérdida.
+Probar rollback y caída entre recepción y publicación antes de aceptar el corte.
+
+Agregar config de cola, migraciones de jobs/fallidos y worker administrado;
+concurrencia, timeout, reintentos/backoff, retry_after y recuperación configurables.
+Una entrega repetida no duplica bytes ni transiciones. Tras fallo definitivo se
+registra el motivo y se informa al usuario si el intento sigue vigente; no se
+reactiva una conversación cancelada. La recuperación de notificaciones pendientes
+debe ser idempotente y no depender de que Meta vuelva a enviar el mismo mensaje.
+
+El timeout de conversación debe distinguir espera de usuario de espera interna,
+con límite configurable de procesamiento para evitar pendientes indefinidos.
+Reconciliar pendientes estancados y monitorear antigüedad de cola/fallos. Los valores
+iniciales se acuerdan en D4; elegir cola no los aprueba automáticamente.
 
 ## Etapa 0 — Cerrar decisiones mínimas de M5
 
@@ -186,7 +206,7 @@ condiciones institucionales se validan conforme a documentación de despliegue.
 
 ## Estado y siguiente conversación
 
-Documentación creada; no hay implementación nueva. D1 es la primera pregunta
-pendiente. Después se resuelven D2/D3, se proponen valores coherentes de D4 y se
-acuerda D5. Al aceptar cada decisión se actualiza el registro y sus contratos,
+Documentación creada; no hay implementación nueva. D1 está aprobada: cola
+PostgreSQL desde el inicio. Próximo paso D2 (acceso mínimo), luego D3 (limpieza),
+D4 (valores operativos) y D5 (capacidad). Al aceptar cada decisión se actualiza el registro y sus contratos,
 sin reiniciar ni duplicar la planificación en documentos paralelos.

@@ -121,8 +121,8 @@ Usar una categoría para agrupar mejor:
   Matriz obligatoria de settings y pendientes de cierre de M5 en
   `docs/backoffice/certificate-storage-settings.md`; no duplicar límites del chat.
   Se conservan contratos, formatos y límite actual; siguen pendientes
-  retención/purga de borradores, ejecución síncrona o por cola, política de
-  timeouts/reintentos y mecanismo de acceso administrativo.
+  retención/purga de borradores, valores de timeouts/reintentos y mecanismo de
+  acceso administrativo. D1 aprobada: cola PostgreSQL desde la primera versión.
 
 ### [BO-003] Definir operación manual de asociaciones aviso-certificado
 - estado: `pending`

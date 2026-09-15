@@ -12,7 +12,19 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-14 22:20 -03
+2026-09-14 22:26 -03
+
+## Última actividad — M5: D1 aprobada
+
+- Fecha/hora: 2026-09-14 22:26 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` para M5 por D2–D5; D1 resuelta por el usuario.
+- Descarga mediante cola PostgreSQL desde la primera versión, con worker
+  administrado; no se implementó runtime en este corte.
+- Plan y contratos actualizados: publicación durable, jobs con IDs, recuperación,
+  idempotencia y separación de espera interna/usuario. Deploy incluye worker.
+- Próximo paso: D2, acceso autorizado mínimo; después limpieza/defaults/capacidad.
+- Validaciones: `git diff --check` OK; `bin/check-docs` OK (23 documentos).
+  Sin pruebas de runtime, purga ni cambios remotos.
 
 ## Última actividad — M5: plan incremental conjunto
 

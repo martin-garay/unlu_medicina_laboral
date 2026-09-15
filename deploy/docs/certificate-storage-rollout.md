@@ -11,15 +11,15 @@ viven en [storage](../../docs/backoffice/storage-and-sensitive-files.md).
 
 ## Preparación
 
-- Resolver BO-002 antes de habilitar el nuevo driver; retención y modalidad de
-  descarga todavía no están aprobadas.
+- Resolver BO-002 antes de habilitar el nuevo driver; retención todavía pendiente; D1 aprobó descarga mediante cola PostgreSQL.
 - Agregar migración y drivers de base de datos manteniendo metadata-only como
   compatibilidad explícita. No presentar registros históricos como archivos disponibles.
 - Seleccionar drivers y límites desde config/inventory; no activar nombres de
   drivers que todavía no existen. Mantener secretos en Vault y fuera de logs/diff.
 - Validar DNS, TLS, proxy y acceso a API y media desde el runtime destino.
-- Si se aprueban colas, implementar worker, reinicio por release, límites de
-  concurrencia y monitoreo antes del pase. No está aprobado por elegir PostgreSQL.
+- D1 aprobó cola PostgreSQL: implementar worker administrado, reinicio por release,
+  límites de concurrencia y monitoreo antes del pase. Validar migraciones de jobs,
+  publicación durable, recuperación tras caída y visibilidad de trabajos fallidos.
 
 ## Capacidad, respaldo y continuidad
 
