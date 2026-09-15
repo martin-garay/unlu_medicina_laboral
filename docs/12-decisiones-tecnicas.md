@@ -647,95 +647,35 @@ Este pendiente debe figurar en `plan_dev/BACKLOG.md` con prioridad alta y ser co
 
 ## 27. Storage real de adjuntos de `AnticipoCertificado`
 
-### Decisión
-La evolución de certificados debe usar la entidad actual `AnticipoCertificado` y sus archivos asociados en `anticipo_certificado_archivos`.
+### Decisión vigente — 2026-09-14
 
-No se crea una entidad nueva `certificados`.
+Se conserva `AnticipoCertificado` como entidad de negocio y
+`anticipo_certificado_archivos` como metadata. Por decisión del usuario, los
+bytes se persistirán como `bytea` en una tabla separada de PostgreSQL, sin Base64.
+Esta decisión reemplaza la propuesta anterior de drivers locales sobre Filesystem.
 
-El primer storage binario real recomendado es un driver local sobre Laravel Filesystem, manteniendo los drivers metadata actuales como fallback/desarrollo.
+El runtime sigue siendo metadata-only mediante `DraftAttachmentStorage` y
+`FinalAttachmentStorage`. Se conservarán esas abstracciones, ajustando sus DTOs
+si hace falta representar una referencia de base de datos sin inventar rutas.
+Se requiere una migración nueva; el vínculo de borradores con conversación y su
+asociación final debe resolverse antes de implementarla. No se crea una entidad
+de negocio nueva para certificados.
 
-### Estado actual
-El sistema ya tiene los contratos:
+El cliente mockeable de media obtiene la URL por `provider_media_id`, descarga,
+valida contenido y tamaño real, y calcula el hash antes de la transacción de
+persistencia. Las consultas habituales no seleccionan ni precargan binarios.
 
-- `DraftAttachmentStorage`
-- `FinalAttachmentStorage`
+Criterios obligatorios y decisiones todavía abiertas:
+[Storage y archivos sensibles](backoffice/storage-and-sensitive-files.md).
+Validación operativa:
+[Despliegue de almacenamiento](../deploy/docs/certificate-storage-rollout.md).
 
-Y las implementaciones metadata-only:
-
-- `MetadataDraftAttachmentStorage`
-- `MetadataFinalAttachmentStorage`
-
-Hoy el flujo conversacional guarda metadata del adjunto en `metadata.certificado.adjuntos` y al confirmar materializa registros en `anticipo_certificado_archivos`.
-
-### Driver local propuesto
-Agregar implementaciones:
-
-- `LocalDraftAttachmentStorage`
-- `LocalFinalAttachmentStorage`
-
-Responsabilidades esperadas:
-
-- descargar el binario desde WhatsApp usando `provider_media_id`
-- validar MIME permitido desde `medicina_laboral.certificados.allowed_mime_types`
-- validar tamaño máximo desde `medicina_laboral.certificados.max_size_kb`
-- calcular hash del archivo almacenado
-- guardar en `storage/app/...` usando directorios ya parametrizados:
-  - `medicina_laboral.storage.draft_attachments.directory`
-  - `medicina_laboral.storage.final_attachments.directory`
-- devolver `StoredDraftAttachment` / `StoredFinalAttachment` con `storage_status = stored`
-
-### Cliente de media de WhatsApp
-La descarga no debe vivir en handlers ni controllers.
-
-Se recomienda agregar un servicio chico, por ejemplo:
-
-- contrato `WhatsAppMediaDownloader`
-- implementación HTTP para WhatsApp Cloud API
-- fake para tests
-
-Flujo esperado:
-
-1. obtener metadata/URL de media desde Graph API usando `provider_media_id`
-2. descargar contenido con token configurado
-3. validar tamaño, MIME y extensión esperada
-4. entregar stream/contenido al storage driver
-
-### Persistencia
-La tabla `anticipo_certificado_archivos` ya tiene campos suficientes para el primer corte:
-
-- `provider_file_id`
-- `nombre_original`
-- `mime_type`
-- `extension`
-- `size_bytes`
-- `storage_disk`
-- `storage_path`
-- `hash_archivo`
-- `estado_validacion`
-- `motivo_rechazo`
-- `metadata`
-
-No se identifica una migración obligatoria para iniciar el driver local.
-
-### Configuración
-La selección de driver debe seguir centralizada en `config/medicina_laboral.php`:
-
-- `MEDICINA_LABORAL_DRAFT_STORAGE_DRIVER=local`
-- `MEDICINA_LABORAL_FINAL_STORAGE_DRIVER=local`
-
-El default puede seguir siendo `metadata` hasta que el entorno tenga credenciales de WhatsApp y permisos de filesystem validados.
-
-### Tests mínimos
-El corte de implementación debería incluir:
-
-- unit test de descarga fake + `LocalDraftAttachmentStorage`
-- unit test de `LocalFinalAttachmentStorage`
-- feature test del flujo de anticipo confirmando que `anticipo_certificado_archivos` queda con `storage_status = stored`
-- test de rechazo por MIME inválido
-- test de rechazo por tamaño excedido si la metadata de WhatsApp o la descarga permite medirlo
-
-### Stop condition
-Si no hay credenciales o contrato confiable para descargar media de WhatsApp, la implementación debe quedar limitada a diseño o a fakes de test. No se debe simular almacenamiento real con metadata-only bajo nombre de driver local.
+M5 sigue bloqueado por retención/purga, ejecución de descarga, tiempos/reintentos
+y mecanismo de acceso administrativo. La aceptación de PostgreSQL no aprueba
+implícitamente esas políticas. M6/M7 incorporarán tests sobre PostgreSQL real
+para `bytea`, integridad, rollback e idempotencia; SQLite/fakes solos no validan
+el almacenamiento elegido. El diagrama DBML actual sigue representando runtime;
+se actualizará junto con la migración cuando se defina el esquema pendiente.
 
 ---
 

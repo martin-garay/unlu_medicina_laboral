@@ -3,37 +3,47 @@
 Estado: plan pendiente de implementación y validación. Ejecución ordenada por
 M5–M9 de `plan_dev/daily/2026-09-07.md`, después del cierre del deploy M4.
 
+## Decisión vigente — 2026-09-14
+
+PostgreSQL con contenido `bytea` en tabla separada reemplaza el destino local
+privado propuesto anteriormente. No está implementado. Los criterios funcionales
+viven en [storage](../../docs/backoffice/storage-and-sensitive-files.md).
+
 ## Preparación
 
-- Resolver las decisiones de BO-002 antes de habilitar el driver local.
-- Reutilizar los roles de aplicación, backup y monitoring existentes, con sus
-  README, defaults y tests. Los playbooks generales sólo orquestan capacidades.
-- Renderizar los drivers de borrador/final y disco privado desde variables de
-  inventory y el template de entorno. Mantener metadata-only como compatibilidad
-  explícita; nunca presentar esos registros como binarios recuperados.
-- Persistir archivos bajo el storage compartido entre releases, fuera de webroot
-  y de cualquier enlace público. No almacenar binarios dentro de un release.
-- Verificar propietario, grupo y permisos mínimos para PHP-FPM y CLI/scheduler;
-  no resolver problemas con permisos globales de escritura.
-- Guardar token de WhatsApp en Vault y evitar su exposición en diff/logs.
-- Verificar desde el runtime destino DNS, TLS, proxy y acceso a la API y descarga
-  de media. La conectividad de PC Uni o Composer no acredita conectividad de PHP.
-- Ajustar límites y tiempos de PHP/webserver sólo si lo requiere el recorrido real;
-  distinguir recepción del webhook de descarga del binario. Si M5 requiere workers,
-  agregar su operación y monitoreo antes del pase.
+- Resolver BO-002 antes de habilitar el nuevo driver; retención y modalidad de
+  descarga todavía no están aprobadas.
+- Agregar migración y drivers de base de datos manteniendo metadata-only como
+  compatibilidad explícita. No presentar registros históricos como archivos disponibles.
+- Seleccionar drivers y límites desde config/inventory; no activar nombres de
+  drivers que todavía no existen. Mantener secretos en Vault y fuera de logs/diff.
+- Validar DNS, TLS, proxy y acceso a API y media desde el runtime destino.
+- Si se aprueban colas, implementar worker, reinicio por release, límites de
+  concurrencia y monitoreo antes del pase. No está aprobado por elegir PostgreSQL.
 
-## Respaldo y continuidad
+## Capacidad, respaldo y continuidad
 
-- Incluir directorios privados y referencias de base de datos en la estrategia de
-  backup existente. Comprobar coherencia DB/archivos, acceso restringido, espacio
-  disponible y política de retención acordada; no habilitar purga por defecto.
-- Ensayar restore con datos sintéticos en destino aislado; verificar existencia,
-  hash y asociación de archivos, sin sobrescribir storage o base activos.
-- Comprobar que limpieza de releases y rollback no eliminen binarios compartidos.
-- Verificar compatibilidad del release anterior con la configuración de drivers:
-  no alcanza con cambiar `current` si ese código no admite el driver local.
-  Documentar restauración de configuración/cache y cómo impedir nuevas cargas
-  durante un rollback incompatible, conservando archivos y trazabilidad.
+- Medir tamaño total de la tabla de binarios incluyendo TOAST e índices,
+  crecimiento diario, espacio libre, WAL generado y acumulado, conexiones e I/O.
+- Definir demanda esperada y objetivos medibles de latencia, ventana de backup,
+  RPO/RTO y margen de disco antes del pase a producción. No hay un umbral universal
+  de cantidad de archivos que obligue a cambiar de backend.
+- Probar con datos sintéticos a volumen previsto y concurrencia de cargas,
+  descargas y listados; comparar p95 y memoria PHP con la línea base sin descargas.
+- Verificar que consultas de metadata no lean contenido y revisar sus planes.
+- Limitar concurrencia según mediciones. No suponer que streaming HTTP evita
+  cargar el `bytea` completo en PDO/PHP.
+- El backup consistente de PostgreSQL debe incluir tabla binaria, TOAST y metadata;
+  medir duración/tamaño y restaurar en destino aislado verificando hash y asociación.
+- El backup de base no sustituye respaldo de configuración u otros datos del sistema.
+- Revisar arquitectura si el crecimiento proyectado agota el margen de disco,
+  backup/restore excede los objetivos o las descargas degradan el p95 acordado.
+  Evaluar almacenamiento externo antes de alcanzar esos límites, con migración
+  por lotes, verificación de hashes y compatibilidad de lectura.
+- Rollback de código no debe borrar la tabla ni bytes. Verificar compatibilidad
+  del release anterior con referencias y drivers; si no puede leerlos, definir
+  cómo detener cargas y recuperar servicio sin perder los datos nuevos.
+- No habilitar purga automática sin política acordada.
 
 ## Validación y promoción
 
@@ -55,7 +65,7 @@ credencial o aceptación real, registrar el bloqueo sin afirmar disponibilidad.
 
 ## Criterios de aceptación
 
-- Archivo privado durable y asociado correctamente al anticipo confirmado.
+- Binario durable en PostgreSQL y asociado correctamente al anticipo confirmado.
 - Sin acceso público, pérdida entre releases ni secretos en evidencia operativa.
 - Backup recuperable con hash comprobado y rollback compatible ensayado.
 - `/up`, `/internal/chat`, aviso de ausencia y scheduler sin regresiones.

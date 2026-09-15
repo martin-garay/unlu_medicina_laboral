@@ -12,7 +12,26 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-07 19:35 -03
+2026-09-14 21:47 -03
+
+## Última actividad — M5: PostgreSQL y rendimiento
+
+- Fecha/hora: 2026-09-14 21:47 -03.
+- Daily activo: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` por decisiones restantes de BO-002; backend aprobado.
+- El usuario eligió PostgreSQL `bytea` en tabla separada de metadata. Reemplaza
+  filesystem local como destino inicial; no hay migración ni driver implementado.
+- Actualizadas decisiones técnicas, storage, plan de despliegue, daily y backlog.
+- Se requieren consultas sin binarios en listados, transacciones cortas, medición
+  de memoria/concurrencia y validación de capacidad y backup/restore.
+- Pendientes: retención/purga, modalidad de descarga, tiempos/reintentos y acceso.
+- Validaciones: `git diff --check` OK; `deploy/provisioning/bin/check-docs` OK
+  (23 documentos); modelo/migración y límites de configuración contrastados.
+  No se ejecutaron pruebas de carga, runtime ni despliegue.
+- Próximo paso: resolver las políticas de M5 y diseñar vínculo borrador/final;
+  no iniciar M6. M4/D1/D2 están cerrados según aceptación del 07/09.
+- Las notas anteriores de filesystem y reintento de M4 son históricas; este
+  encabezado y el daily activo prevalecen.
 
 ## Última actividad — M6 diferido
 

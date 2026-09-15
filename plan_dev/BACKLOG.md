@@ -115,8 +115,10 @@ Usar una categoría para agrupar mejor:
 - contexto: los certificados médicos no deben almacenarse ni servirse desde rutas públicas. El storage actual sigue metadata-only.
 - acción sugerida: confirmar driver de storage privado y mecanismo de acceso: Temporary URLs o Controller Stream con validación de permisos.
 - dependencia: antes de ejecutar `I4 - Storage privado de certificados`.
-- notas: toda visualización o descarga debe auditarse. M5 confirmó filesystem
-  local privado, contratos, formatos y límite actual; siguen pendientes
+- notas: toda visualización o descarga debe auditarse. El 2026-09-14 se aprobó
+  PostgreSQL `bytea` en tabla separada, reemplazando filesystem local privado;
+  criterios de rendimiento en `docs/backoffice/storage-and-sensitive-files.md`.
+  Se conservan contratos, formatos y límite actual; siguen pendientes
   retención/purga de borradores, ejecución síncrona o por cola, política de
   timeouts/reintentos y mecanismo de acceso administrativo.
 

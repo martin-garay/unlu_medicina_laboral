@@ -10,11 +10,56 @@ El flujo de anticipo/certificado ya registra archivos asociados en `anticipo_cer
 
 Los campos `storage_disk` y `storage_path` ya existen como base para evolucionar a persistencia real.
 
+## Decisión vigente — 2026-09-14
+
+Por decisión del usuario, el contenido se guardará en PostgreSQL como `bytea`,
+en una tabla separada de `anticipo_certificado_archivos`. Esta última conserva
+la metadata consultada por listados y reportes. Reemplaza la propuesta de disco
+local como destino inicial; todavía no hay migración ni driver binario implementado.
+
+Los bytes no deben convertirse a Base64 ni incluirse en JSON, logs, payloads de
+colas o serializaciones de modelos. El acceso al contenido será explícito, por
+identificador y con autorización; la elección final del endpoint sigue pendiente.
+
+### Rendimiento como criterio obligatorio
+
+- Los listados, filtros, reportes y relaciones habituales no seleccionan contenido,
+  ni cargan automáticamente la relación de binarios. Ocultarlo al serializar no
+  evita el costo de haberlo consultado.
+- Indexar identificadores y relaciones según las consultas; no indexar el binario.
+- Mantener 3 archivos de 5120 KiB y validar los bytes reales antes de persistir.
+- Descargar y validar antes de abrir la transacción de persistencia. No sostener
+  transacciones ni locks mientras se espera a Meta.
+- Evitar duplicar el contenido al pasar de borrador a definitivo; resolver el
+  vínculo transaccional y la idempotencia en el diseño de M6/M7. La tabla actual
+  se crea al confirmar, por lo que el vínculo del binario borrador con la
+  conversación debe definirse antes de la migración.
+- Leer un archivo por operación y medir memoria real de PHP/PDO. Una respuesta
+  HTTP en streaming no garantiza lectura incremental de `bytea` desde PostgreSQL.
+- Medir latencia de listados y descargas (p95), memoria máxima, conexiones y
+  concurrencia con contenido sintético representativo, incluyendo archivos de 5 MiB.
+- Conservar contratos de storage para permitir una migración futura a otro backend
+  si las mediciones lo justifican, sin cambiar el flujo de negocio.
+
+PostgreSQL utiliza TOAST para valores grandes y puede evitar leerlos cuando no
+se seleccionan. Esto no aísla disco, CPU, conexiones ni backups entre tablas.
+Referencia: [PostgreSQL 16: TOAST](https://www.postgresql.org/docs/16/storage-toast.html).
+
+La capacidad se estima con cantidad de archivos × tamaño promedio. Por ejemplo,
+10.000 archivos de 2 MiB suman aproximadamente 19,5 GiB de contenido; 100.000,
+195,3 GiB. Son escenarios, no una previsión de demanda ni límites de PostgreSQL.
+Hay que sumar TOAST/índices, WAL, espacio operativo y backups; no asumir ahorro
+por compresión de PDFs e imágenes ya comprimidos.
+
+Las pruebas y controles de capacidad, backups y restauración se especifican en
+[el plan de despliegue](../../deploy/docs/certificate-storage-rollout.md).
+No se declara capacidad productiva validada sin esas mediciones.
+
 ## Estrategia esperada
 
 La implementación futura debe:
 
-- usar discos privados de Laravel
+- usar PostgreSQL con contenido `bytea` en tabla separada
 - evitar rutas como `public/storage/certificados`
 - impedir URLs públicas permanentes
 - validar sesión, usuario y permisos antes de servir archivos
@@ -61,7 +106,7 @@ La implementación de storage privado debe cubrir:
 
 ## Decisiones pendientes
 
-- driver definitivo para storage privado en ambiente local y producción
+- detalle del esquema y ciclo de vida de binarios borradores/finales; el backend PostgreSQL y la separación de tablas ya están acordados
 - uso de Temporary URLs o Controller Stream
 - política de retención de archivos y exportaciones
-- tamaño máximo operativo de archivo para backoffice
+- concurrencia esperada, volumen mensual y objetivos de rendimiento; se mantiene el límite actual de 5120 KiB por archivo
