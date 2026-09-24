@@ -12,7 +12,23 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-14 22:26 -03
+2026-09-24 17:03 -03
+
+## Última actividad — Planificación de AV-001: familiar enfermo
+
+- Fecha/hora: 2026-09-24 17:03 -03.
+- Resultado del corte documental: `done`; implementación AV-001: `pending`.
+- Creado `plan_dev/daily/2026-09-24.md` con alcance, archivos previstos,
+  criterios de aceptación, pruebas automáticas, validación manual y stops.
+- Decisión aprobada por el usuario: nombre completo del familiar y parentesco
+  suficientes y obligatorios; no pedir datos adicionales del familiar.
+- El flujo actual sigue detenido en `aviso_familiar_pendiente`; no se modificó
+  runtime ni se ejecutaron pruebas funcionales en este corte documental.
+- Validaciones: `git diff --check` y enlaces locales del daily, OK.
+- Se conserva M5 de 2026-09-14 bloqueado por D2–D5. No se autoriza saltarlo.
+- Próximo paso: resolver el bloqueo vigente o priorizar explícitamente AV-001
+  en el plan diario antes de implementarlo. No quedan decisiones pendientes
+  sobre cuáles son los datos obligatorios del familiar.
 
 ## Última actividad — M5: D1 aprobada
 
