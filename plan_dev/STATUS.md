@@ -12,7 +12,28 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-24 17:03 -03
+2026-09-24 17:13 -03
+
+## Última actividad — AV-001 completado y prueba local
+
+- Fecha/hora: 2026-09-24 17:13 -03. Daily: `plan_dev/daily/2026-09-24.md`.
+- Resultado: `done`. El usuario autorizó priorizar AV-001 sobre M5 bloqueado.
+- Agregados handlers de nombre y parentesco, validación compartida, menú de
+  parentescos y soporte de listas WhatsApp. Estado provisional anterior retomable.
+- Nombre completo y parentesco obligatorios; confirmación y creación protegidas;
+  ambos datos conservados en `metadata.aviso`. Sin migraciones nuevas.
+- Actualizados textos, configuración, pruebas, documentación funcional/modelo
+  y diagrama de aviso (fuente Mermaid, SVG y PNG).
+- Validaciones: `make test` OK, 228 tests / 1058 assertions;
+  `git diff --check` OK; renderizado Mermaid OK.
+- `make up` OK, app y PostgreSQL activos. Chat HTTP 200 en
+  `http://localhost:8000/internal/chat`; migraciones existentes aplicadas.
+- Smoke local HTTP/PostgreSQL completó conversación 18 y creó AV-5 con datos
+  sintéticos. Chat y guía de pasos abiertos con `xdg-open` sin errores.
+- WhatsApp: normalización de lista, envío y duplicados probados con HTTP fake;
+  no se realizó envío real a Meta ni despliegue remoto.
+- Próximo paso: recorrida manual del usuario en localhost. AV-001 no requiere
+  otra decisión funcional; M5 continúa bloqueado por D2–D5.
 
 ## Última actividad — Planificación de AV-001: familiar enfermo
 
@@ -283,8 +304,8 @@ No debe reemplazar:
 
 ## Resumen ejecutivo
 - Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
-- Último bloque completado: M4, deploy completo y aceptación remota de testing
-  desde PC Uni sobre `testing-2026-09-07-04`.
+- Último bloque completado: AV-001, familiar enfermo de punta a punta validado
+  en Docker local. Testing remoto permanece en `testing-2026-09-07-04`.
 - Milestone actual: M5, decisiones de almacenamiento, en `blocked` por BO-002.
 - Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
   lo transfiere como tar.gz por SFTP y valida requisitos en testing.
@@ -354,7 +375,7 @@ No debe reemplazar:
 
 ### Testing
 - estado: `in_progress`
-- notas: última corrida completa `make test`: `209 passed`, `869 assertions`.
+- notas: última corrida completa `make test`: `228 passed`, `1058 assertions` (AV-001).
 
 ### Inactividad / scheduler
 - estado: `in_progress`
