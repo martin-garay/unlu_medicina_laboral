@@ -52,7 +52,7 @@ class WhatsappWebhookController extends Controller
 
         $from = $entry['from'] ?? null;
         $text = $entry['text']['body'] ?? '';
-        $buttonId = $entry['interactive']['button_reply']['id'] ?? null;
+        $buttonId = $entry['interactive']['button_reply']['id'] ?? $entry['interactive']['list_reply']['id'] ?? null;
         $providerMessageId = $entry['id'] ?? null;
         $incomingMessageType = $this->resolveIncomingMessageType($entry);
 
@@ -178,6 +178,10 @@ class WhatsappWebhookController extends Controller
 
         if (isset($entry['interactive']['button_reply']['id'])) {
             return $entry['interactive']['button_reply']['id'];
+        }
+
+        if (isset($entry['interactive']['list_reply'])) {
+            return $entry['interactive']['list_reply']['title'] ?? $entry['interactive']['list_reply']['id'] ?? null;
         }
 
         if (isset($entry['document']['filename'])) {

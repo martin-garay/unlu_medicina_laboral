@@ -660,3 +660,9 @@ anticipos_certificado
 ## Nota de mantenimiento
 
 Cuando cambie el esquema real o la proyección estructural de negocio, debe actualizarse también `docs/diagrams/db/medicina-laboral.dbml`.
+
+## Persistencia actual de familiar enfermo — AV-001
+
+El runtime conserva `nombre_familiar` y `parentesco` (clave del catálogo) dentro
+de `metadata.aviso` en conversación y aviso. La propuesta `datos_familiar`
+anterior no corresponde a una columna implementada; AV-001 no agrega migraciones.

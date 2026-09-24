@@ -47,10 +47,10 @@ class AvisoObservacionesStepHandler extends AbstractStepHandler
             'observaciones' => $observaciones,
         ]);
 
-        if (($avisoData['requiere_datos_familiar'] ?? false) === true) {
-            return $this->success('whatsapp.aviso.pendiente_familiar_siguiente_etapa', [
-                'next_step' => 'aviso_familiar_pendiente',
-                'next_state' => 'aviso_familiar_pendiente',
+        if (($avisoData['requiere_datos_familiar'] ?? false) === true || ($avisoData['tipo_ausentismo'] ?? null) === 'atencion_familiar_enfermo') {
+            return $this->success('whatsapp.aviso.prompts.nombre_familiar', [
+                'next_step' => 'aviso_nombre_familiar',
+                'next_state' => 'aviso_nombre_familiar',
                 'payload' => [
                     'event_name' => 'aviso_partial_flow_completed',
                     'event_description' => 'Tramo inicial del aviso completado',

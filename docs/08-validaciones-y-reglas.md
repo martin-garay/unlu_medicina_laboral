@@ -385,3 +385,16 @@ La estrategia de validaciones se considerará correctamente implementada cuando 
 - parametrizar límites
 - registrar errores de forma consistente
 - agregar nuevos pasos sin degradar la mantenibilidad
+
+## Datos de familiar enfermo — AV-001
+
+Para `atencion_familiar_enfermo`, nombre completo y parentesco son obligatorios.
+El nombre debe recibirse como texto no vacío, hasta el máximo configurado en
+`medicina_laboral.avisos.nombre_familiar_max_length`. No se infiere un formato
+por cantidad de palabras. Un adjunto no reemplaza el nombre.
+El parentesco debe pertenecer a `medicina_laboral.catalogos.parentescos`; admite
+selección interactiva, número, clave o etiqueta. Un ID desconocido no se acepta
+por tener un texto coincidente. La opción otro no agrega más preguntas.
+La validación fallida mantiene el paso, registra invalidez e incrementa intentos.
+La confirmación redirige al primer dato faltante; la materialización rechaza
+cualquier aviso familiar incompleto. Los avisos estándar no requieren estos datos.

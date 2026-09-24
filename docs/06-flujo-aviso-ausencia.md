@@ -172,19 +172,28 @@ Más adelante podrá migrarse a base de datos si la administración de opciones 
 
 ## Caso especial: familiar enfermo
 
-La documentación indica que, según el tipo de ausentismo, puede ser necesario completar información adicional del familiar.
+El tipo `atencion_familiar_enfermo` agrega dos pasos después de observaciones:
 
-Esto implica un subflujo condicional.
+1. `aviso_nombre_familiar`: nombre completo, texto no vacío; longitud máxima
+   configurable en `medicina_laboral.avisos.nombre_familiar_max_length`.
+2. `aviso_parentesco`: opción obligatoria del catálogo configurado (madre, padre,
+   hijo/a, cónyuge u otro). No se pide información adicional al seleccionar otro.
 
-### Datos posibles
-- nombre del familiar
-- parentesco
-- otros datos que se definan con el cliente
+Ambos datos son suficientes y obligatorios por decisión del 2026-09-24.
+El parentesco se presenta como lista interactiva en WhatsApp y opciones en el
+chat interno; admite también número, clave o etiqueta del catálogo por texto.
+Las entradas inválidas conservan el paso y suman intentos. Cancelar/reiniciar
+vuelve al menú con el historial conservado; se aplican los timeouts del motor.
 
-## Recomendación de implementación
+Después del parentesco se muestra la confirmación con ambos datos. Se guardan
+`nombre_familiar` y la clave `parentesco` en `metadata.aviso` de la conversación
+y del aviso creado. No se crea una columna ni entidad adicional.
+La confirmación y el servicio de creación impiden materializar un aviso familiar
+incompleto, incluso si se llega al paso final por fuera del recorrido normal.
 
-No mezclar esta lógica condicional directamente en el controller.  
-Resolverla como pasos adicionales activados según el valor de `tipo_ausentismo`.
+Las conversaciones que quedaron en `aviso_familiar_pendiente` se retoman al
+recibir el próximo mensaje: se solicita el nombre sin interpretar ese mensaje
+como respuesta al nuevo campo. Cancelar sigue disponible.
 
 ## Subflujo 4: motivo
 
@@ -240,7 +249,7 @@ Una vez completados los datos transitorios del aviso, el sistema puede:
 
 ## Limitación vigente
 
-El caso `atencion_familiar_enfermo` todavía no recorre el subflujo adicional completo, por lo que la confirmación y creación de aviso de punta a punta queda soportada en esta etapa para el camino estándar sin datos de familiar.
+Los caminos estándar y `atencion_familiar_enfermo` llegan a confirmación y creación efectiva del aviso; el segundo exige completar nombre y parentesco.
 - con longitud máxima configurable
 
 ## Subflujo 7: confirmación final

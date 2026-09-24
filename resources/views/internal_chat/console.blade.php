@@ -252,6 +252,7 @@
                         @endif
 
                         @if (($entry['type'] ?? null) === 'menu' && isset($entry['menu']['buttons']))
+                            <pre>{{ $entry['menu']['body_text'] ?? '' }}</pre>
                             <div class="menu">
                                 @foreach ($entry['menu']['buttons'] as $button)
                                     <div class="menu-option">{{ $button['title'] ?? $button['id'] }}</div>

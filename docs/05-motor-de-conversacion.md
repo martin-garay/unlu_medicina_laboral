@@ -274,6 +274,9 @@ Se usa menú interactivo para selecciones acotadas de hasta tres opciones:
 - tipo de certificado
 - decisión de adjuntar otro archivo
 
+El parentesco del familiar utiliza una lista interactiva de cinco opciones; el
+adapter normaliza `list_reply.id` como selección y conserva el payload original.
+
 Los validadores conservan compatibilidad con texto y alias numéricos para poder operar como fallback cuando el canal no envía `button_id`.
 
 ## Idempotencia de mensajes entrantes

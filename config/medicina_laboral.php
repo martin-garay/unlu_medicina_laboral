@@ -60,6 +60,7 @@ return [
     ],
 
     'avisos' => [
+        'nombre_familiar_max_length' => 200,
         'input_date_format' => 'd/m/Y',
         'input_date_display_format' => 'dd/mm/YYYY',
         'domicilio_yes_keywords' => [
@@ -131,11 +132,11 @@ return [
             'electronico' => 'Electrónico',
         ],
         'parentescos' => [
-            'madre' => 'Madre',
-            'padre' => 'Padre',
-            'hijo_hija' => 'Hijo/a',
-            'conyuge' => 'Cónyuge',
-            'otro' => 'Otro',
+            'madre' => 'whatsapp.aviso.parentescos.madre',
+            'padre' => 'whatsapp.aviso.parentescos.padre',
+            'hijo_hija' => 'whatsapp.aviso.parentescos.hijo_hija',
+            'conyuge' => 'whatsapp.aviso.parentescos.conyuge',
+            'otro' => 'whatsapp.aviso.parentescos.otro',
         ],
     ],
 

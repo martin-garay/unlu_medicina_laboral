@@ -48,6 +48,17 @@ class WhatsAppSender
             ],
         ];
 
+        if (($menuConfig['type'] ?? 'button') === 'list') {
+            $payload['interactive'] = [
+                'type' => 'list',
+                'body' => ['text' => $menuConfig['body_text']],
+                'action' => [
+                    'button' => $menuConfig['button_text'],
+                    'sections' => [['rows' => $menuConfig['buttons']]],
+                ],
+            ];
+        }
+
         $this->dispatch($payload, $to, 'interactive_menu');
     }
 

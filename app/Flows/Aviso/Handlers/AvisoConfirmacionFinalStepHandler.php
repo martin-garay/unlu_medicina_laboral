@@ -40,6 +40,17 @@ class AvisoConfirmacionFinalStepHandler extends AbstractStepHandler
         }
 
         if ($this->isConfirmSelection($input)) {
+            $familiarService = app(\App\Services\AvisoFamiliarService::class);
+            $missingStep = $familiarService->missingStep($this->conversationContextService->avisoData($conversation));
+            if ($missingStep !== null) {
+                return $this->invalid('incomplete_family_data', 'whatsapp.aviso.datos_familiar_incompletos', [
+                    'next_step' => $missingStep,
+                    'next_state' => $missingStep,
+                    'increment_attempts' => 1,
+                    'menu_config' => $missingStep === 'aviso_parentesco' ? $familiarService->menu() : [],
+                ]);
+            }
+
             return $this->success(null, [
                 'should_finish' => true,
                 'payload' => [

@@ -49,7 +49,7 @@ class ConversationOutboundMessage
             return [
                 'type' => 'interactive',
                 'interactive' => [
-                    'type' => 'button',
+                    'type' => $this->menuConfig['type'] ?? 'button',
                     'body' => ['text' => $this->menuConfig['body_text'] ?? ''],
                     'buttons' => $this->menuConfig['buttons'] ?? [],
                 ],

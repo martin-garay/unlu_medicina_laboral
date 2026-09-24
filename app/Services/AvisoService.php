@@ -34,7 +34,7 @@ class AvisoService
             'dias' => $this->calculateCantidadDias($fechaDesde, $fechaHasta) ?? '-',
             'tipo_ausentismo' => $aviso['tipo_ausentismo_label'] ?? $aviso['tipo_ausentismo'] ?? '-',
             'nombre_familiar' => $aviso['nombre_familiar'] ?? null,
-            'parentesco' => $aviso['parentesco'] ?? null,
+            'parentesco' => app(AvisoFamiliarService::class)->catalog()[$aviso['parentesco'] ?? ''] ?? null,
             'motivo' => $aviso['motivo'] ?? '-',
             'domicilio_circunstancial' => $aviso['domicilio_circunstancial'] ?? null,
             'observaciones' => $aviso['observaciones'] ?? null,
@@ -55,6 +55,12 @@ class AvisoService
         $aviso = Arr::get($conversation->metadata ?? [], 'aviso', []);
         $fechaDesde = $aviso['fecha_desde'] ?? null;
         $fechaHasta = $aviso['fecha_hasta'] ?? null;
+
+        if (app(AvisoFamiliarService::class)->missingStep($aviso) !== null) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'familiar' => __('whatsapp.aviso.datos_familiar_incompletos'),
+            ]);
+        }
 
         $avisoRecord = Aviso::create([
             'conversacion_id' => $conversation->id,

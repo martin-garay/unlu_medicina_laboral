@@ -136,6 +136,6 @@ En el estado actual del repo:
 - el flujo de aviso estándar llega a registración efectiva
 - el flujo de anticipo ya llega a confirmación final, materialización real y mensaje registrado
 - las tablas `anticipos_certificado` y `anticipo_certificado_archivos` ya existen en migraciones actuales
-- el caso de aviso con datos de familiar sigue parcial y debe seguir marcado como tal en los diagramas
+- el aviso por familiar enfermo solicita nombre y parentesco obligatorios y llega a registración; el estado provisional anterior se retoma sin borrar historial
 
 Los diagramas iniciales reflejan esa situación de manera explícita.

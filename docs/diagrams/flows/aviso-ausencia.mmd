@@ -14,8 +14,16 @@ flowchart TD
     K -->|Si no informa| M[aviso_observaciones]
     L --> M
     M -->|Camino estandar| N[aviso_confirmacion_final]
-    M -->|Requiere datos de familiar| P[aviso_familiar_pendiente]
-    P --> X[Placeholder documentado\nsubflujo aun no completo]
+    M -->|Requiere datos de familiar| P[aviso_nombre_familiar]
+    V[aviso_familiar_pendiente legacy] -->|Proximo mensaje solicita nombre| P
+    P -->|Nombre valido| X[aviso_parentesco]
+    P -->|Entrada invalida| P
+    X -->|Entrada invalida| X
+    X -->|Parentesco valido| N
+    P -->|Cancelar o reiniciar| B
+    X -->|Cancelar o reiniciar| B
+    N -->|Falta nombre| P
+    N -->|Falta parentesco| X
     N -->|Confirmar| O[Crear Aviso]
     O --> Q[Asociar aviso a conversacion]
     Q --> R[Cerrar conversacion completed]
@@ -32,6 +40,3 @@ flowchart TD
     K -->|Cancelar| B
     L -->|Cancelar| B
     M -->|Cancelar| B
-
-    classDef future fill:#fff3cd,stroke:#946200,color:#4a3a00;
-    class P,X future;

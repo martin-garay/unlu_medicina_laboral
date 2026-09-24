@@ -63,7 +63,7 @@ class AvisoObservacionesStepHandlerTest extends TestCase
         $this->assertNull($result->templateData['observaciones']);
     }
 
-    public function test_requires_familiar_routes_to_placeholder_step(): void
+    public function test_requires_familiar_routes_to_family_name_step(): void
     {
         $handler = new AvisoObservacionesStepHandler(
             new ConversationContextService(),
@@ -82,7 +82,7 @@ class AvisoObservacionesStepHandlerTest extends TestCase
         $result = $handler->handle($conversation, ['text' => 'Necesita acompanamiento']);
 
         $this->assertTrue($result->isValid);
-        $this->assertSame('aviso_familiar_pendiente', $result->nextStep);
+        $this->assertSame('aviso_nombre_familiar', $result->nextStep);
         $this->assertSame(
             'Necesita acompanamiento',
             $result->payload['conversation_updates']['metadata']['aviso']['observaciones']
