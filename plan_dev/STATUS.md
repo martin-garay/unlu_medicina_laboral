@@ -12,7 +12,22 @@ No debe reemplazar:
 ---
 
 ## Fecha de última actualización
-2026-09-24 17:13 -03
+2026-09-27 21:51 -03
+
+## Última actividad — CAT-001: relevamiento de tablas maestras
+
+- Fecha/hora: 2026-09-27 21:51 -03. Resultado del relevamiento: `done`;
+  selección e implementación de CAT-001: `pending` en BACKLOG.
+- Creado `docs/15-inventario-tablas-maestras.md`, enlazado desde el índice y
+  BACKLOG. Incluye C1–C17, fuentes, consumidores, dependencias y decisiones.
+- Detectada duplicación catálogo/botones y ambigüedad entre jornada y turno.
+  Detalle en el inventario, sin duplicar el backlog aquí.
+- Validación: `git diff --check` y enlaces locales de los documentos del corte.
+  Sin tests de runtime: sólo documentación; sin migraciones ni cambios de DB.
+- No existe `plan_dev/daily/2026-09-27.md`; no se crea ni promueve implementación,
+  porque el pedido es registrar backlog y preparar selección conjunta.
+- Próximo paso: decidir con el usuario qué candidatos pasar a DB. Se conserva
+  el bloqueo de M5 y las decisiones de BO-002.
 
 ## Última actividad — AV-001 completado y prueba local
 

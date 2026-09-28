@@ -193,3 +193,22 @@ Usar una categoría para agrupar mejor:
 - acción sugerida: crear un perfil limpio, seguir `deploy/docs/deployment-guide.md` y `deploy/docs/operations-runbook.md`, y registrar comandos ambiguos o prerequisitos faltantes.
 - dependencia: no bloquea M5 por decisión explícita; debe completarse antes de delegar la operación o autorizar producción.
 - notas: no usar secretos reales en la evidencia del recorrido.
+
+### [CAT-001] Seleccionar y migrar catálogos de flujos a tablas maestras
+- estado: `pending`
+- prioridad: `medium` (propuesta; sin priorización de implementación)
+- categoría: `modelo_datos`
+- detectado en: pedido del usuario del 2026-09-27.
+- contexto: opciones y contenido de los flujos están en config PHP, traducciones,
+  templates y metadata JSON; se solicita relevar candidatos antes de elegir qué migrar.
+- acción sugerida: revisar el [inventario C1–C17](../docs/15-inventario-tablas-maestras.md)
+  y decidir por candidato: DB / código-config / diferido. Primera propuesta para
+  discusión: sedes, jornadas, tipos de ausentismo/certificado y parentescos.
+- dependencia: listado institucional de sedes/centros y semántica de jornada;
+  política de históricos, permisos y conversaciones en curso. Coordinar settings
+  con BO-002 y vínculos con BO-003 si se seleccionan esos grupos.
+- notas: relevamiento realizado; ninguna tabla aprobada ni implementada. Incluye
+  menús/aliases, mensajes/plantillas, parámetros, formatos, notificaciones, estados
+  e identificación externa como candidatos de alcance distinto. Conservar
+  snapshots; no convertir todo JSON en maestras. No promover a daily ni alterar
+  milestones bloqueados hasta definir selección y prioridad con el usuario.

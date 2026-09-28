@@ -25,6 +25,7 @@ Debe servir como base común para:
 - `12-decisiones-tecnicas.md`
 - `13-operacion-y-soporte.md`
 - `14-certificados-problematica-y-plan-incremental.md`: problemática, decisiones y entregas incrementales de certificados.
+- `15-inventario-tablas-maestras.md`: candidatos para CAT-001; selección de migración pendiente.
 - `backoffice/README.md`
 
 ## Diagramas como código
