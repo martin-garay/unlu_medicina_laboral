@@ -1,348 +1,148 @@
-
----
-
-## `AGENTS.md`
-
-```md
 # AGENTS.md
 
-## Proyecto
-
-Sistema MVP de Medicina Laboral UNLu implementado con Laravel + PostgreSQL + Docker, utilizando WhatsApp Cloud API como canal conversacional.
-
-## Objetivo actual
-
-Implementar una base sólida y mantenible para el motor de conversación y los flujos de negocio:
-
-- aviso de ausencia
-- anticipo de certificado médico
-
-## Antes de tocar código
-
-Leer obligatoriamente:
-
-- `README.md`
-- `docs/README.md`
-- `docs/05-motor-de-conversacion.md`
-
-Cuando existan, también leer:
-
-- `docs/06-flujo-aviso-ausencia.md`
-- `docs/07-flujo-anticipo-certificado.md`
-- `docs/08-validaciones-y-reglas.md`
-- `docs/09-scheduler-e-inactividad.md`
-- `docs/diagrams/README.md`
-
-## Reglas de diseño
-
-- No hardcodear textos en el código.
-  - Usar `lang/es/*.php`
-- No hardcodear parámetros configurables.
-  - Usar `config/*.php`
-- Controllers livianos.
-- La lógica de negocio debe vivir en servicios o handlers.
-- Toda interacción de usuario debe quedar asociada a una conversación.
-- No borrar conversaciones ni mensajes cancelados, expirados o fallidos.
-- Una conversación es una unidad técnica de trazabilidad.
-- Un aviso es una entidad de negocio separada.
-- Un anticipo de certificado es una entidad de negocio separada y requiere aviso previo.
-- Los automatismos de inactividad deben resolverse con Laravel Scheduler.
-- Los mensajes largos deben vivir en templates Blade.
-- Los diagramas versionables viven en `docs/diagrams/`.
-- Toda documentación, inventario, playbook, rol, template, prueba o código específico de despliegue vive en `deploy/`.
-- `deploy/README.md` y `deploy/docs/` concentran la documentación canónica de despliegue; `plan_dev/` solo conserva planificación operativa y estado.
-- En despliegue, cada tecnología debe tener un rol estándar bajo `deploy/provisioning/roles/`, con README, defaults, archivos de soporte por versión y tests. El inventory selecciona proveedor y versión con variables independientes.
-- No modificar datos/tareas de una versión validada para adaptar otra: agregar soporte dentro de la carpeta de esa tecnología. No crear perfiles monolíticos que acoplen versiones sin una dependencia técnica real.
-- Los playbooks generales deben orquestar capacidades y selecciones independientes; no deben contener nombres de paquetes, rutas de servicio ni lógica específica de Debian, Ubuntu, Apache, PHP o PostgreSQL.
-- Si cambian flujos o estructura relevante, actualizar los diagramas afectados.
-
-## Criterios de modelado
-
-### Conversación
-Representa una sesión viva entre el usuario y el bot.
-
-Debe soportar:
-
-- estado actual
-- tipo de flujo
-- intentos
-- timestamps
-- timeout
-- cierre por cancelación
-- cierre por inactividad
-- historial de mensajes y eventos
-
-### Mensajes
-Cada mensaje entrante y saliente debe quedar persistido y asociado a una conversación.
-
-Registrar cuando sea posible:
-
-- dirección (`in` / `out`)
-- tipo de mensaje
-- contenido
-- payload crudo
-- validez
-- motivo de invalidez
-- paso del flujo
-
-### Eventos
-Registrar eventos técnicos y de trazabilidad, por ejemplo:
-
-- cambio de estado
-- validación fallida
-- recordatorio por inactividad
-- cancelación automática
-- cancelación manual
-- creación de aviso
-- creación de anticipo
-
-## Convenciones de implementación
-
-- Preferir componentes pequeños y extensibles.
-- Evitar `switch` gigantes para manejar flujos completos.
-- Diseñar los pasos del flujo para que cada uno tenga:
-  - dato esperado
-  - validación
-  - respuesta de éxito
-  - respuesta de error
-  - cantidad de intentos
-  - transición al siguiente paso
-- Separar:
-  - normalización de mensajes
-  - validación
-  - persistencia
-  - respuesta
-  - materialización de entidades de negocio
-
-## Integraciones futuras
-
-La identificación real del trabajador y otras integraciones externas deben quedar desacopladas detrás de interfaces o servicios mockeables.
-
-## Qué no asumir
-
-- No asumir que todo mensaje recibido es texto.
-- No asumir que una conversación debe derivar siempre en un aviso.
-- No asumir que una conversación cancelada debe reutilizarse.
-- No asumir que los textos o catálogos serán fijos en el tiempo.
-
-## Meta técnica de corto plazo
-
-Dejar el proyecto preparado para:
-
-- trazabilidad completa
-- mantenimiento simple
-- incorporación de nuevas validaciones
-- incorporación de nuevos pasos o subflujos
-- administración futura de mensajes y parámetros
-- documentación visual viva mantenible desde Git y por agentes
-
-
-## Rutina de trabajo diaria
-
-### Archivos de referencia obligatorios
-Antes de ejecutar cualquier tarea relevante, leer en este orden:
-
-1. `AGENTS.md`
-2. `plan_dev/MASTER_PLAN.md`
-3. `plan_dev/STATUS.md`
-4. el archivo diario correspondiente en `plan_dev/daily/YYYY-MM-DD.md`
-
-Si alguno no existe, dejarlo explícito en el resumen final.
-
-### Rol de cada archivo operativo
-
-- `AGENTS.md`: reglas estables de trabajo, diseño, validación y actualización documental.
-- `plan_dev/MASTER_PLAN.md`: roadmap general y criterio de orden a mediano plazo.
-- `plan_dev/STATUS.md`: estado consolidado actual y resultado de la última ejecución relevante.
-- `plan_dev/daily/YYYY-MM-DD.md`: plan operativo del día y orden de milestones.
-- `plan_dev/BACKLOG.md`: hallazgos y pendientes fuera del alcance del día.
-- `plan_dev/RUNBOOK_PROMPT.md`: prompt lanzador estándar para iniciar una ejecución diaria con el mismo encuadre base.
-
-Si dos archivos parecen contradecirse, usar esta precedencia:
-1. `AGENTS.md`
-2. `plan_dev/daily/YYYY-MM-DD.md`
-3. `plan_dev/STATUS.md`
-4. `plan_dev/MASTER_PLAN.md`
-
-Los archivos fechados legacy en `plan_dev/` solo deben usarse como contexto histórico o insumo puntual, no como fuente de verdad activa, salvo que `STATUS.md` o el plan diario los referencien explícitamente.
-
-### Prompt lanzador estándar
-
-Existe un prompt base en `plan_dev/RUNBOOK_PROMPT.md`.
-
-Debe usarse como punto de partida recomendado para abrir una ejecución diaria nueva, manteniendo consistencia entre sesiones.
-
-Ese prompt no reemplaza la lectura de `AGENTS.md`, `plan_dev/MASTER_PLAN.md`, `plan_dev/STATUS.md` ni del plan diario correspondiente.
-
----
-
-## Fuente de verdad del trabajo
-
-- `plan_dev/MASTER_PLAN.md` define el roadmap general.
-- `plan_dev/STATUS.md` define el estado actual consolidado.
-- `plan_dev/daily/YYYY-MM-DD.md` define qué se ejecuta hoy.
-- `plan_dev/BACKLOG.md` concentra pendientes no priorizados o hallazgos fuera del alcance del día.
-
-No usar conversaciones anteriores como única fuente de verdad si ya existe información más actual en esos archivos.
-No tratar archivos históricos fechados como plan activo en competencia con esta estructura.
-
----
-
-## Regla de ejecución
-
-Trabajar siempre sobre el **primer milestone pendiente** del plan diario.
-
-No saltar milestones bloqueados salvo que el propio plan diario lo autorice explícitamente.
-
-Para cada milestone seguir esta secuencia:
-
-1. analizar el estado actual del repo
-2. proponer plan corto de archivos a crear/modificar
-3. implementar cambios
-4. correr validaciones obligatorias
-5. actualizar `plan_dev/STATUS.md`
-6. decidir si el milestone queda:
-   - `done`
-   - `blocked`
-   - `needs_review`
-
----
-
-## Reglas generales de stop/fix
-
-No avanzar al siguiente milestone si falla una validación obligatoria.
-
-Frenar y dejar el milestone en `blocked` si:
-- hay una ambigüedad funcional relevante;
-- hay más de una decisión técnica razonable y no existe definición en docs;
-- falta acceso a sistema externo, credencial, contrato o dependencia necesaria;
-- el cambio deja de ser acotado y exige una refactorización mayor;
-- no se puede validar el resultado de forma mínima y segura.
-
-Marcar `needs_review` si:
-- el cambio quedó técnicamente listo;
-- pero requiere validación o decisión humana antes de seguir.
-
-Se permite un intento razonable de corrección frente a errores menores.  
-No encadenar correcciones indefinidas sin actualizar el estado y sin dejar claro el bloqueo.
-
----
-
-## Validación obligatoria
-
-Todo milestone debe definir:
-- validación automática obligatoria
-- validación manual sugerida
-- condiciones específicas de stop
-
-Si el cambio toca lógica relevante:
-- agregar o ajustar tests en el mismo commit cuando corresponda
-- correr los tests definidos por el milestone
-
-Si el entorno no permite correr tests o validaciones:
-- dejarlo explícito en `plan_dev/STATUS.md`
-- no afirmar que el cambio quedó validado completamente
-
----
-
-## Actualización de estado
-
-Al terminar cada milestone, actualizar `plan_dev/STATUS.md` con:
-- fecha y hora
-- milestone trabajado
-- resultado (`done`, `blocked`, `needs_review`)
-- resumen corto de cambios
-- validaciones ejecutadas
-- bloqueos o decisiones pendientes
-- próximo paso sugerido
-
-No dejar el repo en un estado donde no quede claro qué pasó en la última ejecución.
-`STATUS.md` debe funcionar como snapshot consolidado + última ejecución, no como backlog paralelo.
-
----
-
-## Regla de commits
-
-Cada milestone cerrado debe quedar respaldado por al menos un commit pequeño y trazable, salvo que el usuario pida explícitamente no commitear o que el milestone quede `blocked` / `needs_review` sin cambios listos para integrar.
-
-Cuando el corte sea claro, separar en commits distintos:
-- `refactor`: reorganización interna sin cambio funcional esperado
-- `feat`: funcionalidad nueva o ampliación concreta de comportamiento
-- `test`: tests agregados o ajustados como corte independiente cuando no sea más claro dejarlos junto al cambio principal
-- `docs`: cambios documentales u operativos sin impacto en runtime
-
-Reglas prácticas:
-- no mezclar en un mismo commit cambios no relacionados aunque pertenezcan al mismo día
-- si un milestone tiene más de un corte natural, dividirlo en varios commits chicos
-- si el test es necesario para entender o validar el cambio principal, puede vivir en el mismo commit del `refactor` o `feat`
-- evitar commits gigantes de “implementación completa del día” salvo que el trabajo ya haya quedado mezclado y separarlo de forma segura no sea razonable
-- actualizar `plan_dev/STATUS.md` y el `daily` antes del commit que cierre el milestone o al menos dentro del último commit de ese milestone
-- si hay cambios fuera de alcance detectados durante el trabajo, no incluirlos en el commit del milestone; moverlos a backlog o dejarlos para otro corte
-- si un milestone combina documentación operativa y runtime, separar commits por corte lógico siempre que pueda hacerse sin reescritura riesgosa
-
-Formato recomendado:
-- título: `<tipo>: <resumen corto>`
-- cuerpo:
-  - `Daily: plan_dev/daily/YYYY-MM-DD.md`
-  - `Milestone: MX`
-  - `Resumen: <1 o 2 líneas con el objetivo del corte>`
-
-Ejemplos válidos:
-- `refactor: extraer conversation interaction service`
-- `feat: agregar endpoint interno de chat`
-- `test: cubrir consola local y timeout logging`
-- `docs: actualizar daily y status tras cerrar M6`
-
-Si el usuario no indica otra cosa, el agente debe proponer y preferir estos cortes chicos durante la ejecución.
-
----
-
-## Documentación viva
-
-Si un cambio impacta de forma relevante en:
-- flujos
-- arquitectura
-- modelo de datos
-- testing
-- integraciones
-- diagramas
-
-actualizar la documentación correspondiente en `docs/` y/o `docs/diagrams/`.
-
-No postergar sistemáticamente la actualización documental para “más adelante”.
-
----
-
-## Diagramas como código
-
-Revisar `docs/diagrams/` cuando el cambio afecte:
-- caminos conversacionales
-- estructura de clases
-- modelo de datos
-
-Los diagramas en formato texto forman parte de la documentación viva del repo y deben mantenerse alineados con los cambios estructurales importantes.
-
----
-
-## Hallazgos fuera del alcance
-
-Si durante la ejecución aparecen:
-- mejoras no prioritarias
-- deuda técnica no crítica
-- refactors futuros
-- tareas que no entran en el milestone actual
-
-registrarlas en `plan_dev/BACKLOG.md` o en la sección correspondiente de `plan_dev/STATUS.md`, sin desviar la ejecución del objetivo del día.
-
-Si el hallazgo ya fue volcado en `plan_dev/BACKLOG.md`, en `STATUS.md` alcanza con dejar una referencia breve; evitar duplicar backlog completo en ambos lugares.
-
----
-
-## Resumen final esperado por milestone
-
-Cada ejecución relevante debe dejar un resumen con:
-- archivos creados o modificados
-- qué se implementó o ajustó
-- qué validaciones se ejecutaron
-- qué quedó pendiente
-- si hace falta intervención humana o no
+## Proyecto y alcance de estas reglas
+
+Medicina Laboral UNLu: MVP Laravel + PostgreSQL + Docker; WhatsApp Cloud API,
+aviso de ausencia y anticipo de certificado. Mantener componentes pequeños,
+trazabilidad completa y extensibilidad por pasos.
+
+Estas reglas rigen el repo. Buscar también `AGENTS.md` en los subdirectorios
+asignados y respetar su scope; no tomar copias de releases/vendor como reglas del
+checkout. Las instrucciones explícitas del usuario prevalecen sobre estas guías.
+
+## Arranque y fuentes de verdad
+
+El Lead lee, en este orden, antes de una tarea relevante:
+
+1. Este `AGENTS.md` y reglas más específicas aplicables.
+2. [MASTER_PLAN](plan_dev/MASTER_PLAN.md): roadmap y orden general.
+3. [STATUS](plan_dev/STATUS.md): snapshot consolidado y última ejecución.
+4. Daily correspondiente en `plan_dev/daily/YYYY-MM-DD.md`, o el indicado.
+5. [INDEX de memoria](docs/ai-memory/INDEX.md); sólo las entradas pertinentes.
+
+Si falta una referencia obligatoria, declararlo; no inventar el plan activo.
+Precedencia operativa: AGENTS → daily → STATUS → MASTER_PLAN. Los planes fechados
+legacy y `archive/` son históricos salvo referencia explícita. No usar charlas
+anteriores como única fuente de verdad cuando hay archivos actuales.
+
+| Fuente | Autoridad |
+| --- | --- |
+| Código / migraciones | Comportamiento y esquema implementados |
+| Tests | Comportamiento esperado verificable; no prueban lo no ejecutado |
+| Daily / milestone | Alcance, contratos, tareas y orden del trabajo autorizado |
+| STATUS | Estado consolidado actual y resultado de última ejecución |
+| BACKLOG | Hallazgos y trabajo no priorizado |
+| `docs/12-decisiones-tecnicas.md` y docs de dominio | Decisiones con estado explícito, no implementación presumida |
+| AI memory | Mapa y conocimiento reusable; nunca reemplaza código/tests/docs canónicas |
+
+Antes de tocar código, consultar `README.md`, `docs/README.md` y
+`docs/05-motor-de-conversacion.md`; leer las secciones pertinentes de los flujos
+06/07, reglas 08, scheduler 09 y `docs/diagrams/README.md` según el impacto.
+Usar búsqueda y lectura dirigida. No releer material sin cambios dentro de la
+misma sesión. Workers reciben la ficha/contrato y fuentes de su dominio: el Lead
+centraliza la lectura operativa global, no obliga a repetir todo el relevamiento.
+
+## Ejecución por milestone
+
+Trabajar sólo el **primer milestone pendiente**. No saltar uno bloqueado salvo
+priorización explícita del usuario registrada en el daily.
+Secuencia: analizar → plan corto de archivos → contratos/ownership/modo →
+implementar → review → integrar/validar → actualizar daily/STATUS → commit/cierre.
+El [workflow](plan_dev/MULTI_AGENT_WORKFLOW.md) define roles, estados, fichas,
+contratos, handoffs, worktrees, findings y gates. La [plantilla daily](plan_dev/daily/YYYY-MM-DD.md)
+reúne objetivo, scope/fuera de scope, dependencias, aceptación, regresión y riesgos.
+Usar [RUNBOOK_PROMPT](plan_dev/RUNBOOK_PROMPT.md) como lanzador.
+
+## Paralelismo y responsabilidad
+
+- El agente principal es Lead técnico. Decide **único agente / secuencial /
+  paralelo** según dependencias reales; no delegar tareas triviales.
+- Máximo inicial recomendado: 3 workers concurrentes, además del Lead; no hay
+  obligación de ocuparlos. Workers no subdelegan sin decisión del Lead.
+- Antes de paralelizar: contratos compartidos estables, grafo de dependencias,
+  acceptance criteria, archivos permitidos/prohibidos, owner y entorno por tarea.
+- Un escritor por archivo. Providers, lockfiles, configuración, traducciones,
+  migraciones, esquema de tests y docs globales también tienen dueño explícito.
+- Implementación paralela: branch/worktree propios; verificar cwd/rama. Si el
+  entorno no permite aislamiento, serializar; lectores pueden trabajar en paralelo.
+- Worktrees no aíslan DB, puertos, Docker ni hosts remotos. Asignar operador único
+  o entornos exclusivos. No modificar trabajo de otro agente ni sus recursos.
+- Reviewer independiente para cambios paralelos/relevantes: primero findings,
+  sin editar. Resolver BLOCKER/HIGH antes del cierre. Cambios triviales admiten
+  revisión propia declarada; no llamarla independiente.
+- Sólo Lead/Integration integra commits, valida el conjunto y publica STATUS,
+  daily y memoria. Los workers entregan `TASK RESULT` y memory candidates.
+
+## Reglas de diseño y modelado
+
+- Textos en `lang/es/*.php`; mensajes largos en templates Blade; parámetros y
+  catálogos en `config/*.php` mientras no se apruebe otra fuente explícitamente.
+- Controllers livianos; negocio en servicios/handlers. Evitar switches gigantes.
+- Cada paso define dato esperado, validación, respuesta de éxito/error, intentos
+  y transición. Separar normalización, validación, persistencia, respuesta y
+  materialización de negocio.
+- Conversación = unidad técnica de trazabilidad/sesión viva, separada del aviso
+  y del anticipo. El anticipo requiere aviso previo; una conversación no siempre
+  produce un aviso. Soportar estado/flujo/intentos/timestamps/timeout y cierres.
+- Persistir entradas/salidas asociadas a conversación: dirección, tipo, contenido,
+  payload, validez/motivo y paso cuando sea posible. Registrar eventos de estado,
+  errores, inactividad, cancelación y creación de entidades.
+- No borrar conversaciones/mensajes cancelados, expirados o fallidos. No asumir
+  que una conversación cancelada puede reutilizarse ni que toda entrada es texto.
+- Automatismos de inactividad con Laravel Scheduler. Integraciones externas e
+  identificación detrás de interfaces/servicios mockeables. Catálogos y textos
+  pueden evolucionar: conservar trazabilidad histórica.
+
+## Deploy
+
+- Todo documento, inventory, playbook, rol, template, prueba o código específico
+  de despliegue vive en `deploy/`; fuentes canónicas: `deploy/README.md` y
+  `deploy/docs/`. `plan_dev/` sólo planificación operativa y estado.
+- Cada tecnología tiene rol estándar en `deploy/provisioning/roles/` con README,
+  defaults, soporte por versión y tests. Inventory elige proveedor/versión por
+  separado; no perfiles monolíticos sin dependencia técnica real.
+- Agregar soporte dentro de cada tecnología; no alterar una versión validada
+  para adaptar otra. Playbooks generales sólo orquestan: sin paquetes, rutas de
+  servicio ni lógica específica de Debian/Ubuntu/Apache/PHP/PostgreSQL.
+- Integrar un milestone no autoriza despliegue ni publicación implícitos.
+
+## Stop/fix y validaciones
+
+Cada milestone define validación automática obligatoria, manual sugerida y stops.
+Cambios relevantes incluyen tests adecuados al comportamiento en el mismo corte.
+No avanzar si falla un check obligatorio. Un intento razonable de corrección
+menor; no encadenar fixes indefinidos sin actualizar estado.
+
+`blocked`: ambigüedad funcional/técnica relevante sin definición, credencial o
+contrato faltante, dependencia externa inaccesible, refactor mayor fuera de scope
+o imposibilidad de validación mínima segura. No considerar una elección rutinaria
+compatible con los contratos como bloqueo.
+`needs_review`: falta revisión independiente requerida o decisión/aceptación humana
+identificada. Declarar exactamente qué falta; no pedir aprobaciones redundantes.
+`done`: tareas e integración terminadas, regresiones obligatorias correctas,
+BLOCKER/HIGH resueltos, docs/daily/STATUS actualizados, memoria evaluada y Git limpio.
+Si falta entorno, declarar validaciones no ejecutadas; no afirmar validación total.
+
+## Git, documentación y cierre
+
+- Revisar estado inicial; nunca borrar, revertir ni incluir cambios ajenos para
+  cumplir el cierre. Si impiden Git limpio, aislar o dejarlo explícitamente pendiente.
+- Cada milestone cerrado tiene al menos un commit pequeño y trazable salvo pedido
+  de no commitear o blocked/needs_review sin cambios integrables. Separar cortes
+  `refactor`, `feat`, `test`, `docs` cuando sea natural; tests necesarios pueden
+  acompañar implementación. No commits gigantes ni cambios fuera de alcance.
+- Título `<tipo>: <resumen>`; cuerpo con `Daily: <ruta>`, `Milestone: <ID>` y
+  `Resumen: <objetivo>`. Actualizar daily/STATUS antes o dentro del último commit.
+- No merges automáticos ni push implícito. Integrar en orden y validar HEAD conjunto,
+  no asumir que tests aislados prueban el milestone. Detalle Git en workflow.
+- Actualizar docs/diagramas afectados por cambios de flujo, arquitectura, modelo,
+  testing o integraciones; fuentes versionables en `docs/diagrams/` y regenerar
+  derivados según su README. Asignar fuente y renderizados al mismo owner.
+- Hallazgos fuera del corte a BACKLOG, referenciados brevemente desde STATUS;
+  no convertir STATUS en backlog/bitácora. Conservar sólo snapshot + última ejecución.
+- Memoria selectiva: Lead decide `IGNORE / UPDATE_EXISTING / ADD`; preferir enlaces
+  y actualizar entradas existentes. Nada reusable nuevo → no tocar memoria.
+  No guardar secretos, logs completos, chats, razonamientos, diffs ni datos temporales.
+  Compactar según [política de memoria](docs/ai-memory/README.md).
+- Resumen final compacto: implementado/archivos, tests/resultados, decisiones,
+  límites/pendientes, memoria, commits y próximo paso/intervención humana.

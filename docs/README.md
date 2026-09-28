@@ -11,6 +11,13 @@ Debe servir como base común para:
 - prompts a Codex u otros agentes
 - evolución incremental del sistema
 
+## Trabajo con agentes
+
+Entrada selectiva: [índice de memoria](ai-memory/INDEX.md).
+Procedimiento: [workflow multiagente](../plan_dev/MULTI_AGENT_WORKFLOW.md).
+El índice siguiente es un mapa de documentación, no una lista a cargar completa
+por cada worker.
+
 ## Orden recomendado de lectura
 
 - `03-arquitectura.md`

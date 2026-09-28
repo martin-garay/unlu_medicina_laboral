@@ -1,65 +1,37 @@
 # Runbook Prompt
 
-## Objetivo
+Lanzador único para Milestones + Daily Plans; el Lead elige el número de agentes.
+No hace falta pedir "multiagente" en cada sesión ni copiar la documentación.
 
-Este archivo define un prompt lanzador estándar para iniciar sesiones de trabajo de Codex sobre el proyecto.
+## Prompt para una ejecución
 
-Su función es:
-- mantener un arranque consistente entre ejecuciones
-- reducir variación innecesaria entre prompts diarios
-- recordar la rutina documental obligatoria
-- enfocar la ejecución en el primer milestone pendiente del día
+```text
+Actuá como Lead de este repositorio siguiendo AGENTS.md y
+plan_dev/MULTI_AGENT_WORKFLOW.md.
 
-No reemplaza la documentación operativa del repo.
+Daily: plan_dev/daily/YYYY-MM-DD.md
+Ejecutá sólo su primer milestone pendiente; respetá bloqueos y alcance aprobado.
+Leé las referencias operativas en orden, luego docs/ai-memory/INDEX.md y sólo
+la memoria relevante. Si falta el daily o una definición, informalo sin inventar
+alcance ni promover backlog por tu cuenta.
 
----
+Antes de editar proponé un plan corto de archivos, dependencias y modo de trabajo:
+agente único, secuencial o paralelo. Si delegás, fijá contratos y ownership primero,
+con hasta 3 workers concurrentes y worktrees para implementación paralela.
 
-## Prompt base recomendado
-
-```md
-Trabajá sobre este repo siguiendo estrictamente la rutina operativa definida en `AGENTS.md`.
-
-Antes de hacer cambios:
-- leé `AGENTS.md`
-- leé `plan_dev/MASTER_PLAN.md`
-- leé `plan_dev/STATUS.md`
-- leé el plan diario correspondiente en `plan_dev/daily/YYYY-MM-DD.md` o el archivo diario que se indique
-
-Reglas de ejecución:
-- usá esos archivos como fuente de verdad actual
-- ejecutá solo el primer milestone pendiente del plan diario
-- no saltes milestones bloqueados salvo autorización explícita del plan diario
-- si detectás ambigüedad funcional o técnica relevante, frená y dejá el milestone como `blocked` o `needs_review`
-- si aparece trabajo fuera del alcance, registralo en `plan_dev/BACKLOG.md` sin desviar la ejecución
-- al cerrar el milestone, actualizá `plan_dev/STATUS.md` con resultado, validaciones y próximo paso sugerido
-- si el cambio impacta documentación, diagramas, arquitectura, flujos, testing o modelo, actualizá los documentos correspondientes
-- cerrá cada milestone con al menos un commit chico y trazable, salvo pedido explícito de no commitear o bloqueo sin cambios integrables
-- si el corte es claro, separá `refactor`, `feat`, `test` y `docs`
-- en cada commit, dejá en el cuerpo la referencia al `daily` y al `milestone`
-
-Formato esperado de respuesta:
-1. análisis breve del estado actual para el milestone
-2. plan corto de archivos a tocar
-3. implementación
-4. validaciones ejecutadas
-5. actualización de estado y resumen final
-
-Si falta alguno de los archivos obligatorios, dejalo explícito en el resumen final.
+Revisá, integrá y validá el conjunto; actualizá daily/STATUS y documentación.
+Evaluá memory candidates sin duplicar información. Cerrá con commits pequeños
+y MILESTONE SUMMARY, o dejá bloqueo/review pendiente con causa y próximo paso.
 ```
 
----
+Reemplazar la fecha por el daily **acordado**, no necesariamente el día calendario.
+Si no existe un plan para el trabajo nuevo, agregar al pedido objetivo, alcance,
+fuera de alcance y prioridad respecto de pendientes para que el Lead lo prepare.
+Una tarea simple no necesita workers ni branches extra.
 
-## Cómo usarlo
+## Próximo trabajo de producto después de MA-001
 
-- copiar este prompt como base al abrir una nueva sesión
-- completar `YYYY-MM-DD` por la fecha real o reemplazarlo por el archivo diario correspondiente
-- agregar debajo el objetivo puntual del día si hace falta
-- no duplicar en el prompt información que ya vive establemente en `AGENTS.md` o `plan_dev/`
-
----
-
-## Cuándo ajustarlo
-
-Modificar este archivo solo si cambia de verdad la rutina operativa del proyecto.
-
-Si cambia una prioridad del día, el lugar correcto para eso es `plan_dev/daily/`, no este archivo.
+El workflow está listo; no hay un milestone nuevo de producto autorizado por su
+adopción. M5 de [2026-09-14](daily/2026-09-14.md) sigue bloqueado por decisiones;
+CAT-001 sigue en backlog con selección pendiente. Indicar qué resolver/priorizar
+antes de pedir implementación; MA-001 no es autorización para saltar esos bloqueos.

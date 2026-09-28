@@ -1,9 +1,3 @@
-
----
-
-## `docs/12-decisiones-tecnicas.md`
-
-```md
 # Decisiones técnicas
 
 ## Objetivo
@@ -930,3 +924,22 @@ Evolucionar hacia cuatro categorías:
 No se implementa redacción parcial en este milestone.
 
 La protección de datos sensibles queda pendiente explícito en `plan_dev/BACKLOG.md` (`LOG-001`) y debe resolverse antes de endurecer el módulo administrativo o ampliar la visibilidad operativa.
+
+
+## 31. Desarrollo coordinado por Lead y memoria selectiva
+
+Estado: accepted. Fecha: 2026-09-27. Alcance: metodología de desarrollo,
+solicitada explícitamente por el usuario; no modifica arquitectura del producto.
+
+Decisión: conservar Milestones + Daily Plans; el Lead decide ejecución individual,
+secuencial o paralela, con hasta tres workers concurrentes como máximo inicial
+recomendado. Contratos y ownership preceden al paralelismo; implementación
+paralela en worktrees, revisión independiente e integración/regresión controladas.
+
+Motivo: reducir conflictos e investigación repetida sin crear burocracia para
+cambios simples. La memoria es un índice y notas selectivas con fuentes, no una
+segunda especificación ni otro decision log.
+
+Impacto: [AGENTS](../AGENTS.md), [workflow](../plan_dev/MULTI_AGENT_WORKFLOW.md),
+plantilla daily y [memoria](ai-memory/README.md). No se crea CI, framework de
+orquestación ni automatización de entornos; se reutilizan herramientas existentes.

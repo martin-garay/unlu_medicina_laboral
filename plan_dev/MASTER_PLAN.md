@@ -36,6 +36,11 @@ Los agentes deben trabajar sobre:
 
 Los agentes deben ejecutar solo el primer milestone pendiente del plan diario, salvo que el plan diario indique otra cosa explícitamente.
 
+La coordinación se rige por [MULTI_AGENT_WORKFLOW](MULTI_AGENT_WORKFLOW.md).
+El Lead centraliza la lectura operativa; workers reciben scope y contratos
+mínimos. Delegar no habilita otros milestones ni reemplaza la validación conjunta.
+Memoria técnica: [INDEX](../docs/ai-memory/INDEX.md), lectura selectiva.
+
 ## Relación con el resto de `plan_dev/`
 
 - `MASTER_PLAN.md` ordena etapas y prioridades de mediano plazo.

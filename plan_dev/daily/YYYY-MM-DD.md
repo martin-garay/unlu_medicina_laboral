@@ -1,161 +1,79 @@
-# Daily Plan
-## Fecha
-YYYY-MM-DD
+# Daily YYYY-MM-DD — <objetivo>
 
-## Objetivo del día
-Describir en una o dos líneas qué se quiere lograr hoy.
+## Alcance y orden autorizado
 
-## Relación con otros archivos
+- Referencias: [AGENTS](../../AGENTS.md), [MASTER_PLAN](../MASTER_PLAN.md),
+  [STATUS](../STATUS.md), [workflow](../MULTI_AGENT_WORKFLOW.md).
+- Continuidad: <daily/milestone anterior; bloqueos que se conservan>.
+- Orden: <IDs>. Ejecutar sólo el primer pendiente. Excepciones: <NONE o autorización>.
+- No copiar backlog aquí; enlazar los items promovidos explícitamente.
 
-- `AGENTS.md` define reglas estables de ejecución.
-- `plan_dev/MASTER_PLAN.md` define el orden macro del roadmap.
-- `plan_dev/STATUS.md` define el estado consolidado y la última ejecución.
-- Este archivo define solo el trabajo operativo del día.
+## M1 — <nombre>
 
-Si este plan diario contradice un documento histórico fechado, prevalece este archivo.
+Estado: `pending`. Fase: `READY` (o `BLOCKED` si faltan requisitos).
 
----
+### Goal / objetivo
 
-## Reglas de ejecución del día
+<Resultado verificable>
 
-- Leer antes de empezar:
-  - `AGENTS.md`
-  - `plan_dev/MASTER_PLAN.md`
-  - `plan_dev/STATUS.md`
-  - este archivo
-- Ejecutar los milestones en orden.
-- No saltar un milestone bloqueado, salvo que este archivo lo autorice explícitamente.
-- Si falla una validación obligatoria, no avanzar al siguiente milestone.
-- Actualizar `plan_dev/STATUS.md` al cerrar cada milestone o al quedar bloqueado.
-- Si un cambio impacta flujo, arquitectura, modelo, testing o diagramas, actualizar documentación correspondiente.
+### Scope / fuera de alcance
 
----
+<Archivos/módulos y qué no se implementa>
 
-## Milestone 1
-### Nombre
-Ejemplo: cerrar confirmación final del anticipo
+### Dependencies / contratos compartidos
 
-### ID
-M1
+<Prerequisitos, contratos existentes o contrato ID/revisión/base: campos, interfaces,
+rutas, permisos, errores, esquema, estados/eventos según aplique. NONE si no aplica.>
 
-### Objetivo
-Qué resultado concreto se espera.
+### Tasks / estrategia de ejecución
 
-### Alcance
-Qué entra y qué no entra.
+Modo: único agente / secuencial / paralelo. Motivo: <independencia o acoplamiento>.
+Para un cambio simple bastan scope, aceptación y tests; omitir tabla/fichas vacías.
+Para delegación completar la ficha de [ownership](../MULTI_AGENT_WORKFLOW.md#asignación-mínima-para-tareas-delegadas).
 
-### Dependencias
-- docs, decisiones o milestones previos necesarios:
+| Task | Owner | Allowed files | Branch / Worktree / Base | Depends on | Estado / Fase |
+| --- | --- | --- | --- | --- | --- |
+| <ID> | <owner> | <rutas> | <ruta y SHA o NONE> | <IDs> | pending / READY |
 
-### Validación automática obligatoria
-- `make test`
-- o tests específicos:
-  - `php artisan test --filter ...`
+Grafo: `<C1 -> (T1 || T2) -> Review -> Integration>`; clasificar dependencias
+PARALLELIZABLE / SEQUENTIAL / BLOCKED. Reservar archivos compartidos a un owner.
+
+### Acceptance criteria / entregable
+
+- <Comportamiento o resultado documental observable>
+
+### Validación automática obligatoria / Regression tests
+
+- <Comandos + entorno exacto; diferenciar pruebas de workers y del HEAD integrado>
+- `git diff --check`.
 
 ### Validación manual sugerida
-- 
-- 
 
-### Stop conditions específicas
-- si falta definición funcional sobre ...
-- si el modelo actual no soporta ...
-- si aparece una refactorización transversal no prevista
+- <Recorrido; marcar explícitamente si es obligatoria para este corte>
 
-### Entregable esperado
-- 
+### Risks / condiciones de stop
 
-### Si queda bloqueado, ¿se puede avanzar al siguiente milestone?
-- `no`
-- solo cambiar a `sí` si hay autorización explícita y escrita en este plan
+- <Riesgos, ambigüedades y condiciones de bloqueo específicas>
+- Si falla validación obligatoria, no avanzar. ¿Saltar bloqueo?: no, salvo excepción autorizada arriba.
 
-### Estado
-`pending`
+### Review / Integration
 
----
+<Reviewer, base/HEAD, findings y resolución. Plan de integración y regresión conjunta.
+Para corte trivial indicar revisión propia; si no aplica integración entre ramas, declararlo.>
 
-## Milestone 2
-### Nombre
-...
+### Definition of done
 
-### ID
-M2
+Tasks finalizadas; integración y tests/regresiones del conjunto correctos;
+BLOCKER/HIGH resueltos; docs/diagramas y daily/STATUS actualizados;
+memoria evaluada; commits trazables y Git limpio, sin alterar trabajo ajeno.
 
-### Objetivo
-...
+### Resultado
 
-### Alcance
-...
+<Fecha/hora, estado/fase, evidencia, commits, limitaciones y próximo paso.
+Entregas TASK RESULT sólo para tareas delegadas. Memory: IGNORE / UPDATE_EXISTING / ADD.>
 
-### Dependencias
-- 
+## Cierre del día
 
-### Validación automática obligatoria
-- 
-
-### Validación manual sugerida
-- 
-
-### Stop conditions específicas
-- 
-
-### Entregable esperado
-- 
-
-### Si queda bloqueado, ¿se puede avanzar al siguiente milestone?
-- `no`
-
-### Estado
-`pending`
-
----
-
-## Milestone 3
-### Nombre
-...
-
-### ID
-M3
-
-### Objetivo
-...
-
-### Alcance
-...
-
-### Dependencias
-- 
-
-### Validación automática obligatoria
-- 
-
-### Validación manual sugerida
-- 
-
-### Stop conditions específicas
-- 
-
-### Entregable esperado
-- 
-
-### Si queda bloqueado, ¿se puede avanzar al siguiente milestone?
-- `no`
-
-### Estado
-`pending`
-
----
-
-## Criterio de cierre del día
-- actualizar `plan_dev/STATUS.md` con el último milestone ejecutado y su resultado
-- marcar el milestone correspondiente como `done`, `blocked` o `needs_review`
-- dejar explícito si hace falta intervención humana antes de la próxima ejecución
-
-## Decisiones humanas esperadas al cierre del día
-- 
-- 
-
----
-
-## Notas del día
-- 
-- 
+Usar MILESTONE SUMMARY del workflow. No avanzar otro milestone sin autorización
+cuando el alcance es uno solo. Replicar el bloque M1 únicamente si hay más trabajo
+aprobado; estados/fases se mantienen aquí y snapshot consolidado en STATUS.

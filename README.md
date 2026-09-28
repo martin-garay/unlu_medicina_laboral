@@ -166,3 +166,11 @@ Si prefieres usar `make`:
 - `docs/diagrams/`: documentación visual versionable del proyecto.
 - `scripts/render_diagrams.sh`: generación de SVGs para Mermaid y PlantUML.
 - `deploy/`: documentación y futuro código de despliegue con Ansible.
+
+## Desarrollo con agentes
+
+El proyecto conserva Milestones + Daily Plans. Empezar con
+[AGENTS.md](AGENTS.md) y el [prompt lanzador](plan_dev/RUNBOOK_PROMPT.md).
+El [workflow](plan_dev/MULTI_AGENT_WORKFLOW.md) permite agente único, tareas
+secuenciales o workers aislados, según dependencias. La
+[memoria selectiva](docs/ai-memory/INDEX.md) orienta hacia fuentes existentes.

@@ -1,0 +1,615 @@
+# Status
+
+## Objetivo
+
+Este archivo consolida el estado actual del proyecto y deja trazada la última ejecución relevante.
+
+No debe reemplazar:
+- el roadmap de `plan_dev/MASTER_PLAN.md`
+- el detalle operativo de `plan_dev/daily/`
+- el backlog de `plan_dev/BACKLOG.md`
+
+---
+
+## Fecha de última actualización
+2026-09-27 21:51 -03
+
+## Última actividad — CAT-001: relevamiento de tablas maestras
+
+- Fecha/hora: 2026-09-27 21:51 -03. Resultado del relevamiento: `done`;
+  selección e implementación de CAT-001: `pending` en BACKLOG.
+- Creado `docs/15-inventario-tablas-maestras.md`, enlazado desde el índice y
+  BACKLOG. Incluye C1–C17, fuentes, consumidores, dependencias y decisiones.
+- Detectada duplicación catálogo/botones y ambigüedad entre jornada y turno.
+  Detalle en el inventario, sin duplicar el backlog aquí.
+- Validación: `git diff --check` y enlaces locales de los documentos del corte.
+  Sin tests de runtime: sólo documentación; sin migraciones ni cambios de DB.
+- No existe `plan_dev/daily/2026-09-27.md`; no se crea ni promueve implementación,
+  porque el pedido es registrar backlog y preparar selección conjunta.
+- Próximo paso: decidir con el usuario qué candidatos pasar a DB. Se conserva
+  el bloqueo de M5 y las decisiones de BO-002.
+
+## Última actividad — AV-001 completado y prueba local
+
+- Fecha/hora: 2026-09-24 17:13 -03. Daily: `plan_dev/daily/2026-09-24.md`.
+- Resultado: `done`. El usuario autorizó priorizar AV-001 sobre M5 bloqueado.
+- Agregados handlers de nombre y parentesco, validación compartida, menú de
+  parentescos y soporte de listas WhatsApp. Estado provisional anterior retomable.
+- Nombre completo y parentesco obligatorios; confirmación y creación protegidas;
+  ambos datos conservados en `metadata.aviso`. Sin migraciones nuevas.
+- Actualizados textos, configuración, pruebas, documentación funcional/modelo
+  y diagrama de aviso (fuente Mermaid, SVG y PNG).
+- Validaciones: `make test` OK, 228 tests / 1058 assertions;
+  `git diff --check` OK; renderizado Mermaid OK.
+- `make up` OK, app y PostgreSQL activos. Chat HTTP 200 en
+  `http://localhost:8000/internal/chat`; migraciones existentes aplicadas.
+- Smoke local HTTP/PostgreSQL completó conversación 18 y creó AV-5 con datos
+  sintéticos. Chat y guía de pasos abiertos con `xdg-open` sin errores.
+- WhatsApp: normalización de lista, envío y duplicados probados con HTTP fake;
+  no se realizó envío real a Meta ni despliegue remoto.
+- Próximo paso: recorrida manual del usuario en localhost. AV-001 no requiere
+  otra decisión funcional; M5 continúa bloqueado por D2–D5.
+
+## Última actividad — Planificación de AV-001: familiar enfermo
+
+- Fecha/hora: 2026-09-24 17:03 -03.
+- Resultado del corte documental: `done`; implementación AV-001: `pending`.
+- Creado `plan_dev/daily/2026-09-24.md` con alcance, archivos previstos,
+  criterios de aceptación, pruebas automáticas, validación manual y stops.
+- Decisión aprobada por el usuario: nombre completo del familiar y parentesco
+  suficientes y obligatorios; no pedir datos adicionales del familiar.
+- El flujo actual sigue detenido en `aviso_familiar_pendiente`; no se modificó
+  runtime ni se ejecutaron pruebas funcionales en este corte documental.
+- Validaciones: `git diff --check` y enlaces locales del daily, OK.
+- Se conserva M5 de 2026-09-14 bloqueado por D2–D5. No se autoriza saltarlo.
+- Próximo paso: resolver el bloqueo vigente o priorizar explícitamente AV-001
+  en el plan diario antes de implementarlo. No quedan decisiones pendientes
+  sobre cuáles son los datos obligatorios del familiar.
+
+## Última actividad — M5: D1 aprobada
+
+- Fecha/hora: 2026-09-14 22:26 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` para M5 por D2–D5; D1 resuelta por el usuario.
+- Descarga mediante cola PostgreSQL desde la primera versión, con worker
+  administrado; no se implementó runtime en este corte.
+- Plan y contratos actualizados: publicación durable, jobs con IDs, recuperación,
+  idempotencia y separación de espera interna/usuario. Deploy incluye worker.
+- Próximo paso: D2, acceso autorizado mínimo; después limpieza/defaults/capacidad.
+- Validaciones: `git diff --check` OK; `bin/check-docs` OK (23 documentos).
+  Sin pruebas de runtime, purga ni cambios remotos.
+
+## Última actividad — M5: plan incremental conjunto
+
+- Fecha/hora: 2026-09-14 22:20 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` para cierre de M5, por decisiones restantes.
+- Documento de problemática y entregas creado en
+  `docs/14-certificados-problematica-y-plan-incremental.md`; enlazado desde índices.
+- Etapas propuestas: decisiones, circuito funcional, aceptación testing,
+  administración y escalado por mediciones. Cortes con validaciones/manual/stop.
+- D1 preguntada (cola PostgreSQL o directa); D2–D5 pendientes. No se aceptaron
+  recomendaciones por silencio. UI/acceso conserva scope previo hasta acordar D2.
+- No existen todavía config de cola/migraciones de jobs; su incorporación depende
+  de D1. Sin modificaciones de runtime ni purga habilitada.
+- Validaciones: `git diff --check` OK; `bin/check-docs` OK (23 documentos);
+  enlaces locales del plan/índices/daily OK. Sin pruebas de runtime.
+- Próximo paso: respuesta D1, luego D2/D3.
+
+## Última actividad — M5: configuración integral y revisión de completitud
+
+- Fecha/hora: 2026-09-14 22:03 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` por decisiones funcionales/operativas restantes de M5.
+- Incorporado requisito explícito: políticas y parámetros configurables, fuente
+  única, sin defaults duplicados y con coherencia chat/validación/storage.
+- Nuevo contrato `docs/backoffice/certificate-storage-settings.md`: matriz,
+  validaciones, vigencia, UI futura, pendientes de cierre y evidencia M6–M9.
+- Actualizados daily activo, storage/ciclo de vida, backlog, referencia P3 y deploy.
+- Config actual y ausencia de UI contrastadas; no se implementaron settings,
+  migraciones, descargas ni limpieza. La solución todavía no está completa.
+- Próximo paso: cerrar modalidad de descarga, retención, acceso y catálogo de
+  settings, con defaults válidos y escenarios de capacidad; luego M6.
+- Validaciones: `git diff --check` OK; `bin/check-docs` OK (23 documentos);
+  enlaces locales de diseño/dailies OK. No se ejecutaron pruebas de runtime.
+
+## Última actividad — M5: límites, promoción y limpieza
+
+- Fecha/hora: 2026-09-14 21:52 -03. Daily: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` por políticas restantes; estrategia documental ampliada.
+- Límites de config compartidos por chat, validación y storage, con política por
+  intento. Detectado que el runtime actual no valida tamaño ni lo informa al
+  adjuntar; su corrección funcional queda en M6, no se declara implementada.
+- Propuesta: metadata desde borrador, FK nullable al anticipo, contenido 1:1,
+  promoción transaccional sin copiar bytes y estados separados de negocio.
+- Limpieza propuesta con Scheduler, gracia configurable, lotes, locks y auditoría;
+  conserva metadata/historial y excluye confirmados. Agregado DBML futuro separado.
+- Pendientes: acordar gracia/defaults, retención de confirmados/backups, descarga
+  y acceso. No hay migraciones, tareas activadas ni purga de datos.
+- Validaciones: `git diff --check` OK, `bin/check-docs` OK (23 documentos),
+  enlaces locales de diseño OK y contraste con handler/config/Scheduler actual.
+  DBML propuesto revisado como texto; no se ejecutó parser DBML ni pruebas funcionales.
+- Próximo paso: acordar parámetros y políticas restantes para cerrar M5.
+
+## Última actividad — M5: PostgreSQL y rendimiento
+
+- Fecha/hora: 2026-09-14 21:47 -03.
+- Daily activo: `plan_dev/daily/2026-09-14.md`.
+- Resultado: `blocked` por decisiones restantes de BO-002; backend aprobado.
+- El usuario eligió PostgreSQL `bytea` en tabla separada de metadata. Reemplaza
+  filesystem local como destino inicial; no hay migración ni driver implementado.
+- Actualizadas decisiones técnicas, storage, plan de despliegue, daily y backlog.
+- Se requieren consultas sin binarios en listados, transacciones cortas, medición
+  de memoria/concurrencia y validación de capacidad y backup/restore.
+- Pendientes: retención/purga, modalidad de descarga, tiempos/reintentos y acceso.
+- Validaciones: `git diff --check` OK; `deploy/provisioning/bin/check-docs` OK
+  (23 documentos); modelo/migración y límites de configuración contrastados.
+  No se ejecutaron pruebas de carga, runtime ni despliegue.
+- Próximo paso: resolver las políticas de M5 y diseñar vínculo borrador/final;
+  no iniciar M6. M4/D1/D2 están cerrados según aceptación del 07/09.
+- Las notas anteriores de filesystem y reintento de M4 son históricas; este
+  encabezado y el daily activo prevalecen.
+
+## Última actividad — M6 diferido
+
+- Fecha/hora: 2026-09-07 19:35 -03.
+- Resultado: `done` para el registro de la decisión; implementación pendiente.
+- Por decisión explícita del usuario no se continúa con M6 en esta sesión.
+- M5 conserva estado `blocked` por BO-002 y M6 queda `pending`; no se eligieron
+  retención, purga, colas, reintentos ni mecanismo de acceso a archivos.
+- Próximo paso cuando se retome: resolver BO-002 antes de modificar runtime.
+
+## Última actividad — Revisión de decisiones de storage
+
+- Fecha/hora: 2026-09-07 19:31 -03.
+- Milestone: M5, resultado `blocked`.
+- El código y las decisiones existentes ya fijan Laravel Filesystem local
+  privado, contratos draft/final, fallback metadata, PDF/JPEG/PNG, máximo 3
+  archivos y 5120 KiB. La tabla actual contiene los campos necesarios.
+- BO-002 sigue abierto por políticas no definidas: retención/purga de borradores
+  y huérfanos, descarga síncrona o por cola, timeouts/reintentos y mecanismo
+  administrativo de acceso. No se asumieron políticas para archivos médicos.
+- Validación: contratos, configuración, migración y documentación cruzados;
+  `git diff --check` pendiente del corte final.
+- Próximo paso: resolver BO-002. No iniciar M6 mientras M5 permanezca bloqueado.
+
+## Última actividad — Cierre técnico de D2
+
+- Fecha/hora: 2026-09-07 19:30 -03.
+- Milestone: D2, resultado `done` por decisión explícita del usuario.
+- La recorrida desde un perfil limpio de PC Uni queda pendiente no bloqueante en
+  `DEPLOY-004`; debe completarse antes de delegar operación o producción.
+- Se habilitó continuar con M5 sin alterar las validaciones técnicas ya
+  registradas para D2.
+
+## Última actividad — Documentación integral del despliegue
+
+- Fecha/hora: 2026-09-07 19:23 -03.
+- Milestone: D2, resultado `needs_review`.
+- `deploy/README.md` es el índice canónico. Se separaron arquitectura,
+  preparación, runbook operativo, troubleshooting, gates productivos y matriz
+  de evidencia, y se agregó un diagrama Mermaid del pipeline/rollback.
+- `bin/check-docs` valida 23 documentos, enlaces locales y correspondencia de
+  tags, playbooks, variables y pasos del diagrama; ahora forma parte de
+  `bin/check-deploy`.
+- Validaciones: `bin/check-docs` OK; `bin/check-deploy` OK con syntax checks y
+  49 archivos de lint; `git diff --check` OK.
+- No se inventaron secretos ni decisiones institucionales pendientes. D2 queda
+  en revisión porque su condición de stop exige recorrer el runbook desde un
+  perfil limpio de PC Uni.
+- Próximo paso: revisión guiada en PC Uni. No avanzar a M5 hasta registrarla.
+
+## Última actividad — Tags operativos de Ansible
+
+- Fecha/hora: 2026-09-07 19:02 -03.
+- Milestone: D1, resultado `done`.
+- `site.yml` expone tags por capacidad y `redeploy` limita su recorrido a
+  validación, aplicación, scheduler y monitoreo. Se omitió `deploy` por ser
+  redundante y se conservaron operaciones sensibles en playbooks dedicados.
+- `bin/check-deploy` controla el contrato y aprobó syntax checks y lint sobre 49
+  archivos. La propagación fue compatible con `ansible-core` 2.13.13, 2.17.14
+  y 2.21.3.
+- En Vagrant split pasaron el check individual de cada tag, el check de
+  `redeploy` y dos applies. La última convergencia fue idempotente:
+  aplicación `ok=71 changed=0 failed=0`; base `ok=10 changed=0 failed=0`.
+- La activación recarga PHP-FPM sólo cuando cambia `current` y fuerza el handler
+  antes del health check. El laboratorio single corrupto quedó en `DEPLOY-003`.
+- Próximo paso: ejecutar D2, documentación integral del despliegue.
+
+## Última actividad — Cierre de M4 en testing
+
+- Fecha/hora: 2026-09-07 18:19 -03.
+- Milestone: M4, resultado `done`.
+- El operador confirmó nuevamente todos los puntos de aceptación remota:
+  dry-run, apply, segunda ejecución/idempotencia, release activo
+  `testing-2026-09-07-04`, endpoints `/up`, `/internal/chat` y `/admin`, y
+  administrador bootstrap disponible.
+- Se cierra el deploy completo de testing con `security_enabled: false` y
+  `firewall_enabled: false`; esos controles continúan fuera de este milestone.
+- No hubo cambios de runtime en este cierre; se registró la evidencia humana.
+- Próximo paso: ejecutar D1, tags operativos de Ansible, y luego D2,
+  documentación integral del despliegue.
+- Validación del corte documental: estado consolidado y `git diff --check` OK.
+
+## Última actividad — Priorización de faltantes de deploy
+
+- Fecha/hora: 2026-09-07 14:00 -03.
+- Resultado: `done` para la repriorización; ejecución pendiente.
+- D1 (tags operativos) y D2 (documentación integral) pasan de prioridad baja a
+  alta por decisión explícita.
+- Orden inmediato: cerrar la aceptación remota de M4, ejecutar D1 y luego D2.
+  El trabajo de storage M5–M9 queda después de completar estos faltantes.
+- No se implementaron tags ni cambios de runtime en esta actividad.
+- Validación: referencias cruzadas de D1/D2 y `DEPLOY-001`/`DEPLOY-002`
+  revisadas; `git diff --check` OK.
+
+## Última actividad — Planificación de tags y documentación de deploy
+
+- Fecha/hora: 2026-09-07 13:30 -03.
+- Resultado: `done` para la planificación; implementación pendiente.
+- Por decisión explícita se promovió `DEPLOY-001` al daily como D1, actualmente
+  con prioridad alta: tags de capacidades y agregado seguro `redeploy`, con pruebas
+  de alcance, check mode e idempotencia.
+- Se agregó D2 para consolidar bajo `deploy/` la documentación integral de
+  arquitectura, preparación, releases, secretos, proxy/Composer, operación,
+  rollback, backups, monitoreo, seguridad, troubleshooting y diagramas.
+- Orden vigente: cerrar M4, ejecutar D1 y D2, y luego retomar M5–M9 de storage.
+- No se implementaron tags ni cambios de runtime en esta actividad.
+- Validación: revisión cruzada con `DEPLOY-001`, documentación existente, orden
+  efectivo de milestones y `git diff --check`, todo OK.
+
+## Última actividad — Bootstrap productivo del backoffice
+
+- Fecha/hora: 2026-09-07 13:00 -03.
+- Milestone: M4, resultado `needs_review`.
+- El apply de `testing-2026-09-07-03` confirmó dos fallas: los seeders no están
+  disponibles con autoload `--no-dev` y el usuario `deploy` no podía abrir el
+  log diario creado por `www-data`.
+- La lógica se extrajo a un servicio de aplicación y al comando productivo
+  `backoffice:bootstrap --if-admin-missing`. Ansible lo ejecuta como usuario de
+  runtime y agrega `deploy` al grupo compartido; reruns no rotan la contraseña.
+- Validaciones: 4 tests específicos con 27 assertions; suite completa con 217
+  tests y 894 assertions; `bin/check-deploy` sin fallas en 48 archivos y
+  `git diff --check` OK.
+- Próximo release: `testing-2026-09-07-04`. Falta desplegarlo y validar `/admin`.
+
+## Última actividad — Dry-run de checkout Git nuevo
+
+- Fecha/hora: 2026-09-07 12:30 -03.
+- Milestone: M4, resultado `needs_review`.
+- El dry-run de `testing-2026-09-07-02` falló porque `ansible.builtin.git`
+  simuló un checkout nuevo sin materializarlo y la validación siguiente exigió
+  el directorio local.
+- El rol ahora informa esa condición y difiere sólo la validación del checkout
+  Git inexistente hasta el apply. En ejecución real, y para fuentes locales, el
+  directorio y `composer.json` siguen siendo obligatorios.
+- Próximo release: `testing-2026-09-07-03`. Falta desplegarlo y validar `/admin`.
+
+## Última actividad — Administrador inicial de testing
+
+- Fecha/hora: 2026-09-07 12:00 -03.
+- Milestone: M4, resultado `needs_review` hasta aplicar y validar remotamente.
+- Se preparó el release `testing-2026-09-07-02` con un administrador bootstrap
+  habilitado sólo en testing; la contraseña queda cifrada en Ansible Vault.
+- El rol valida la configuración con `no_log`, crea la cuenta sólo si el correo
+  no existe y no restablece su contraseña en ejecuciones posteriores.
+- Producción y los demás entornos conservan el bootstrap deshabilitado por
+  defecto.
+- Validaciones: suite completa, 215 tests y 886 assertions; `git diff --check` y
+  validación/lint de provisioning sin fallas. Falta aplicar el playbook desde PC
+  Uni, comprobar `/admin` y repetirlo para confirmar idempotencia.
+- Próximo paso: publicar el commit/tag, desplegar desde PC Uni y validar login.
+
+## Última actividad — Planificación de certificados
+
+- Fecha/hora: 2026-09-07 10:00 -03.
+- Resultado: `done` (planificación documental solicitada; implementación pendiente).
+- Daily: `plan_dev/daily/2026-09-07.md`. Se agregaron M5–M9 después de M4,
+  que continúa en `needs_review` y es el primer milestone a cerrar.
+- Se recuperó el diseño previo de abril y se vinculó BO-002 sin cerrarlo:
+  decisiones, descarga a borrador privado, persistencia final, preparación de
+  despliegue y aceptación con WhatsApp real en testing.
+- Especificación canónica de despliegue en
+  `deploy/docs/certificate-storage-rollout.md`: storage compartido, permisos,
+  conectividad de runtime, secretos, backup/restore, idempotencia y rollback.
+- Validación: revisión de referencias y secuencia; `git diff --check`.
+  No se ejecutaron tests de runtime ni despliegue: sólo se modificó documentación.
+- Pendientes humanos: cierre remoto de M4 y decisiones de BO-002 en M5.
+- Próximo paso: cerrar M4; luego ejecutar M5 sin saltar bloqueos. El flujo sigue
+  metadata-only hasta implementar y aceptar los milestones posteriores.
+- La ejecución técnica anterior se conserva debajo como contexto histórico del
+  M4 ya cerrado.
+
+## Resumen ejecutivo
+- Estado general del proyecto: el motor conversacional sigue en progreso y ya soporta menus interactivos por paso para selecciones acotadas de WhatsApp, manteniendo fallback por texto/numero.
+- Último bloque completado: AV-001, familiar enfermo de punta a punta validado
+  en Docker local. Testing remoto permanece en `testing-2026-09-07-04`.
+- Milestone actual: M5, decisiones de almacenamiento, en `blocked` por BO-002.
+- Composer local construye `vendor/` en Docker desde el checkout exacto del tag,
+  lo transfiere como tar.gz por SFTP y valida requisitos en testing.
+- El release activo de testing es `testing-2026-09-07-04`, que incorpora la
+  corrección del chat interno, los permisos de logs y el administrador bootstrap
+  exclusivo de testing.
+- El health check deja de usar el stack HTTPS Python incompatible del servidor y
+  pasa a `curl`; el rollback sólo acepta releases previos existentes y evita
+  enlaces circulares mediante `follow: false`.
+- Próximo paso sugerido: resolver las políticas abiertas de BO-002; la recorrida
+  limpia de PC Uni continúa como `DEPLOY-004` no bloqueante.
+- Nota repo local: la sesión actual tiene acceso de escritura a `.git`; se
+  sincronizó la metadata local con `origin/main` sin alterar el árbol de trabajo.
+- Nota de seguridad operativa: `deploy/provisioning/group_vars/vault.yml` fue
+  convertido a formato Ansible Vault; si los valores previos ya eran secretos
+  reales, conviene rotarlos porque existian en commits anteriores.
+- Nota de bootstrap SSH: el acceso inicial ahora usa el alias local
+  `unlu-medicina-testing` y pisa explicitamente la key heredada para usar
+  `~/.ssh/id_ed25519`, evitando que Ansible intente conectar como `mgaray` con
+  la clave operativa `deploy_ed25519`.
+- Nota de bastion: `ssh -o BatchMode=yes unlu-medicina-testing` confirmo que el
+  corte `Connection closed by UNKNOWN port 65535` ocurre en el salto
+  `martin@170.210.103.133` por password SSH interactiva. La password del bastion
+  no resuelve el `ProxyJump` desde `ansible_password`; el prerequisito correcto
+  es configurar clave SSH no interactiva en `unlu-pc`.
+- Nota PC Uni: el control node de PC Uni reporto incompatibilidad con
+  `ansible.builtin.raw` en `bootstrap-access.yml`; la tarea excepcional de
+  bootstrap usa ahora `raw` corto con `skip_ansible_lint`.
+- Nota bootstrap remoto: el control node de PC Uni logro ejecutar la primera
+  tarea `raw`, pero los módulos Python remotos fallaron con
+  `No module named 'ansible.module_utils.six.moves'`. El bootstrap posterior a
+  los asserts usa ahora `raw` completo para no depender de módulos Python antes
+  de crear y validar el usuario `deploy`.
+- Nota PATH remoto: bajo `su`, el shell remoto no incluia `/usr/sbin` y fallaba
+  con `groupadd: not found`. Las tareas `raw` de bootstrap fijan ahora un `PATH`
+  administrativo explicito.
+- Nota control node: se agregaron `requirements-control.txt`,
+  `bin/setup-control-node` y wrappers `bin/ansible*` para crear y usar un venv
+  limpio de Ansible bajo `deploy/.tools/`, evitando el Ansible global roto de PC
+  Uni y la mezcla con paquetes `pip --user`. Desde PC Uni, `ansible -m ping`
+  contra `app_servers` ya responde `pong` y la validacion de `sudo -n true`
+  devuelve `rc=0`.
+- Nota Python PC Uni: si el venv se crea con Python 3.8, puede aparecer
+  `CryptographyDeprecationWarning`. No bloqueo la validacion remota, pero queda
+  recomendado recrear el venv con Python 3.10 o superior cuando este disponible.
+
+---
+
+## Estado global
+
+### Documentación
+- estado: `in_progress`
+- notas: la estructura operativa nueva ya tiene roles, precedencia y prompt lanzador estándar. La documentación de backoffice ya registra I1, I2 base, I3 base, especificación fina de módulos administrativos y convención de botón `Volver` en pantallas de detalle en `docs/backoffice/module-specs.md`. Quedaron creadas dailies separadas para módulos read-only, usuarios/roles, dashboard/reportes y storage/configuración.
+
+### Motor de conversación
+- estado: `in_progress`
+- notas: el motor ya tiene una capa común de interacción (`ConversationInteractionService`), lookup/alta por canal y una entrada interna de prueba sin depender de WhatsApp. Desde M2 del daily 2026-06-26, `StepResult` puede devolver `menuConfig` y el motor emite menus interactivos especificos de paso ademas del menu principal. Desde M3, los mensajes entrantes duplicados con el mismo `provider_message_id` se ignoran antes de ejecutar handlers para evitar avances fantasma.
+
+### Flujos
+- aviso: `in_progress`
+- anticipo: `in_progress`
+- notas: la decisión vigente es tomar `AnticipoCertificado` como entidad actual de certificado y no crear una entidad nueva. Los pasos de sede, jornada laboral, tipo de ausentismo, domicilio circunstancial, tipo de certificado y adjuntar otro archivo usan menus interactivos en WhatsApp y conservan compatibilidad por texto/numero.
+
+### Modelo de datos
+- estado: `in_progress`
+- notas: M5.1 implementó `avisos.estado` con default `inicial`, cambio de default de `anticipos_certificado.estado` a `inicial` y migración de anticipos existentes con estado `registrado`. M5.3 agregó la pivot `anticipo_certificado_aviso` para relación N a N, con backfill desde `anticipos_certificado.aviso_id` y compatibilidad temporal con la relación legacy.
+
+### Testing
+- estado: `in_progress`
+- notas: última corrida completa `make test`: `228 passed`, `1058 assertions` (AV-001).
+
+### Inactividad / scheduler
+- estado: `in_progress`
+- notas: el scheduler de timeouts existe y no fue modificado en este milestone.
+
+### Logs / operación
+- estado: `in_progress`
+- notas: M6 relevó logs actuales y clasificó estructura objetivo en debug, operación, auditoría y métricas. La política de datos sensibles en logs queda como pendiente importante en `plan_dev/BACKLOG.md` (`LOG-001`), por decisión humana no se implementa todavía.
+
+### Admin / roles / permisos
+- estado: `base_done`
+- notas: I1 instalo Filament `v5.6.1`, agrego panel base en `/admin` y auth minima con `App\Models\User`. I2 base quedo cerrado: Spatie Laravel Permission `6.25.0`, matriz en `config/backoffice.php`, seeder idempotente de roles/permisos/admin local y acceso al panel por `backoffice.access`. En desarrollo, `admin` debe sincronizar todos los permisos definidos; eso no saltea restricciones read-only de cada Resource. Desde P2 existe `ConversacionResource` read-only protegido por `conversaciones.view`. Desde P3 existe permiso `conversaciones.historial.view`, acción de ojo y pantalla de historial read-only. En la daily read-only P2/P3 se agrego `AvisoResource` con listado y detalle read-only. En P4/P5 se agrego `AnticipoCertificadoResource` con listado y detalle read-only, sin descarga, preview ni exposicion de `storage_path`. En P6 se agrego `AuditoriaAdministrativaResource` read-only. En la daily de usuarios P1 se agrego `UserResource` read-only. Desde 2026-05-04 todas las pantallas de detalle/historial abiertas desde listados tienen accion `Volver`.
+
+### Auditoria administrativa
+- estado: `base_done`
+- notas: I3 base quedo cerrado. Existe contrato documental, tabla `auditoria_administrativa`, modelo `App\Models\AuditoriaAdministrativa`, servicio `App\Domain\Auditoria\Services\AuditoriaAdministrativaService`, tests y una integracion inicial en el seeder de roles/permisos con eventos `permissions.seeded` y `roles.seeded`. Desde P6 existe Resource read-only con listado, filtros y detalle.
+
+### Integraciones futuras
+- estado: `pending`
+- notas: siguen planteadas como desacopladas y futuras.
+
+### Deploy / Ansible
+- estado: `in_progress`
+- notas: Vagrant single/split funciona con VirtualBox 7.2.14 y Debian 13.1. Laravel está desplegado en ambas topologías con releases, datos compartidos, Vault, migraciones y health check HTTP 200. Desde 2026-08-19 el pase a testing se prepara primero sobre topología single-host, con usuario operativo `deploy`, bootstrap explícito y PostgreSQL local por `127.0.0.1`. Vagrant single ya cerró convergencia completa, idempotencia, monitoreo, backup y restore-test. Desde 2026-08-24 el rol `firewall` no ejecuta `flush ruleset` por defecto; sólo reemplaza su tabla administrada salvo que `firewall_flush_ruleset` se habilite explícitamente. Testing remoto queda configurado con `security_enabled: false` y `firewall_enabled: false` para permitir `site.yml` completo sin modificar hardening SSH ni firewall institucional.
+
+---
+
+## Última ejecución del agente
+
+### Fecha/hora
+- 2026-09-07 08:27 -03
+
+### Plan diario usado
+- `plan_dev/daily/2026-09-07.md`
+- continúa `M4` heredado de `plan_dev/daily/2026-09-04.md`.
+- continúa `M4` heredado de `plan_dev/daily/2026-09-02.md`.
+- continúa `M4` heredado de `plan_dev/daily/2026-08-24.md`.
+
+### Milestone trabajado
+- `M4 - Deploy completo sin security/firewall`
+
+### Resultado
+- `needs_review`
+
+### Resumen corto
+- El check remoto de `site.yml --check --diff` paso desde PC Uni.
+- El apply real llego a Composer y quedo esperando porque testing no puede
+  acceder por HTTPS a GitHub: `git ls-remote` y `curl` vencieron con `rc=124`.
+- Se agrego `application_composer_install_local` (default `false`, testing
+  `true`). El modo local usa el Dockerfile del checkout exacto del release,
+  instala dependencias en PC Uni, sincroniza `vendor/` por rsync al mismo
+  release y valida requisitos PHP/extensiones en el destino.
+- `bin/check-deploy` paso completo sin fallas; falta validar el recorrido
+  real desde PC Uni.
+- El trabajo quedo publicado hasta `origin/main@be83e36`. El `.git` de este
+  workspace continua montado read-only, por lo que su indice local no refleja
+  los commits; el remoto y la metadata Git temporal fueron verificados limpios.
+- El reintento desde PC Uni fallo en el assert de rsync privilegiado, aunque la
+  verificacion directa y el comando ad hoc de Ansible confirmaron
+  `sudo -n true` y `/usr/bin/sudo -n /usr/bin/rsync --version` con `rc=0`.
+  No corresponde cambiar permisos: se prepararon rutas absolutas y diagnóstico
+  detallado en el rol; falta actualizar PC Uni y reintentar M4.
+- El siguiente reintento informó `rc=not-run` y permitió localizar el defecto:
+  el chequeo privilegiado todavía se omitía cuando la transferencia principal
+  era `archive`. La necesidad de rsync quedó centralizada en
+  `application_rsync_required` para que instalación, chequeos y asserts usen la
+  misma condición. Falta validar este ajuste desde PC Uni.
+- Composer local terminó con `rc=100` porque Docker no heredaba el proxy de PC
+  Uni. Las pruebas explícitas dentro del contenedor con `http_proxy`,
+  `https_proxy` y `no_proxy` alcanzaron GitHub API y Packagist con HTTP 200. El
+  rol propaga ahora el proxy del entorno de control a build y run; falta
+  actualizar PC Uni y reintentar M4.
+- Con el proxy activo se instalaron los 109 paquetes, pero el post-script de
+  Filament falló porque el checkout montado no contenía `bootstrap/cache`. El
+  rol prepara ahora los directorios escribibles de Laravel en el checkout local
+  antes de Composer; falta actualizar PC Uni y reintentar M4.
+- La transferencia posterior de `vendor/` por rsync quedó esperando más de 30
+  minutos sin crear el destino. Se canceló sin procesos residuales, migraciones
+  ni activación. El recorrido preparado usa ahora tar.gz + SFTP + extracción
+  remota; M4 continúa en `needs_review` hasta validarlo desde PC Uni.
+- Validación local del reemplazo: `git diff --check`, `bin/yamllint`,
+  `bin/ansible-playbook ... --syntax-check` y `bin/check-deploy` finalizaron sin
+  fallas. La aplicación real y la idempotencia siguen pendientes en PC Uni.
+- El apply remoto transfirió `vendor/` (102 MB), ejecutó la preparación del
+  release y llegó a activarlo. `ansible.builtin.uri` falló por incompatibilidad
+  HTTPS (`CustomHTTPSConnection` sin `cert_file`) y su rollback restauró un
+  enlace circular `current -> current`.
+- Se reparó manualmente `current` para apuntar a
+  `testing-2026-08-24-01`; `.env`, `storage`, `artisan` y `vendor/` quedaron
+  verificados y `/up` respondió HTTP 200 desde testing.
+- El rol usa ahora `curl` remoto para `/up`, valida que el release anterior sea
+  un directorio existente bajo `releases/` y gestiona ambos symlinks con
+  `follow: false`. `bin/check-deploy` pasó nuevamente sobre 48 archivos.
+- La validación posterior del playbook `application` encontró otro uso de
+  `ansible.builtin.uri` y reprodujo el error incluso contra
+  `http://127.0.0.1/up`. Se reemplazaron todos los usos restantes en los
+  playbooks `application`, `runtime`, `tls` y `rollback` por probes `curl` con
+  sus mismas reglas de HTTP, contenido y certificados. No quedan referencias a
+  `ansible.builtin.uri` y `bin/check-deploy` volvió a pasar sobre 48 archivos.
+- La validación manual encontró `/internal/chat` en HTTP 500 aunque `/up`
+  continuaba en HTTP 200. El template generaba
+  `MEDICINA_LABORAL_MAIL_DRIVER=null`; Dotenv lo convertía a `null` real y el
+  provider rechazaba el driver. Además, el log diario creado por PHP-FPM tenía
+  modo `0644` e impedía que `deploy` registrara errores desde Artisan.
+- El template usa ahora `MEDICINA_LABORAL_MAIL_DRIVER="null"`, el provider
+  acepta defensivamente `null` y `'null'`, los canales de archivo crean logs
+  `0664` y Ansible normaliza los logs compartidos existentes. La suite pasó con
+  215 tests y 886 assertions; `bin/check-deploy` pasó sobre 48 archivos.
+- El inventory selecciona `testing-2026-09-07-01` para desplegar el código del
+  fix como un release nuevo e inmutable, sin modificar el tag ya validado de
+  agosto.
+- Se verifico `.git` con `findmnt -T .git -o TARGET,OPTIONS`: el montaje aparece
+  con opcion `ro`, y `touch .git/codex-write-test` falla con `Read-only file
+  system`.
+- `git status --short` funciona para lectura y muestra cambios pendientes de
+  provisioning/documentacion ya existentes en el workspace.
+- El Ansible versionado del repo esta disponible y usa Python 3.12.
+- `ssh -G unlu-medicina-testing-deploy` no resuelve el alias local esperado en
+  esta sesion: queda como hostname literal y usuario `mgaray`.
+- La prueba con `ProxyJump` explicito y `known_hosts` local evito tocar
+  `~/.ssh/known_hosts`, pero el bastion rechazo autenticacion no interactiva para
+  `martin@170.210.103.133:46659` con `Permission denied (publickey,password)`.
+- La corrida documentada de `site.yml --check --diff` llego hasta `Gathering
+  Facts` y quedo `UNREACHABLE` por `Host key verification failed`.
+- Se ajusto el inventory de testing para usar `ansible_host:
+  unlu-medicina-testing`, que es el alias local existente con `ProxyJump
+  unlu-pc`, y se agrego `StrictHostKeyChecking=accept-new` para registrar la
+  host key inicial sin desactivar la verificacion de cambios posteriores.
+- No se ejecuto el apply real de `site.yml`; falta reintentar desde PC Uni.
+
+---
+
+## Cambios realizados
+- archivos tocados en esta ejecucion: `deploy/provisioning/inventories/testing/hosts.yml`,
+  `deploy/provisioning/bin/check-deploy`,
+  `deploy/provisioning/inventories/README.md`,
+  `deploy/docs/deployment-guide.md`, `plan_dev/STATUS.md` y
+  `plan_dev/daily/2026-08-24.md`.
+- resumen tecnico: testing ya no depende del alias inexistente
+  `unlu-medicina-testing-deploy`; usa el alias existente `unlu-medicina-testing`
+  y Ansible sobreescribe usuario/clave del target con el usuario operativo
+  `deploy`.
+- documentación operativa actualizada: si; se registro la regla de alias SSH y
+  host key de testing en `STATUS.md`, daily activo, README de inventories y guia
+  de deploy.
+- runtime Laravel/Docker modificado: no.
+- diagramas actualizados: no; no cambió arquitectura runtime Laravel, flujos ni modelo de datos.
+
+---
+
+## Validaciones
+
+### Automáticas
+- tests de Laravel: no corresponden; no hubo cambios funcionales.
+- checks:
+  - `findmnt -T .git -o TARGET,OPTIONS`
+  - `touch .git/codex-write-test && rm .git/codex-write-test` fallo por
+    filesystem read-only
+  - `git status --short`
+  - `git show --no-patch --oneline testing-2026-08-24-01`
+  - `git ls-remote --tags origin testing-2026-08-24-01`
+  - `bin/ansible --version`
+  - `ssh -o BatchMode=yes unlu-medicina-testing-deploy 'whoami; sudo -n true; python3 --version'` fallo por `Host key verification failed`
+  - prueba SSH con `ProxyJump` explicito a `martin@170.210.103.133:46659` fallo por `Permission denied (publickey,password)`
+  - `bin/ansible-inventory -i inventories/testing/hosts.yml --host avisos-testing`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --syntax-check`
+  - `bin/yamllint inventories/testing/hosts.yml`
+  - `bin/check-deploy`
+  - `git diff --check`
+  - `bin/ansible-playbook -i inventories/testing/hosts.yml site.yml --check --diff`
+- resultado: validaciones locales sin errores; validacion remota pendiente de
+  reintento desde PC Uni.
+- observación: `bin/check-deploy` paso completo. `ansible-lint` emitio warnings
+  de entorno/deprecaciones, sin violaciones.
+
+### Manuales sugeridas
+- validar `ssh -i deploy/.local/ssh/deploy_ed25519 deploy@unlu-medicina-testing 'whoami; sudo -n true; python3 --version'`.
+- verificar que `ssh -G unlu-medicina-testing` resuelva el host, clave humana y
+  salto esperados; Ansible aplica el usuario `deploy` y la clave operativa desde
+  el inventory.
+- reintentar desde PC Uni: `bin/ansible-playbook -i inventories/testing/hosts.yml
+  site.yml --check --diff`.
+- antes de commitear cambios futuros de provisioning, correr
+  `cd deploy/provisioning && bin/check-deploy`.
+
+---
+
+## Bloqueos actuales
+- `.git` esta montado read-only en esta sesion; los commits se realizan con
+  metadata Git temporal en `/tmp` hasta corregir el montaje.
+- la validacion remota de M4 debe reintentarse desde PC Uni con el alias
+  `unlu-medicina-testing`.
+- mantener `security_enabled: false` y `firewall_enabled: false` en testing hasta
+  decidir cómo preservar los accesos y servicios institucionales existentes.
+
+---
+
+## Decisiones humanas pendientes
+- informar dominio/DNS, PKI/ACME y proxy/WAF cuando estén disponibles.
+- informar IP/hostname, usuario/clave SSH y bastion si aplica antes de operar servidores reales.
+- elegir canal real de alertas; una segunda copia de backups en otro servidor institucional queda fuera del alcance actual.
+- confirmar con negocio retención, RPO/RTO y política inicial de logs sensibles.
+- implementar validación de firma de los POST del webhook antes de producción.
+- confirmar si avisos `observado` deben poder recibir anticipo o si pasan a ser bloqueantes
+- confirmar si futuras asociaciones adicionales de avisos serán manuales, automáticas o mixtas
+- confirmar si `anticipos_certificado.aviso_id` quedará como cache del primer aviso o se eliminará luego de migrar lecturas a pivot
+- confirmar estrategia de storage privado para certificados médicos
+
+---
+
+## Próximo milestone recomendado
+- reintentar `M4 - Deploy completo sin security/firewall` desde PC Uni y
+  `deploy/provisioning` con el inventory actualizado.
+
+---
+
+## Referencia breve a backlog
+- `LOG-001`: definir política de datos sensibles en logs quedó registrado como pendiente importante.
+- `BO-001`: definido y marcado `done`; matriz en `docs/backoffice/permissions.md`.
+- `BO-002`: definir estrategia de storage privado de certificados.
+- `BO-003`: definir operación manual de asociaciones aviso-certificado.
+- `BO-004`: definir futuro de `anticipos_certificado.aviso_id`.
