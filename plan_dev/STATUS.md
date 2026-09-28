@@ -5,11 +5,22 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 ## Fecha de última actualización
 
-2026-09-27 22:13 -03
+2026-09-28 -03
 
-## Última ejecución — MA-001
+## Última ejecución — PROD-001
 
-- Daily activo: [2026-09-27](daily/2026-09-27.md).
+- Daily activo: [2026-09-28](daily/2026-09-28.md).
+- Resultado: `done`, fase `DONE`; diagnóstico documental de preparación para
+  producción, sin cambios de producto ni inspección de servidor/secretos.
+- El inventario C1–C17 sigue por decidir. Se distinguieron catálogos locales de
+  mocks permisivos de identificación, storage metadata-only, sender nulo y
+  configuración exclusiva de tests. Ver [informe](../docs/16-preparacion-produccion.md).
+- No se encontró `jsons_resultados` en archivos versionados.
+- Validación de diff documental; no se ejecutaron tests, Docker ni deploy.
+- Commit de cierre: `c38bd92`; árbol limpio tras el registro.
+
+### Ejecución anterior — MA-001
+
 - Resultado: `done`, fase `DONE`; infraestructura documental, no producto.
 - Lead único escritor; auditoría y review independiente completados sin findings.
 - Se incorporan workflow, memoria selectiva, contratos/ownership, handoffs y gates
