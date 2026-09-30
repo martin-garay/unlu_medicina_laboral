@@ -5,19 +5,34 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 ## Fecha de última actualización
 
-2026-09-28 -03
+2026-09-30 -03
 
-## Última ejecución — PROD-001
+## Última ejecución — PR-002
 
-- Daily activo: [2026-09-28](daily/2026-09-28.md).
+- Daily: [2026-09-29](daily/2026-09-29.md), cerrado el 2026-09-30.
+- Resultado: `done`, fase `DONE`; se completaron tres revisiones paralelas
+  documentales y una síntesis independiente para M5, CAT-001 y gates productivos.
+- C1 y C3 quedan como candidatos DB condicionados; C2 diferido; C4–C9, C11–C14
+  y C16 en config/código; C10, C15 y C17 diferidos. No hay tablas aprobadas.
+- Se confirmó config `config/*.php` como fuente acordada inicial para M5; siguen
+  pendientes los valores D2–D5. M5 continúa `blocked`.
+- Reviewer independiente: tres findings MEDIUM/LOW resueltos; sin findings nuevos.
+- `git diff --check` y referencias locales verificadas. Sin tests/runtime/deploy,
+  secretos ni consultas remotas.
+- Commit de cierre trazable; árbol limpio tras el registro.
+
+## Daily activo
+
+- [2026-09-29 — PR-002](daily/2026-09-29.md): `done`; no queda otra daily activa.
+
+### Ejecución anterior — PROD-001
+
 - Resultado: `done`, fase `DONE`; diagnóstico documental de preparación para
   producción, sin cambios de producto ni inspección de servidor/secretos.
-- El inventario C1–C17 sigue por decidir. Se distinguieron catálogos locales de
-  mocks permisivos de identificación, storage metadata-only, sender nulo y
-  configuración exclusiva de tests. Ver [informe](../docs/16-preparacion-produccion.md).
+- C1–C17 seguía pendiente de decisión; se distinguieron catálogos locales de
+  mocks permisivos, storage metadata-only, sender nulo y configuración de tests.
 - No se encontró `jsons_resultados` en archivos versionados.
-- Validación de diff documental; no se ejecutaron tests, Docker ni deploy.
-- Commit de cierre: `c38bd92`; árbol limpio tras el registro.
+- Commit de cierre: `75cc710`.
 
 ### Ejecución anterior — MA-001
 
@@ -58,6 +73,7 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 ## Próximo paso
 
-Iniciar trabajo autorizado con [RUNBOOK_PROMPT](RUNBOOK_PROMPT.md);
-elegir próximo milestone explícitamente
-si no hay daily listo. No implementar CAT-001 o certificados por inferencia.
+Definir con el usuario la decisión de CAT-001 (en especial fuente oficial de C1,
+semántica de C2 y necesidad de administración dinámica) o continuar el bloqueo
+vigente de M5 D2–D5. El informe PR-002 no autoriza implementación; escoger el
+siguiente milestone explícitamente antes de migrar catálogos o storage.
