@@ -7,17 +7,20 @@ use App\Flows\Validators\AvisoReferenciaValidator;
 use App\Models\Aviso;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\Concerns\CreatesTestingSchema;
 use Tests\TestCase;
 
 class CertificadoNumeroAvisoStepHandlerTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
     use CreatesTestingSchema;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->createTestingSchema();
+        $this->createChatCatalogSchema();
     }
 
     public function test_valid_aviso_moves_flow_to_certificado_tipo(): void
@@ -30,8 +33,8 @@ class CertificadoNumeroAvisoStepHandlerTest extends TestCase
         ]);
 
         $handler = new CertificadoNumeroAvisoStepHandler(
-            new AvisoReferenciaValidator(),
-            new ConversationContextService(),
+            new AvisoReferenciaValidator,
+            new ConversationContextService,
         );
 
         $conversation = new Conversacion([
@@ -43,7 +46,7 @@ class CertificadoNumeroAvisoStepHandlerTest extends TestCase
             ],
         ]);
 
-        $result = $handler->handle($conversation, ['text' => 'AV-' . $aviso->id]);
+        $result = $handler->handle($conversation, ['text' => 'AV-'.$aviso->id]);
 
         $this->assertTrue($result->isValid);
         $this->assertSame('certificado_tipo', $result->nextStep);
@@ -63,8 +66,8 @@ class CertificadoNumeroAvisoStepHandlerTest extends TestCase
         ]);
 
         $handler = new CertificadoNumeroAvisoStepHandler(
-            new AvisoReferenciaValidator(),
-            new ConversationContextService(),
+            new AvisoReferenciaValidator,
+            new ConversationContextService,
         );
 
         $conversation = new Conversacion([

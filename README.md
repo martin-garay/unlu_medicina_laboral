@@ -62,9 +62,11 @@ Usa `.env.docker.example` como plantilla. Valores claves:
 ## Backoffice local
 - El panel administrativo local queda disponible en `http://localhost:8000/admin`.
 - El acceso al panel requiere el permiso `backoffice.access`.
-- Para crear roles, permisos y un usuario administrador de prueba:
+- Para crear roles, permisos y un usuario administrador de prueba, y cargar los
+  valores iniciales de los catálogos del chat (sin sobrescribir ediciones existentes):
   ```bash
   make artisan CMD='db:seed --class=Database\\Seeders\\BackofficeRolesAndPermissionsSeeder'
+  make artisan CMD='db:seed --class=Database\\Seeders\\ChatCatalogsSeeder'
   ```
 - Credenciales de prueba:
   - Email: `admin@admin.com`

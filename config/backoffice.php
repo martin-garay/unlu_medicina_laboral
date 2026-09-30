@@ -7,6 +7,8 @@ $permissions = [
     'users.manage',
     'roles.view',
     'roles.manage',
+    'catalogos.view',
+    'catalogos.manage',
     'avisos.view',
     'certificados.view',
     'conversaciones.view',
@@ -25,6 +27,7 @@ return [
         'auditor' => [
             'backoffice.access',
             'dashboard.view',
+            'catalogos.view',
             'avisos.view',
             'certificados.view',
             'conversaciones.view',
@@ -35,6 +38,7 @@ return [
         'director' => [
             'backoffice.access',
             'dashboard.view',
+            'catalogos.view',
             'avisos.view',
             'certificados.view',
             'conversaciones.view',

@@ -8,15 +8,24 @@ use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
 use App\Services\WorkerIdentification\Contracts\WorkerIdentificationService;
 use App\Services\WorkerIdentification\WorkerIdentificationRecord;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\TestCase;
 
 class IdentificacionLegajoStepHandlerTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createChatCatalogSchema();
+    }
+
     public function test_returns_error_when_worker_cannot_be_resolved(): void
     {
         $handler = new IdentificacionLegajoStepHandler(
-            new LegajoValidator(),
-            new ConversationContextService(),
+            new LegajoValidator,
+            new ConversationContextService,
             new class implements WorkerIdentificationService
             {
                 public function findByLegajo(string $legajo): ?WorkerIdentificationRecord
@@ -26,7 +35,7 @@ class IdentificacionLegajoStepHandlerTest extends TestCase
             }
         );
 
-        $result = $handler->handle(new Conversacion(), ['text' => '12345']);
+        $result = $handler->handle(new Conversacion, ['text' => '12345']);
 
         $this->assertFalse($result->isValid);
         $this->assertSame('legajo_no_encontrado', $result->errorCode);
@@ -36,8 +45,8 @@ class IdentificacionLegajoStepHandlerTest extends TestCase
     public function test_stores_worker_lookup_snapshot_when_legajo_is_resolved(): void
     {
         $handler = new IdentificacionLegajoStepHandler(
-            new LegajoValidator(),
-            new ConversationContextService(),
+            new LegajoValidator,
+            new ConversationContextService,
             new class implements WorkerIdentificationService
             {
                 public function findByLegajo(string $legajo): ?WorkerIdentificationRecord
@@ -47,7 +56,7 @@ class IdentificacionLegajoStepHandlerTest extends TestCase
             }
         );
 
-        $result = $handler->handle(new Conversacion(), ['text' => '12345']);
+        $result = $handler->handle(new Conversacion, ['text' => '12345']);
 
         $this->assertTrue($result->isValid);
         $this->assertSame('identificacion_sede', $result->nextStep);

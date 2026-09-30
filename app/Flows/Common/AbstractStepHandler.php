@@ -4,6 +4,7 @@ namespace App\Flows\Common;
 
 use App\Flows\Common\Contracts\StepHandler;
 use App\Models\Conversacion;
+use App\Services\Catalogos\ChatCatalogService;
 
 abstract class AbstractStepHandler implements StepHandler
 {
@@ -42,7 +43,7 @@ abstract class AbstractStepHandler implements StepHandler
         $lines = [__($headerKey)];
 
         foreach (array_values($options) as $index => $label) {
-            $lines[] = ($index + 1) . '. ' . $label;
+            $lines[] = ($index + 1).'. '.$label;
         }
 
         return implode("\n", $lines);
@@ -50,6 +51,10 @@ abstract class AbstractStepHandler implements StepHandler
 
     protected function configuredMenu(string $menuKey): array
     {
+        if (in_array($menuKey, ['sedes', 'tipos_ausentismo', 'tipos_certificado', 'parentescos'], true)) {
+            return app(ChatCatalogService::class)->menu($menuKey);
+        }
+
         $menu = config("medicina_laboral.mensajes.menus.{$menuKey}", []);
 
         return [

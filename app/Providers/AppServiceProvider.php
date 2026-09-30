@@ -2,37 +2,37 @@
 
 namespace App\Providers;
 
-use App\Flows\Common\MessageResolver;
+use App\Flows\Aviso\Handlers\AvisoConfirmacionFinalStepHandler;
 use App\Flows\Aviso\Handlers\AvisoDomicilioCircunstancialDetalleStepHandler;
 use App\Flows\Aviso\Handlers\AvisoDomicilioCircunstancialStepHandler;
-use App\Flows\Aviso\Handlers\AvisoConfirmacionFinalStepHandler;
 use App\Flows\Aviso\Handlers\AvisoFechaDesdeStepHandler;
 use App\Flows\Aviso\Handlers\AvisoFechaHastaStepHandler;
 use App\Flows\Aviso\Handlers\AvisoMotivoStepHandler;
+use App\Flows\Aviso\Handlers\AvisoNombreFamiliarStepHandler;
 use App\Flows\Aviso\Handlers\AvisoObservacionesStepHandler;
+use App\Flows\Aviso\Handlers\AvisoParentescoStepHandler;
 use App\Flows\Aviso\Handlers\AvisoTipoAusentismoStepHandler;
-use App\Flows\Certificado\Handlers\CertificadoAdjuntoStepHandler;
 use App\Flows\Certificado\Handlers\CertificadoAdjuntarOtroStepHandler;
+use App\Flows\Certificado\Handlers\CertificadoAdjuntoStepHandler;
 use App\Flows\Certificado\Handlers\CertificadoConfirmacionFinalStepHandler;
 use App\Flows\Certificado\Handlers\CertificadoNumeroAvisoStepHandler;
 use App\Flows\Certificado\Handlers\CertificadoTipoStepHandler;
+use App\Flows\Common\MessageResolver;
 use App\Flows\Handlers\MainMenuStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionJornadaStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionLegajoStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionNombreStepHandler;
 use App\Flows\Identification\Handlers\IdentificacionSedeStepHandler;
-use App\Flows\Aviso\Handlers\AvisoNombreFamiliarStepHandler;
-use App\Flows\Aviso\Handlers\AvisoParentescoStepHandler;
 use App\Flows\Placeholders\Handlers\CertificadoConfirmacionPendienteStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCantidadDiasStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoCertificadoStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoDniStepHandler;
 use App\Flows\Transitional\Handlers\EsperandoTipoStepHandler;
-use App\Flows\Validators\AvisoReferenciaValidator;
-use App\Flows\Validators\AusentismoTypeValidator;
-use App\Flows\Validators\DateInputValidator;
-use App\Flows\Validators\AvisoFechaHastaValidator;
 use App\Flows\Transitional\Handlers\FallbackStepHandler;
+use App\Flows\Validators\AusentismoTypeValidator;
+use App\Flows\Validators\AvisoFechaHastaValidator;
+use App\Flows\Validators\AvisoReferenciaValidator;
+use App\Flows\Validators\DateInputValidator;
 use App\Flows\Validators\JornadaLaboralValidator;
 use App\Flows\Validators\LegajoValidator;
 use App\Flows\Validators\MenuSelectionValidator;
@@ -40,20 +40,28 @@ use App\Flows\Validators\PositiveIntegerValidator;
 use App\Flows\Validators\RequiredTextValidator;
 use App\Flows\Validators\SedeValidator;
 use App\Flows\Validators\TipoCertificadoValidator;
+use App\Models\Parentesco;
+use App\Models\Sede;
+use App\Models\TipoAusentismo;
+use App\Models\TipoCertificado;
+use App\Observers\CatalogoMaestroObserver;
+use App\Services\AnticipoCertificadoService;
+use App\Services\AvisoService;
+use App\Services\CertificadoMessageService;
+use App\Services\Conversation\Contracts\ConversationChannelSender;
+use App\Services\Conversation\ConversationChannelRouter;
+use App\Services\Conversation\ConversationContextService;
+use App\Services\Conversation\ConversationFlowResolver;
+use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
+use App\Services\Mapuche\MockMapucheWorkerProvider;
 use App\Services\Notifications\Contracts\BusinessNotificationSender;
 use App\Services\Notifications\LaravelMailBusinessNotificationSender;
 use App\Services\Notifications\NullBusinessNotificationSender;
-use App\Services\Conversation\Contracts\ConversationChannelSender;
-use App\Services\Conversation\ConversationChannelRouter;
-use App\Services\Mapuche\Contracts\MapucheWorkerProvider;
-use App\Services\Mapuche\MockMapucheWorkerProvider;
-use App\Services\CertificadoMessageService;
-use App\Services\Conversation\ConversationContextService;
-use App\Services\Conversation\ConversationFlowResolver;
 use App\Services\Storage\Contracts\DraftAttachmentStorage;
 use App\Services\Storage\Contracts\FinalAttachmentStorage;
 use App\Services\Storage\MetadataDraftAttachmentStorage;
 use App\Services\Storage\MetadataFinalAttachmentStorage;
+use App\Services\WhatsAppSender;
 use App\Services\WorkerIdentification\Contracts\WorkerIdentificationService;
 use App\Services\WorkerIdentification\MapucheWorkerIdentificationService;
 use App\Services\WorkerIdentification\MockWorkerIdentificationService;
@@ -68,14 +76,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(MapucheWorkerProvider::class, function () {
             return match (config('medicina_laboral.mapuche.driver', 'mock')) {
-                'mock' => new MockMapucheWorkerProvider(),
+                'mock' => new MockMapucheWorkerProvider,
                 default => throw new \InvalidArgumentException('Unsupported Mapuche driver configured.'),
             };
         });
 
         $this->app->singleton(WorkerIdentificationService::class, function ($app) {
             return match (config('medicina_laboral.worker_identification.driver', 'mock')) {
-                'mock' => new MockWorkerIdentificationService(),
+                'mock' => new MockWorkerIdentificationService,
                 'mapuche' => new MapucheWorkerIdentificationService($app->make(MapucheWorkerProvider::class)),
                 default => throw new \InvalidArgumentException('Unsupported worker identification driver configured.'),
             };
@@ -83,7 +91,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(BusinessNotificationSender::class, function () {
             return match (config('medicina_laboral.mail.driver', 'null')) {
-                null, 'null' => new NullBusinessNotificationSender(),
+                null, 'null' => new NullBusinessNotificationSender,
                 'laravel_mail' => new LaravelMailBusinessNotificationSender(app('mail.manager')),
                 default => throw new \InvalidArgumentException('Unsupported business notification driver configured.'),
             };
@@ -91,21 +99,21 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(DraftAttachmentStorage::class, function () {
             return match (config('medicina_laboral.storage.draft_driver', config('medicina_laboral.storage.driver', 'metadata'))) {
-                'metadata' => new MetadataDraftAttachmentStorage(),
+                'metadata' => new MetadataDraftAttachmentStorage,
                 default => throw new \InvalidArgumentException('Unsupported attachment storage driver configured.'),
             };
         });
 
         $this->app->singleton(FinalAttachmentStorage::class, function () {
             return match (config('medicina_laboral.storage.final_driver', config('medicina_laboral.storage.driver', 'metadata'))) {
-                'metadata' => new MetadataFinalAttachmentStorage(),
+                'metadata' => new MetadataFinalAttachmentStorage,
                 default => throw new \InvalidArgumentException('Unsupported final attachment storage driver configured.'),
             };
         });
 
         $this->app->singleton(ConversationChannelSender::class, function ($app) {
             return new ConversationChannelRouter(
-                $app->make(\App\Services\WhatsAppSender::class),
+                $app->make(WhatsAppSender::class),
             );
         });
 
@@ -220,7 +228,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AvisoObservacionesStepHandler::class, function ($app) {
             return new AvisoObservacionesStepHandler(
                 $app->make(ConversationContextService::class),
-                $app->make(\App\Services\AvisoService::class),
+                $app->make(AvisoService::class),
             );
         });
 
@@ -268,7 +276,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CertificadoConfirmacionPendienteStepHandler::class, function ($app) {
             return new CertificadoConfirmacionPendienteStepHandler(
                 $app->make(ConversationContextService::class),
-                $app->make(\App\Services\AnticipoCertificadoService::class),
+                $app->make(AnticipoCertificadoService::class),
             );
         });
 
@@ -309,6 +317,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        foreach ([Sede::class, TipoAusentismo::class, TipoCertificado::class, Parentesco::class] as $model) {
+            $model::observe(CatalogoMaestroObserver::class);
+        }
     }
 }

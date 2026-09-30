@@ -120,6 +120,7 @@ return [
         'no_open_aviso' => 'No se encontró un aviso de ausencia abierto para continuar con esta gestión.',
         'before_start_date' => 'La fecha hasta no puede ser menor que la fecha desde.',
         'sede_invalida' => 'La sede ingresada no es válida. Seleccioná una de las opciones disponibles.',
+        'jornada_laboral_larga' => 'La jornada laboral no puede superar los 255 caracteres.',
         'unsupported_step' => 'No se pudo resolver el paso actual de la conversación.',
     ],
 

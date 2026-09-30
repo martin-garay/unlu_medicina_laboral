@@ -21,9 +21,28 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
   secretos ni consultas remotas.
 - Commit de cierre trazable; árbol limpio tras el registro.
 
-## Daily activo
+## Última ejecución — CAT-001
 
-- [2026-09-29 — PR-002](daily/2026-09-29.md): `done`; no queda otra daily activa.
+- Daily: [2026-09-30](daily/2026-09-30.md), cerrado el 2026-09-30.
+- Resultado: `done`; cuatro catálogos de negocio (`sedes`, `tipos_ausentismo`,
+  `tipos_certificado`, `parentescos`) tienen tablas, CRUD admin con permisos y
+  auditoría, y son fuente para menús/validación del chat. Jornada sigue libre.
+- Alias: `codigo` estable para identidad del dominio y compatibilidad; ID incremental
+  para relaciones internas. Metadata histórica conserva etiquetas/snapshots.
+- Review independiente: anteriores HIGH/MEDIUM resueltos, incluido snapshot retenido
+  ante input inválido; no quedan BLOCKER/HIGH/MEDIUM.
+- Validación: 239 tests / 1088 assertions; `git diff --check` y `pint --test --dirty`
+  correctos. El check global Pint reporta 148 issues en 244 archivos, mientras los
+  59 archivos modificados pasan.
+- No se ejecutó migración en PostgreSQL persistente ni prueba de WhatsApp/deploy.
+- Limitación: las 3 sedes sembradas son opciones heredadas, no padrón institucional.
+  M5 sigue `blocked` por D2–D5 y no fue modificado.
+
+## Daily más reciente
+
+- [2026-09-30 — CAT-001](daily/2026-09-30.md): `done`; siguiente prioridad según
+  decisión explícita del usuario, sin desbloquear M5, es validar el padrón oficial
+  de sedes.
 
 ### Ejecución anterior — PROD-001
 
@@ -58,14 +77,15 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 | Storage de certificados | M5 `blocked`: decisiones D2–D5; D1 cola PostgreSQL aprobada y decisión bytea, runtime posterior pendiente; [daily](daily/2026-09-14.md) |
 | Testing | Última suite de producto registrada: AV-001, 228 tests / 1058 assertions; no implica corrida en MA-001 |
 | Deploy | M4 y D1/D2 cerrados según [daily 07/09](daily/2026-09-07.md); release registrado testing-2026-09-07-04, sin comprobación remota en esta sesión |
-| Catálogos | CAT-001 relevado; selección de tablas pendiente, sin migraciones; [inventario](../docs/15-inventario-tablas-maestras.md) |
+| Catálogos | CAT-001 implementado para sedes, ausentismo, certificados y parentescos; falta padrón institucional completo de sedes; [inventario](../docs/15-inventario-tablas-maestras.md) |
 | Método de trabajo | MA-001 done; único agente/secuencial/paralelo según dependencias |
 
 ## Bloqueos y decisiones pendientes
 
 - M5: continuar decisiones de [plan incremental de certificados](../docs/14-certificados-problematica-y-plan-incremental.md).
   MA-001 no autoriza saltar M5 ni iniciar M6–M9.
-- CAT-001: elegir candidatos/semántica de sedes y jornada antes de implementar.
+- Catálogos: obtener fuente oficial y validar lista completa de sedes antes de
+  sustituir las tres opciones iniciales de compatibilidad.
 - Resto de hallazgos: [BACKLOG](BACKLOG.md), especialmente LOG-001, BO-003/004 y
   DEPLOY-004. Decisiones operativas/aceptación de producción en [deploy](../deploy/README.md).
 - No presumir accesos remotos, permisos filesystem ni disponibilidad Docker a partir

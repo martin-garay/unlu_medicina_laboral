@@ -79,6 +79,8 @@ No puede:
 | `users.manage` | Crear, editar o desactivar usuarios administrativos | si | no | no |
 | `roles.view` | Ver roles y permisos | si | no | no |
 | `roles.manage` | Administrar roles y permisos | si | no | no |
+| `catalogos.view` | Ver catálogos maestros del chat | si | si | si |
+| `catalogos.manage` | Crear, editar y desactivar catálogos maestros | si | no | no |
 | `avisos.view` | Ver avisos de ausencia | si | si | si |
 | `certificados.view` | Ver anticipos/certificados médicos | si | si | si |
 | `conversaciones.view` | Ver listado de conversaciones | si | si | si |

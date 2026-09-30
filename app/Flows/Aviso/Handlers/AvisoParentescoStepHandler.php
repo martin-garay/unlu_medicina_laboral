@@ -3,10 +3,10 @@
 namespace App\Flows\Aviso\Handlers;
 
 use App\Flows\Common\AbstractStepHandler;
-use App\Services\AvisoFamiliarService;
-use App\Services\AvisoService;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
+use App\Services\AvisoFamiliarService;
+use App\Services\AvisoService;
 use App\Services\Conversation\ConversationContextService;
 
 class AvisoParentescoStepHandler extends AbstractStepHandler
@@ -15,8 +15,7 @@ class AvisoParentescoStepHandler extends AbstractStepHandler
         private readonly AvisoFamiliarService $familiarService,
         private readonly AvisoService $avisoService,
         private readonly ConversationContextService $conversationContextService,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -29,7 +28,7 @@ class AvisoParentescoStepHandler extends AbstractStepHandler
             return $this->returnToMainMenu($conversation);
         }
 
-        $parentesco = $this->familiarService->resolveParentesco($input);
+        $parentesco = $this->familiarService->resolveParentesco($input, $conversation);
         if ($parentesco === null) {
             return $this->invalid('invalid_option', 'whatsapp.errores.invalid_option', [
                 'increment_attempts' => 1,
@@ -47,6 +46,7 @@ class AvisoParentescoStepHandler extends AbstractStepHandler
             'payload' => [
                 'conversation_updates' => $this->conversationContextService->withAvisoData($conversation, [
                     'parentesco' => $parentesco,
+                    'parentesco_label' => $this->familiarService->label($parentesco, $conversation),
                 ]),
             ],
         ]);

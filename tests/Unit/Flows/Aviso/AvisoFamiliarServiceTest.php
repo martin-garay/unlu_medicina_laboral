@@ -2,14 +2,24 @@
 
 namespace Tests\Unit\Flows\Aviso;
 
+use App\Models\Parentesco;
 use App\Services\AvisoFamiliarService;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\TestCase;
 
 class AvisoFamiliarServiceTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createChatCatalogSchema();
+    }
+
     public function test_name_is_required_and_length_uses_configuration(): void
     {
-        $service = new AvisoFamiliarService();
+        $service = app(AvisoFamiliarService::class);
         config()->set('medicina_laboral.avisos.nombre_familiar_max_length', 10);
         foreach ([null, '', '   ', ['Ana'], str_repeat('a', 11)] as $value) {
             $this->assertFalse($service->validName($value));
@@ -19,11 +29,11 @@ class AvisoFamiliarServiceTest extends TestCase
 
     public function test_catalog_accepts_numeric_text_and_interactive_selections(): void
     {
-        $service = new AvisoFamiliarService();
+        $service = app(AvisoFamiliarService::class);
         $index = 0;
         foreach ($service->catalog() as $key => $label) {
             $index++;
-            foreach ([['text' => (string) $index], ['text' => mb_strtoupper($label)], ['button_id' => 'parentesco_' . $key]] as $input) {
+            foreach ([['text' => (string) $index], ['text' => mb_strtoupper($label)], ['button_id' => 'parentesco_'.$key]] as $input) {
                 $this->assertSame($key, $service->resolveParentesco($input));
             }
         }
@@ -34,8 +44,8 @@ class AvisoFamiliarServiceTest extends TestCase
 
     public function test_menu_and_validation_share_configured_catalog(): void
     {
-        config()->set('medicina_laboral.catalogos.parentescos', ['otro' => 'whatsapp.aviso.parentescos.otro']);
-        $service = new AvisoFamiliarService();
+        Parentesco::query()->where('codigo', '!=', 'otro')->update(['activo' => false]);
+        $service = app(AvisoFamiliarService::class);
         $this->assertCount(1, $service->menu()['buttons']);
         $this->assertSame('otro', $service->resolveParentesco(['text' => '1']));
         $this->assertNull($service->resolveParentesco(['text' => 'madre']));

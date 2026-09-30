@@ -6,15 +6,24 @@ use App\Flows\Aviso\Handlers\AvisoTipoAusentismoStepHandler;
 use App\Flows\Validators\AusentismoTypeValidator;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\TestCase;
 
 class AvisoTipoAusentismoStepHandlerTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createChatCatalogSchema();
+    }
+
     public function test_familiar_option_sets_flag_and_moves_to_motivo(): void
     {
         $handler = new AvisoTipoAusentismoStepHandler(
-            new AusentismoTypeValidator(),
-            new ConversationContextService(),
+            new AusentismoTypeValidator,
+            new ConversationContextService,
         );
 
         $result = $handler->handle(new Conversacion(['tipo_flujo' => 'inasistencia']), ['text' => '2']);
@@ -31,8 +40,8 @@ class AvisoTipoAusentismoStepHandlerTest extends TestCase
     public function test_accepts_button_id_selection(): void
     {
         $handler = new AvisoTipoAusentismoStepHandler(
-            new AusentismoTypeValidator(),
-            new ConversationContextService(),
+            new AusentismoTypeValidator,
+            new ConversationContextService,
         );
 
         $result = $handler->handle(new Conversacion(['tipo_flujo' => 'inasistencia']), [
@@ -49,8 +58,8 @@ class AvisoTipoAusentismoStepHandlerTest extends TestCase
     public function test_invalid_option_returns_catalog_menu(): void
     {
         $handler = new AvisoTipoAusentismoStepHandler(
-            new AusentismoTypeValidator(),
-            new ConversationContextService(),
+            new AusentismoTypeValidator,
+            new ConversationContextService,
         );
 
         $result = $handler->handle(new Conversacion(['tipo_flujo' => 'inasistencia']), ['text' => '8']);
@@ -65,8 +74,8 @@ class AvisoTipoAusentismoStepHandlerTest extends TestCase
     public function test_cancel_returns_to_main_menu(): void
     {
         $handler = new AvisoTipoAusentismoStepHandler(
-            new AusentismoTypeValidator(),
-            new ConversationContextService(),
+            new AusentismoTypeValidator,
+            new ConversationContextService,
         );
 
         $conversation = new Conversacion([

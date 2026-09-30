@@ -13,8 +13,7 @@ class IdentificacionJornadaStepHandler extends AbstractStepHandler
     public function __construct(
         private readonly Validator $validator,
         private readonly ConversationContextService $conversationContextService,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -29,13 +28,14 @@ class IdentificacionJornadaStepHandler extends AbstractStepHandler
 
         $validation = $this->validator->validate($conversation, $input);
 
-        if (!$validation->isValid) {
-            $messageKey = $validation->errorCode === 'required'
-                ? 'whatsapp.errores.required'
-                : 'whatsapp.errores.invalid_option';
+        if (! $validation->isValid) {
+            $messageKey = match ($validation->errorCode) {
+                'required' => 'whatsapp.errores.required',
+                'max_length' => 'whatsapp.errores.jornada_laboral_larga',
+                default => 'whatsapp.errores.invalid_option',
+            };
 
             return $this->invalid($validation->errorCode ?? 'required', $messageKey, [
-                'menu_config' => $this->configuredMenu('jornadas_laborales'),
                 'increment_attempts' => 1,
             ]);
         }

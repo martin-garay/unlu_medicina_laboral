@@ -1,8 +1,8 @@
 # Inventario de tablas maestras candidatas
 
-Fecha: 2026-09-27. Backlog: [CAT-001](../plan_dev/BACKLOG.md).
-Estado: relevamiento completo del alcance indicado; selección pendiente con el usuario.
-Los nombres de tablas son propuestas, no un esquema aprobado ni implementado.
+Fecha: 2026-09-30. Backlog: [CAT-001](../plan_dev/BACKLOG.md).
+Estado: C1, C3, C4 y C5 seleccionados e implementados como catálogos administrables;
+C2 se mantiene como texto libre. C6–C17 conservan su análisis y no quedan aprobados.
 
 ## Alcance y evidencia
 
@@ -10,7 +10,8 @@ Revisión de `config/`, `lang/es/`, `resources/views/messages/`,
 `resources/views/emails/`, handlers y validadores en `app/Flows/`, servicios,
 modelos, Resources de Filament y migraciones. Se relevó código versionado;
 no se consultaron datos reales de servidores ni se validó el catálogo institucional.
-No se crearon tablas, migraciones, seeders ni pantallas administrativas.
+CAT-001 creó cuatro tablas con CRUD y semillas de compatibilidad; no creó ni verificó
+el padrón institucional de sedes.
 
 Fuente principal: [configuración de Medicina Laboral](../config/medicina_laboral.php).
 La información en JSON de conversaciones/avisos es mayormente una instantánea
@@ -18,16 +19,16 @@ histórica de lo informado, no una tabla maestra pendiente de normalizar complet
 
 ## A. Catálogos de negocio identificados
 
-Todas las filas quedan **por decidir**. Primera propuesta para discutir: empezar
-por sedes y luego los demás catálogos de esta sección, previa definición de jornada.
+Sólo C1, C3, C4 y C5 se seleccionaron en CAT-001; los demás candidatos requieren
+decisión separada.
 
 | ID | Tabla candidata | Fuente y valores actuales | Consumidores / persistencia | Decisión necesaria |
 | --- | --- | --- | --- | --- |
-| C1 | `sedes` (o `centros_regionales`) | `catalogos.sedes`: central / Sede Central, campus / Campus Luján, delegacion / Delegación San Fernando; duplicado en `mensajes.menus.sedes` | `SedeValidator`, `IdentificacionSedeStepHandler`; clave/etiqueta en metadata, etiqueta en avisos y anticipos; filtros administrativos | Acordar nombre de la entidad, listado oficial y códigos externos. No asumir que estas tres opciones son todos los centros reales ni crear dos tablas para la misma entidad. |
-| C2 | `jornadas_laborales` | `catalogos.jornadas_laborales`: planta_permanente / Planta permanente, parcial / Parcial; duplicado en menú; mocks usan Mañana/Tarde | `JornadaLaboralValidator`, handler de identificación, avisos y anticipos | Definir si representa jornada, turno o situación de revista. Separar entidades sólo si negocio confirma conceptos independientes. |
-| C3 | `tipos_ausentismo` | `catalogos.tipos_ausentismo`: por_enfermedad, atencion_familiar_enfermo; botones y traducciones | `AusentismoTypeValidator`, handlers, `AvisoFamiliarService`, avisos | Descripción, orden, vigencia y eventual atributo `requiere_datos_familiar`. Hoy la clave activa lógica de handlers/servicios: una nueva fila no implementa automáticamente un nuevo flujo. |
-| C4 | `tipos_certificado` | `catalogos.tipos_certificado`: manuscrito, electronico; botones y textos duplicados | `TipoCertificadoValidator`, handler de certificado, `AnticipoCertificadoService` | Confirmar catálogo y estabilidad de códigos; son categorías de certificado, distintas del formato PDF/JPG. |
-| C5 | `parentescos` | `catalogos.parentescos` y `lang/es/whatsapp.php`: madre, padre, hijo_hija, conyuge, otro | `AvisoFamiliarService`, menú/lista y validación; clave en `metadata.aviso.parentesco` | Alta/baja/orden y etiquetas. Otro no exige datos adicionales según decisión vigente. |
+| C1 | `sedes` | Seed inicial conserva `central`, `campus`, `delegacion`; opciones previas del código, no padrón oficial | Validación/menú del chat; claves y snapshots de etiquetas | **DB + CRUD**. Falta importar la lista institucional completa; no cambiar códigos existentes. |
+| C2 | — | El PDF especifica texto libre sin validación de catálogo | Identificación, avisos y anticipos | **Texto libre** por decisión del usuario; no se crea tabla ni opciones cerradas. |
+| C3 | `tipos_ausentismo` | `por_enfermedad`, `atencion_familiar_enfermo`; capacidad `requiere_datos_familiar` | Validación/menú/handler y metadata del aviso | **DB + CRUD**. La capacidad del registro activa el subflujo familiar; el código es clave estable. |
+| C4 | `tipos_certificado` | `manuscrito`, `electronico` | Validación/menú, metadata y anticipo | **DB + CRUD** como opción de negocio mantenida en admin y consumida por el chat. |
+| C5 | `parentescos` | `madre`, `padre`, `hijo_hija`, `conyuge`, `otro` | Selección/validación familiar; clave y etiqueta snapshot | **DB + CRUD**; `otro` no exige datos adicionales. |
 
 ## B. Opciones y contenido administrable
 
@@ -71,39 +72,35 @@ maestras de negocio. No implican aprobación de un editor de flujos.
 
 ## Riesgos concretos encontrados
 
-1. Sedes/jornadas/tipos tienen catálogo y botones mantenidos por separado. Los
-   validadores asocian ID de botón por posición: un orden distinto puede vincular
-   opciones equivocadas. La fuente futura debe servir al menú y a la validación.
-2. C2 mezcla conceptos distintos en mocks y menú. No normalizar esos valores a
-   una FK sin acordar el significado; conservar valores históricos no mapeables.
+1. Los botones/validadores derivan de una consulta ordenada. Las conversaciones
+   conservan una instantánea por catálogo; las respuestas inválidas la retienen
+   hasta avanzar el paso.
+2. Los mocks conservan valores históricos de jornada incompatibles con los antiguos
+   catálogos; la jornada quedó como texto libre y esos valores no se normalizan.
 3. Algunas selecciones se guardan como etiquetas en columnas y otras como claves
    en metadata. Inventariar valores reales antes del backfill; no mapear sólo por
    texto y no sobrescribir el nombre que se presentó en el trámite original.
-4. Una baja o cambio de orden durante una conversación no debe invalidar ni
-   reinterpretar su selección. Acordar versión/instantánea de opciones por paso.
-5. Ampliar sedes puede requerir listas/paginación por los límites del canal;
-   verificar menús, fallback y validación con el catálogo ampliado.
+4. WhatsApp limita listas a 10 opciones. Con más de 10 el chat muestra texto
+   numerado y resuelve respuestas sobre la misma instantánea.
+5. Ampliar sedes más allá de las tres opciones requiere una fuente institucional
+   validada; la interfaz maneja catálogos largos con fallback numerado.
 
-## Contrato propuesto para las tablas elegidas
+## Contrato implementado para las tablas elegidas
 
-Pendiente de acuerdo: ID interno, código estable único, etiqueta, activo,
-orden y timestamps; código externo y vigencia sólo donde corresponda.
-Definir permisos y auditoría de alta/edición/desactivación; no eliminar filas
-referenciadas por trámites. La baja lógica es distinta de cambiar retrospectivamente
-una instantánea. Evaluar tablas específicas vs catálogo genérico una vez elegidas
-las entidades, sin diseñar una tabla universal como decisión implícita.
+Tablas específicas con ID incremental, `codigo` único e inmutable, `nombre`, `activo`,
+`orden` y timestamps. `tipos_ausentismo` agrega `requiere_datos_familiar`. Filament
+permite alta/edición/desactivación con permisos diferenciados y auditoría; no permite
+borrado. Cada selección conserva etiqueta snapshot en metadata.
 
 Para cada candidata registrar: **a DB / permanece en código-config / diferida**,
 responsable del dato, prioridad, relación/FK de destino, tratamiento de históricos,
-administración requerida y dependencias. Ninguna está seleccionada todavía.
+administración requerida y dependencias. C6–C17 siguen sin selección.
 
 ## Próximos cortes y aceptación
 
-1. Revisar C1–C17 con el usuario y cerrar la selección y semántica de C1/C2.
-2. Diseñar sólo las tablas seleccionadas, acceso por servicio/interfaz, seed inicial,
-   permisos, auditoría, caché y política para conversaciones en curso.
-3. Promover implementación a un daily por autorización explícita. Migrar de forma
-   incremental, conservar snapshots, actualizar modelo/diagramas y consumidores.
+1. Obtener el catálogo oficial de sedes y corroborar las opciones iniciales.
+2. Revisar C6–C17 de manera independiente antes de cualquier otro CRUD.
+3. Conservar snapshots y evaluar cambios de orden/baja durante conversaciones activas.
 4. Validar automáticamente altas/bajas, código único, FK/backfill, orden,
    selección textual/interactiva, cambios durante una sesión, regresión completa
    de aviso/anticipo y permisos/auditoría. Ejecutar `make test` y checks del corte.

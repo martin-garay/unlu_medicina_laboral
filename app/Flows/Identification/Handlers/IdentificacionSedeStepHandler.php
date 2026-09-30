@@ -13,8 +13,7 @@ class IdentificacionSedeStepHandler extends AbstractStepHandler
     public function __construct(
         private readonly Validator $validator,
         private readonly ConversationContextService $conversationContextService,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -29,15 +28,14 @@ class IdentificacionSedeStepHandler extends AbstractStepHandler
 
         $validation = $this->validator->validate($conversation, $input);
 
-        if (!$validation->isValid) {
+        if (! $validation->isValid) {
             return $this->invalid($validation->errorCode ?? 'sede_invalida', 'whatsapp.errores.sede_invalida', [
                 'menu_config' => $this->configuredMenu('sedes'),
                 'increment_attempts' => 1,
             ]);
         }
 
-        return $this->success(null, [
-            'menu_config' => $this->configuredMenu('jornadas_laborales'),
+        return $this->success('whatsapp.identificacion.jornada_laboral', [
             'next_step' => 'identificacion_jornada',
             'next_state' => 'identificacion_jornada',
             'payload' => [

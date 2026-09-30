@@ -3,6 +3,49 @@ Project medicina_laboral {
   Note: "Esquema actual del repo con tablas conversacionales, avisos, anticipo de certificado y auditoria administrativa base."
 }
 
+Table sedes {
+  id bigint [pk, increment]
+  codigo varchar(80) [not null, unique]
+  nombre varchar(120) [not null]
+  activo boolean [not null, default: true]
+  orden integer [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: "Catálogo administrable del chat. Los datos históricos conservan snapshots y no usan FK a esta tabla."
+}
+
+Table tipos_ausentismo {
+  id bigint [pk, increment]
+  codigo varchar(80) [not null, unique]
+  nombre varchar(120) [not null]
+  requiere_datos_familiar boolean [not null, default: false]
+  activo boolean [not null, default: true]
+  orden integer [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table tipos_certificado {
+  id bigint [pk, increment]
+  codigo varchar(80) [not null, unique]
+  nombre varchar(120) [not null]
+  activo boolean [not null, default: true]
+  orden integer [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table parentescos {
+  id bigint [pk, increment]
+  codigo varchar(80) [not null, unique]
+  nombre varchar(120) [not null]
+  activo boolean [not null, default: true]
+  orden integer [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+}
+
 Table users {
   id bigint [pk]
   name varchar [not null]

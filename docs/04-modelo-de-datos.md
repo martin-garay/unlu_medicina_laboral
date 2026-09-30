@@ -55,6 +55,16 @@ Para esta primera etapa se proponen estas tablas:
 
 Además, podrían existir más adelante tablas auxiliares para catálogos o integraciones.
 
+## Catálogos administrables del chat
+
+`sedes`, `tipos_ausentismo`, `tipos_certificado` y `parentescos` son tablas
+maestras consumidas por el chat y administradas desde Filament. Cada una usa un ID
+incremental interno y un `codigo` único estable como clave de dominio; nombre,
+estado activo y orden son editables. Los códigos no se modifican y las filas se
+desactivan en lugar de borrarse. Tipos de ausentismo agrega
+`requiere_datos_familiar`, que determina el subflujo aplicable. Las selecciones
+guardan etiqueta en metadata como snapshot. `jornada_laboral` permanece texto libre.
+
 ---
 
 ## 1. Tabla `conversaciones`

@@ -8,13 +8,11 @@ El objetivo del flujo es guiar al usuario paso a paso, validar la información m
 
 ## Alcance actual
 
-En esta etapa se documenta el flujo conversacional y la forma recomendada de implementarlo.
-
-Quedan fuera de esta primera implementación completa:
+El flujo principal está implementado; los catálogos conversacionales se mantienen
+en PostgreSQL y se administran desde Filament. Quedan fuera:
 
 - integración real con sistemas externos para identificar al trabajador
 - envío real de email
-- administración dinámica de catálogos desde backoffice
 - reglas avanzadas que requieran validación contra sistemas externos no disponibles todavía
 
 ## Punto de partida
@@ -102,16 +100,18 @@ Validaciones mínimas sugeridas:
 Dato esperado:
 - selección entre opciones válidas
 
-Implementación inicial sugerida:
-- catálogo en archivo de configuración
+Implementación vigente:
+- catálogo activo desde `sedes` en PostgreSQL
+- alta/edición/desactivación desde Filament; el chat arma el menú y la validación
+  a partir de la misma lista ordenada
 
 ### 4. Jornada laboral
 Dato esperado:
 - texto libre
 
-Validaciones mínimas sugeridas:
+Validaciones vigentes:
 - obligatorio
-- sin validación fuerte en esta primera etapa
+- texto libre, sin catálogo ni validación de formato
 
 ## Subflujo 2: período de ausentismo
 
@@ -164,11 +164,9 @@ En WhatsApp, la implementación actual presenta esta selección como menú inter
 
 ## Implementación sugerida
 
-Inicialmente el catálogo de tipos puede vivir en:
-
-- `config/medicina_laboral.php`
-
-Más adelante podrá migrarse a base de datos si la administración de opciones lo requiere.
+El catálogo se mantiene en `tipos_ausentismo` y se administra desde Filament. Cada
+tipo tiene un código estable; `requiere_datos_familiar` activa el subflujo familiar.
+Los menús y validadores consultan las mismas filas activas y ordenadas.
 
 ## Caso especial: familiar enfermo
 

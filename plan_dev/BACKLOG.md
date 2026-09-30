@@ -194,21 +194,29 @@ Usar una categoría para agrupar mejor:
 - dependencia: no bloquea M5 por decisión explícita; debe completarse antes de delegar la operación o autorizar producción.
 - notas: no usar secretos reales en la evidencia del recorrido.
 
-### [CAT-001] Seleccionar y migrar catálogos de flujos a tablas maestras
-- estado: `pending`
-- prioridad: `medium` (propuesta; sin priorización de implementación)
+### [CAT-001] Implementar catálogos maestros consumidos por el chat
+- estado: `done`
+- prioridad: `high` (promovido a Daily 2026-09-30)
 - categoría: `modelo_datos`
 - detectado en: pedido del usuario del 2026-09-27.
-- contexto: opciones y contenido de los flujos están en config PHP, traducciones,
-  templates y metadata JSON; se solicita relevar candidatos antes de elegir qué migrar.
-- acción sugerida: revisar el [inventario C1–C17](../docs/15-inventario-tablas-maestras.md)
-  y decidir por candidato: DB / código-config / diferido. Primera propuesta para
-  discusión: sedes, jornadas, tipos de ausentismo/certificado y parentescos.
-- dependencia: listado institucional de sedes/centros y semántica de jornada;
-  política de históricos, permisos y conversaciones en curso. Coordinar settings
-  con BO-002 y vínculos con BO-003 si se seleccionan esos grupos.
-- notas: relevamiento realizado; ninguna tabla aprobada ni implementada. Incluye
-  menús/aliases, mensajes/plantillas, parámetros, formatos, notificaciones, estados
-  e identificación externa como candidatos de alcance distinto. Conservar
-  snapshots; no convertir todo JSON en maestras. No promover a daily ni alterar
-  milestones bloqueados hasta definir selección y prioridad con el usuario.
+- contexto: listas activas del chat están en config PHP con botones duplicados; el
+  usuario definió CRUD admin conectado al chat para sedes y tipos de ausentismo.
+- acción sugerida: implementar sedes, tipos de ausentismo, tipos de certificado y
+  parentescos como catálogos DB con CRUD/auditoría y reflejo en chat. Jornada queda
+  como texto libre. Mantener claves históricas y snapshots.
+- dependencia: no se proporcionó catálogo institucional completo de sedes; sembrar
+  sólo las tres opciones ya existentes, sin presentarlas como padrón oficial.
+- notas: otras C6–C17 siguen con las recomendaciones del inventario; no convertir
+  menús, estados, mensajes, settings o datos técnicos en CRUD automáticamente.
+  Promovido por decisión explícita del usuario al [Daily 2026-09-30](daily/2026-09-30.md).
+
+### [CAT-002] Validar padrón institucional completo de sedes
+- estado: `pending`
+- prioridad: `high`
+- categoría: `datos_maestros`
+- detectado en: limitación documentada al cierre de CAT-001, 2026-09-30.
+- contexto: el PDF de requerimientos no incluye una lista oficial completa; las tres
+  filas iniciales provienen de opciones históricas del código.
+- acción sugerida: solicitar fuente institucional autorizada, verificar nombres y
+  alcance, y actualizar el catálogo sin cambiar los códigos existentes.
+- dependencia: fuente oficial aprobada por Medicina Laboral/UNLu.

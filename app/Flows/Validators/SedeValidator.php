@@ -5,6 +5,7 @@ namespace App\Flows\Validators;
 use App\Flows\Common\Contracts\Validator;
 use App\Flows\Common\ValidationResult;
 use App\Models\Conversacion;
+use App\Services\Catalogos\ChatCatalogService;
 
 class SedeValidator implements Validator
 {
@@ -17,26 +18,12 @@ class SedeValidator implements Validator
             return ValidationResult::invalid('required');
         }
 
-        $sedes = config('medicina_laboral.catalogos.sedes', []);
-        $buttons = config('medicina_laboral.mensajes.menus.sedes.buttons', []);
-        $keys = array_keys($sedes);
-
-        foreach ($keys as $index => $key) {
-            $label = mb_strtolower((string) ($sedes[$key] ?? ''));
-            $numericAlias = (string) ($index + 1);
-            $configuredButtonId = (string) ($buttons[$index]['id'] ?? '');
-
-            if (
-                $buttonId === $configuredButtonId
-                || $raw === mb_strtolower($key)
-                || $raw === $label
-                || $raw === $numericAlias
-            ) {
-                return ValidationResult::valid([
-                    'sede_key' => $key,
-                    'sede_label' => $sedes[$key],
-                ]);
-            }
+        $option = app(ChatCatalogService::class)->findOption('sedes', $input, $conversation);
+        if ($option !== null) {
+            return ValidationResult::valid([
+                'sede_key' => $option->codigo,
+                'sede_label' => $option->nombre,
+            ]);
         }
 
         return ValidationResult::invalid('sede_invalida');

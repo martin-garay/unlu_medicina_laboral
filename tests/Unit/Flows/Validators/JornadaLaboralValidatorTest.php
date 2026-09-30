@@ -8,17 +8,17 @@ use Tests\TestCase;
 
 class JornadaLaboralValidatorTest extends TestCase
 {
-    public function test_accepts_numeric_option(): void
+    public function test_accepts_arbitrary_non_empty_text_as_free_form_jornada(): void
     {
-        $result = (new JornadaLaboralValidator())->validate(new Conversacion(), ['text' => '1']);
+        $result = (new JornadaLaboralValidator)->validate(new Conversacion, ['text' => 'Lunes a viernes de 8 a 14']);
 
         $this->assertTrue($result->isValid);
-        $this->assertSame('planta_permanente', $result->normalized['jornada_laboral']);
+        $this->assertSame('Lunes a viernes de 8 a 14', $result->normalized['jornada_laboral_label']);
     }
 
-    public function test_accepts_button_id(): void
+    public function test_accepts_legacy_button_ids_during_existing_conversations(): void
     {
-        $result = (new JornadaLaboralValidator())->validate(new Conversacion(), [
+        $result = (new JornadaLaboralValidator)->validate(new Conversacion, [
             'button_id' => 'jornada_parcial',
         ]);
 
@@ -27,11 +27,19 @@ class JornadaLaboralValidatorTest extends TestCase
         $this->assertSame('Parcial', $result->normalized['jornada_laboral_label']);
     }
 
-    public function test_rejects_unknown_option(): void
+    public function test_rejects_only_empty_text(): void
     {
-        $result = (new JornadaLaboralValidator())->validate(new Conversacion(), ['text' => 'otra']);
+        $result = (new JornadaLaboralValidator)->validate(new Conversacion, ['text' => '   ']);
 
         $this->assertFalse($result->isValid);
-        $this->assertSame('invalid_option', $result->errorCode);
+        $this->assertSame('required', $result->errorCode);
+    }
+
+    public function test_rejects_text_that_exceeds_the_storage_limit(): void
+    {
+        $result = (new JornadaLaboralValidator)->validate(new Conversacion, ['text' => str_repeat('a', 256)]);
+
+        $this->assertFalse($result->isValid);
+        $this->assertSame('max_length', $result->errorCode);
     }
 }

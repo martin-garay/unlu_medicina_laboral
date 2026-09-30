@@ -1,6 +1,6 @@
 # Base de datos
 
-Revisado: 2026-09-27. Fuentes: [migraciones](../../database/migrations),
+Revisado: 2026-09-30. Fuentes: [migraciones](../../database/migrations),
 [modelos](../../app/Models), [modelo documentado](../04-modelo-de-datos.md).
 
 - PostgreSQL es runtime; tests base usan SQLite en memoria. Un test SQLite no
@@ -12,8 +12,10 @@ Revisado: 2026-09-27. Fuentes: [migraciones](../../database/migrations),
   [registro técnico](../12-decisiones-tecnicas.md).
 - `metadata.identificacion`, `metadata.aviso` y `metadata.certificado` guardan
   borrador/instantáneas. Añadir FK a catálogo no autoriza reemplazar históricos.
-- Catálogos actuales en config, no tablas maestras implementadas; inventario y
-  selección pendiente en [CAT-001](../15-inventario-tablas-maestras.md).
+- Catálogos conversacionales activos en PostgreSQL: `sedes`, `tipos_ausentismo`,
+  `tipos_certificado`, `parentescos`; IDs internos y códigos estables, baja lógica.
+  `jornada_laboral` permanece libre. Ver selección residual en el
+  [inventario CAT-001](../15-inventario-tablas-maestras.md).
 - DBML de [storage propuesto](../diagrams/db/certificate-storage-proposed.dbml)
   no es esquema actual. PostgreSQL bytea/cola son decisiones registradas para
   trabajo pendiente, no prueba de tablas implementadas; seguir

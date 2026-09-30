@@ -14,6 +14,9 @@ Revisado: 2026-09-27. Fuentes: [rutas web](../../routes/web.php),
 - Permisos en `config/backoffice.php`, tablas Spatie y seed/bootstrap;
   [matriz canónica](../backoffice/permissions.md). Rol admin no elimina límites
   read-only de los Resources implementados.
+- Catálogos de chat usan Resources Filament bajo `/admin`, permisos
+  `catalogos.view` / `catalogos.manage`; gestionar baja con campo activo, no borrar
+  códigos que forman parte de snapshots o contratos de botones.
 - Tests de UI HTTP/Filament en `tests/Feature/Http/` y `tests/Feature/Backoffice/`;
   cobertura funcional no sustituye una inspección visual del cambio cuando aplique.
 

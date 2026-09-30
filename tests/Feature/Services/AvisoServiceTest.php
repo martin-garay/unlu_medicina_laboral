@@ -2,25 +2,30 @@
 
 namespace Tests\Feature\Services;
 
+use App\Models\Aviso;
+use App\Models\Conversacion;
 use App\Services\AvisoService;
 use App\Services\ConversationManager;
 use App\Services\Notifications\Contracts\BusinessNotificationSender;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\Concerns\CreatesTestingSchema;
 use Tests\TestCase;
 
 class AvisoServiceTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
     use CreatesTestingSchema;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->createTestingSchema();
+        $this->createChatCatalogSchema();
     }
 
     public function test_build_confirmation_template_data_maps_conversation_metadata(): void
     {
-        $conversation = new \App\Models\Conversacion([
+        $conversation = new Conversacion([
             'metadata' => [
                 'identificacion' => [
                     'nombre_completo' => 'Ana Perez',
@@ -51,7 +56,7 @@ class AvisoServiceTest extends TestCase
 
     public function test_build_confirmation_step_result_uses_confirmation_template(): void
     {
-        $conversation = new \App\Models\Conversacion([
+        $conversation = new Conversacion([
             'metadata' => [
                 'identificacion' => [
                     'nombre_completo' => 'Ana Perez',
@@ -126,7 +131,7 @@ class AvisoServiceTest extends TestCase
         {
             public ?int $lastAvisoId = null;
 
-            public function sendAvisoRegistered(\App\Models\Aviso $aviso): void
+            public function sendAvisoRegistered(Aviso $aviso): void
             {
                 $this->lastAvisoId = $aviso->id;
             }
@@ -143,7 +148,7 @@ class AvisoServiceTest extends TestCase
     {
         $conversation = app(ConversationManager::class)->createConversation('5491111111111');
 
-        $aviso = \App\Models\Aviso::create([
+        $aviso = Aviso::create([
             'conversacion_id' => $conversation->id,
             'tipo' => 'inasistencia',
             'fecha_inicio' => '2026-03-19',
@@ -158,7 +163,7 @@ class AvisoServiceTest extends TestCase
         $result = app(AvisoService::class)->buildRegisteredStepResult($aviso);
 
         $this->assertSame(config('medicina_laboral.mensajes.templates.aviso_registrado'), $result->template);
-        $this->assertSame('AV-' . $aviso->id, $result->templateData['numero_aviso']);
+        $this->assertSame('AV-'.$aviso->id, $result->templateData['numero_aviso']);
         $this->assertSame(24, $result->templateData['deadline_horas']);
     }
 }

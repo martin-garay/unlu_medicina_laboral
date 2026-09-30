@@ -11,7 +11,11 @@ Revisado: 2026-09-27. Fuentes: [motor](../05-motor-de-conversacion.md),
   cuando dos workers agreguen handlers. `StepResult` es contrato transversal.
 - Los canales comparten lógica de flujo pero no todas las responsabilidades del
   adapter: verificar persistencia y envío en el canal bajo prueba, no presumirlos.
-- Config de catálogo y menú en `config/medicina_laboral.php`; textos en `lang/es/`;
+- Catálogos de opciones de negocio (sedes, ausentismo, certificado, parentesco) en
+  tablas DB consultadas mediante `app/Services/Catalogos/ChatCatalogService.php`;
+  menú y validación comparten orden/estado y snapshot por conversación. Menú
+  principal/keywords y otros parámetros siguen en `config/medicina_laboral.php`;
+  textos de prompt en `lang/es/`;
   resúmenes largos en `resources/views/messages/`. Ver [mensajes](../10-mensajes-y-templates.md).
 - Aviso familiar: [flujo](../06-flujo-aviso-ausencia.md#caso-especial-familiar-enfermo).
   Nombre/parentesco obligatorios; estado provisional anterior se puede retomar.

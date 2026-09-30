@@ -10,35 +10,28 @@ class JornadaLaboralValidator implements Validator
 {
     public function validate(Conversacion $conversation, array $input = []): ValidationResult
     {
-        $raw = mb_strtolower(trim((string) ($input['text'] ?? '')));
-        $buttonId = trim((string) ($input['button_id'] ?? ''));
+        $text = trim((string) ($input['text'] ?? ''));
+        $legacyKey = null;
+        if ($text === '' && ($input['button_id'] ?? '') !== '') {
+            [$legacyKey, $text] = match ((string) $input['button_id']) {
+                'jornada_planta_permanente' => ['planta_permanente', 'Planta permanente'],
+                'jornada_parcial' => ['parcial', 'Parcial'],
+                default => [null, ''],
+            };
+        }
 
-        if ($raw === '' && $buttonId === '') {
+        if ($text === '') {
             return ValidationResult::invalid('required');
         }
 
-        $catalog = config('medicina_laboral.catalogos.jornadas_laborales', []);
-        $buttons = config('medicina_laboral.mensajes.menus.jornadas_laborales.buttons', []);
-        $keys = array_keys($catalog);
-
-        foreach ($keys as $index => $key) {
-            $label = mb_strtolower((string) ($catalog[$key] ?? ''));
-            $numericAlias = (string) ($index + 1);
-            $configuredButtonId = (string) ($buttons[$index]['id'] ?? '');
-
-            if (
-                $buttonId === $configuredButtonId
-                || $raw === mb_strtolower($key)
-                || $raw === $label
-                || $raw === $numericAlias
-            ) {
-                return ValidationResult::valid([
-                    'jornada_laboral' => $key,
-                    'jornada_laboral_label' => $catalog[$key],
-                ]);
-            }
+        if (mb_strlen($text) > 255) {
+            return ValidationResult::invalid('max_length');
         }
 
-        return ValidationResult::invalid('invalid_option');
+        return ValidationResult::valid([
+            'jornada_laboral' => $legacyKey,
+            'jornada_laboral_label' => $text,
+            'text' => $text,
+        ]);
     }
 }

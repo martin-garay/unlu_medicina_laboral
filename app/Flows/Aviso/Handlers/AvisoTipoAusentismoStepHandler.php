@@ -13,8 +13,7 @@ class AvisoTipoAusentismoStepHandler extends AbstractStepHandler
     public function __construct(
         private readonly Validator $validator,
         private readonly ConversationContextService $conversationContextService,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -29,7 +28,7 @@ class AvisoTipoAusentismoStepHandler extends AbstractStepHandler
 
         $validation = $this->validator->validate($conversation, $input);
 
-        if (!$validation->isValid) {
+        if (! $validation->isValid) {
             return $this->invalid($validation->errorCode ?? 'invalid_option', 'whatsapp.errores.invalid_option', [
                 'menu_config' => $this->configuredMenu('tipos_ausentismo'),
                 'increment_attempts' => 1,
@@ -43,7 +42,7 @@ class AvisoTipoAusentismoStepHandler extends AbstractStepHandler
                 'conversation_updates' => $this->conversationContextService->withAvisoData($conversation, [
                     'tipo_ausentismo' => $validation->normalized['tipo_ausentismo'] ?? null,
                     'tipo_ausentismo_label' => $validation->normalized['tipo_ausentismo_label'] ?? null,
-                    'requiere_datos_familiar' => ($validation->normalized['tipo_ausentismo'] ?? null) === 'atencion_familiar_enfermo',
+                    'requiere_datos_familiar' => (bool) ($validation->normalized['requiere_datos_familiar'] ?? false),
                 ]),
             ],
         ]);

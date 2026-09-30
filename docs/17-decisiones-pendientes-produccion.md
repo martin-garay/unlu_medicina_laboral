@@ -6,17 +6,16 @@ versionada y recomendaciones; no aprueba tablas, políticas ni despliegues.
 ## Tablas maestras C1–C17
 
 Fuente detallada: [inventario de tablas maestras](15-inventario-tablas-maestras.md).
-“DB” en esta tabla significa candidato recomendado sujeto a confirmación, no una
-decisión aprobada. “Config/código” conserva la fuente vigente mientras no haya
-un requisito demostrado de administración operativa.
+Los estados de C1–C5 reflejan la selección y el alcance implementado en CAT-001.
+“Config/código” conserva su recomendación para los demás candidatos.
 
 | ID | Candidato | Recomendación | Razón / condición pendiente |
 | --- | --- | --- | --- |
-| C1 | Sedes / centros | DB, condicionado | Hay opciones duplicadas entre catálogo y menú y selecciones persistidas. Confirmar catálogo oficial completo, códigos estables, fuente y responsable institucional. |
-| C2 | Jornada laboral | Diferir | Configuración usa “Planta permanente/Parcial”; mocks usan “Mañana/Tarde”. Aclarar si se trata de turno, horario o situación de revista antes de modelar. |
-| C3 | Tipos de ausentismo | DB, condicionado | Catálogo acotado, pero las claves controlan comportamiento (p. ej. datos del familiar). Separar datos configurables de lógica de flujos. |
-| C4 | Tipos de certificado | Config/código | Dos valores ligados al flujo; no hay requisito de edición sin despliegue. No confundir con MIME/extensiones. |
-| C5 | Parentescos | Config/código | Lista localizada y acotada; no hay requisito de CRUD operativo. |
+| C1 | Sedes / centros | DB + CRUD | CAT-001 crea tabla/admin/chat. Seed conserva las tres opciones anteriores; falta validar e importar lista institucional completa. |
+| C2 | Jornada laboral | Texto libre | Decisión del usuario; no se crea tabla ni opciones cerradas. |
+| C3 | Tipos de ausentismo | DB + CRUD | CAT-001 agrega `requiere_datos_familiar`; el código estable identifica la opción. |
+| C4 | Tipos de certificado | DB + CRUD | CAT-001 lo incluye por ser catálogo visible mantenible en admin y consumido por el chat. No confundir con MIME/extensiones. |
+| C5 | Parentescos | DB + CRUD | CAT-001 lo incluye para administrar las opciones del flujo familiar; su etiqueta se conserva como snapshot. |
 | C6 | Menús/opciones | Config/código | Navegación y acciones ligadas a handlers e IDs de interacción. No ofrecer editor de flujos por crear tablas. |
 | C7 | Aliases/comandos | Config/código | Enrutamiento y compatibilidad; los números dependen del menú mostrado. |
 | C8 | Mensajes | Config/código | La fuente vigente es traducciones/MessageResolver; DB requeriría idioma, permisos y versionado. |
@@ -30,21 +29,15 @@ un requisito demostrado de administración operativa.
 | C16 | Canales, pasos, eventos y cierres | Config/código | Dominios técnicos: una fila nueva no implementa su comportamiento. No CRUD libre. |
 | C17 | Trabajadores/cache externa | Diferir | Los registros actuales son mocks, no padrón. No replicar PII sin fuente autoritativa, contrato, sincronización y retención. |
 
-### Decisiones de catálogo necesarias
+### Decisiones de catálogo pendientes
 
-1. Para C2, definir qué dato debe pedir o consultar el flujo y cuál es su fuente
-   institucional. No mezclar “turno” con “situación de revista”.
-2. Para C1, obtener lista oficial de centros, códigos, fuente y reglas de vigencia;
+1. Para C1, obtener lista oficial de centros, códigos, fuente y reglas de vigencia;
    mapear central/campus/delegación sólo si existe equivalencia documentada.
-3. Confirmar la validez institucional de los valores de todos los catálogos
-   visibles (al menos C1–C5), estén en DB o config/código; alojarlos en config no
-   acredita que sus opciones sean oficiales. Separadamente, confirmar si personal
-   autorizado necesita cambiar C1 o C3 sin despliegue. Sin
-   esa necesidad, una tabla agrega CRUD, permisos y auditoría sin beneficio probado.
-4. Conservar código/etiqueta mostrados en trámites históricos; resolver el snapshot
-   de opciones y selecciones de conversaciones activas. Corregir la duplicación
-   catálogo/menú y el acoplamiento por posición cuando se autorice implementación.
-5. Mantener CAT-001 `pending`; ninguna candidata está aprobada para migración.
+2. Confirmar la validez institucional de valores y códigos iniciales de los catálogos.
+3. Mantener el snapshot de opciones enviado en la conversación activa: el código y
+   la etiqueta presentados siguen siendo válidos aunque luego se desactive o renombre
+   el registro. Las selecciones persistidas conservan su etiqueta en metadata.
+4. Mantener fuera de DB C6–C17 salvo decisión posterior documentada.
 
 ## Certificados — decisiones M5 / BO-002
 
@@ -89,10 +82,9 @@ ningún host remoto en PR-002.
 
 ## Próximos pasos
 
-- **CAT-001:** recopilar la fuente oficial y semántica para C1/C2; luego confirmar
-  semántica de C2, y validar institucionalmente los valores visibles C1–C5.
-  Después confirmar si C1/C3 requieren administración dinámica. Crear un daily de
-  diseño/implementación con sólo los candidatos aprobados.
+- **CAT-002:** incorporar la lista institucional completa de sedes cuando se obtenga
+  una fuente autorizada. Jornada queda libre; C6–C17 no forman parte del CRUD
+  implementado.
 - **M5:** resolver D2–D5 en su daily canónico antes de trabajo runtime M6–M9.
 - **Piloto:** satisfacer gates de identidad, archivos, webhook, logs, salida y
   operación; la documentación de deploy no demuestra readiness del servidor.

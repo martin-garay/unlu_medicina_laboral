@@ -6,23 +6,32 @@ use App\Flows\Identification\Handlers\IdentificacionSedeStepHandler;
 use App\Flows\Validators\SedeValidator;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\TestCase;
 
 class IdentificacionSedeStepHandlerTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createChatCatalogSchema();
+    }
+
     public function test_valid_sede_moves_to_jornada_and_stores_label(): void
     {
         $handler = new IdentificacionSedeStepHandler(
-            new SedeValidator(),
-            new ConversationContextService(),
+            new SedeValidator,
+            new ConversationContextService,
         );
 
         $result = $handler->handle(new Conversacion(['tipo_flujo' => 'certificado']), ['text' => '1']);
 
         $this->assertTrue($result->isValid);
         $this->assertSame('identificacion_jornada', $result->nextStep);
-        $this->assertSame(__('whatsapp.identificacion.jornada_laboral'), $result->menuConfig['body_text']);
-        $this->assertSame('jornada_planta_permanente', $result->menuConfig['buttons'][0]['id']);
+        $this->assertSame('whatsapp.identificacion.jornada_laboral', $result->messageKey);
+        $this->assertSame([], $result->menuConfig);
         $this->assertSame(
             'Sede Central',
             $result->payload['conversation_updates']['metadata']['identificacion']['sede']
@@ -36,8 +45,8 @@ class IdentificacionSedeStepHandlerTest extends TestCase
     public function test_invalid_sede_returns_catalog_menu(): void
     {
         $handler = new IdentificacionSedeStepHandler(
-            new SedeValidator(),
-            new ConversationContextService(),
+            new SedeValidator,
+            new ConversationContextService,
         );
 
         $result = $handler->handle(new Conversacion(['tipo_flujo' => 'certificado']), ['text' => '9']);

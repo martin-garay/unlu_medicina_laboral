@@ -16,10 +16,9 @@ Para poder registrar un anticipo de certificado, previamente debe existir un **a
 
 En esta etapa se documenta la estructura recomendada del flujo y las decisiones principales de implementación.
 
-Puede dejarse para más adelante:
+Queda para más adelante:
 
 - integración real con validaciones externas
-- administración dinámica del catálogo de tipos de certificado
 - almacenamiento definitivo de archivos con infraestructura final
 - validaciones avanzadas de plazos hábiles si requieren lógica adicional
 
@@ -165,23 +164,11 @@ El sistema debe exigir la selección de un tipo de certificado válido entre opc
 
 En WhatsApp, la implementación actual presenta esta selección como menú interactivo. El flujo conserva compatibilidad con respuesta por número o texto para canales internos y fallback operativo.
 
-## Implementación sugerida
+## Implementación vigente
 
-En la primera etapa existen dos opciones razonables:
-
-### Opción 1
-Resolverlo con config o enum
-
-### Opción 2
-Resolverlo con tabla en base de datos
-
-## Decisión sugerida para inicio
-
-Comenzar con:
-
-- config o enum
-
-y dejar documentado que puede migrarse a tabla si luego debe administrarse desde backoffice.
+`tipos_certificado` es un catálogo administrable en Filament. El chat muestra y
+valida las filas activas desde PostgreSQL; conserva el código como clave estable y
+guarda la etiqueta elegida en metadata como snapshot.
 
 ## Regla de diseño
 

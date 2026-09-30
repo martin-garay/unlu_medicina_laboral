@@ -1,6 +1,6 @@
 # Problemas recurrentes
 
-Revisado: 2026-09-27. Sólo entradas verificadas; detalles de deploy se consultan
+Revisado: 2026-09-30. Sólo entradas verificadas; detalles de deploy se consultan
 en [troubleshooting canónico](../../deploy/docs/troubleshooting.md).
 
 ## Worktree sin directorios locales
@@ -21,11 +21,14 @@ en [troubleshooting canónico](../../deploy/docs/troubleshooting.md).
 - **Solution:** verificar montaje/proyecto/SHA; Lead asigna entorno o serializa.
 - **Related modules:** [Compose](../../docker-compose.yml), [Makefile](../../Makefile).
 
-## Catálogo y botones fuera de sincronía
+## Catálogo cambiado mientras una conversación está abierta
 
-- **Symptom:** selección numérica/interactiva no corresponde a etiqueta esperada.
-- **Cause:** validadores de sede/jornada/tipos vinculan botones y catálogo por índice.
-- **Solution:** mantener orden coherente y probar texto/ID; para normalización
-  futura consultar CAT-001, no rediseñar durante un cambio ajeno.
+- **Symptom:** el admin renombra, reordena o desactiva una opción después de que
+  el chat ya mostró el menú.
+- **Cause:** la respuesta se interpreta con el catálogo vigente en vez del ofrecido.
+- **Solution:** los menús de catálogos guardan una instantánea en metadata de la
+  conversación; validadores resuelven contra esa instantánea y conservan el
+  nombre mostrado. No eliminar opciones con historial asociado.
 - **Related modules:** [SedeValidator](../../app/Flows/Validators/SedeValidator.php),
+  [ConversationInteractionService](../../app/Services/Conversation/ConversationInteractionService.php),
   [inventario](../15-inventario-tablas-maestras.md).

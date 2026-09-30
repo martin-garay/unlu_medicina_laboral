@@ -6,15 +6,24 @@ use App\Flows\Certificado\Handlers\CertificadoTipoStepHandler;
 use App\Flows\Validators\TipoCertificadoValidator;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\TestCase;
 
 class CertificadoTipoStepHandlerTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createChatCatalogSchema();
+    }
+
     public function test_valid_option_stores_tipo_and_moves_to_adjunto_step(): void
     {
         $handler = new CertificadoTipoStepHandler(
-            new TipoCertificadoValidator(),
-            new ConversationContextService(),
+            new TipoCertificadoValidator,
+            new ConversationContextService,
         );
 
         $conversation = new Conversacion([
@@ -44,8 +53,8 @@ class CertificadoTipoStepHandlerTest extends TestCase
     public function test_accepts_button_id_selection(): void
     {
         $handler = new CertificadoTipoStepHandler(
-            new TipoCertificadoValidator(),
-            new ConversationContextService(),
+            new TipoCertificadoValidator,
+            new ConversationContextService,
         );
 
         $result = $handler->handle(new Conversacion(['tipo_flujo' => 'certificado']), [
@@ -59,8 +68,8 @@ class CertificadoTipoStepHandlerTest extends TestCase
     public function test_invalid_option_returns_catalog_menu(): void
     {
         $handler = new CertificadoTipoStepHandler(
-            new TipoCertificadoValidator(),
-            new ConversationContextService(),
+            new TipoCertificadoValidator,
+            new ConversationContextService,
         );
 
         $result = $handler->handle(new Conversacion(['tipo_flujo' => 'certificado']), ['text' => '9']);
@@ -75,8 +84,8 @@ class CertificadoTipoStepHandlerTest extends TestCase
     public function test_cancel_returns_to_main_menu_and_resets_certificado_context(): void
     {
         $handler = new CertificadoTipoStepHandler(
-            new TipoCertificadoValidator(),
-            new ConversationContextService(),
+            new TipoCertificadoValidator,
+            new ConversationContextService,
         );
 
         $conversation = new Conversacion([

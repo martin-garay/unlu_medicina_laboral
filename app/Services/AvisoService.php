@@ -8,13 +8,13 @@ use App\Models\Conversacion;
 use App\Services\Notifications\Contracts\BusinessNotificationSender;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 class AvisoService
 {
     public function __construct(
         private readonly BusinessNotificationSender $businessNotificationSender,
-    ) {
-    }
+    ) {}
 
     public function buildConfirmationTemplateData(Conversacion $conversation, array $avisoOverrides = []): array
     {
@@ -34,7 +34,9 @@ class AvisoService
             'dias' => $this->calculateCantidadDias($fechaDesde, $fechaHasta) ?? '-',
             'tipo_ausentismo' => $aviso['tipo_ausentismo_label'] ?? $aviso['tipo_ausentismo'] ?? '-',
             'nombre_familiar' => $aviso['nombre_familiar'] ?? null,
-            'parentesco' => app(AvisoFamiliarService::class)->catalog()[$aviso['parentesco'] ?? ''] ?? null,
+            'parentesco' => $aviso['parentesco_label'] ?? (isset($aviso['parentesco'])
+                ? app(AvisoFamiliarService::class)->label((string) $aviso['parentesco'])
+                : null),
             'motivo' => $aviso['motivo'] ?? '-',
             'domicilio_circunstancial' => $aviso['domicilio_circunstancial'] ?? null,
             'observaciones' => $aviso['observaciones'] ?? null,
@@ -57,7 +59,7 @@ class AvisoService
         $fechaHasta = $aviso['fecha_hasta'] ?? null;
 
         if (app(AvisoFamiliarService::class)->missingStep($aviso) !== null) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
+            throw ValidationException::withMessages([
                 'familiar' => __('whatsapp.aviso.datos_familiar_incompletos'),
             ]);
         }
@@ -96,6 +98,9 @@ class AvisoService
             $aviso->fecha_inicio?->format('Y-m-d'),
             $aviso->fecha_fin?->format('Y-m-d'),
         ])));
+        $avisoSnapshot = is_array($aviso->metadata)
+            ? ($aviso->metadata['aviso'] ?? [])
+            : [];
 
         return [
             'numero_aviso' => $this->displayNumber($aviso),
@@ -104,7 +109,7 @@ class AvisoService
             'sede' => $aviso->sede ?? '-',
             'jornada' => $aviso->jornada_laboral ?? '-',
             'periodo' => $periodo !== '' ? $periodo : '-',
-            'tipo_ausentismo' => $aviso->tipo_ausentismo ?? '-',
+            'tipo_ausentismo' => $avisoSnapshot['tipo_ausentismo_label'] ?? $aviso->tipo_ausentismo ?? '-',
             'motivo' => $aviso->motivo ?? '-',
             'domicilio_circunstancial' => $aviso->domicilio_circunstancial ?? null,
             'deadline_horas' => (int) config('medicina_laboral.certificados.deadline_business_hours', 24),
@@ -113,7 +118,7 @@ class AvisoService
 
     public function displayNumber(Aviso $aviso): string
     {
-        return 'AV-' . $aviso->id;
+        return 'AV-'.$aviso->id;
     }
 
     public function buildRegisteredStepResult(Aviso $aviso): StepResult

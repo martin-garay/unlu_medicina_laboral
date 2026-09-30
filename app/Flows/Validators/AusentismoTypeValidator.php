@@ -5,6 +5,7 @@ namespace App\Flows\Validators;
 use App\Flows\Common\Contracts\Validator;
 use App\Flows\Common\ValidationResult;
 use App\Models\Conversacion;
+use App\Services\Catalogos\ChatCatalogService;
 
 class AusentismoTypeValidator implements Validator
 {
@@ -17,26 +18,13 @@ class AusentismoTypeValidator implements Validator
             return ValidationResult::invalid('required');
         }
 
-        $catalog = config('medicina_laboral.catalogos.tipos_ausentismo', []);
-        $buttons = config('medicina_laboral.mensajes.menus.tipos_ausentismo.buttons', []);
-        $keys = array_keys($catalog);
-
-        foreach ($keys as $index => $key) {
-            $label = mb_strtolower((string) ($catalog[$key] ?? ''));
-            $numericAlias = (string) ($index + 1);
-            $configuredButtonId = (string) ($buttons[$index]['id'] ?? '');
-
-            if (
-                $buttonId === $configuredButtonId
-                || $raw === mb_strtolower($key)
-                || $raw === $label
-                || $raw === $numericAlias
-            ) {
-                return ValidationResult::valid([
-                    'tipo_ausentismo' => $key,
-                    'tipo_ausentismo_label' => $catalog[$key],
-                ]);
-            }
+        $option = app(ChatCatalogService::class)->findOption('tipos_ausentismo', $input, $conversation);
+        if ($option !== null) {
+            return ValidationResult::valid([
+                'tipo_ausentismo' => $option->codigo,
+                'tipo_ausentismo_label' => $option->nombre,
+                'requiere_datos_familiar' => (bool) $option->requiere_datos_familiar,
+            ]);
         }
 
         return ValidationResult::invalid('invalid_option');

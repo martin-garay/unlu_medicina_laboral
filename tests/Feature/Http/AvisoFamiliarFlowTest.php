@@ -9,23 +9,27 @@ use App\Services\Conversation\ConversationInboundMessage;
 use App\Services\Conversation\ConversationInteractionService;
 use App\Services\ConversationManager;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\ValidationException;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\Concerns\CreatesTestingSchema;
 use Tests\TestCase;
 
 class AvisoFamiliarFlowTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
     use CreatesTestingSchema;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->createTestingSchema();
+        $this->createChatCatalogSchema();
         config()->set('medicina_laboral.mail.driver', 'null');
         Http::fake();
     }
 
-    private function send(string $text, ?string $step = null): \Illuminate\Testing\TestResponse
+    private function send(string $text, ?string $step = null): TestResponse
     {
         $response = $this->postJson('/api/internal/chat/messages', [
             'participant_id' => 'family-test', 'text' => $text,
@@ -33,6 +37,7 @@ class AvisoFamiliarFlowTest extends TestCase
         if ($step !== null) {
             $response->assertJsonPath('conversation.current_step', $step);
         }
+
         return $response;
     }
 

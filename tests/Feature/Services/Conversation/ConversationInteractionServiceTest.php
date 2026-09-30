@@ -2,28 +2,60 @@
 
 namespace Tests\Feature\Services\Conversation;
 
+use App\Flows\Common\StepResult;
+use App\Flows\Validators\SedeValidator;
 use App\Models\Conversacion;
+use App\Models\ConversacionMensaje;
+use App\Services\Catalogos\ChatCatalogService;
 use App\Services\Conversation\ConversationInboundMessage;
 use App\Services\Conversation\ConversationInteractionService;
 use Illuminate\Support\Facades\Log;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\Concerns\CreatesTestingSchema;
 use Tests\TestCase;
 
 class ConversationInteractionServiceTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
     use CreatesTestingSchema;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->createTestingSchema();
-        $compiledPath = sys_get_temp_dir() . '/unlu-medicina-tests-views';
+        $this->createChatCatalogSchema();
+        $compiledPath = sys_get_temp_dir().'/unlu-medicina-tests-views';
 
-        if (!is_dir($compiledPath)) {
+        if (! is_dir($compiledPath)) {
             mkdir($compiledPath, 0777, true);
         }
 
         config()->set('view.compiled', $compiledPath);
+    }
+
+    public function test_catalog_snapshot_is_kept_after_invalid_reply_until_step_advances(): void
+    {
+        $catalogs = app(ChatCatalogService::class);
+        $snapshot = $catalogs->menu('sedes')['catalog_snapshot'];
+        $conversation = Conversacion::query()->create([
+            'canal' => Conversacion::CANAL_INTERNO,
+            'wa_number' => 'catalog-snapshot-test',
+            'paso_actual' => 'identificacion_sede',
+            'metadata' => ['catalog_menu_snapshot' => ['sedes' => $snapshot]],
+        ]);
+        $service = app(ConversationInteractionService::class);
+        $storeSnapshot = new \ReflectionMethod($service, 'storeCatalogMenuSnapshot');
+        $storeSnapshot->setAccessible(true);
+
+        $storeSnapshot->invoke($service, $conversation, StepResult::invalid('invalid_option'));
+
+        $conversation->refresh();
+        $this->assertTrue((new SedeValidator)->validate($conversation, ['text' => '1'])->isValid);
+        $this->assertNotEmpty(data_get($conversation->metadata, 'catalog_menu_snapshot.sedes'));
+
+        $storeSnapshot->invoke($service, $conversation, StepResult::make('whatsapp.identificacion.jornada_laboral'));
+
+        $this->assertNull(data_get($conversation->fresh()->metadata, 'catalog_menu_snapshot'));
     }
 
     public function test_first_inbound_message_creates_conversation_and_returns_text_and_menu_outputs(): void
@@ -174,7 +206,7 @@ class ConversationInteractionServiceTest extends TestCase
         ]);
         $this->assertSame(
             1,
-            \App\Models\ConversacionMensaje::query()
+            ConversacionMensaje::query()
                 ->where('provider_message_id', 'wamid-selection-dup')
                 ->count()
         );

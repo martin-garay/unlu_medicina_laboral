@@ -4,13 +4,22 @@ namespace Tests\Unit\Flows\Validators;
 
 use App\Flows\Validators\SedeValidator;
 use App\Models\Conversacion;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\TestCase;
 
 class SedeValidatorTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createChatCatalogSchema();
+    }
+
     public function test_accepts_numeric_alias_for_configured_sede(): void
     {
-        $result = (new SedeValidator())->validate(new Conversacion(), ['text' => '1']);
+        $result = (new SedeValidator)->validate(new Conversacion, ['text' => '1']);
 
         $this->assertTrue($result->isValid);
         $this->assertSame('central', $result->normalized['sede_key']);
@@ -18,7 +27,7 @@ class SedeValidatorTest extends TestCase
 
     public function test_accepts_sede_label_case_insensitively(): void
     {
-        $result = (new SedeValidator())->validate(new Conversacion(), ['text' => 'campus luján']);
+        $result = (new SedeValidator)->validate(new Conversacion, ['text' => 'campus luján']);
 
         $this->assertTrue($result->isValid);
         $this->assertSame('campus', $result->normalized['sede_key']);
@@ -26,7 +35,7 @@ class SedeValidatorTest extends TestCase
 
     public function test_accepts_button_id(): void
     {
-        $result = (new SedeValidator())->validate(new Conversacion(), [
+        $result = (new SedeValidator)->validate(new Conversacion, [
             'button_id' => 'sede_delegacion',
         ]);
 
@@ -36,7 +45,7 @@ class SedeValidatorTest extends TestCase
 
     public function test_rejects_unknown_sede(): void
     {
-        $result = (new SedeValidator())->validate(new Conversacion(), ['text' => 'desconocida']);
+        $result = (new SedeValidator)->validate(new Conversacion, ['text' => 'desconocida']);
 
         $this->assertFalse($result->isValid);
         $this->assertSame('sede_invalida', $result->errorCode);

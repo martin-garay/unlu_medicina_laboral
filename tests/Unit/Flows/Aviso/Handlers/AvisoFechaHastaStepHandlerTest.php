@@ -6,15 +6,24 @@ use App\Flows\Aviso\Handlers\AvisoFechaHastaStepHandler;
 use App\Flows\Validators\AvisoFechaHastaValidator;
 use App\Models\Conversacion;
 use App\Services\Conversation\ConversationContextService;
+use Tests\Concerns\CreatesChatCatalogSchema;
 use Tests\TestCase;
 
 class AvisoFechaHastaStepHandlerTest extends TestCase
 {
+    use CreatesChatCatalogSchema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createChatCatalogSchema();
+    }
+
     public function test_valid_date_moves_to_tipo_ausentismo_with_menu(): void
     {
         $handler = new AvisoFechaHastaStepHandler(
-            new AvisoFechaHastaValidator(),
-            new ConversationContextService(),
+            new AvisoFechaHastaValidator,
+            new ConversationContextService,
         );
 
         $conversation = new Conversacion([
@@ -42,8 +51,8 @@ class AvisoFechaHastaStepHandlerTest extends TestCase
     public function test_date_before_start_returns_specific_error_message_key(): void
     {
         $handler = new AvisoFechaHastaStepHandler(
-            new AvisoFechaHastaValidator(),
-            new ConversationContextService(),
+            new AvisoFechaHastaValidator,
+            new ConversationContextService,
         );
 
         $conversation = new Conversacion([

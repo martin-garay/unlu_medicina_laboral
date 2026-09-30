@@ -4,6 +4,7 @@ namespace App\Services\Conversation;
 
 use App\Flows\Common\MessageResolver;
 use App\Flows\Common\StepResult;
+use App\Models\Aviso;
 use App\Models\Conversacion;
 use App\Services\AnticipoCertificadoService;
 use App\Services\AvisoService;
@@ -11,6 +12,7 @@ use App\Services\ConversationEventService;
 use App\Services\ConversationFailureService;
 use App\Services\ConversationManager;
 use App\Services\ConversationMessageService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class ConversationInteractionService
@@ -24,8 +26,7 @@ class ConversationInteractionService
         private readonly ConversationFailureService $conversationFailureService,
         private readonly AvisoService $avisoService,
         private readonly AnticipoCertificadoService $anticipoCertificadoService,
-    ) {
-    }
+    ) {}
 
     public function handleInboundMessage(ConversationInboundMessage $message): ConversationInteractionResult
     {
@@ -181,6 +182,7 @@ class ConversationInteractionService
             $conversation,
             $stepResult->payload['conversation_updates'] ?? []
         );
+        $conversation = $this->storeCatalogMenuSnapshot($conversation, $stepResult);
         $responseResult = null;
 
         if ($stepResult->shouldCancel) {
@@ -267,7 +269,7 @@ class ConversationInteractionService
         }
 
         if ($action === 'create_aviso_inasistencia') {
-            \App\Models\Aviso::create([
+            Aviso::create([
                 'dni' => $conversation->dni,
                 'tipo' => 'inasistencia',
                 'fecha_inicio' => now()->toDateString(),
@@ -359,7 +361,11 @@ class ConversationInteractionService
         }
 
         if ($stepResult->menuConfig !== []) {
-            $messages[] = ConversationOutboundMessage::menu($stepResult->menuConfig);
+            $menuConfig = $stepResult->menuConfig;
+            unset($menuConfig['catalog_key'], $menuConfig['catalog_snapshot']);
+            $messages[] = ($menuConfig['type'] ?? null) === 'text'
+                ? ConversationOutboundMessage::text($menuConfig['body_text'] ?? '')
+                : ConversationOutboundMessage::menu($menuConfig);
         }
 
         if ($stepResult->shouldShowMenu) {
@@ -381,7 +387,7 @@ class ConversationInteractionService
         foreach ($options as $optionKey) {
             $option = $catalog[$optionKey] ?? null;
 
-            if (!$option) {
+            if (! $option) {
                 continue;
             }
 
@@ -397,9 +403,26 @@ class ConversationInteractionService
         ];
     }
 
+    private function storeCatalogMenuSnapshot(Conversacion $conversation, StepResult $stepResult): Conversacion
+    {
+        $metadata = is_array($conversation->metadata) ? $conversation->metadata : [];
+        $catalog = $stepResult->menuConfig['catalog_key'] ?? null;
+        $snapshot = $stepResult->menuConfig['catalog_snapshot'] ?? null;
+
+        if (is_string($catalog) && is_array($snapshot)) {
+            Arr::set($metadata, "catalog_menu_snapshot.{$catalog}", $snapshot);
+        } elseif ($stepResult->isValid) {
+            Arr::forget($metadata, 'catalog_menu_snapshot');
+        }
+
+        $conversation->forceFill(['metadata' => $metadata])->save();
+
+        return $conversation->refresh();
+    }
+
     private function createLegacyCertificadoAviso(Conversacion $conversation, StepResult $stepResult): void
     {
-        \App\Models\Aviso::create([
+        Aviso::create([
             'dni' => $conversation->dni,
             'tipo' => 'certificado',
             'certificado_base64' => $stepResult->payload['certificado_texto'] ?? null,
