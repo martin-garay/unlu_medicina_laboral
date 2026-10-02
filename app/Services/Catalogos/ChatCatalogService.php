@@ -13,10 +13,10 @@ use Illuminate\Database\Eloquent\Model;
 class ChatCatalogService
 {
     private const CATALOGS = [
-        'sedes' => [Sede::class, 'sede', 'whatsapp.identificacion.sede'],
-        'tipos_ausentismo' => [TipoAusentismo::class, 'ausentismo', 'whatsapp.aviso.prompts.tipo_ausentismo'],
-        'tipos_certificado' => [TipoCertificado::class, 'certificado', 'whatsapp.certificado.tipo_certificado'],
-        'parentescos' => [Parentesco::class, 'parentesco', 'whatsapp.aviso.prompts.parentesco'],
+        'sedes' => [Sede::class, 'sede', 'whatsapp.identificacion.sede', 'whatsapp.catalogos.abrir_sedes'],
+        'tipos_ausentismo' => [TipoAusentismo::class, 'ausentismo', 'whatsapp.aviso.prompts.tipo_ausentismo', 'whatsapp.catalogos.abrir_ausentismos'],
+        'tipos_certificado' => [TipoCertificado::class, 'certificado', 'whatsapp.certificado.tipo_certificado', 'whatsapp.catalogos.abrir_certificados'],
+        'parentescos' => [Parentesco::class, 'parentesco', 'whatsapp.aviso.prompts.parentesco', 'whatsapp.aviso.seleccionar_parentesco'],
     ];
 
     /** @return Builder<Model> */
@@ -86,7 +86,7 @@ class ChatCatalogService
 
     public function menu(string $catalog): array
     {
-        [$model, $prefix, $bodyKey] = $this->definition($catalog);
+        [$model, $prefix, $bodyKey, $buttonKey] = $this->definition($catalog);
         $options = $this->query($catalog)->get();
         $snapshot = [];
         $buttons = $options->map(function (Model $option) use ($prefix, $catalog, &$snapshot): array {
@@ -128,7 +128,7 @@ class ChatCatalogService
         return [
             'type' => $isTextFallback ? 'text' : ($isList ? 'list' : 'button'),
             'body_text' => $bodyText,
-            'button_text' => __('whatsapp.aviso.seleccionar_parentesco'),
+            'button_text' => __($buttonKey),
             'buttons' => $buttons,
             'catalog_key' => $catalog,
             'catalog_snapshot' => $snapshot,

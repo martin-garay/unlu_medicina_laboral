@@ -7,7 +7,15 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 2026-10-02 -03
 
-## Última ejecución — CERT-001
+## Última ejecución — CAT-MENU-001
+
+- [Daily 2026-10-02](daily/2026-10-02.md): `done`; texto de apertura localizado
+  por catálogo. Sedes muestra «Ver sedes» en lista, parentescos conserva su texto.
+- Reglas de presentación, opciones e IDs preservados. 7 tests / 29 assertions,
+  Pint en archivos modificados y diff check correctos; revisión propia acotada.
+- Git inicial limpio; sin push/deploy. Memoria IGNORE; CERT-001 conserva sus pendientes.
+
+### Ejecución anterior — CERT-001
 
 - [Daily 2026-10-02](daily/2026-10-02.md): `needs_review` por aceptación manual
   en testing; código integrado y review independiente sin BLOCKER/HIGH.

@@ -23,6 +23,12 @@ return [
         ],
     ],
 
+    'catalogos' => [
+        'abrir_sedes' => 'Ver sedes',
+        'abrir_ausentismos' => 'Ver ausentismos',
+        'abrir_certificados' => 'Ver certificados',
+    ],
+
     'identificacion' => [
         'inicio' => 'Para continuar, necesitamos validar tu identificación.',
         'dni' => 'Por favor, escribí tu número de DNI para continuar.',
