@@ -29,6 +29,9 @@
   tags:
     - scheduler
     - redeploy
+- name: Configure certificate queue worker
+  ansible.builtin.import_playbook: playbooks/queue-worker.yml
+  tags: [scheduler, redeploy]
 - name: Configure TLS
   ansible.builtin.import_playbook: playbooks/tls.yml
   tags: [tls]

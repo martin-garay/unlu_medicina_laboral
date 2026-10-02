@@ -1,0 +1,47 @@
+---
+- name: Validate certificate worker storage selection
+  ansible.builtin.assert:
+    that:
+      - application_storage_driver | default('metadata') == 'pgsql'
+    fail_msg: Certificate worker requires pgsql storage and a migrated release.
+  when: queue_worker_enabled | bool
+
+- name: Install certificate worker unit
+  ansible.builtin.template:
+    src: medicina-certificates.service.j2
+    dest: /etc/systemd/system/medicina-certificates.service
+    owner: root
+    group: root
+    mode: "0644"
+  register: queue_worker_unit
+  when: queue_worker_enabled | bool
+
+- name: Start or restart certificate worker
+  ansible.builtin.systemd:
+    name: medicina-certificates
+    enabled: true
+    daemon_reload: "{{ queue_worker_unit.changed }}"
+    state: >-
+      {{ 'restarted' if queue_worker_unit.changed or
+         application_environment_render.changed | default(false) or
+         application_release_activation.changed | default(false)
+         else 'started' }}
+  when:
+    - queue_worker_enabled | bool
+    - not ansible_check_mode
+
+- name: Inspect managed certificate worker unit when disabled
+  ansible.builtin.stat:
+    path: /etc/systemd/system/medicina-certificates.service
+  register: queue_worker_existing
+  when: not queue_worker_enabled | bool
+
+- name: Stop disabled certificate worker
+  ansible.builtin.systemd:
+    name: medicina-certificates
+    enabled: false
+    state: stopped
+  when:
+    - not queue_worker_enabled | bool
+    - queue_worker_existing.stat.exists | default(false)
+    - not ansible_check_mode

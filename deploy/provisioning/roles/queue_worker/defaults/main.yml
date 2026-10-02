@@ -1,0 +1,4 @@
+---
+queue_worker_enabled: false
+queue_worker_user: "{{ deploy_user_name }}"
+queue_worker_directory: "{{ application_root }}/current"

@@ -14,6 +14,7 @@ application_transfer_strategy: rsync
 application_composer_install_local: false
 # Proxy del runtime WhatsApp; vacío conserva el comportamiento HTTP por defecto.
 application_whatsapp_proxy_unlu: ""
+application_storage_driver: metadata
 # Proxy values for Docker on the Ansible control node. Lowercase variables are
 # preferred because Composer/curl use them in PC Uni; uppercase variants remain
 # supported as fallback. Values come from the operator environment and are not

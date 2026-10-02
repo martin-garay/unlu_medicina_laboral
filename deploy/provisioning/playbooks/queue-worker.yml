@@ -1,0 +1,7 @@
+---
+- name: Configure certificate queue worker
+  hosts: app_servers
+  gather_facts: false
+  become: true
+  roles:
+    - role: queue_worker

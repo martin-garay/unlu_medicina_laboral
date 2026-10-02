@@ -616,6 +616,7 @@
     group: www-data
     mode: "0640"
   no_log: true
+  register: application_environment_render
   notify: Reload PHP-FPM for application
 
 - name: Link shared Laravel environment
@@ -686,6 +687,17 @@
   when:
     - not ansible_check_mode
     - application_backoffice_admin_enabled | bool
+
+- name: Ensure certificate download permission
+  ansible.builtin.command:
+    argv: [php, artisan, 'certificates:permissions']
+    chdir: "{{ application_release_path }}"
+  become: true
+  become_user: "{{ deploy_user_name }}"
+  changed_when: false
+  when:
+    - not ansible_check_mode
+    - application_storage_driver == 'pgsql'
 
 - name: Optimize Laravel caches
   ansible.builtin.command:

@@ -1,0 +1,15 @@
+[Unit]
+Description=Medicina Laboral certificate queue worker
+After=network.target postgresql.service
+
+[Service]
+User={{ queue_worker_user }}
+Group=www-data
+WorkingDirectory={{ queue_worker_directory }}
+ExecStart=/usr/bin/php artisan queue:work database --queue=certificates --sleep=2 --tries=3 --timeout=90 --memory=128 --max-time=3600
+Restart=always
+RestartSec=5
+UMask=0007
+
+[Install]
+WantedBy=multi-user.target

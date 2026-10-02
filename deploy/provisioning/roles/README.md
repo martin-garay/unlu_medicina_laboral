@@ -9,6 +9,7 @@ Los roles se incorporarán por milestone y por tecnología:
 - `postgresql`
 - `application`
 - `laravel_scheduler`
+- `queue_worker`
 - `tls`
 - `backup`
 - `monitoring`
