@@ -6,6 +6,7 @@ use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
 use App\Services\CertificadoMessageService;
+use App\Services\Certificates\CertificateAttachmentService;
 use App\Services\Conversation\ConversationContextService;
 use App\Services\Storage\Contracts\DraftAttachmentStorage;
 
@@ -15,8 +16,7 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
         private readonly ConversationContextService $conversationContextService,
         private readonly CertificadoMessageService $certificadoMessageService,
         private readonly DraftAttachmentStorage $draftAttachmentStorage,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -32,13 +32,13 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
         $incomingType = $input['incoming_message_type'] ?? null;
         $media = $input['media'] ?? null;
 
-        if (!$this->isSupportedAttachment($incomingType, $media)) {
+        if (! $this->isSupportedAttachment($incomingType, $media)) {
             return $this->invalid('invalid_attachment_type', 'whatsapp.certificado.errores.adjunto_requerido', [
                 'increment_attempts' => 1,
             ]);
         }
 
-        if (!$this->hasAllowedMimeType($media)) {
+        if (! $this->hasAllowedMimeType($conversation, $media)) {
             return $this->invalid('invalid_attachment_type', 'whatsapp.errores.invalid_attachment_type', [
                 'increment_attempts' => 1,
             ]);
@@ -47,14 +47,26 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
         $currentData = $this->conversationContextService->certificadoData($conversation);
         $attachments = $currentData['adjuntos'] ?? [];
 
-        if (count($attachments) >= (int) config('medicina_laboral.certificados.max_files', 3)) {
+        if (count($attachments) >= (int) data_get($conversation->metadata, 'certificado.politica.max_files', config('medicina_laboral.certificados.max_files', 3))) {
             return $this->invalid('attachment_limit_exceeded', 'whatsapp.certificado.errores.max_archivos', [
                 'increment_attempts' => 1,
             ]);
         }
 
-        $attachments[] = $this->draftAttachmentStorage->store($media, $incomingType)->toArray();
-        $nextResult = count($attachments) >= (int) config('medicina_laboral.certificados.max_files', 3)
+        $storage = app(CertificateAttachmentService::class);
+        if ($storage->enabled()) {
+            try {
+                $stored = $storage->register($conversation, $media, (string) ($input['provider_message_id'] ?? ''));
+            } catch (\RuntimeException $e) {
+                return $this->invalid('invalid_attachment', 'whatsapp.certificado.errores.adjunto_requerido');
+            }
+            if (! collect($attachments)->contains(fn ($a) => ($a['archivo_id'] ?? null) === $stored['archivo_id'])) {
+                $attachments[] = $stored;
+            }
+        } else {
+            $attachments[] = $this->draftAttachmentStorage->store($media, $incomingType)->toArray();
+        }
+        $nextResult = count($attachments) >= (int) data_get($conversation->metadata, 'certificado.politica.max_files', config('medicina_laboral.certificados.max_files', 3))
             ? $this->buildConfirmationResult($conversation, $attachments)
             : $this->buildAttachMoreResult($conversation, $attachments);
 
@@ -101,7 +113,7 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
                 'event_metadata' => [
                     'attachments_count' => count($attachments),
                     'max_files_reached' => false,
-                    'max_files' => (int) config('medicina_laboral.certificados.max_files', 3),
+                    'max_files' => (int) data_get($conversation->metadata, 'certificado.politica.max_files', config('medicina_laboral.certificados.max_files', 3)),
                 ],
             ],
         ];
@@ -120,7 +132,7 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
         );
     }
 
-    private function hasAllowedMimeType(?array $media): bool
+    private function hasAllowedMimeType(Conversacion $conversation, ?array $media): bool
     {
         $mimeType = $media['mime_type'] ?? null;
 
@@ -128,7 +140,7 @@ class CertificadoAdjuntoStepHandler extends AbstractStepHandler
             return false;
         }
 
-        return in_array($mimeType, config('medicina_laboral.certificados.allowed_mime_types', []), true);
+        return in_array($mimeType, data_get($conversation->metadata, 'certificado.politica.mime_types', config('medicina_laboral.certificados.allowed_mime_types', [])), true);
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

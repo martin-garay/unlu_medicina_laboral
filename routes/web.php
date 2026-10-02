@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\CertificateDownloadController;
 use App\Http\Controllers\InternalChatConsoleController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/admin/certificados/{anticipo}/archivos/{archivo}/download', CertificateDownloadController::class)
+    ->middleware('auth')->name('certificates.download');
 
 Route::get('/', function () {
     return view('welcome');

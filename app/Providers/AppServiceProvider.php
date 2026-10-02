@@ -99,14 +99,14 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(DraftAttachmentStorage::class, function () {
             return match (config('medicina_laboral.storage.draft_driver', config('medicina_laboral.storage.driver', 'metadata'))) {
-                'metadata' => new MetadataDraftAttachmentStorage,
+                'metadata', 'pgsql' => new MetadataDraftAttachmentStorage,
                 default => throw new \InvalidArgumentException('Unsupported attachment storage driver configured.'),
             };
         });
 
         $this->app->singleton(FinalAttachmentStorage::class, function () {
             return match (config('medicina_laboral.storage.final_driver', config('medicina_laboral.storage.driver', 'metadata'))) {
-                'metadata' => new MetadataFinalAttachmentStorage,
+                'metadata', 'pgsql' => new MetadataFinalAttachmentStorage,
                 default => throw new \InvalidArgumentException('Unsupported final attachment storage driver configured.'),
             };
         });

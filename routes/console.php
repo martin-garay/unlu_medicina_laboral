@@ -8,6 +8,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command('certificates:recover')->everyFiveMinutes()->withoutOverlapping(10);
+
 Schedule::command('conversations:process-timeouts')
     ->name('conversations:process-timeouts')
     ->everyMinute()

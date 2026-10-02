@@ -5,14 +5,14 @@ namespace App\Flows\Certificado\Handlers;
 use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
+use App\Services\Certificates\CertificateAttachmentService;
 use App\Services\Conversation\ConversationContextService;
 
 class CertificadoConfirmacionFinalStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -40,6 +40,11 @@ class CertificadoConfirmacionFinalStepHandler extends AbstractStepHandler
         }
 
         if ($this->isConfirmSelection($input)) {
+            $storage = app(CertificateAttachmentService::class);
+            if ($storage->enabled() && ! $storage->ready($conversation)) {
+                return $this->success('certificates.not_ready');
+            }
+
             return $this->success(null, [
                 'should_finish' => true,
                 'payload' => [

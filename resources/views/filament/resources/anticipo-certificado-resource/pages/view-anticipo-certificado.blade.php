@@ -193,7 +193,10 @@
                         <tbody class="divide-y divide-gray-100 dark:divide-white/10">
                             @foreach ($archivos as $archivo)
                                 <tr>
-                                    <td class="px-3 py-2 text-gray-950 dark:text-white">{{ $archivo->nombre_original ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-gray-950 dark:text-white">{{ $archivo->nombre_original ?? '-' }}
+                                    @if ($archivo->estado_storage === 'confirmado' && auth()->user()?->can('certificados.download'))
+                                        <a href="{{ route('certificates.download', ['anticipo' => $this->getRecord()->id, 'archivo' => $archivo->id]) }}" class="text-primary-600 underline">{{ __('certificates.download') }}</a>
+                                    @endif</td>
                                     <td class="px-3 py-2 text-gray-950 dark:text-white">{{ $archivo->mime_type ?? '-' }}</td>
                                     <td class="px-3 py-2 text-gray-950 dark:text-white">{{ $archivo->extension ?? '-' }}</td>
                                     <td class="px-3 py-2 text-gray-950 dark:text-white">{{ $archivo->size_bytes ?? '-' }}</td>

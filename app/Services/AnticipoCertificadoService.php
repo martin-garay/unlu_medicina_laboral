@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Flows\Common\StepResult;
 use App\Models\AnticipoCertificado;
 use App\Models\Conversacion;
+use App\Services\Certificates\CertificateAttachmentService;
 use App\Services\Storage\Contracts\FinalAttachmentStorage;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,7 @@ class AnticipoCertificadoService
     public function __construct(
         private readonly CertificadoMessageService $certificadoMessageService,
         private readonly FinalAttachmentStorage $finalAttachmentStorage,
-    ) {
-    }
+    ) {}
 
     public function buildConfirmationStepResult(Conversacion $conversation): StepResult
     {
@@ -32,6 +32,20 @@ class AnticipoCertificadoService
         $certificado = Arr::get($conversation->metadata ?? [], 'certificado', []);
 
         return DB::transaction(function () use ($conversation, $identificacion, $certificado) {
+            $storage = app(CertificateAttachmentService::class);
+            if ($storage->enabled()) {
+                $conversation = Conversacion::query()->lockForUpdate()->findOrFail($conversation->id);
+                $identificacion = data_get($conversation->metadata, 'identificacion', []);
+                $certificado = data_get($conversation->metadata, 'certificado', []);
+                $prior = AnticipoCertificado::where('conversacion_id', $conversation->id)
+                    ->where('metadata->certificado->intento_uuid', $certificado['intento_uuid'] ?? '')->first();
+                if ($prior) {
+                    return $prior;
+                }
+                if (! $storage->ready($conversation)) {
+                    throw new \RuntimeException('attachments_not_ready');
+                }
+            }
             $anticipo = AnticipoCertificado::create([
                 'uuid' => (string) Str::uuid(),
                 'numero_anticipo' => null,
@@ -59,6 +73,11 @@ class AnticipoCertificadoService
             $this->attachInitialAviso($anticipo, $certificado);
 
             foreach ($certificado['adjuntos'] ?? [] as $attachment) {
+                if ($storage->enabled()) {
+                    $storage->associate($attachment, $conversation, $anticipo->id);
+
+                    continue;
+                }
                 $storedAttachment = $this->finalAttachmentStorage->persist($attachment, $conversation, $anticipo);
 
                 $anticipo->archivos()->create([
@@ -105,6 +124,6 @@ class AnticipoCertificadoService
 
     public function displayNumber(AnticipoCertificado $anticipo): string
     {
-        return $anticipo->numero_anticipo ?: 'AC-' . $anticipo->id;
+        return $anticipo->numero_anticipo ?: 'AC-'.$anticipo->id;
     }
 }

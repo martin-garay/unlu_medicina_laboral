@@ -14,6 +14,10 @@ class AnticipoCertificadoArchivo extends Model
 
     protected $fillable = [
         'uuid',
+        'intento_uuid',
+        'provider_message_id',
+        'estado_storage',
+        'politica',
         'anticipo_certificado_id',
         'conversacion_id',
         'provider_file_id',
@@ -32,6 +36,7 @@ class AnticipoCertificadoArchivo extends Model
     protected $casts = [
         'size_bytes' => 'integer',
         'metadata' => 'array',
+        'politica' => 'array',
     ];
 
     public function anticipoCertificado(): BelongsTo

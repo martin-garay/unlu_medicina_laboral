@@ -13,8 +13,7 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
     public function __construct(
         private readonly ConversationContextService $conversationContextService,
         private readonly CertificadoMessageService $certificadoMessageService,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -46,7 +45,7 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
     {
         $attachments = $this->attachments($conversation);
 
-        if (count($attachments) >= $this->maxFiles()) {
+        if (count($attachments) >= $this->maxFiles($conversation)) {
             return $this->continueToConfirmation($conversation);
         }
 
@@ -58,7 +57,7 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
                 'event_description' => 'Usuario eligió adjuntar otro archivo al anticipo',
                 'event_metadata' => [
                     'attachments_count' => count($attachments),
-                    'max_files' => $this->maxFiles(),
+                    'max_files' => $this->maxFiles($conversation),
                 ],
             ],
         ]);
@@ -89,7 +88,7 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
                 'event_description' => 'Selección de adjuntos del anticipo completada',
                 'event_metadata' => [
                     'attachments_count' => count($attachments),
-                    'max_files' => $this->maxFiles(),
+                    'max_files' => $this->maxFiles($conversation),
                 ],
             ],
         ]);
@@ -106,8 +105,8 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
     {
         return implode("\n", [
             __('whatsapp.certificado.adjuntar_otro_archivo'),
-            '1. ' . __('whatsapp.certificado.options.si'),
-            '2. ' . __('whatsapp.certificado.options.no_continuar'),
+            '1. '.__('whatsapp.certificado.options.si'),
+            '2. '.__('whatsapp.certificado.options.no_continuar'),
         ]);
     }
 
@@ -131,15 +130,15 @@ class CertificadoAdjuntarOtroStepHandler extends AbstractStepHandler
 
         $keywords = array_map(
             static fn (string $value): string => mb_strtolower(trim($value)),
-            config('medicina_laboral.certificados.' . $configKey, [])
+            config('medicina_laboral.certificados.'.$configKey, [])
         );
 
         return in_array($text, $keywords, true);
     }
 
-    private function maxFiles(): int
+    private function maxFiles(Conversacion $conversation): int
     {
-        return (int) config('medicina_laboral.certificados.max_files', 3);
+        return (int) data_get($conversation->metadata, 'certificado.politica.max_files', config('medicina_laboral.certificados.max_files', 3));
     }
 
     private function returnToMainMenu(Conversacion $conversation): StepResult

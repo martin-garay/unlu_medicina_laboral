@@ -11,6 +11,7 @@ $permissions = [
     'catalogos.manage',
     'avisos.view',
     'certificados.view',
+    'certificados.download',
     'conversaciones.view',
     'conversaciones.historial.view',
     'auditoria.view',

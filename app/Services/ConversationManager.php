@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\AnticipoCertificadoArchivo;
 use App\Models\Conversacion;
+use App\Services\Certificates\CertificateAttachmentService;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -167,6 +169,12 @@ class ConversationManager
             'motivo_finalizacion' => $reason,
             'estado_actual' => $attributes['estado_actual'] ?? 'finalizada',
         ], Arr::except($attributes, ['motivo_finalizacion'])))->save();
+
+        if (app(CertificateAttachmentService::class)->enabled()) {
+            AnticipoCertificadoArchivo::where('conversacion_id', $conversation->id)
+                ->whereNull('anticipo_certificado_id')->whereIn('estado_storage', ['pendiente', 'disponible', 'fallido'])
+                ->update(['estado_storage' => 'descartado']);
+        }
 
         return $conversation->refresh();
     }

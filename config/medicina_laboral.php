@@ -27,6 +27,13 @@ return [
     ],
 
     'certificados' => [
+        'cleanup' => ['enabled' => false],
+        'download' => [
+            'timeout_seconds' => 30, 'job_timeout_seconds' => 90, 'tries' => 3,
+            'recovery_minutes' => 10, 'recovery_batch_size' => 100,
+            'backoff_seconds' => [15, 60],
+            'media_hosts' => ['lookaside.fbsbx.com', 'facebook.com', 'fbcdn.net'],
+        ],
         'max_files' => 3,
         'allowed_extensions' => [
             'pdf',

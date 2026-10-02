@@ -6,15 +6,17 @@ use App\Flows\Common\AbstractStepHandler;
 use App\Flows\Common\Contracts\Validator;
 use App\Flows\Common\StepResult;
 use App\Models\Conversacion;
+use App\Services\Certificates\CertificateAttachmentService;
+use App\Services\Certificates\CertificatePolicy;
 use App\Services\Conversation\ConversationContextService;
+use Illuminate\Support\Str;
 
 class CertificadoTipoStepHandler extends AbstractStepHandler
 {
     public function __construct(
         private readonly Validator $validator,
         private readonly ConversationContextService $conversationContextService,
-    ) {
-    }
+    ) {}
 
     public function stepKey(): string
     {
@@ -29,14 +31,19 @@ class CertificadoTipoStepHandler extends AbstractStepHandler
 
         $validation = $this->validator->validate($conversation, $input);
 
-        if (!$validation->isValid) {
+        if (! $validation->isValid) {
             return $this->invalid($validation->errorCode ?? 'invalid_option', 'whatsapp.errores.invalid_option', [
                 'menu_config' => $this->configuredMenu('tipos_certificado'),
                 'increment_attempts' => 1,
             ]);
         }
 
-        return $this->success('whatsapp.certificado.adjuntar_archivo', [
+        $policy = app(CertificatePolicy::class)->snapshot();
+        $realStorage = app(CertificateAttachmentService::class)->enabled();
+
+        return $this->success($realStorage ? 'certificates.attach' : 'whatsapp.certificado.adjuntar_archivo', [
+            'message_params' => ['max_files' => $policy['max_files'], 'max_mib' => $policy['max_bytes'] / 1048576,
+                'formats' => implode(', ', $policy['extensions'])],
             'next_step' => 'certificado_adjunto',
             'next_state' => 'certificado_adjunto',
             'payload' => [
@@ -44,6 +51,8 @@ class CertificadoTipoStepHandler extends AbstractStepHandler
                     'tipo_certificado' => $validation->normalized['tipo_certificado'] ?? null,
                     'tipo_certificado_label' => $validation->normalized['tipo_certificado_label'] ?? null,
                     'adjuntos' => [],
+                    'intento_uuid' => (string) Str::uuid(),
+                    'politica' => $policy,
                 ]),
             ],
         ]);

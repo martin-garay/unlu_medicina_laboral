@@ -2,7 +2,9 @@
 
 namespace App\Services\Conversation;
 
+use App\Models\AnticipoCertificadoArchivo;
 use App\Models\Conversacion;
+use App\Services\Certificates\CertificateAttachmentService;
 use Illuminate\Support\Arr;
 
 class ConversationContextService
@@ -85,6 +87,11 @@ class ConversationContextService
     {
         $metadata = $this->metadata($conversation);
 
+        if (app(CertificateAttachmentService::class)->enabled()) {
+            AnticipoCertificadoArchivo::where('conversacion_id', $conversation->id)
+                ->whereNull('anticipo_certificado_id')->whereIn('estado_storage', ['pendiente', 'disponible', 'fallido'])
+                ->update(['estado_storage' => 'descartado']);
+        }
         Arr::set($metadata, 'certificado', []);
 
         return [
@@ -98,6 +105,11 @@ class ConversationContextService
 
         Arr::set($metadata, 'identificacion', []);
         Arr::set($metadata, 'aviso', []);
+        if (app(CertificateAttachmentService::class)->enabled()) {
+            AnticipoCertificadoArchivo::where('conversacion_id', $conversation->id)
+                ->whereNull('anticipo_certificado_id')->whereIn('estado_storage', ['pendiente', 'disponible', 'fallido'])
+                ->update(['estado_storage' => 'descartado']);
+        }
         Arr::set($metadata, 'certificado', []);
 
         return [

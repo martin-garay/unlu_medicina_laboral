@@ -8,11 +8,13 @@ use App\Models\Aviso;
 use App\Models\Conversacion;
 use App\Services\AnticipoCertificadoService;
 use App\Services\AvisoService;
+use App\Services\Certificates\CertificateAttachmentService;
 use App\Services\ConversationEventService;
 use App\Services\ConversationFailureService;
 use App\Services\ConversationManager;
 use App\Services\ConversationMessageService;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ConversationInteractionService
@@ -29,6 +31,18 @@ class ConversationInteractionService
     ) {}
 
     public function handleInboundMessage(ConversationInboundMessage $message): ConversationInteractionResult
+    {
+        return DB::transaction(function () use ($message) {
+            if (app(CertificateAttachmentService::class)->enabled()) {
+                Conversacion::query()->where('canal', $message->channel)->where('wa_number', $message->participantId)
+                    ->where('activa', true)->lockForUpdate()->get();
+            }
+
+            return $this->processInboundMessage($message);
+        });
+    }
+
+    private function processInboundMessage(ConversationInboundMessage $message): ConversationInteractionResult
     {
         $duplicateMessage = $this->conversationMessageService->findIncomingByProviderMessageId($message->providerMessageId);
 
