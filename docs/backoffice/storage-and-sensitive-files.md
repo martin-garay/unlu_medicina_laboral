@@ -1,3 +1,10 @@
+> Actualización CERT-001 (2026-10-02): driver `pgsql` implementado, activación
+> explícita por entorno. `bytea` separado; históricos metadata-only sin descarga.
+> Endpoint autenticado por anticipo/archivo, permisos `backoffice.access`,
+> `certificados.view` y `certificados.download` (admin por defecto), hash y auditoría.
+> Purga desactivada. Los apartados de propuesta anteriores se conservan como
+> contexto; no hay limpieza ni capacidad productiva certificada.
+
 # Storage y archivos sensibles
 
 ## Principio base

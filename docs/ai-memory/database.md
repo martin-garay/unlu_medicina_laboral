@@ -16,10 +16,9 @@ Revisado: 2026-09-30. Fuentes: [migraciones](../../database/migrations),
   `tipos_certificado`, `parentescos`; IDs internos y códigos estables, baja lógica.
   `jornada_laboral` permanece libre. Ver selección residual en el
   [inventario CAT-001](../15-inventario-tablas-maestras.md).
-- DBML de [storage propuesto](../diagrams/db/certificate-storage-proposed.dbml)
-  no es esquema actual. PostgreSQL bytea/cola son decisiones registradas para
-  trabajo pendiente, no prueba de tablas implementadas; seguir
-  [plan de certificados](../14-certificados-problematica-y-plan-incremental.md).
+- CERT-001 agrega contenido `bytea` 1:1, intento UUID, estado técnico, jobs y
+  failed_jobs; el FK anticipo del archivo es nullable hasta confirmar. Ver DBML
+  runtime y [rollout](../../deploy/docs/certificate-storage-rollout.md). Purga desactivada.
 
 Un owner para migraciones relacionadas y orden de aplicación. Acordar nombres,
 FKs, nullabilidad, backfill y compatibilidad antes de dividir tests/runtime.

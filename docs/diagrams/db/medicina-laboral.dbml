@@ -180,8 +180,12 @@ Table anticipos_certificado {
 Table anticipo_certificado_archivos {
   id bigint [pk]
   uuid uuid [not null, unique]
-  anticipo_certificado_id bigint [not null]
+  anticipo_certificado_id bigint
   conversacion_id bigint [not null]
+  intento_uuid uuid
+  provider_message_id varchar
+  estado_storage varchar [not null, default: 'metadata_only']
+  politica json
   provider_file_id varchar
   nombre_original varchar
   mime_type varchar
@@ -196,8 +200,32 @@ Table anticipo_certificado_archivos {
   created_at timestamp
   updated_at timestamp
 
-  Note: "Persistencia real de metadata asociada al anticipo. El storage binario definitivo sigue pendiente."
+  Note: "Persistencia real de metadata asociada al anticipo. Contenido privado separado; purga desactivada."
 }
+
+Table anticipo_certificado_archivo_contenidos {
+  archivo_id bigint [pk]
+  contenido bytea [not null]
+}
+Table jobs {
+  id bigint [pk]
+  queue varchar [not null]
+  payload text [not null]
+  attempts smallint [not null]
+  reserved_at integer
+  available_at integer [not null]
+  created_at integer [not null]
+}
+Table failed_jobs {
+  id bigint [pk]
+  uuid varchar [not null, unique]
+  connection text [not null]
+  queue text [not null]
+  payload text [not null]
+  exception text [not null]
+  failed_at timestamp [not null]
+}
+Ref: anticipo_certificado_archivo_contenidos.archivo_id - anticipo_certificado_archivos.id
 
 Table anticipo_certificado_aviso {
   id bigint [pk]

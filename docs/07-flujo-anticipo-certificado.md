@@ -418,3 +418,12 @@ Se considerará correctamente implementado este flujo cuando el sistema pueda:
 - registrar el anticipo solo tras confirmación
 - asociar el anticipo a la conversación correcta
 - dejar trazabilidad completa
+
+## Adjuntos reales — CERT-001
+
+Con driver `pgsql`, la selección de tipo inicia un UUID de intento y congela
+límites. La recepción registra conversación/intento/mensaje y encola descarga.
+Mientras falten bytes válidos, confirmar devuelve un aviso sin cerrar ni crear
+anticipo. Después de descargar, el usuario vuelve a confirmar. Fallos persistentes
+requieren cancelar y reenviar en un intento nuevo. La purga está desactivada.
+El admin con permiso `certificados.download` descarga los archivos confirmados.

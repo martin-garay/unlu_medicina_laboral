@@ -19,8 +19,9 @@ Revisado: 2026-09-27. Fuentes: [motor](../05-motor-de-conversacion.md),
   resúmenes largos en `resources/views/messages/`. Ver [mensajes](../10-mensajes-y-templates.md).
 - Aviso familiar: [flujo](../06-flujo-aviso-ausencia.md#caso-especial-familiar-enfermo).
   Nombre/parentesco obligatorios; estado provisional anterior se puede retomar.
-- Certificados: driver metadata actual en provider/config; una decisión de storage
-  futuro no significa que recepción/descarga binaria esté implementada.
+- Certificados: `pgsql` opt-in implementa cola, bytes y acceso admin; `metadata`
+  conserva históricos/dev. Ver [rollout](../../deploy/docs/certificate-storage-rollout.md).
+  La asociación usa conversación/intento/mensaje y purga sigue desactivada.
 - Identificación: interfaces en `app/Services/WorkerIdentification/Contracts/`
   y `Mapuche/Contracts/`; mocks no son padrón real. No acoplar handlers a proveedor.
 

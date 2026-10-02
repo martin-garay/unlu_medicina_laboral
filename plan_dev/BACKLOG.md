@@ -220,3 +220,10 @@ Usar una categoría para agrupar mejor:
 - acción sugerida: solicitar fuente institucional autorizada, verificar nombres y
   alcance, y actualizar el catálogo sin cambiar los códigos existentes.
 - dependencia: fuente oficial aprobada por Medicina Laboral/UNLu.
+
+## CERT-CONC-001 — creación simultánea de sesión inicial
+
+Review CERT-001: dos mensajes sin conversación activa pueden crear sesiones
+separadas porque el lock de filas activas no bloquea un conjunto vacío. Hallazgo
+previo al storage; los adjuntos mantienen asociación por ID/UUID y no se cruzan.
+Definir unicidad/advisory lock de sesión por canal/participante en otro corte.

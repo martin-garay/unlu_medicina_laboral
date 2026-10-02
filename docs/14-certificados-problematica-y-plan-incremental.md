@@ -1,3 +1,11 @@
+> Actualización 2026-10-02 — CERT-001: implementado circuito básico opt-in
+> `pgsql`: cola PostgreSQL, bytes separados, asociación por conversación/intento,
+> confirmación con bytes disponibles y descarga admin auditada. Usuario aprobó
+> D2 (acceso admin) y D3 (purga desactivada); defaults iniciales en config. El texto
+> siguiente conserva el diseño previo; no implica que la capacidad productiva ni
+> la operación real con Meta estén validadas. D5 sigue pendiente para producción.
+> Operación: [rollout](../deploy/docs/certificate-storage-rollout.md).
+
 # Certificados: problemática y plan incremental
 
 Fecha: 2026-09-14. Estado: propuesta de implementación en elaboración conjunta.

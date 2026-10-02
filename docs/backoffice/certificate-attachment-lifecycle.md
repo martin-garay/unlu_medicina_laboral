@@ -1,3 +1,11 @@
+> CERT-001 (2026-10-02): registro técnico desde borrador y contenido 1:1
+> implementados. UUID de intento y política se congelan al seleccionar tipo;
+> recepción y job database se publican en una transacción. Worker verifica intento
+> antes/después de la red; confirmación bloquea conversación/archivos, verifica
+> anticipo destino y vincula las filas existentes. Cancelar/cerrar descarta, sin
+> purgar bytes. Recuperación periódica de pendientes, jobs repetidos idempotentes.
+> No están implementados timestamps de purga ni purga automática de este diseño.
+
 # Adjuntos: límites, estados y limpieza
 
 Estado: estrategia propuesta en M5 el 2026-09-14; sin implementación ni purga activa.

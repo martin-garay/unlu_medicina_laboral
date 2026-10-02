@@ -7,7 +7,19 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 2026-10-02 -03
 
-## Última ejecución — WA-CACHE-001
+## Última ejecución — CERT-001
+
+- [Daily 2026-10-02](daily/2026-10-02.md): `needs_review` por aceptación manual
+  en testing; código integrado y review independiente sin BLOCKER/HIGH.
+- Driver pgsql opt-in: descarga en cola, bytea privado, vínculo por conversación/
+  intento/mensaje, confirmación con bytes y descarga admin con permiso/auditoría.
+  Purga desactivada; históricos metadata-only conservados.
+- 254 tests / 1135 assertions, check-deploy y YAML correctos. Integración sintética
+  PostgreSQL 16 correcta; falta Meta real, worker systemd remoto y capacidad/PG17.
+- Rollout en deploy/docs/certificate-storage-rollout.md; no push ni deploy.
+- Hallazgo de creación inicial concurrente en BACKLOG CERT-CONC-001.
+
+### Ejecución anterior — WA-CACHE-001
 
 - [Daily 2026-10-02](daily/2026-10-02.md): `needs_review`, corrección local para
   recargar PHP-FPM si cambia `.env` aunque el release no cambie.
@@ -99,7 +111,7 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 | --- | --- |
 | Motor y flujos | Implementación incremental; aviso familiar cerrado en [AV-001](daily/2026-09-24.md); anticipo sigue con metadata de archivos |
 | Backoffice | Filament, permisos Spatie, auditoría y módulos read-only; [documentación](../docs/backoffice/README.md) |
-| Storage de certificados | M5 `blocked`: decisiones D2–D5; D1 cola PostgreSQL aprobada y decisión bytea, runtime posterior pendiente; [daily](daily/2026-09-14.md) |
+| Storage de certificados | CERT-001 básico implementado opt-in; purga desactivada, pendiente aceptación testing y capacidad productiva; [daily](daily/2026-10-02.md) |
 | Testing | Última suite de producto registrada: AV-001, 228 tests / 1058 assertions; no implica corrida en MA-001 |
 | Deploy | M4 y D1/D2 cerrados según [daily 07/09](daily/2026-09-07.md); release registrado testing-2026-09-07-04, sin comprobación remota en esta sesión |
 | Catálogos | CAT-001 implementado para sedes, ausentismo, certificados y parentescos; falta padrón institucional completo de sedes; [inventario](../docs/15-inventario-tablas-maestras.md) |
@@ -107,8 +119,8 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 ## Bloqueos y decisiones pendientes
 
-- M5: continuar decisiones de [plan incremental de certificados](../docs/14-certificados-problematica-y-plan-incremental.md).
-  MA-001 no autoriza saltar M5 ni iniciar M6–M9.
+- Certificados: validar CERT-001 en testing; capacidad productiva y retención
+  siguen pendientes en el [plan incremental](../docs/14-certificados-problematica-y-plan-incremental.md).
 - Catálogos: obtener fuente oficial y validar lista completa de sedes antes de
   sustituir las tres opciones iniciales de compatibilidad.
 - Resto de hallazgos: [BACKLOG](BACKLOG.md), especialmente LOG-001, BO-003/004 y
