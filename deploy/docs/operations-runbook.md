@@ -95,7 +95,7 @@ En testing, PC Uni clona por HTTPS, construye `vendor/` con Docker usando el
 Dockerfile del tag, propaga el proxy del shell, crea artefactos `.tar.gz` y los
 transfiere por SFTP. El servidor valida requisitos de plataforma, enlaza `.env`
 y `storage` compartidos, migra, optimiza cachés, activa `current`, recarga
-PHP-FPM sólo si cambió el enlace y prueba `/up`.
+PHP-FPM si cambió el enlace o el `.env`, después de reconstruir cachés, y prueba `/up`.
 
 ## Verificación posterior
 

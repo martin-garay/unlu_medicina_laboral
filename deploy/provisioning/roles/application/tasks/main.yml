@@ -616,6 +616,7 @@
     group: www-data
     mode: "0640"
   no_log: true
+  notify: Reload PHP-FPM for application
 
 - name: Link shared Laravel environment
   ansible.builtin.file:
@@ -746,10 +747,9 @@
       register: application_release_activation
       notify: Reload PHP-FPM for application
 
-    # The activation reload must complete before probing the new release.
-    - name: Apply release activation handlers before health check  # noqa no-handler
+    # Both environment changes and activation must reload after cache rebuild.
+    - name: Apply release activation handlers before health check
       ansible.builtin.meta: flush_handlers
-      when: application_release_activation.changed
 
     - name: Validate activated release health endpoint
       ansible.builtin.command:

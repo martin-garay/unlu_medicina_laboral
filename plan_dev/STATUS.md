@@ -5,7 +5,14 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 ## Fecha de última actualización
 
-2026-10-01 -03
+2026-10-02 -03
+
+## Última ejecución — WA-CACHE-001
+
+- [Daily 2026-10-02](daily/2026-10-02.md): `needs_review`, corrección local para
+  recargar PHP-FPM si cambia `.env` aunque el release no cambie.
+- Usuario confirma que refrescar caché resolvió el 403 de verificación de Meta.
+- Pendientes: review independiente y validación remota; sin push/deploy en este corte.
 
 ## Última ejecución — WA-PROXY-001
 
