@@ -54,6 +54,9 @@ expected = {
     "application_backoffice_admin_email": "admin@amin.com",
     "security_enabled": False,
     "firewall_enabled": False,
+    "tls_provider": "provided",
+    "tls_certificate_path": "/etc/letsencrypt/live/avisos-pruebas.unlu.edu.ar/fullchain.pem",
+    "tls_private_key_path": "/etc/letsencrypt/live/avisos-pruebas.unlu.edu.ar/privkey.pem",
 }
 
 failures = []

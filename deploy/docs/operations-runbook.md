@@ -99,6 +99,41 @@ PHP-FPM sólo si cambió el enlace y prueba `/up`.
 
 ## Verificación posterior
 
+### Activar los certificados institucionales de testing
+
+Ejecutar en PC Uni después de publicar el commit de configuración. Este corte
+usa sólo `tls`: conserva el release aplicativo, no migra DB y no requiere tag
+nuevo de aplicación. No ejecutar un apply completo para esta operación.
+
+```bash
+cd ~/programas/unlu_medicina_laboral
+git status --short
+# Si hay cambios locales, resolverlos antes del pull; no descartarlos.
+git pull --ff-only origin main
+cd deploy/provisioning
+export PATH="$PWD/bin:$PATH"
+bin/check-deploy
+ansible -i inventories/testing/hosts.yml app_servers -m ping
+ansible -i inventories/testing/hosts.yml app_servers -b -m command -a 'apachectl configtest'
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags tls --list-tasks
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags tls --check --diff
+# Revisar el check: no debe proponer copiar certificados ni claves.
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags tls
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags tls
+curl --noproxy '*' --connect-timeout 10 --max-time 30 -sS -o /dev/null -w 'HTTP=%{http_code}\n' https://avisos-pruebas.unlu.edu.ar/up
+```
+
+Detenerse ante un check fallido. `provided` sólo inspecciona los archivos de
+infraestructura; Apache cambia las rutas de su VirtualHost, valida configuración
+y recarga mediante handler. Repetir debe converger sin cambios. La prueba HTTPS
+no usa `-k` ni nuestra CA local. Repetirla desde una red externa autorizada;
+las ACL de entrada pueden impedir una prueba desde otras IPs.
+
+Las rutas son `/etc/letsencrypt/live/avisos-pruebas.unlu.edu.ar/fullchain.pem`
+y `/etc/letsencrypt/live/avisos-pruebas.unlu.edu.ar/privkey.pem`.
+Confirmar con infraestructura la renovación y recarga automática de Apache.
+Este corte no persiste el proxy de salida del runtime ni valida WhatsApp real.
+
 Desde PC Uni:
 
 ```bash

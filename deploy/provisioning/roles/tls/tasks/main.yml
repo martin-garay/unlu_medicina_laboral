@@ -180,6 +180,7 @@
     owner: root
     group: root
     mode: "0600"
+    backup: true
   when:
     - tls_provider == 'local_ca'
     - not ansible_check_mode or tls_private_key_directory_exists
@@ -193,6 +194,7 @@
     owner: root
     group: root
     mode: "0644"
+    backup: true
   when:
     - tls_provider == 'local_ca'
     - not ansible_check_mode or tls_certificate_directory_exists
@@ -205,6 +207,7 @@
     owner: root
     group: root
     mode: "0644"
+    backup: true
   notify: Update CA certificates
   when:
     - tls_provider == 'local_ca'
@@ -224,9 +227,12 @@
 - name: Validate provided certificate files
   ansible.builtin.stat:
     path: "{{ item }}"
+    follow: true
   loop:
     - "{{ tls_certificate_path }}"
     - "{{ tls_private_key_path }}"
   register: tls_provided_files
-  failed_when: not tls_provided_files.stat.exists
+  failed_when: >-
+    not (tls_provided_files.stat.exists | default(false)) or
+    not (tls_provided_files.stat.isreg | default(false))
   when: tls_provider == 'provided'

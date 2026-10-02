@@ -5,7 +5,16 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 ## Fecha de última actualización
 
-2026-09-30 -03
+2026-10-01 -03
+
+## Última ejecución — TLS-001
+
+- [Daily 2026-10-01](daily/2026-10-01.md): `needs_review`, cambio local completo;
+  falta revisión independiente. Prioridad explícita del usuario, sin alterar M5.
+- Testing usa `provided` y rutas institucionales de Let's Encrypt; no se escribe
+  material TLS en ese modo. `local_ca` respalda archivos antes de reemplazarlos.
+- `bin/check-deploy` y diff check correctos; sin ejecución remota ni push.
+- Comandos de activación TLS en runbook; release aplicativo conservado.
 
 ## Última ejecución — PR-002
 
