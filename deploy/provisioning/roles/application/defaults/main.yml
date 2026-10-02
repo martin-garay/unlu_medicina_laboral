@@ -12,6 +12,8 @@ application_transfer_strategy: rsync
 # then packages vendor/ and extracts it only into that same release path.
 # Keep false when the managed host can run Composer with outbound HTTPS.
 application_composer_install_local: false
+# Proxy del runtime WhatsApp; vacío conserva el comportamiento HTTP por defecto.
+application_whatsapp_proxy_unlu: ""
 # Proxy values for Docker on the Ansible control node. Lowercase variables are
 # preferred because Composer/curl use them in PC Uni; uppercase variants remain
 # supported as fallback. Values come from the operator environment and are not

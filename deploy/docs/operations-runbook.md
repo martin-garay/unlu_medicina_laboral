@@ -99,6 +99,66 @@ PHP-FPM sólo si cambió el enlace y prueba `/up`.
 
 ## Verificación posterior
 
+### Proxy persistente de WhatsApp y prueba con Meta
+
+Testing define `application_whatsapp_proxy_unlu` en inventory; el template genera
+`WHATSAPP_PROXY_UNLU` y `config/medicina_laboral.php` lo expone al sender. Éste
+usa el proxy explícito para texto y menús, sin desactivar TLS. No depende del
+entorno del shell ni modifica PHP-FPM globalmente. Vacío conserva defaults HTTP.
+No confundirlo con el proxy Docker/Composer del control node.
+
+Este cambio requiere código nuevo: no reutilizar `testing-2026-09-07-04`.
+Después de publicar el commit revisado, crear y publicar un tag único desde una
+estación autorizada, sin cambios locales:
+
+```bash
+git pull --ff-only origin main
+git status --short
+git diff --name-status testing-2026-09-07-04..HEAD -- database/migrations
+# Revisar también los demás cambios de producto incluidos en el nuevo release.
+git tag -a testing-2026-10-01-01 -m "Testing proxy WhatsApp UNLu" HEAD
+git push origin testing-2026-10-01-01
+```
+
+Si el tag existe, elegir otro; no moverlo. En PC Uni, desde la raíz del repo:
+
+```bash
+git pull --ff-only origin main
+git fetch --tags origin
+cd deploy/provisioning
+export PATH="$PWD/bin:$PATH"
+bin/check-deploy
+ansible -i inventories/testing/hosts.yml app_servers -m ping
+ansible-playbook -i inventories/testing/hosts.yml playbooks/backup.yml -e backup_run_now=true
+ansible-playbook -i inventories/testing/hosts.yml playbooks/monitoring.yml
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy --check --diff -e application_release_id=testing-2026-10-01-01
+# Detenerse ante errores; el check no ejecuta las migraciones ni prueba el release.
+ansible-playbook -i inventories/testing/hosts.yml site.yml --tags redeploy -e application_release_id=testing-2026-10-01-01
+curl --noproxy '*' -sS --fail https://avisos-pruebas.unlu.edu.ar/up
+```
+
+El override `-e` prevalece sobre ambas declaraciones del release en inventory.
+Antes del apply revisar todas las migraciones pendientes: el release contiene
+los cambios de producto entre el tag anterior y HEAD, no sólo el proxy.
+El tag `redeploy` no instala certificados; sí migra DB, optimiza config y activa
+el release. Registrar después el release aplicado en ambas entradas del inventory.
+
+En el servidor, comprobar sin imprimir secretos:
+
+```bash
+cd /var/www/medicina-laboral/current
+php artisan tinker --execute="dump(config('medicina_laboral.whatsapp.proxy_unlu'));"
+```
+
+En Meta configurar el callback
+`https://avisos-pruebas.unlu.edu.ar/api/whatsapp/webhook`, usar el verify token
+de la Vault del entorno, verificar y guardar, y suscribir `messages`. No publicar
+el token. Enviar un mensaje desde un teléfono de prueba autorizado al número
+configurado y comprobar respuesta en el teléfono y logs del servidor.
+La prueba por webhook valida el sender desde PHP-FPM. No registrar el milestone
+como validado end-to-end hasta completar ese envío. Una ACL de entrada o un token
+expirado pueden impedir la prueba aunque el proxy y TLS funcionen.
+
 ### Activar los certificados institucionales de testing
 
 Ejecutar en PC Uni después de publicar el commit de configuración. Este corte

@@ -5,6 +5,7 @@ return [
         'token' => env('WHATSAPP_TOKEN'),
         'phone_id' => env('WHATSAPP_PHONE_ID'),
         'verify_token' => env('WHATSAPP_VERIFY_TOKEN'),
+        'proxy_unlu' => env('WHATSAPP_PROXY_UNLU'),
     ],
 
     'conversation' => [

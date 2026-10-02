@@ -7,7 +7,16 @@ en daily; pendientes detallados en BACKLOG. El historial no compite con este est
 
 2026-10-01 -03
 
-## Última ejecución — TLS-001
+## Última ejecución — WA-PROXY-001
+
+- [Daily 2026-10-01](daily/2026-10-01.md): `needs_review`; implementado
+  `WHATSAPP_PROXY_UNLU` en config/sender y deploy de testing, con proxy explícito.
+- 8 tests / 39 assertions y check-deploy pasan. Review propio; falta independiente
+  y prueba real vía PHP-FPM/Meta. Sin push ni deploy remoto.
+- Usuario confirma TLS aplicado dos veces y `/up` 200 con certificado validado.
+- Runbook incluye release nuevo, revisión de migraciones y backup previo.
+
+### TLS-001
 
 - [Daily 2026-10-01](daily/2026-10-01.md): `needs_review`, cambio local completo;
   falta revisión independiente. Prioridad explícita del usuario, sin alterar M5.

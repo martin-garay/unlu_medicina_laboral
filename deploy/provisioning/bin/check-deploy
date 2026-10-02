@@ -55,6 +55,7 @@ expected = {
     "security_enabled": False,
     "firewall_enabled": False,
     "tls_provider": "provided",
+    "application_whatsapp_proxy_unlu": "http://proxy.unlu.edu.ar:8080",
     "tls_certificate_path": "/etc/letsencrypt/live/avisos-pruebas.unlu.edu.ar/fullchain.pem",
     "tls_private_key_path": "/etc/letsencrypt/live/avisos-pruebas.unlu.edu.ar/privkey.pem",
 }

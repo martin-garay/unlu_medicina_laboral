@@ -10,8 +10,7 @@ class WhatsAppSender
     public function __construct(
         private readonly ?string $token = null,
         private readonly ?string $phoneId = null,
-    ) {
-    }
+    ) {}
 
     public function sendText(string $to, string $message): void
     {
@@ -67,8 +66,9 @@ class WhatsAppSender
         $token = $this->token ?? config('medicina_laboral.whatsapp.token');
         $phoneId = $this->phoneId ?? config('medicina_laboral.whatsapp.phone_id');
 
-        if (!$token || !$phoneId) {
+        if (! $token || ! $phoneId) {
             Log::warning('Faltan credenciales de WhatsApp Cloud API.');
+
             return;
         }
 
@@ -81,9 +81,14 @@ class WhatsAppSender
         ]);
 
         try {
-            $response = Http::withToken($token)
-                ->timeout(10)
-                ->post($url, $payload);
+            $request = Http::withToken($token)->timeout(10);
+            $proxy = config('medicina_laboral.whatsapp.proxy_unlu');
+
+            if (is_string($proxy) && trim($proxy) !== '') {
+                $request = $request->withOptions(['proxy' => trim($proxy)]);
+            }
+
+            $response = $request->post($url, $payload);
 
             Log::info('Respuesta de WhatsApp', [
                 'context' => $context,
@@ -104,7 +109,7 @@ class WhatsAppSender
     private function normalizeToAllowed(string $waId): string
     {
         if (str_starts_with($waId, '549')) {
-            return '54' . substr($waId, 3);
+            return '54'.substr($waId, 3);
         }
 
         return $waId;
